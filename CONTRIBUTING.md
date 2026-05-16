@@ -22,7 +22,7 @@ Nossas branches têm propósitos e caminhos rigorosos:
 
 ```text
 main        -> código estável, produção. Intocável diretamente (Sempre tageado).
-dev         -> integração contínua, base de onde nascem as novas features.
+develop         -> integração contínua, base de onde nascem as novas features.
 feature/    -> desenvolvimento de funcionalidades isoladas.
 release/    -> preparação, testes e polimento para a entrega final da sprint.
 hotfix/     -> apaga-incêndio. Correções críticas diretamente em produção.
@@ -31,13 +31,13 @@ hotfix/     -> apaga-incêndio. Correções críticas diretamente em produção.
 ### Caminhos Oficiais (Os Fluxos)
 
 **1. O Dia a Dia (Construindo o sistema):**
-`develop` -> cria a `feature/sua-branch` -> finaliza -> abre PR -> faz merge de volta na `dev`
+`develop` -> cria a `feature/sua-branch` -> finaliza -> abre PR -> faz merge de volta na `develop`
 
 **2. Fim de Sprint (Entregando a versão):**
-`develop` -> cria a `release/sprint-01` -> homologação/testes -> faz merge na `main` (com Tag, ex: v1.0.0) **E** faz merge de volta na `dev`
+`develop` -> cria a `release/sprint-01` -> homologação/testes -> faz merge na `main` (com Tag, ex: v1.0.0) **E** faz merge de volta na `develop`
 
 **3. Emergência (Bug crítico no ar):**
-`main` -> cria a `hotfix/bug-login` -> resolve -> faz merge na `main` (com Tag, ex: v1.0.1) **E** faz merge de volta na `dev`
+`main` -> cria a `hotfix/bug-login` -> resolve -> faz merge na `main` (com Tag, ex: v1.0.1) **E** faz merge de volta na `develop`
 
 ---
 
@@ -80,7 +80,7 @@ tipo: descrição curta, em português e no imperativo
 
 ## Como Abrir um Pull Request (PR)
 
-1. Certifique-se que sua branch está atualizada com a `dev` (resolva conflitos localmente).
+1. Certifique-se que sua branch está atualizada com a `develop` (resolva conflitos localmente).
 2. O Título do PR deve seguir o padrão do commit (Ex: `feat: adiciona mapa de salas`).
 3. Aplique as **Labels** corretas.
 4. Solicite revisão (Reviewers) do Tech Lead do seu squad e do Squad de Front-End/Design.
@@ -119,9 +119,9 @@ Closes #[número]
 ## Checklist do autor
 
 - [ ] Código segue convenções definidas em CONTRIBUTING.md
-- [ ] Build local passa (`npm run build`)
-- [ ] Lint passa (`npm run lint`)
-- [ ] TypeScript sem erros (`npm run type-check`)
+- [ ] Validei localmente que a aplicação compila/gera build sem erros (quando aplicável)
+- [ ] Verifiquei que não há erros de análise estática ou alertas relevantes no código (quando aplicável)
+- [ ] Confirmei que não há erros de tipagem/TypeScript no escopo da mudança (quando aplicável)
 - [ ] Testei manualmente os cenários principais
 - [ ] Componentes novos/alterados documentados no Storybook (se aplicável)
 - [ ] Documentação atualizada (se aplicável)
