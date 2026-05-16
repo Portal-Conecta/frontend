@@ -88,13 +88,17 @@ tipo: descrição curta, em português e no imperativo
 
 ### Template de Descrição do PR
 ```markdown
-## Issue relacionada
+## Contexto
 
-Closes #[número]
+[Descreva em 2-6 linhas a origem dessas contribuições, focando no problema inicial que fora embasado.]
 
 ## O que muda
 
-[Descreva em 2-4 linhas o que esse PR faz. Foco no resultado, não no processo. Imagine que quem lê não acompanhou seu trabalho.]
+[Descreva o que esse PR faz. Foco no resultado, não no processo. Imagine que quem lê não acompanhou seu trabalho.]
+
+## Issue relacionada
+
+Closes #[número]
 
 ## Como testar
 
