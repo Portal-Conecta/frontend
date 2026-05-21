@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "outDir": "./dist",
+    "paths": {
+      "@portal/ui": ["../ui/src/index.ts"],
+      "@portal/ui/*": ["../ui/src/*"],
+      "@portal/shared": ["../shared/src/index.ts"],
+      "@portal/shared/*": ["../shared/src/*"]
+    }
+  },
+  "include": ["src"]
+}
