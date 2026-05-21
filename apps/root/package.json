@@ -1,0 +1,27 @@
+{
+  "name": "@portal/root",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start --port 3000",
+    "lint": "eslint src --ext .ts,.tsx"
+  },
+  "dependencies": {
+    "@portal/checklist": "workspace:*",
+    "@portal/comunicados": "workspace:*",
+    "@portal/core": "workspace:*",
+    "@portal/mapa-salas": "workspace:*",
+    "@portal/shared": "workspace:*",
+    "@portal/ui": "workspace:*",
+    "next": "^15.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0"
+  }
+}
