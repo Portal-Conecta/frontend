@@ -3,6 +3,7 @@
   "compilerOptions": {
     "jsx": "preserve",
     "baseUrl": ".",
+    "outDir": "./dist",
     "plugins": [{ "name": "next" }],
     "paths": {
       "@portal/ui": ["../../packages/ui/src/index.ts"],
@@ -20,5 +21,13 @@
     }
   },
   "include": ["src", "next-env.d.ts", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  "references": [
+    { "path": "../../packages/shared" },
+    { "path": "../../packages/ui" },
+    { "path": "../../packages/core" },
+    { "path": "../../packages/comunicados" },
+    { "path": "../../packages/checklist" },
+    { "path": "../../packages/mapa-salas" }
+  ]
 }

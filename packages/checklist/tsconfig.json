@@ -3,6 +3,7 @@
   "compilerOptions": {
     "jsx": "preserve",
     "baseUrl": ".",
+    "outDir": "./dist",
     "paths": {
       "@portal/ui": ["../ui/src/index.ts"],
       "@portal/ui/*": ["../ui/src/*"],
@@ -12,5 +13,10 @@
       "@portal/shared/*": ["../shared/src/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src"],
+  "references": [
+    { "path": "../shared" },
+    { "path": "../ui" },
+    { "path": "../core" }
+  ]
 }

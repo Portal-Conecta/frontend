@@ -16,6 +16,7 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "incremental": true,
+    "composite": true,
     "paths": {
       "@portal/ui": ["./packages/ui/src/index.ts"],
       "@portal/ui/*": ["./packages/ui/src/*"],
