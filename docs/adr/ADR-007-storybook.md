@@ -19,7 +19,7 @@ Adotamos o **Storybook 8** com `@storybook/nextjs` como ambiente de desenvolvime
 Configuração em `.storybook/`:
 - **Histórias** em `packages/ui/src/**/*.stories.@(ts|tsx)` — co-localizadas com os componentes.
 - **Framework**: `@storybook/nextjs` — garante que componentes Next.js (Server Components, Image, Link) funcionem corretamente nas histórias.
-- **Aliases**: o Webpack do Storybook resolve os aliases `@portal/*` via `tsconfig-paths` — mesma experiência de importação do projeto.
+- **Aliases**: o Webpack do Storybook resolve os aliases `@portal/*` via mapeamento explícito em `webpackFinal` no `.storybook/main.ts` — mesma experiência de importação do projeto.
 
 ```
 pnpm storybook        → inicia em localhost:6006
