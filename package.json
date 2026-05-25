@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "pnpm --parallel --filter \"./apps/*\" dev",
-    "build": "pnpm --filter \"./packages/*\" build && pnpm --filter \"./apps/*\" build",
+    "build": "pnpm --filter \"./packages/*\" --if-present build && pnpm --filter \"./apps/*\" build",
     "lint": "pnpm --recursive lint",
     "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
     "typecheck": "tsc --build",
