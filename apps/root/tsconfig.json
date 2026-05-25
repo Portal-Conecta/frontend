@@ -1,0 +1,33 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "baseUrl": ".",
+    "outDir": "./dist",
+    "plugins": [{ "name": "next" }],
+    "paths": {
+      "@portal/ui": ["../../packages/ui/src/index.ts"],
+      "@portal/ui/*": ["../../packages/ui/src/*"],
+      "@portal/core": ["../../packages/core/src/index.ts"],
+      "@portal/core/*": ["../../packages/core/src/*"],
+      "@portal/shared": ["../../packages/shared/src/index.ts"],
+      "@portal/shared/*": ["../../packages/shared/src/*"],
+      "@portal/comunicados": ["../../packages/comunicados/src/index.ts"],
+      "@portal/comunicados/*": ["../../packages/comunicados/src/*"],
+      "@portal/checklist": ["../../packages/checklist/src/index.ts"],
+      "@portal/checklist/*": ["../../packages/checklist/src/*"],
+      "@portal/mapa-salas": ["../../packages/mapa-salas/src/index.ts"],
+      "@portal/mapa-salas/*": ["../../packages/mapa-salas/src/*"]
+    }
+  },
+  "include": ["src", "next-env.d.ts", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"],
+  "references": [
+    { "path": "../../packages/shared" },
+    { "path": "../../packages/ui" },
+    { "path": "../../packages/core" },
+    { "path": "../../packages/comunicados" },
+    { "path": "../../packages/checklist" },
+    { "path": "../../packages/mapa-salas" }
+  ]
+}

@@ -1,0 +1,7 @@
+packages:
+  - 'packages/*'
+  - 'apps/*'
+allowBuilds:
+  core-js-pure: true
+  esbuild: true
+  sharp: true
