@@ -48,9 +48,10 @@ ativa autocomplete e type-checking nos consumidores dos tokens.
 **Somente camada semântica exposta**
 O export principal de `colors.ts` contém apenas tokens semânticos
 (`interactive`, `feedback`, `background`, `text`, `border`). A paleta
-primitiva (`colors.primitives`) está disponível para referência mas não
-deve ser usada diretamente em componentes. Isso permite que o design
-evolua sem precisar atualizar referências espalhadas pelo código.
+primitiva é exportada separadamente como `colorPrimitives` — disponível
+para referência interna (ex: paleta visual no Storybook), mas não deve
+ser usada diretamente em componentes. Isso permite que o design evolua
+sem precisar atualizar referências espalhadas pelo código.
 
 **Normalização de `fontWeight`**
 O Figma exporta `"Semi Bold"` e `"SemiBold"` de forma inconsistente.
