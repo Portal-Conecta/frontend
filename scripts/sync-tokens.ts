@@ -1,8 +1,9 @@
 /**
  * sync-tokens.ts
  *
- * Lê o arquivo `variables_from_figma.json` exportado pelo plugin variables2json
- * e transforma as variáveis do Figma nos arquivos de token do projeto.
+ * Lê o arquivo `variables_from_figma.json` exportado pelo plugin variables2json,
+ * valida, normaliza e imprime relatório das variáveis do Figma.
+ * A escrita dos arquivos de token é feita manualmente após revisão do output.
  *
  * Uso: pnpm sync:tokens
  */
