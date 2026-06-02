@@ -58,7 +58,7 @@ export function TokenSmoke() {
         <p className="text-body-md font-afacad text-text-primary">
           body/md — Afacad Regular
         </p>
-        <p className="text-body-sm font-afacad font-semibold text-text-primary">
+        <p className="text-body-sm-emphasis font-afacad text-text-primary">
           body/sm-emphasis — Afacad SemiBold
         </p>
         <p className="text-label-sm font-inter text-text-secondary">
