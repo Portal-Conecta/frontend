@@ -333,8 +333,13 @@ function normalizeFontWeight(raw: string): string {
  * Arredonda floats ruidosos antes de converter (ex: 139.9999... → 1.4).
  * lineHeightUnit PERCENT: 120 → 1.2 | 140 → 1.4
  * lineHeightUnit PIXELS: converte para rem (raro no DS atual).
+ *
+ * Guard explícito para value === 0: algumas versões do variables2json
+ * exportam lineHeight AUTO como { value: 0, lineHeightUnit: 'PERCENT' }.
+ * Sem o guard, Math.round(0)/100 = 0 → CSS line-height:0 → texto invisível.
  */
 function normalizeLineHeight(value: number, unit: TypographyValue['lineHeightUnit']): string {
+  if (value === 0) return 'normal'
   if (unit === 'PERCENT') {
     const rounded = Math.round(value)
     return String(parseFloat((rounded / 100).toFixed(4)))
