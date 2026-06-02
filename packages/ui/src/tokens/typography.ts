@@ -32,12 +32,12 @@ export const typography = {
     'body-sm-emphasis': ['1rem',    { lineHeight: '1.5', fontWeight: '600' }], // 16px / 150% SemiBold
 
     // Labels — Inter
-    'label-xl':         ['2rem',     { lineHeight: '1.5' }],                    // 32px / 150% Regular
-    'label-xl-emphasis':['2rem',     { lineHeight: '1.5', fontWeight: '600' }], // 32px / 150% SemiBold
-    'label-md':         ['1rem',     { lineHeight: '1.4' }],                    // 16px / 140% Regular
-    'label-md-emphasis':['1rem',     { lineHeight: '1.4', fontWeight: '600' }], // 16px / 140% SemiBold
-    'label-sm':         ['0.875rem', { lineHeight: '1.4' }],                    // 14px / 140% Regular
-    'label-sm-emphasis':['0.875rem', { lineHeight: '1.4', fontWeight: '600' }], // 14px / 140% SemiBold
+    'label-xl':          ['2rem',     { lineHeight: '1.5' }],                    // 32px / 150% Regular
+    'label-xl-emphasis': ['2rem',     { lineHeight: '1.5', fontWeight: '600' }], // 32px / 150% SemiBold
+    'label-md':          ['1rem',     { lineHeight: '1.4' }],                    // 16px / 140% Regular
+    'label-md-emphasis': ['1rem',     { lineHeight: '1.4', fontWeight: '600' }], // 16px / 140% SemiBold
+    'label-sm':          ['0.875rem', { lineHeight: '1.4' }],                    // 14px / 140% Regular
+    'label-sm-emphasis': ['0.875rem', { lineHeight: '1.4', fontWeight: '600' }], // 14px / 140% SemiBold
     'label-xs':         ['0.75rem',  { lineHeight: '1.4' }],                    // 12px / 140% Regular
   },
 
