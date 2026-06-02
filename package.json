@@ -9,7 +9,8 @@
     "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
     "typecheck": "tsc --build",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "sync:tokens": "tsx scripts/sync-tokens.ts"
   },
   "devDependencies": {
     "@storybook/addon-essentials": "^8.0.0",
@@ -23,6 +24,7 @@
     "prettier": "^3.0.0",
     "storybook": "^8.0.0",
     "tailwindcss": "^4.0.0",
+    "tsx": "^4.22.4",
     "typescript": "^5.0.0"
   },
   "engines": {
