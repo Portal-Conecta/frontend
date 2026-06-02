@@ -299,6 +299,154 @@ function resolveSemanticColors(
 }
 
 // ---------------------------------------------------------------------------
+// Normalizações e conversões
+// ---------------------------------------------------------------------------
+
+/**
+ * Converte px para rem com 4 casas decimais máximas, sem trailing zeros.
+ * Ex: 4 → "0.25rem" | 16 → "1rem" | 120 → "7.5rem"
+ */
+function pxToRem(px: number): string {
+  const rem = px / 16
+  return `${parseFloat(rem.toFixed(4))}rem`
+}
+
+/**
+ * Normaliza fontWeight: aceita as variações do Figma ("Semi Bold", "SemiBold",
+ * "Regular") e retorna o valor CSS numérico como string.
+ */
+function normalizeFontWeight(raw: string): string {
+  const cleaned = raw.toLowerCase().replace(/\s/g, '')
+  if (cleaned === 'semibold') return '600'
+  if (cleaned === 'regular') return '400'
+  // Fallback: tenta extrair um número caso o Figma adicione novos pesos
+  const numeric = parseInt(cleaned, 10)
+  if (!isNaN(numeric)) return String(numeric)
+  throw new Error(
+    `fontWeight desconhecido: "${raw}". Adicione o mapeamento em normalizeFontWeight().`,
+  )
+}
+
+/**
+ * Normaliza lineHeight de percentual Figma para decimal CSS.
+ * Arredonda floats ruidosos antes de converter (ex: 139.9999... → 1.4).
+ * lineHeightUnit PERCENT: 120 → 1.2 | 140 → 1.4
+ * lineHeightUnit PIXELS: converte para rem (raro no DS atual).
+ */
+function normalizeLineHeight(value: number, unit: TypographyValue['lineHeightUnit']): string {
+  if (unit === 'PERCENT') {
+    const rounded = Math.round(value)
+    return String(parseFloat((rounded / 100).toFixed(4)))
+  }
+  if (unit === 'PIXELS') {
+    return pxToRem(value)
+  }
+  return 'normal'
+}
+
+/** Token de espaçamento já convertido para rem. */
+export type SpacingToken = { name: string; remValue: string }
+
+/**
+ * Extrai e converte os tokens de spacing de px para rem.
+ */
+function normalizeSpacing(figma: FigmaVariablesJson): SpacingToken[] {
+  const collection = figma.collections.find((c) => c.name === COLLECTION.SPACING)
+  if (!collection) throw new Error(`Coleção "${COLLECTION.SPACING}" não encontrada.`)
+
+  const mode = collection.modes.find((m) => m.name === DEFAULT_MODE)
+  if (!mode) throw new Error(`Mode "${DEFAULT_MODE}" não encontrado em "${COLLECTION.SPACING}".`)
+
+  return mode.variables
+    .filter((v): v is NumberVariable => v.type === 'number')
+    .map((v) => ({ name: v.name, remValue: pxToRem(v.value) }))
+}
+
+/** Token de radius já convertido. */
+export type RadiusToken = { name: string; value: string }
+
+/**
+ * Extrai e converte os tokens de radius.
+ * "full" (9999px) permanece em px — usar rem seria semanticamente incorreto.
+ * Os demais são convertidos para rem.
+ */
+function normalizeRadius(figma: FigmaVariablesJson): RadiusToken[] {
+  const collection = figma.collections.find((c) => c.name === COLLECTION.RADIUS)
+  if (!collection) throw new Error(`Coleção "${COLLECTION.RADIUS}" não encontrada.`)
+
+  const mode = collection.modes.find((m) => m.name === DEFAULT_MODE)
+  if (!mode) throw new Error(`Mode "${DEFAULT_MODE}" não encontrado em "${COLLECTION.RADIUS}".`)
+
+  return mode.variables
+    .filter((v): v is NumberVariable => v.type === 'number')
+    .map((v) => ({
+      name: v.name,
+      value: v.name === 'full' ? `${v.value}px` : pxToRem(v.value),
+    }))
+}
+
+/** Token de border width. */
+export type BorderToken = { name: string; value: string }
+
+/**
+ * Extrai os tokens de border width.
+ * Mantidos em px — bordas de 1px ou 2px não devem escalar com rem.
+ */
+function normalizeBorder(figma: FigmaVariablesJson): BorderToken[] {
+  const collection = figma.collections.find((c) => c.name === COLLECTION.BORDER)
+  if (!collection) throw new Error(`Coleção "${COLLECTION.BORDER}" não encontrada.`)
+
+  const mode = collection.modes.find((m) => m.name === DEFAULT_MODE)
+  if (!mode) throw new Error(`Mode "${DEFAULT_MODE}" não encontrado em "${COLLECTION.BORDER}".`)
+
+  return mode.variables
+    .filter((v): v is NumberVariable => v.type === 'number')
+    .map((v) => ({ name: v.name, value: `${v.value}px` }))
+}
+
+/** Token de tipografia normalizado e desmembrado. */
+export type TypographyToken = {
+  name: string
+  fontFamily: string
+  fontSize: string      // rem
+  fontWeight: string    // CSS numérico ("400" | "600")
+  lineHeight: string    // decimal ("1.2" | "1.4" | "1.5")
+}
+
+/**
+ * Extrai e normaliza a coleção Typography:
+ * - fontWeight: "Semi Bold"/"SemiBold" → "600", "Regular" → "400"
+ * - lineHeight: percentual → decimal (120% → "1.2")
+ * - fontSize: px → rem
+ * - Correção: body/sm-emphasis usa Afacad (inconsistência no Figma)
+ */
+function normalizeTypography(figma: FigmaVariablesJson): TypographyToken[] {
+  const collection = figma.collections.find((c) => c.name === COLLECTION.TYPOGRAPHY)
+  if (!collection) throw new Error(`Coleção "${COLLECTION.TYPOGRAPHY}" não encontrada.`)
+
+  // Typography tem apenas um mode ("Style")
+  const mode = collection.modes[0]
+  if (!mode) throw new Error(`Nenhum mode encontrado em "${COLLECTION.TYPOGRAPHY}".`)
+
+  return mode.variables
+    .filter((v): v is TypographyVariable => v.type === 'typography')
+    .map((v) => {
+      const raw = v.value
+
+      // Correção: body/* deve usar Afacad (body/sm-emphasis tem "Inter" por engano)
+      const fontFamily = v.name.startsWith('body/') ? 'Afacad' : raw.fontFamily
+
+      return {
+        name: v.name,
+        fontFamily,
+        fontSize: pxToRem(raw.fontSize),
+        fontWeight: normalizeFontWeight(raw.fontWeight),
+        lineHeight: normalizeLineHeight(raw.lineHeight, raw.lineHeightUnit),
+      }
+    })
+}
+
+// ---------------------------------------------------------------------------
 // Ponto de entrada
 // ---------------------------------------------------------------------------
 
@@ -307,6 +455,7 @@ function main(): void {
   console.log(`\n✔ variables_from_figma.json lido com sucesso (v${figma.version})`)
   console.log(`  Coleções encontradas: ${figma.collections.map((c) => c.name).join(', ')}`)
 
+  // --- Cores ---
   const primitivesMap = buildPrimitivesMap(figma)
   console.log(`\n✔ primitives/colors: ${primitivesMap.size} tokens indexados`)
 
@@ -315,6 +464,38 @@ function main(): void {
   for (const [name, hex] of semanticColors) {
     console.log(`    ${name.padEnd(32)} → ${hex}`)
   }
+
+  // --- Spacing ---
+  const spacing = normalizeSpacing(figma)
+  console.log(`\n✔ spacing: ${spacing.length} tokens (px → rem)`)
+  for (const t of spacing) {
+    console.log(`    ${t.name.padEnd(8)} → ${t.remValue}`)
+  }
+
+  // --- Radius ---
+  const radius = normalizeRadius(figma)
+  console.log(`\n✔ radius: ${radius.length} tokens`)
+  for (const t of radius) {
+    console.log(`    ${t.name.padEnd(8)} → ${t.value}`)
+  }
+
+  // --- Border ---
+  const border = normalizeBorder(figma)
+  console.log(`\n✔ border: ${border.length} tokens`)
+  for (const t of border) {
+    console.log(`    ${t.name.padEnd(8)} → ${t.value}`)
+  }
+
+  // --- Typography ---
+  const typography = normalizeTypography(figma)
+  console.log(`\n✔ typography: ${typography.length} estilos normalizados`)
+  for (const t of typography) {
+    console.log(
+      `    ${t.name.padEnd(24)} ${t.fontSize.padEnd(8)} ${t.fontFamily.padEnd(8)} w${t.fontWeight} lh${t.lineHeight}`,
+    )
+  }
+
+  console.log('\n✅ Todos os tokens processados sem erros.\n')
 }
 
 main()
