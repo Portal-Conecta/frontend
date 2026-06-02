@@ -185,10 +185,9 @@ function readFigmaJson(): FigmaVariablesJson {
   let raw: unknown
   try {
     raw = JSON.parse(readFileSync(jsonPath, 'utf-8'))
-  } catch {
-    throw new Error(
-      'Falha ao parsear variables_from_figma.json: o arquivo não é um JSON válido.',
-    )
+  } catch (err) {
+    const cause = err instanceof Error ? err.message : String(err)
+    throw new Error(`Falha ao ler/parsear variables_from_figma.json: ${cause}`)
   }
 
   validateFigmaJson(raw)
