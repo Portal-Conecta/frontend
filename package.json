@@ -9,7 +9,8 @@
     "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
     "typecheck": "tsc --build",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "sync:tokens": "tsx scripts/sync-tokens.ts"
   },
   "devDependencies": {
     "@storybook/addon-essentials": "^8.0.0",
