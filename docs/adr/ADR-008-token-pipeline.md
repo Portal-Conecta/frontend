@@ -30,7 +30,7 @@ Figma (plugin variables2json)
 
 ```
 packages/ui/src/tokens/
-├── colors.ts      ← cores semânticas + paleta primitiva interna
+├── colors.ts      ← colors (semântico) + colorPrimitives (export separado)
 ├── spacing.ts     ← 12 valores de espaçamento em rem
 ├── typography.ts  ← fontFamily, fontSize (com lineHeight), fontWeight
 ├── radius.ts      ← 4 valores de border-radius
@@ -67,9 +67,10 @@ O Figma exporta `lineHeight` como percentual com ruído de ponto flutuante
 - `label/md` e menores: 140% → `1.4`
 
 O `lineHeight` é embutido diretamente em cada entrada de `fontSize` no
-formato `[tamanho, { lineHeight }]`, padrão recomendado pelo Tailwind para
-garantir que uma única classe (`text-heading-h1`) aplique tamanho e
-entrelinhamento juntos.
+formato `[tamanho, { lineHeight, fontWeight? }]`, padrão recomendado pelo
+Tailwind. Tokens `*-emphasis` incluem `fontWeight: '600'` no objeto — assim
+uma única classe (`text-body-md-emphasis`) aplica tamanho, entrelinhamento
+e peso SemiBold sem necessidade de `font-semibold` adicional.
 
 **Spacing em rem (base 16px)**
 Todos os valores de espaçamento são convertidos de `px` para `rem`
@@ -155,7 +156,7 @@ Pode ser adotado no futuro se a frequência de atualizações aumentar.
 ## Referências
 
 - ADR-006: Tailwind CSS v4 como Solução de Estilização
-- `scripts/sync-tokens.ts` — script de transformação
+- `scripts/sync-tokens.ts` — script de validação, normalização e relatório
 - `variables_from_figma.json` — snapshot das variáveis (atualizado a cada sprint)
 - Figma DS: `https://figma.com/design/GPvf4G2qpP8MMyK3HB6n2t`
 - Issue #32: Script sync-tokens.ts
