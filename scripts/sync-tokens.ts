@@ -414,9 +414,11 @@ function normalizeBorder(figma: FigmaVariablesJson): BorderToken[] {
 export type TypographyToken = {
   name: string
   fontFamily: string
-  fontSize: string      // rem
-  fontWeight: string    // CSS numérico ("400" | "600")
-  lineHeight: string    // decimal ("1.2" | "1.4" | "1.5")
+  fontSize: string           // rem
+  fontWeight: string         // CSS numérico ("400" | "600")
+  lineHeight: string         // decimal ("1.2" | "1.4" | "1.5")
+  /** Presente apenas em tokens *-emphasis — embutido na tupla fontSize do Tailwind. */
+  emphasisFontWeight?: string
 }
 
 /**
@@ -440,17 +442,32 @@ function normalizeTypography(figma: FigmaVariablesJson): TypographyToken[] {
     .filter((v): v is TypographyVariable => v.type === 'typography')
     .map((v) => {
       const raw = v.value
+      const isEmphasis = v.name.endsWith('-emphasis')
 
-      // Correção: body/* deve usar Afacad (body/sm-emphasis tem "Inter" por engano)
-      const fontFamily = v.name.startsWith('body/') ? 'Afacad' : raw.fontFamily
+      // Workaround: body/* deve usar Afacad (body/sm-emphasis tem "Inter" no Figma por engano)
+      const figmaFamily = raw.fontFamily
+      const fontFamily  = v.name.startsWith('body/') ? 'Afacad' : figmaFamily
 
-      return {
-        name: v.name,
+      if (v.name.startsWith('body/') && figmaFamily !== 'Afacad') {
+        console.warn(
+          `  ⚠ Override ativo: "${v.name}" tem fontFamily "${figmaFamily}" no Figma, ` +
+          `forçado para "Afacad". Verifique se o Figma foi corrigido.`,
+        )
+      }
+
+      const token: TypographyToken = {
+        name:       v.name,
         fontFamily,
-        fontSize: pxToRem(raw.fontSize),
+        fontSize:   pxToRem(raw.fontSize),
         fontWeight: normalizeFontWeight(raw.fontWeight),
         lineHeight: normalizeLineHeight(raw.lineHeight, raw.lineHeightUnit),
       }
+
+      // Tokens *-emphasis embutem fontWeight '600' na tupla fontSize do Tailwind,
+      // garantindo que text-body-md-emphasis aplique o peso sem classe adicional.
+      if (isEmphasis) token.emphasisFontWeight = '600'
+
+      return token
     })
 }
 
@@ -499,7 +516,7 @@ function main(): void {
   console.log(`\n✔ typography: ${typography.length} estilos normalizados`)
   for (const t of typography) {
     console.log(
-      `    ${t.name.padEnd(24)} ${t.fontSize.padEnd(8)} ${t.fontFamily.padEnd(8)} w${t.fontWeight} lh${t.lineHeight}`,
+      `    ${t.name.padEnd(24)} ${t.fontSize.padEnd(8)} ${t.fontFamily.padEnd(8)} w${t.fontWeight} lh${t.lineHeight}${t.emphasisFontWeight ? ' [emphasis w600]' : ''}`,
     )
   }
 
