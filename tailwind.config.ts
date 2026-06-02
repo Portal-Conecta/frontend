@@ -19,7 +19,7 @@ const config: Config = {
         background:  colors.background,
         text:        colors.text,
         border:      colors.border,
-        // colors.primitives não é exposto — componentes usam apenas
+        // colorPrimitives não é exposto — componentes usam apenas
         // a camada semântica acima.
       },
 
