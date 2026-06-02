@@ -95,6 +95,8 @@ const COLLECTION = {
 } as const
 
 const DEFAULT_MODE = 'default'
+/** Nome do mode da collection Typography no variables2json — difere das demais. */
+const TYPOGRAPHY_MODE = 'Style'
 
 // ---------------------------------------------------------------------------
 // Leitura e validação do JSON
@@ -424,9 +426,11 @@ function normalizeTypography(figma: FigmaVariablesJson): TypographyToken[] {
   const collection = figma.collections.find((c) => c.name === COLLECTION.TYPOGRAPHY)
   if (!collection) throw new Error(`Coleção "${COLLECTION.TYPOGRAPHY}" não encontrada.`)
 
-  // Typography tem apenas um mode ("Style")
-  const mode = collection.modes[0]
-  if (!mode) throw new Error(`Nenhum mode encontrado em "${COLLECTION.TYPOGRAPHY}".`)
+  const mode = collection.modes.find((m) => m.name === TYPOGRAPHY_MODE)
+  if (!mode) throw new Error(
+    `Mode "${TYPOGRAPHY_MODE}" não encontrado em "${COLLECTION.TYPOGRAPHY}".\n` +
+    `Modos presentes: ${collection.modes.map((m) => m.name).join(', ')}`,
+  )
 
   return mode.variables
     .filter((v): v is TypographyVariable => v.type === 'typography')
