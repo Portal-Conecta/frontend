@@ -195,6 +195,30 @@ function readFigmaJson(): FigmaVariablesJson {
 }
 
 // ---------------------------------------------------------------------------
+// Helper de acesso a collections e modes
+// ---------------------------------------------------------------------------
+
+/**
+ * Localiza uma collection por nome e retorna o mode pedido.
+ * Inclui os modos presentes na mensagem de erro para facilitar diagnóstico
+ * quando o plugin exportar com nomes diferentes do esperado.
+ */
+function getMode(figma: FigmaVariablesJson, collectionName: string, modeName: string): Mode {
+  const collection = figma.collections.find((c) => c.name === collectionName)
+  if (!collection) {
+    throw new Error(`Coleção "${collectionName}" não encontrada.`)
+  }
+  const mode = collection.modes.find((m) => m.name === modeName)
+  if (!mode) {
+    throw new Error(
+      `Mode "${modeName}" não encontrado em "${collectionName}".\n` +
+      `Modos presentes: ${collection.modes.map((m) => m.name).join(', ')}`,
+    )
+  }
+  return mode
+}
+
+// ---------------------------------------------------------------------------
 // Mapa de primitivos e resolução de aliases
 // ---------------------------------------------------------------------------
 
@@ -215,24 +239,11 @@ function primitiveKey(collection: string, name: string): string {
  */
 function buildPrimitivesMap(figma: FigmaVariablesJson): PrimitivesMap {
   const map: PrimitivesMap = new Map()
-
-  const collection = figma.collections.find(
-    (c) => c.name === COLLECTION.PRIMITIVES_COLORS,
-  )
-  if (!collection) {
-    throw new Error(`Coleção "${COLLECTION.PRIMITIVES_COLORS}" não encontrada.`)
-  }
-
-  const mode = collection.modes.find((m) => m.name === DEFAULT_MODE)
-  if (!mode) {
-    throw new Error(
-      `Mode "${DEFAULT_MODE}" não encontrado em "${COLLECTION.PRIMITIVES_COLORS}".`,
-    )
-  }
+  const mode = getMode(figma, COLLECTION.PRIMITIVES_COLORS, DEFAULT_MODE)
 
   for (const variable of mode.variables) {
     if (variable.type === 'color' && !variable.isAlias) {
-      map.set(primitiveKey(collection.name, variable.name), variable.value)
+      map.set(primitiveKey(COLLECTION.PRIMITIVES_COLORS, variable.name), variable.value)
     }
   }
 
@@ -256,21 +267,8 @@ function resolveSemanticColors(
   primitivesMap: PrimitivesMap,
 ): ResolvedSemanticColors {
   const resolved: ResolvedSemanticColors = new Map()
-
-  const collection = figma.collections.find(
-    (c) => c.name === COLLECTION.SEMANTIC_COLORS,
-  )
-  if (!collection) {
-    throw new Error(`Coleção "${COLLECTION.SEMANTIC_COLORS}" não encontrada.`)
-  }
-
   // Usa apenas o modo "default" — o modo "Mode" é duplicata acidental
-  const mode = collection.modes.find((m) => m.name === DEFAULT_MODE)
-  if (!mode) {
-    throw new Error(
-      `Mode "${DEFAULT_MODE}" não encontrado em "${COLLECTION.SEMANTIC_COLORS}".`,
-    )
-  }
+  const mode = getMode(figma, COLLECTION.SEMANTIC_COLORS, DEFAULT_MODE)
 
   for (const variable of mode.variables) {
     if (variable.type !== 'color') continue
@@ -357,12 +355,7 @@ export type SpacingToken = { name: string; remValue: string }
  * Extrai e converte os tokens de spacing de px para rem.
  */
 function normalizeSpacing(figma: FigmaVariablesJson): SpacingToken[] {
-  const collection = figma.collections.find((c) => c.name === COLLECTION.SPACING)
-  if (!collection) throw new Error(`Coleção "${COLLECTION.SPACING}" não encontrada.`)
-
-  const mode = collection.modes.find((m) => m.name === DEFAULT_MODE)
-  if (!mode) throw new Error(`Mode "${DEFAULT_MODE}" não encontrado em "${COLLECTION.SPACING}".`)
-
+  const mode = getMode(figma, COLLECTION.SPACING, DEFAULT_MODE)
   return mode.variables
     .filter((v): v is NumberVariable => v.type === 'number')
     .map((v) => ({ name: v.name, remValue: pxToRem(v.value) }))
@@ -377,12 +370,7 @@ export type RadiusToken = { name: string; value: string }
  * Os demais são convertidos para rem.
  */
 function normalizeRadius(figma: FigmaVariablesJson): RadiusToken[] {
-  const collection = figma.collections.find((c) => c.name === COLLECTION.RADIUS)
-  if (!collection) throw new Error(`Coleção "${COLLECTION.RADIUS}" não encontrada.`)
-
-  const mode = collection.modes.find((m) => m.name === DEFAULT_MODE)
-  if (!mode) throw new Error(`Mode "${DEFAULT_MODE}" não encontrado em "${COLLECTION.RADIUS}".`)
-
+  const mode = getMode(figma, COLLECTION.RADIUS, DEFAULT_MODE)
   return mode.variables
     .filter((v): v is NumberVariable => v.type === 'number')
     .map((v) => ({
@@ -399,12 +387,7 @@ export type BorderToken = { name: string; value: string }
  * Mantidos em px — bordas de 1px ou 2px não devem escalar com rem.
  */
 function normalizeBorder(figma: FigmaVariablesJson): BorderToken[] {
-  const collection = figma.collections.find((c) => c.name === COLLECTION.BORDER)
-  if (!collection) throw new Error(`Coleção "${COLLECTION.BORDER}" não encontrada.`)
-
-  const mode = collection.modes.find((m) => m.name === DEFAULT_MODE)
-  if (!mode) throw new Error(`Mode "${DEFAULT_MODE}" não encontrado em "${COLLECTION.BORDER}".`)
-
+  const mode = getMode(figma, COLLECTION.BORDER, DEFAULT_MODE)
   return mode.variables
     .filter((v): v is NumberVariable => v.type === 'number')
     .map((v) => ({ name: v.name, value: `${v.value}px` }))
@@ -429,14 +412,7 @@ export type TypographyToken = {
  * - Correção: body/sm-emphasis usa Afacad (inconsistência no Figma)
  */
 function normalizeTypography(figma: FigmaVariablesJson): TypographyToken[] {
-  const collection = figma.collections.find((c) => c.name === COLLECTION.TYPOGRAPHY)
-  if (!collection) throw new Error(`Coleção "${COLLECTION.TYPOGRAPHY}" não encontrada.`)
-
-  const mode = collection.modes.find((m) => m.name === TYPOGRAPHY_MODE)
-  if (!mode) throw new Error(
-    `Mode "${TYPOGRAPHY_MODE}" não encontrado em "${COLLECTION.TYPOGRAPHY}".\n` +
-    `Modos presentes: ${collection.modes.map((m) => m.name).join(', ')}`,
-  )
+  const mode = getMode(figma, COLLECTION.TYPOGRAPHY, TYPOGRAPHY_MODE)
 
   return mode.variables
     .filter((v): v is TypographyVariable => v.type === 'typography')
