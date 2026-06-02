@@ -1,5 +1,11 @@
 import type { Config } from 'tailwindcss'
 
+import { colors }      from './packages/ui/src/tokens/colors'
+import { spacing }     from './packages/ui/src/tokens/spacing'
+import { typography }  from './packages/ui/src/tokens/typography'
+import { radius }      from './packages/ui/src/tokens/radius'
+import { borderWidth } from './packages/ui/src/tokens/border'
+
 const config: Config = {
   content: [
     './apps/*/src/**/*.{ts,tsx}',
@@ -8,14 +14,23 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Ready for real token values — import from @portal/ui/tokens/colors
+        interactive: colors.interactive,
+        feedback:    colors.feedback,
+        background:  colors.background,
+        text:        colors.text,
+        border:      colors.border,
+        // colors.primitives não é exposto — componentes usam apenas
+        // a camada semântica acima.
       },
-      fontFamily: {
-        // Ready for real token values — import from @portal/ui/tokens/typography
-      },
-      spacing: {
-        // Ready for real token values — import from @portal/ui/tokens/spacing
-      },
+
+      spacing,
+
+      fontFamily:  typography.fontFamily,
+      fontSize:    typography.fontSize  as Config['theme']['fontSize'],
+      fontWeight:  typography.fontWeight,
+
+      borderRadius: radius,
+      borderWidth,
     },
   },
   plugins: [],
