@@ -194,13 +194,127 @@ function readFigmaJson(): FigmaVariablesJson {
 }
 
 // ---------------------------------------------------------------------------
+// Mapa de primitivos e resolução de aliases
+// ---------------------------------------------------------------------------
+
+/** Lookup: "primitives/colors::blue/500" → "#01258F" */
+type PrimitivesMap = Map<string, string>
+
+/**
+ * Chave composta usada para o mapa de primitivos.
+ * Inclui o nome da coleção para suportar aliases entre coleções distintas.
+ */
+function primitiveKey(collection: string, name: string): string {
+  return `${collection}::${name}`
+}
+
+/**
+ * Constrói o mapa de todos os tokens primitivos de cor.
+ * Apenas variáveis diretas (isAlias: false) são indexadas aqui.
+ */
+function buildPrimitivesMap(figma: FigmaVariablesJson): PrimitivesMap {
+  const map: PrimitivesMap = new Map()
+
+  const collection = figma.collections.find(
+    (c) => c.name === COLLECTION.PRIMITIVES_COLORS,
+  )
+  if (!collection) {
+    throw new Error(`Coleção "${COLLECTION.PRIMITIVES_COLORS}" não encontrada.`)
+  }
+
+  const mode = collection.modes.find((m) => m.name === DEFAULT_MODE)
+  if (!mode) {
+    throw new Error(
+      `Mode "${DEFAULT_MODE}" não encontrado em "${COLLECTION.PRIMITIVES_COLORS}".`,
+    )
+  }
+
+  for (const variable of mode.variables) {
+    if (variable.type === 'color' && !variable.isAlias) {
+      map.set(primitiveKey(collection.name, variable.name), variable.value)
+    }
+  }
+
+  return map
+}
+
+/**
+ * Resultado da resolução de aliases semânticos.
+ * Chave: nome do token semântico (ex: "interactive/default")
+ * Valor: hex resolvido (ex: "#01258F")
+ */
+export type ResolvedSemanticColors = Map<string, string>
+
+/**
+ * Percorre a coleção semantic/colors no modo "default" e resolve cada alias
+ * para seu valor hex primitivo. Lança erro se o alias apontar para um
+ * primitivo inexistente no mapa.
+ */
+function resolveSemanticColors(
+  figma: FigmaVariablesJson,
+  primitivesMap: PrimitivesMap,
+): ResolvedSemanticColors {
+  const resolved: ResolvedSemanticColors = new Map()
+
+  const collection = figma.collections.find(
+    (c) => c.name === COLLECTION.SEMANTIC_COLORS,
+  )
+  if (!collection) {
+    throw new Error(`Coleção "${COLLECTION.SEMANTIC_COLORS}" não encontrada.`)
+  }
+
+  // Usa apenas o modo "default" — o modo "Mode" é duplicata acidental
+  const mode = collection.modes.find((m) => m.name === DEFAULT_MODE)
+  if (!mode) {
+    throw new Error(
+      `Mode "${DEFAULT_MODE}" não encontrado em "${COLLECTION.SEMANTIC_COLORS}".`,
+    )
+  }
+
+  for (const variable of mode.variables) {
+    if (variable.type !== 'color') continue
+
+    if (!variable.isAlias) {
+      // Valor direto (ex: background/overlay com rgba)
+      resolved.set(variable.name, variable.value)
+      continue
+    }
+
+    // Resolve o alias no mapa de primitivos
+    const key = primitiveKey(variable.value.collection, variable.value.name)
+    const hex = primitivesMap.get(key)
+
+    if (hex === undefined) {
+      throw new Error(
+        `Alias não resolvido: "${variable.name}" aponta para ` +
+          `"${variable.value.collection}::${variable.value.name}", ` +
+          `que não existe no mapa de primitivos.`,
+      )
+    }
+
+    resolved.set(variable.name, hex)
+  }
+
+  return resolved
+}
+
+// ---------------------------------------------------------------------------
 // Ponto de entrada
 // ---------------------------------------------------------------------------
 
 function main(): void {
   const figma = readFigmaJson()
   console.log(`\n✔ variables_from_figma.json lido com sucesso (v${figma.version})`)
-  console.log(`  Coleções encontradas: ${figma.collections.map((c) => c.name).join(', ')}\n`)
+  console.log(`  Coleções encontradas: ${figma.collections.map((c) => c.name).join(', ')}`)
+
+  const primitivesMap = buildPrimitivesMap(figma)
+  console.log(`\n✔ primitives/colors: ${primitivesMap.size} tokens indexados`)
+
+  const semanticColors = resolveSemanticColors(figma, primitivesMap)
+  console.log(`✔ semantic/colors: ${semanticColors.size} aliases resolvidos`)
+  for (const [name, hex] of semanticColors) {
+    console.log(`    ${name.padEnd(32)} → ${hex}`)
+  }
 }
 
 main()
