@@ -1,7 +1,16 @@
 packages:
   - 'packages/*'
   - 'apps/*'
+
+# Força uma única versão do webpack no monorepo. O @storybook/builder-webpack5
+# quebra com webpack >= 5.101.3 (crash em Compiler.close/Cache.shutdown:
+# "Cannot read properties of undefined (reading 'tap')"). Ver issue
+# storybookjs/storybook#32301. 5.101.2 é a última versão compatível.
+overrides:
+  webpack: '5.101.2'
+
 allowBuilds:
+  '@parcel/watcher': false
   core-js-pure: true
   esbuild: true
   sharp: true
