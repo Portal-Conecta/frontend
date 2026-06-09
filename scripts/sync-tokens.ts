@@ -401,8 +401,8 @@ export type TypographyToken = {
   fontSize: string           // rem
   fontWeight: string         // CSS numérico ("400" | "600")
   lineHeight: string         // decimal ("1.2" | "1.4" | "1.5")
-  /** Presente apenas em tokens *-emphasis — embutido na tupla fontSize do Tailwind. */
-  emphasisFontWeight?: string
+  /** Peso embutido na tupla fontSize do Tailwind quando ≠ 400 (emphasis e headings). */
+  embeddedFontWeight?: string
 }
 
 /**
@@ -419,7 +419,6 @@ function normalizeTypography(figma: FigmaVariablesJson): TypographyToken[] {
     .filter((v): v is TypographyVariable => v.type === 'typography')
     .map((v) => {
       const raw = v.value
-      const isEmphasis = v.name.endsWith('-emphasis')
 
       // Workaround: body/* deve usar Afacad (body/sm-emphasis tem "Inter" no Figma por engano)
       const figmaFamily = raw.fontFamily
@@ -440,9 +439,11 @@ function normalizeTypography(figma: FigmaVariablesJson): TypographyToken[] {
         lineHeight: normalizeLineHeight(raw.lineHeight, raw.lineHeightUnit),
       }
 
-      // Tokens *-emphasis embutem fontWeight '600' na tupla fontSize do Tailwind,
-      // garantindo que text-body-md-emphasis aplique o peso sem classe adicional.
-      if (isEmphasis) token.emphasisFontWeight = '600'
+      // Embute o peso na tupla fontSize do Tailwind sempre que != 400 (default).
+      // Cobre tanto *-emphasis quanto os headings (SemiBold por definição no DS),
+      // garantindo que text-heading-h1 / text-body-md-emphasis apliquem o peso
+      // sem precisar de `font-semibold` adicional.
+      if (token.fontWeight !== '400') token.embeddedFontWeight = token.fontWeight
 
       return token
     })
@@ -493,7 +494,7 @@ function main(): void {
   console.log(`\n✔ typography: ${typography.length} estilos normalizados`)
   for (const t of typography) {
     console.log(
-      `    ${t.name.padEnd(24)} ${t.fontSize.padEnd(8)} ${t.fontFamily.padEnd(8)} w${t.fontWeight} lh${t.lineHeight}${t.emphasisFontWeight ? ' [emphasis w600]' : ''}`,
+      `    ${t.name.padEnd(24)} ${t.fontSize.padEnd(8)} ${t.fontFamily.padEnd(8)} w${t.fontWeight} lh${t.lineHeight}${t.embeddedFontWeight ? ` [embed w${t.embeddedFontWeight}]` : ''}`,
     )
   }
 

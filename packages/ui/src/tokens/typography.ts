@@ -7,9 +7,10 @@
  * - fontWeight → theme.extend.fontWeight
  *
  * Tokens de tamanho seguem o formato [tamanho, { lineHeight, fontWeight? }].
- * Tokens *-emphasis incluem fontWeight: '600' — assim `text-body-md-emphasis`
- * aplica tamanho, entrelinhamento e peso SemiBold com uma única classe, sem
- * necessidade de adicionar `font-semibold` manualmente.
+ * Tokens com peso ≠ 400 — *-emphasis e os headings (SemiBold por definição no
+ * DS) — incluem fontWeight: '600', então `text-heading-h1` / `text-body-md-emphasis`
+ * aplicam tamanho, entrelinhamento e peso com uma única classe, sem precisar
+ * adicionar `font-semibold` manualmente.
  *
  * Fonte: Figma DS fileKey GPvf4G2qpP8MMyK3HB6n2t, coleção "Typography".
  */
@@ -21,9 +22,9 @@ export const typography = {
   },
 
   fontSize: {
-    // Headings — Inter SemiBold
-    'heading-h1': ['3rem',    { lineHeight: '1.2'  }], // 48px / 120%
-    'heading-h2': ['2.25rem', { lineHeight: '1.25' }], // 36px / 125%
+    // Headings — Inter SemiBold (peso embutido: headings são sempre 600 no DS)
+    'heading-h1': ['3rem',    { lineHeight: '1.2',  fontWeight: '600' }], // 48px / 120% SemiBold
+    'heading-h2': ['2.25rem', { lineHeight: '1.25', fontWeight: '600' }], // 36px / 125% SemiBold
 
     // Body — Afacad
     'body-md':          ['1.25rem', { lineHeight: '1.5' }],                    // 20px / 150% Regular

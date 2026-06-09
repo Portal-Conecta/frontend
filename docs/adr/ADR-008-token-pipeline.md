@@ -68,9 +68,12 @@ O Figma exporta `lineHeight` como percentual com ruído de ponto flutuante
 
 O `lineHeight` é embutido diretamente em cada entrada de `fontSize` no
 formato `[tamanho, { lineHeight, fontWeight? }]`, padrão recomendado pelo
-Tailwind. Tokens `*-emphasis` incluem `fontWeight: '600'` no objeto — assim
-uma única classe (`text-body-md-emphasis`) aplica tamanho, entrelinhamento
-e peso SemiBold sem necessidade de `font-semibold` adicional.
+Tailwind. Tokens com peso ≠ 400 — `*-emphasis` e os **headings** (SemiBold por
+definição no DS, sem variante Regular) — incluem `fontWeight: '600'` no objeto,
+de modo que uma única classe (`text-heading-h1`, `text-body-md-emphasis`)
+aplique tamanho, entrelinhamento e peso sem necessidade de `font-semibold`
+adicional. O `sync-tokens.ts` embute o peso sempre que ele difere do default
+400 (não apenas nos `*-emphasis`).
 
 **Spacing em rem (base 16px)**
 Todos os valores de espaçamento são convertidos de `px` para `rem`
