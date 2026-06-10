@@ -21,7 +21,9 @@ const toneStyles: Record<InputTone, { box: string; input: string; suffix: string
     message: 'text-feedback-error',
   },
   overlay: {
-    box: 'border-white focus-within:border-border-focus',
+    // foco visível sobre o painel azul: anel branco (a borda azul de border/focus
+    // ficaria invisível no fundo azul).
+    box: 'border-white focus-within:ring-2 focus-within:ring-white',
     input: 'text-text-inverse placeholder:text-text-inverse',
     suffix: 'text-text-inverse',
     message: 'text-text-inverse',
@@ -99,7 +101,7 @@ export function Input({
 
       {error ? (
         <div id={errorId} role="alert" className="mt-1 flex items-center gap-2">
-          <span className="h-[15px] w-[3px] shrink-0 rounded-sm bg-feedback-error" />
+          <span aria-hidden="true" className="h-[15px] w-[3px] shrink-0 rounded-sm bg-feedback-error" />
           <span className={`text-label-xs font-inter ${styles.message}`}>{error}</span>
         </div>
       ) : null}
