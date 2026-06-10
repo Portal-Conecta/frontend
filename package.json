@@ -14,6 +14,8 @@
     "sync:tokens": "tsx scripts/sync-tokens.ts"
   },
   "devDependencies": {
+    "@fontsource/afacad": "^5.2.10",
+    "@fontsource/inter": "^5.2.8",
     "@storybook/addon-essentials": "^8.0.0",
     "@storybook/addon-interactions": "^8.0.0",
     "@storybook/nextjs": "^8.0.0",
