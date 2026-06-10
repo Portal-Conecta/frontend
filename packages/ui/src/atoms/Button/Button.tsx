@@ -1,14 +1,7 @@
 /**
- * Button — espelha o component set "Button" do DS (Figma GPvf4G2qpP8MMyK3HB6n2t,
- * página "Button"): Type = Primary | Outlined.
- *
- * Os "States" do Figma (Default/Hover/Focused/Active) NÃO são props: são
- * pseudo-estados do browser, aplicados via `hover:` / `active:` / `focus-visible:`
- * com os tokens `interactive/*` e `border/focus`. Os únicos estados que são
- * prop de verdade são `disabled` e `loading`.
- *
- * Compõe o átomo `Icon` para o ícone opcional e para o spinner de loading
- * (ambos herdam a cor do texto via currentColor).
+ * Button — espelha o component set "Button" do DS (variant = primary | outlined).
+ * Hover/Focused/Active são pseudo-classes CSS, não props; só `disabled` e
+ * `loading` são props. Compõe o átomo `Icon`.
  */
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 

@@ -1,23 +1,11 @@
 'use client'
 
 /**
- * Input — espelha o component set "Input" do DS (Figma GPvf4G2qpP8MMyK3HB6n2t,
- * página "Form Controls").
- *
- * Matriz do DS: State (default/filled/focused/disabled/error) × Variant
- * (simple/suffix-icon/overlay). Mapeamento:
- *  - `filled`  → automático (cor do texto quando há valor vs placeholder).
- *  - `focused` → pseudo `:focus-within` (borda → border/focus).
- *  - `disabled`→ prop nativa.
- *  - `error`   → prop (barra vermelha + mensagem abaixo; borda permanece neutra,
- *               como no DS). A cor da mensagem segue o tom.
- *  - `suffix-icon` → prop `iconRight` (estático) ou, com `type="password"`, um
- *               toggle de olho (eye/eye-closed) que mascara/revela o valor.
- *  - `overlay` → `tone="overlay"` (fundo transparente + borda/texto branco),
- *               usado sobre painéis coloridos (ex: o painel azul do Login).
- *
- * Não inclui label visível (o DS Input é placeholder-only). Para label+campo
- * use uma molécula FormField (futura) ou passe `aria-label`.
+ * Input — espelha o component set "Input" do DS (Form Controls).
+ * `filled`/`focused` são automáticos (input nativo + :focus-within); `error`,
+ * `disabled`, `tone` e `type=password` (toggle de olho) são props. A cor da
+ * mensagem de erro segue o tom. Compõe o átomo `Icon`. Sem label visível
+ * (placeholder-only, como no DS) — use aria-label ou um FormField.
  */
 import { useId, useState, type InputHTMLAttributes } from 'react'
 

@@ -1,13 +1,7 @@
 /**
- * Logo — marca do Portal Conecta.
- *
- * Espelha o componente "Logo" do Design System (Figma fileKey
- * GPvf4G2qpP8MMyK3HB6n2t, página "Logo & Brand"), que define duas versões
- * (completa / resumida) em dois tons (azul para fundo claro, branco para
- * fundo escuro).
- *
- * A cor vem de token (`tone`), nunca hardcoded: o vetor usa `currentColor` e
- * o componente aplica a classe de cor semântica correspondente.
+ * Logo — marca do Portal Conecta. Espelha o componente "Logo" do DS:
+ * variant (full | mark) × tone (brand | inverse). A cor vem de token — o vetor
+ * usa currentColor e o componente aplica a classe semântica.
  */
 
 import type { ComponentPropsWithoutRef } from 'react'

@@ -1,14 +1,7 @@
 /**
- * Icon — wrapper único sobre os ícones do Lucide, impondo as regras do DS
- * (Figma GPvf4G2qpP8MMyK3HB6n2t, página "Iconography"):
- *
- *  ① stroke 2px fixo  → `strokeWidth` travado, não é prop.
- *  ② tamanhos 16/24/32 → `size` = sm | md | lg (nada de 18/20/…).
- *  ③ cor via token     → `currentColor` + `tone` (token semântico).
- *  ④ sempre quadrado + acessível.
- *
- * Qual ícone vem do registry curado (`icons.ts`) — `name` é um union tipado,
- * então só o set aprovado pelo DS compila.
+ * Icon — wrapper sobre o lucide-react que impõe as regras do DS (Iconography):
+ * stroke 2px fixo, tamanhos 16/24/32, cor via token, sempre quadrado + a11y.
+ * `name` vem do registry curado (icons.ts) — só o set aprovado compila.
  */
 import type { LucideProps } from 'lucide-react'
 
