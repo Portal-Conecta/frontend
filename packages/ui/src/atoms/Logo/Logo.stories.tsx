@@ -24,15 +24,11 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Logo completa, tom de marca (azul) — uso em fundos claros. */
 export const Full: Story = {}
 
-/** Logo resumida (só o símbolo) — uso em espaços reduzidos / sidebar colapsada. */
 export const Mark: Story = {
   args: { variant: 'mark' },
 }
-
-/** Tom `inverse` (branco) sobre o painel azul — é o uso da tela de Login. */
 export const OnDarkPanel: Story = {
   args: { tone: 'inverse' },
   decorators: [
@@ -44,7 +40,6 @@ export const OnDarkPanel: Story = {
   ],
 }
 
-/** Escala de tamanhos do DS: 16 · 24 · 32 · 54 px. */
 export const Sizes: Story = {
   render: (args) => (
     <div className="flex items-end gap-6">
@@ -55,7 +50,6 @@ export const Sizes: Story = {
   ),
 }
 
-/** As quatro combinações aprovadas: completa/resumida × claro/escuro. */
 export const Matrix: Story = {
   render: () => (
     <div className="grid grid-cols-2 gap-px overflow-hidden rounded-md border border-border-default">

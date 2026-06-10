@@ -27,7 +27,6 @@ export const Heading: Story = {
     args: { variant: 'heading-h1', children: 'Título Principal' },
 }
 
-/** Todas as variantes tipográficas do DS em sequência. */
 export const AllVariants: Story = {
     render: (args) => (
         <div className="flex flex-col gap-4">

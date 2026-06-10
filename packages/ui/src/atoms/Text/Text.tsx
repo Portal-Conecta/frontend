@@ -10,16 +10,6 @@
  */
 import type { HTMLAttributes, ReactNode } from 'react'
 
-// ---------------------------------------------------------------------------
-// 1) Mapa variant → classes literais.
-//
-// IMPORTANTE: as classes precisam ser strings LITERAIS. O Tailwind escaneia o
-// código procurando os nomes de classe como texto; se a gente montasse
-// `text-${variant}` dinamicamente, ele não geraria o CSS. Por isso cada
-// variante tem sua string completa (tamanho + família juntos).
-//
-// Os nomes espelham os tokens de `tokens/typography.ts`.
-// ---------------------------------------------------------------------------
 const variantClass = {
   'heading-h1': 'text-heading-h1 font-inter',
   'heading-h2': 'text-heading-h2 font-inter',
@@ -36,15 +26,10 @@ const variantClass = {
   'label-xs': 'text-label-xs font-inter',
 } as const
 
-/** Variantes de tipografia disponíveis (derivado do mapa acima). */
 export type TextVariant = keyof typeof variantClass
 
-/** Lista das variantes — útil para iterar (ex: galeria no Storybook). */
 export const textVariants = Object.keys(variantClass) as TextVariant[]
 
-// ---------------------------------------------------------------------------
-// 2) Mapa tone → classe de cor (camada semântica de cor dos tokens).
-// ---------------------------------------------------------------------------
 export type TextTone = 'primary' | 'secondary' | 'brand' | 'inverse' | 'disabled'
 
 const toneClass: Record<TextTone, string> = {
@@ -55,25 +40,15 @@ const toneClass: Record<TextTone, string> = {
   disabled: 'text-text-disabled',
 }
 
-// ---------------------------------------------------------------------------
-// 3) Quais tags o Text pode renderizar. Aparência (variant) é independente da
-//    semântica (a tag). Ex: um texto grande pode ser <h1> OU só um <span>.
-// ---------------------------------------------------------------------------
 export type TextElement = 'p' | 'span' | 'label' | 'div' | 'h1' | 'h2' | 'h3'
 
 export interface TextProps extends HTMLAttributes<HTMLElement> {
-  /** Estilo tipográfico (token). Default `body-md`. */
   variant?: TextVariant
-  /** Tag HTML renderizada. Default `p`. */
   as?: TextElement
-  /** Cor semântica. Omitir = herda a cor do contexto (currentColor). */
   tone?: TextTone
   children: ReactNode
 }
 
-// ---------------------------------------------------------------------------
-// 4) O componente: junta variant + tone + className e renderiza a tag.
-// ---------------------------------------------------------------------------
 export function Text({ variant = 'body-md', as = 'p', tone, className, children, ...rest }: TextProps) {
   const Tag = as
 
