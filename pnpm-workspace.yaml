@@ -1,7 +1,9 @@
 packages:
   - 'packages/*'
   - 'apps/*'
+
 allowBuilds:
+  '@parcel/watcher': false
   core-js-pure: true
   esbuild: true
   sharp: true

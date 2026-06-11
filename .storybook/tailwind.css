@@ -1,0 +1,10 @@
+/**
+ * CSS de entrada do Tailwind para o Storybook.
+ *
+ * `@config` aponta para o tailwind.config.ts da raiz, onde os design tokens
+ * (@portal/ui/tokens) são mapeados em theme.extend — assim as classes
+ * utilitárias (text-text-brand, bg-interactive-default, rounded-md, …)
+ * ficam disponíveis nas stories.
+ */
+@import 'tailwindcss';
+@config '../tailwind.config.ts';
