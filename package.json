@@ -2,6 +2,7 @@
   "name": "portal-conecta",
   "private": true,
   "version": "0.0.0",
+  "packageManager": "pnpm@11.0.8",
   "scripts": {
     "dev": "pnpm --parallel --filter \"./apps/*\" dev",
     "build": "pnpm --filter \"./packages/*\" --if-present build && pnpm --filter \"./apps/*\" build",
@@ -35,5 +36,10 @@
   "engines": {
     "node": ">=20",
     "pnpm": ">=9"
+  },
+  "pnpm": {
+    "overrides": {
+      "webpack": "5.101.2"
+    }
   }
 }
