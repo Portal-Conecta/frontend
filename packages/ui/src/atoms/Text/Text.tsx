@@ -46,6 +46,8 @@ export interface TextProps extends HTMLAttributes<HTMLElement> {
   variant?: TextVariant
   as?: TextElement
   tone?: TextTone
+  /** Para `as="label"`: associa o label a um input (atributo `for`). */
+  htmlFor?: string
   children: ReactNode
 }
 

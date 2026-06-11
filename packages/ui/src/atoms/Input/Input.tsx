@@ -87,7 +87,8 @@ export function Input({
             type="button"
             onClick={() => setRevealed((v) => !v)}
             disabled={disabled}
-            aria-label={revealed ? 'Ocultar senha' : 'Mostrar senha'}
+            aria-label="Alternar visibilidade da senha"
+            aria-pressed={revealed}
             className={`shrink-0 ${disabled ? 'text-text-disabled' : styles.suffix}`}
           >
             <Icon name={revealed ? 'eye-closed' : 'eye'} size="sm" decorative />
