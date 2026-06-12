@@ -18,18 +18,18 @@ interface AuthLayoutProps {
  */
 export function AuthLayout({ children }: AuthLayoutProps) {
     return (
-        <div className="min-h-screen flex bg-gradient-to-b from-blue-300 to-blue-500">
+        <div className="min-h-screen flex bg-background-surface">
 
-            <div className="w-full lg:w-[45.6%] flex flex-col px-[30px] py-7 lg:px-[72px] lg:py-[60px]">
-                <Logo tone="inverse" variant="full" size={58} className="lg:hidden self-center" />
-                <Logo tone="inverse" variant="full" size={68} className="hidden lg:block self-start" />
+            <div className="relative w-full lg:w-[45.6%] flex flex-col px-[30px] py-7 lg:px-[72px] lg:py-[60px] bg-gradient-to-b from-blue-300 to-blue-500 lg:rounded-r-[24px]">
+                <Logo tone="inverse" variant="full" size={58} className="lg:hidden absolute top-7 left-1/2 -translate-x-1/2" />
+                <Logo tone="inverse" variant="full" size={68} className="hidden lg:block absolute top-[60px] left-[72px]" />
 
-                <div className="flex-1 flex items-center justify-center">
+                <div className="flex-1 flex items-center justify-center w-full">
                     {children}
                 </div>
             </div>
 
-            <div className="hidden lg:flex flex-1 bg-background-surface items-center justify-center rounded-l-[24px]">
+            <div className="hidden lg:flex flex-1 bg-background-surface items-center justify-center">
                 <img
                     src="/illustration-login.png"
                     alt="Ilustração Portal Conecta"
