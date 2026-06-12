@@ -1,6 +1,6 @@
 import type { Config } from 'tailwindcss'
 
-import { colors }      from './packages/ui/src/tokens/colors'
+import { colors, colorPrimitives } from './packages/ui/src/tokens/colors'
 import { spacing }     from './packages/ui/src/tokens/spacing'
 import { typography }  from './packages/ui/src/tokens/typography'
 import { radius }      from './packages/ui/src/tokens/radius'
@@ -19,8 +19,11 @@ const config: Config = {
         background:  colors.background,
         text:        colors.text,
         border:      colors.border,
-        // colorPrimitives não é exposto — componentes usam apenas
-        // a camada semântica acima.
+        // Primitivos NÃO são expostos a componentes — eles usam apenas a
+        // camada semântica acima. Exceção restrita: a paleta `blue` fica
+        // disponível para o fundo full-bleed das telas de auth (gradiente
+        // blue/300 → blue/500, espelhando os tokens nomeados do Figma).
+        blue:        colorPrimitives.blue,
       },
 
       spacing,
