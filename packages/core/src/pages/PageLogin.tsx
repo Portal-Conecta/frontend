@@ -73,6 +73,7 @@ export function PageLogin() {
         <AuthLayout>
             <form
                 onSubmit={handleSubmit}
+                noValidate
                 className="flex flex-col items-center lg:items-start w-full max-w-[468px]"
             >
 
