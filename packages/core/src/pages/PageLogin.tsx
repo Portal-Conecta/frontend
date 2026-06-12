@@ -86,7 +86,7 @@ export function PageLogin() {
                     </Text>
                 </div>
 
-                <div className="flex flex-col gap-4 w-full mt-10 lg:mt-11">
+                <div className="flex flex-col gap-4 w-full mt-10">
                     <Input
                         type="email"
                         placeholder="Email"
@@ -128,8 +128,8 @@ export function PageLogin() {
                     Não sei minha senha
                 </button>
 
-                {apiError && <Alert variant="error" className="w-full mt-12">{apiError}</Alert>}
-                {senhaInfo && <Alert variant="info" className="w-full mt-12">{senhaInfo}</Alert>}
+                {apiError && <Alert variant="error" className="w-full mt-14">{apiError}</Alert>}
+                {senhaInfo && <Alert variant="info" className="w-full mt-14">{senhaInfo}</Alert>}
 
             </form>
         </AuthLayout>

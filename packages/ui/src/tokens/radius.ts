@@ -12,6 +12,9 @@ export const radius = {
   sm:   '0.25rem', //  4px
   md:   '0.5rem',  //  8px
   lg:   '0.75rem', // 12px
+  // Sobrescreve rounded-xl do Tailwind default (0.75rem → 1.5rem).
+  // Raio de marca: painéis e superfícies de auth.
+  xl:   '1.5rem',  // 24px
   full: '9999px',
 } as const
 
