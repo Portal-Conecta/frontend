@@ -78,7 +78,7 @@ export function PageLogin() {
             >
 
                 <div className="flex flex-col gap-2 items-center lg:items-start w-full text-center lg:text-left">
-                    <Text variant="label-xl-emphasis" tone="inverse" className="lg:text-heading-h1">
+                    <Text as="h1" variant="label-xl-emphasis" tone="inverse" className="lg:text-heading-h1">
                         Bem vindo!
                     </Text>
                     <Text variant="body-sm" tone="inverse" className="lg:text-body-md">
@@ -90,6 +90,7 @@ export function PageLogin() {
                     <Input
                         type="email"
                         placeholder="Email"
+                        aria-label="Email"
                         tone="overlay"
                         value={email}
                         error={emailError}
@@ -98,6 +99,7 @@ export function PageLogin() {
                     <Input
                         type="password"
                         placeholder="Senha"
+                        aria-label="Senha"
                         tone="overlay"
                         value={senha}
                         error={senhaError}
@@ -105,6 +107,8 @@ export function PageLogin() {
                     />
                 </div>
 
+                {/* Override local: o Button do DS ainda não tem tom "overlay"/inverse.
+                    Forçamos o fundo branco aqui; só sobe para o DS com aprovação do Tech Lead. */}
                 <Button
                     type="submit"
                     variant="outlined"
@@ -115,10 +119,11 @@ export function PageLogin() {
                     Entrar
                 </Button>
 
+                {/* Link de texto local — não há átomo de TextLink no DS ainda (pendente de aprovação do TL) */}
                 <button
                     type="button"
                     onClick={handleEsqueciSenha}
-                    className="mt-6 lg:mt-4 text-label-sm lg:text-label-sm font-inter text-text-inverse underline self-center lg:self-start"
+                    className="mt-6 lg:mt-4 text-label-sm font-inter text-text-inverse underline self-center lg:self-start"
                 >
                     Não sei minha senha
                 </button>
