@@ -4,6 +4,14 @@ import { useState } from 'react'
 import { Alert, Button, Input, Text } from '@portal/ui'
 import { AuthLayout } from './AuthLayout'
 
+/**
+ * Credenciais mock — esta task é só de UI, sem integração com back-end.
+ * Acertar a credencial limpa os erros (sucesso mock); a navegação pós-login
+ * fica para a task de roteamento. Qualquer outra combinação dispara o estado
+ * de "Erro Back-End" para validar o Alert.
+ */
+const MOCK_CREDENCIAIS = { email: 'aluno@senai.br', senha: 'senai123' }
+
 export function PageLogin() {
     const [email, setEmail] = useState('')
     const [senha, setSenha] = useState('')
@@ -45,24 +53,39 @@ export function PageLogin() {
 
         setLoading(true)
 
+        // Simula a latência de uma chamada de rede (mock, sem API real).
+        await new Promise((resolve) => setTimeout(resolve, 1200))
+
+        if (email !== MOCK_CREDENCIAIS.email || senha !== MOCK_CREDENCIAIS.senha) {
+            setApiError('Tente novamente com credenciais válidas.')
+        }
+        // Sucesso (mock): sem navegação nesta task.
+
         setLoading(false)
     }
 
     function handleEsqueciSenha() {
         setApiError('')
-        setSenhaInfo('Entre em contato com os administradores do sistema para redefinir sua senha.')
+        setSenhaInfo('Sua conta é gerenciada por um administrador. Para alterar sua senha, procure pela secretária SENAI.')
     }
 
     return (
         <AuthLayout>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full max-w-xs">
+            <form
+                onSubmit={handleSubmit}
+                className="flex flex-col items-center lg:items-start w-full max-w-[468px]"
+            >
 
-                <div className="flex flex-col gap-1 items-center">
-                    <Text variant="heading-h2" tone="inverse">Bem vindo!</Text>
-                    <Text variant="body-sm" tone="inverse">Tudo o que você precisa em um só lugar</Text>
+                <div className="flex flex-col gap-2 items-center lg:items-start w-full text-center lg:text-left">
+                    <Text variant="label-xl-emphasis" tone="inverse" className="lg:text-heading-h1">
+                        Bem vindo!
+                    </Text>
+                    <Text variant="body-sm" tone="inverse" className="lg:text-body-md">
+                        Tudo o que você precisa em um só lugar
+                    </Text>
                 </div>
 
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-4 w-full mt-10 lg:mt-11">
                     <Input
                         type="email"
                         placeholder="Email"
@@ -81,16 +104,12 @@ export function PageLogin() {
                     />
                 </div>
 
-                {apiError && <Alert variant="error">{apiError}</Alert>}
-                {senhaInfo && <Alert variant="info">{senhaInfo}</Alert>}
-
-                {/* tone="overlay" não existe ainda no Button do DS — override pontual até ser definido */}
                 <Button
                     type="submit"
                     variant="outlined"
                     fullWidth
                     loading={loading}
-                    className="bg-background-surface border-background-surface"
+                    className="mt-10 lg:mt-14 bg-background-surface border-background-surface"
                 >
                     Entrar
                 </Button>
@@ -98,10 +117,13 @@ export function PageLogin() {
                 <button
                     type="button"
                     onClick={handleEsqueciSenha}
-                    className="text-label-sm font-inter text-text-inverse underline self-center"
+                    className="mt-6 lg:mt-4 text-label-sm lg:text-label-sm font-inter text-text-inverse underline self-center lg:self-start"
                 >
                     Não sei minha senha
                 </button>
+
+                {apiError && <Alert variant="error" className="w-full mt-12">{apiError}</Alert>}
+                {senhaInfo && <Alert variant="info" className="w-full mt-12">{senhaInfo}</Alert>}
 
             </form>
         </AuthLayout>
