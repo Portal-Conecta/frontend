@@ -20,7 +20,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
     return (
         <div className="min-h-screen flex bg-background-surface">
 
-            <div className="relative w-full lg:w-[45.6%] flex flex-col px-[30px] py-7 lg:px-18 lg:py-[60px] bg-gradient-to-b from-blue-300 to-blue-500 lg:rounded-r-[24px]">
+            <div className="relative w-full lg:w-[45.6%] flex flex-col px-[30px] py-7 lg:px-18 lg:py-[60px] bg-gradient-to-b from-blue-300 to-blue-500 lg:rounded-r-xl">
                 <Logo tone="inverse" variant="full" size={58} className="lg:hidden absolute top-7 left-1/2 -translate-x-1/2" />
                 <Logo tone="inverse" variant="full" size={68} className="hidden lg:block absolute top-[60px] left-18" />
 
