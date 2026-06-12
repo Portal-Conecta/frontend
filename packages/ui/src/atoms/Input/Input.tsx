@@ -101,7 +101,7 @@ export function Input({
       </div>
 
       {error ? (
-        <div id={errorId} role="alert" className="mt-1 flex items-center gap-2">
+        <div id={errorId} role="alert" className="mt-2 flex items-center gap-2">
           <span aria-hidden="true" className="h-[15px] w-[3px] shrink-0 rounded-sm bg-feedback-error" />
           <span className={`text-label-xs font-inter ${styles.message}`}>{error}</span>
         </div>
