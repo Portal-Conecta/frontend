@@ -38,7 +38,7 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
 
 const base =
   'inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 ' +
-  'text-label-xs font-inter cursor-pointer transition-colors ' +
+  'text-label-md-emphasis font-inter cursor-pointer transition-colors ' +
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 ' +
   'disabled:cursor-not-allowed'
 
