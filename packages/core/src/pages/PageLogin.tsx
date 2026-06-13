@@ -1,18 +1,12 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Alert, Button, Input, Text } from '@portal/ui'
 import { AuthLayout } from './AuthLayout'
 
-/**
- * Credenciais mock — esta task é só de UI, sem integração com back-end.
- * Acertar a credencial limpa os erros (sucesso mock); a navegação pós-login
- * fica para a task de roteamento. Qualquer outra combinação dispara o estado
- * de "Erro Back-End" para validar o Alert.
- */
-const MOCK_CREDENCIAIS = { email: 'aluno@senai.br', senha: 'senai123' }
-
 export function PageLogin() {
+    const router = useRouter()
     const [email, setEmail] = useState('')
     const [senha, setSenha] = useState('')
     const [emailError, setEmailError] = useState('')
@@ -53,13 +47,26 @@ export function PageLogin() {
 
         setLoading(true)
 
-        // Simula a latência de uma chamada de rede (mock, sem API real).
-        await new Promise((resolve) => setTimeout(resolve, 1200))
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, senha }),
+            })
 
-        if (email !== MOCK_CREDENCIAIS.email || senha !== MOCK_CREDENCIAIS.senha) {
-            setApiError('Tente novamente com credenciais válidas.')
+            if (res.ok) {
+                router.replace('/comunicados')
+                return
+            }
+
+            setApiError(
+                res.status === 401
+                    ? 'Credenciais inválidas'
+                    : 'Serviço indisponível, tente novamente',
+            )
+        } catch {
+            setApiError('Serviço indisponível, tente novamente')
         }
-        // Sucesso (mock): sem navegação nesta task.
 
         setLoading(false)
     }
@@ -119,7 +126,6 @@ export function PageLogin() {
                     Entrar
                 </Button>
 
-                {/* Link de texto local — não há átomo de TextLink no DS ainda (pendente de aprovação do TL) */}
                 <button
                     type="button"
                     onClick={handleEsqueciSenha}
