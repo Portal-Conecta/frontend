@@ -9,6 +9,10 @@ import { ACCESS_COOKIE } from '@portal/core/auth/cookies'
  * `maxAge = expiresIn`, expira sozinho junto com o access — a checagem de
  * presença já vale como checagem de validade, sem decodificar JWT no Edge.
  *
+ * IMPORTANTE: este é um gate OTIMISTA, não uma fronteira de segurança. Ele não
+ * verifica a assinatura do JWT — um cookie forjado passa. A autorização real é
+ * do back, que valida o token em toda chamada de dados.
+ *
  * Público: `/login`. Protegido: todo o resto (ver `matcher`).
  */
 
@@ -34,7 +38,7 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  // Roda em tudo, menos estáticos do Next, arquivos com extensão e o próprio
-  // endpoint de auth (senão o login ficaria bloqueado por ele mesmo).
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|api/auth|.*\\..*).*)'],
+  // Roda em tudo, menos estáticos do Next, arquivos com extensão e rotas de API
+  // (que cuidam da própria auth e devem responder JSON, não redirect HTML).
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|api|.*\\..*).*)'],
 }
