@@ -30,8 +30,6 @@ function baseUrl(): string {
 }
 
 export async function login(email: string, senha: string): Promise<LoginResponse> {
-    // baseUrl() pode lançar AuthError('server') — fica fora do try pra não ser
-    // remapeado como 'network'.
     const url = `${baseUrl()}/auth/login`
 
     let res: Response
@@ -46,11 +44,13 @@ export async function login(email: string, senha: string): Promise<LoginResponse
     }
 
     if (res.ok) {
-        return (await res.json()) as LoginResponse
+        try {
+            return (await res.json()) as LoginResponse
+        } catch {
+            throw new AuthError('server')
+        }
     }
 
-    // Contrato do back: 401 = credencial inválida; 400 = validação (campos em
-    // branco/inválidos); 5xx e o resto = falha de servidor.
     if (res.status === 401) throw new AuthError('invalid_credentials')
     if (res.status === 400 || res.status === 422) throw new AuthError('validation')
     throw new AuthError('server')

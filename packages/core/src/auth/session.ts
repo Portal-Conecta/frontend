@@ -22,12 +22,16 @@ export async function setSession({ accessToken, refreshToken, expiresIn }: Login
     const store = await cookies()
     const secure = process.env.NODE_ENV === 'production'
 
+    // Guarda contra expiresIn ausente/0/negativo vindo malformado do back — sem
+    // isso o cookie viraria cookie de sessão (sem expiração) ou já expirado.
+    const accessMaxAge = expiresIn > 0 ? expiresIn : 900
+
     store.set(ACCESS_COOKIE, accessToken, {
         httpOnly: true,
         secure,
         sameSite: 'lax',
         path: '/',
-        maxAge: expiresIn,
+        maxAge: accessMaxAge,
     })
 
     store.set(REFRESH_COOKIE, refreshToken, {
