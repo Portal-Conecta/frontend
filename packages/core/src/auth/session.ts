@@ -45,8 +45,10 @@ export async function setSession({ accessToken, refreshToken, expiresIn }: Login
 
 export async function clearSession(): Promise<void> {
     const store = await cookies()
-    store.delete(ACCESS_COOKIE)
-    store.delete(REFRESH_COOKIE)
+    // Deleta com o mesmo `path` do set — sem casar o path, o browser pode não
+    // remover o cookie gravado em `path: '/'`.
+    store.delete({ name: ACCESS_COOKIE, path: '/' })
+    store.delete({ name: REFRESH_COOKIE, path: '/' })
 }
 
 /** Token de acesso da sessão atual, ou `undefined` se não houver sessão. */
