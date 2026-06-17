@@ -25,14 +25,14 @@ export function AppFooter({
     const sidebarWidth = sidebarExpanded ? SIDEBAR_WIDTH_EXPANDED : SIDEBAR_WIDTH_COLLAPSED
 
     return (
-        <footer className='flex h-[64px]'>
+        <footer className={`flex h-[64px] ${className ?? ''}`}>
 
             <div
                     className="
                         hidden
-                        min-[1920px]:flex
-                        min-[1920px]:items-center
-                        min-[1920px]:justify-center
+                        lg:flex
+                        lg:items-center
+                        lg:justify-center
                         self-stretch
                         transition-all
                         duration-300
