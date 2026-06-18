@@ -55,3 +55,29 @@ export async function login(email: string, senha: string): Promise<LoginResponse
     if (res.status === 400 || res.status === 422) throw new AuthError('validation')
     throw new AuthError('server')
 }
+
+export async function refresh(refreshToken: string): Promise<LoginResponse> {
+    const url = `${baseUrl()}/auth/refresh`
+
+    let res: Response
+    try {
+        res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refresh_token: refreshToken }),
+        })
+    } catch {
+        throw new AuthError('network')
+    }
+
+    if (res.ok) {
+        try {
+            return (await res.json()) as LoginResponse
+        } catch {
+            throw new AuthError('server')
+        }
+    }
+
+    if (res.status === 401) throw new AuthError('invalid_credentials')
+    throw new AuthError('server')
+}

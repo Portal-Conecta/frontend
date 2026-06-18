@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
-import { ACCESS_COOKIE } from '@portal/core/auth/cookies'
+import { ACCESS_COOKIE, REFRESH_COOKIE } from '@portal/core/auth/cookies'
 
 /**
  * Roteamento protegido (Edge).
@@ -13,6 +13,11 @@ import { ACCESS_COOKIE } from '@portal/core/auth/cookies'
  * verifica a assinatura do JWT — um cookie forjado passa. A autorização real é
  * do back, que valida o token em toda chamada de dados.
  *
+ * Quando o access expira mas o refresh ainda existe, o middleware delega para
+ * `/api/auth/refresh` (Route Handler server-side, fora do Edge) que lê o cookie
+ * httpOnly, chama o back e regrava a sessão antes de redirecionar o usuário de
+ * volta à rota original.
+ *
  * Público: `/login`. Protegido: todo o resto (ver `matcher`).
  */
 
@@ -21,16 +26,25 @@ const HOME = '/comunicados'
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
-  const hasSession = Boolean(req.cookies.get(ACCESS_COOKIE)?.value)
+  const hasAccess = Boolean(req.cookies.get(ACCESS_COOKIE)?.value)
+  const hasRefresh = Boolean(req.cookies.get(REFRESH_COOKIE)?.value)
   const isPublic = pathname === LOGIN
 
-  // Já logado tentando ver o login (ou a raiz) → manda pra área autenticada.
-  if (hasSession && (isPublic || pathname === '/')) {
+  // Já autenticado tentando ver o login (ou a raiz) → área autenticada.
+  if (hasAccess && (isPublic || pathname === '/')) {
     return NextResponse.redirect(new URL(HOME, req.url))
   }
 
-  // Sem sessão tentando rota protegida → manda pro login.
-  if (!hasSession && !isPublic) {
+  // Access expirou mas refresh ainda vive → delega renovação ao Route Handler.
+  // O Route Handler está em /api/*, excluído do matcher, então não há loop.
+  if (!hasAccess && hasRefresh && !isPublic) {
+    const target = new URL('/api/auth/refresh', req.url)
+    target.searchParams.set('next', pathname)
+    return NextResponse.redirect(target)
+  }
+
+  // Sem nenhuma sessão em rota protegida → login.
+  if (!hasAccess && !isPublic) {
     return NextResponse.redirect(new URL(LOGIN, req.url))
   }
 
