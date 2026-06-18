@@ -27,6 +27,8 @@ export const typography = {
     'heading-h2': ['2.25rem', { lineHeight: '1.25', fontWeight: '600' }], // 36px / 125% SemiBold
 
     // Body — Afacad
+    'body-xl':          ['1.5rem',  { lineHeight: '1.5' }],                    // 24px / 150% Regular
+    'body-xl-emphasis': ['1.5rem',  { lineHeight: '1.5', fontWeight: '600' }], // 24px / 150% SemiBold
     'body-md':          ['1.25rem', { lineHeight: '1.5' }],                    // 20px / 150% Regular
     'body-md-emphasis': ['1.25rem', { lineHeight: '1.5', fontWeight: '600' }], // 20px / 150% SemiBold
     'body-sm':          ['1rem',    { lineHeight: '1.5' }],                    // 16px / 150% Regular

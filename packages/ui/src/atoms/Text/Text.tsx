@@ -13,6 +13,8 @@ import type { HTMLAttributes, ReactNode } from 'react'
 const variantClass = {
   'heading-h1': 'text-heading-h1 font-inter',
   'heading-h2': 'text-heading-h2 font-inter',
+  'body-xl': 'text-body-xl font-afacad',
+  'body-xl-emphasis': 'text-body-xl-emphasis font-afacad',
   'body-md': 'text-body-md font-afacad',
   'body-md-emphasis': 'text-body-md-emphasis font-afacad',
   'body-sm': 'text-body-sm font-afacad',
