@@ -11,12 +11,15 @@
  */
 'use client'
 
-import { useEffect, useId, useRef } from 'react'
+import { useEffect, useId, useRef, type CSSProperties } from 'react'
 
 import { Icon, type IconName } from '../../atoms/Icon'
 import { Logo } from '../../atoms/Logo'
 import { SidebarNavItem } from '../../molecules/SidebarNavItem'
 import { SIDEBAR_WIDTH_COLLAPSED, SIDEBAR_WIDTH_EXPANDED } from '../AppFooter'
+
+/** Espelha o breakpoint `lg` do Tailwind: acima é rail, abaixo é drawer. */
+const LG_BREAKPOINT_PX = 1024
 
 export interface SidebarItem {
   key: string
@@ -69,7 +72,8 @@ export function Sidebar({ items, activeKey, expanded, onToggle, className }: Sid
   // interferir na navegação por teclado do rail.
   useEffect(() => {
     if (!expanded) return
-    if (typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches) return
+    if (typeof window !== 'undefined' && window.matchMedia(`(min-width: ${LG_BREAKPOINT_PX}px)`).matches)
+      return
 
     const panel = panelRef.current
     if (!panel) return
@@ -150,10 +154,13 @@ export function Sidebar({ items, activeKey, expanded, onToggle, className }: Sid
             aria-modal="true"
             aria-label="Menu de navegação"
             tabIndex={-1}
-            className="relative flex h-full w-[280px] max-w-[80%] flex-col rounded-r-xl bg-background-default shadow-lg md:w-[254px]"
+            // No tablet (md+) o drawer iguala a largura do rail expandido — sem
+            // repetir o literal: o valor vem da constante via custom property.
+            style={{ '--sb-drawer-w': `${SIDEBAR_WIDTH_EXPANDED}px` } as CSSProperties}
+            className="relative flex h-full w-[280px] max-w-[80%] flex-col rounded-r-xl bg-background-default shadow-lg md:w-[var(--sb-drawer-w)]"
           >
             <div className="px-4 pt-6 pb-2">
-              <Logo variant="mark" tone="brand" size={40} />
+              <Logo variant="mark" tone="brand" size={32} />
             </div>
             <div className="flex-1 overflow-x-hidden overflow-y-auto">
               <NavList items={items} activeKey={activeKey} collapsed={false} />
@@ -174,7 +181,7 @@ export function Sidebar({ items, activeKey, expanded, onToggle, className }: Sid
           aria-expanded={false}
           aria-controls={drawerId}
           className={[
-            'fixed bottom-4 left-4 z-40 flex h-12 w-12 items-center justify-center rounded-full',
+            'fixed bottom-4 left-4 z-40 flex h-[48px] w-[48px] items-center justify-center rounded-full',
             'bg-interactive-default text-text-inverse shadow-lg transition-colors',
             'hover:bg-interactive-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus',
             'lg:hidden',
