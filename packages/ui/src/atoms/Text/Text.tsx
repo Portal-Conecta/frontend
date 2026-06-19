@@ -42,7 +42,7 @@ const toneClass: Record<TextTone, string> = {
   disabled: 'text-text-disabled',
 }
 
-export type TextElement = 'p' | 'span' | 'label' | 'div' | 'h1' | 'h2' | 'h3'
+export type TextElement = 'p' | 'span' | 'label' | 'div' | 'h1' | 'h2' | 'h3' | 'a'
 
 export interface TextProps extends HTMLAttributes<HTMLElement> {
   variant?: TextVariant
@@ -50,6 +50,8 @@ export interface TextProps extends HTMLAttributes<HTMLElement> {
   tone?: TextTone
   /** Para `as="label"`: associa o label a um input (atributo `for`). */
   htmlFor?: string
+  /** Para `as="a"`: destino do link (atributo `href`). */
+  href?: string
   children: ReactNode
 }
 
