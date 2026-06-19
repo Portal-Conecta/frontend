@@ -1,9 +1,14 @@
+import type { ReactNode } from 'react'
+
 import { Text } from '../../atoms/Text'
 
 
-export interface AppFooterProps{
+export const SIDEBAR_WIDTH_COLLAPSED = 96
+export const SIDEBAR_WIDTH_EXPANDED = 254
+
+export interface AppFooterProps {
     sidebarExpanded?: boolean
-    leftSlot?: React.ReactNode
+    leftSlot?: ReactNode
     className?: string
 }
 
@@ -12,9 +17,6 @@ const links = [
     { label: 'Política de Privacidade', href: '/privacidade' },
     { label: 'Contato',                 href: '/contato' },
 ]
-
-const SIDEBAR_WIDTH_COLLAPSED = 96
-const SIDEBAR_WIDTH_EXPANDED = 254
 
 export function AppFooter({
     sidebarExpanded = false,
@@ -25,28 +27,32 @@ export function AppFooter({
     const sidebarWidth = sidebarExpanded ? SIDEBAR_WIDTH_EXPANDED : SIDEBAR_WIDTH_COLLAPSED
 
     return (
-        <footer className={`flex h-[64px] ${className ?? ''}`}>
+        <footer className={`flex min-h-[64px] md:h-[64px] ${className ?? ''}`}>
 
             <div
-                    className="
-                        hidden
-                        lg:flex
-                        lg:items-center
-                        lg:justify-center
-                        self-stretch
-                        transition-all
-                        duration-300
-                        ease-in-out"
-                        style={{width: sidebarWidth}}
-                >
-                    {leftSlot}
-                </div>
+                className="
+                    hidden
+                    lg:flex
+                    lg:items-center
+                    lg:justify-center
+                    self-stretch
+                    transition-[width]
+                    duration-300
+                    ease-in-out"
+                style={{ width: sidebarWidth }}
+            >
+                {leftSlot}
+            </div>
 
             <div className="
-                my-[clamp(19px,1.15vw,22px)] px-[clamp(23.5px,2.5vw,48px)] w-full box-border flex flex-col
+                w-full box-border flex flex-col
                 gap-2
+                px-6
+                py-2
                 md:flex-row
                 md:justify-between
+                md:py-0
+                lg:px-10
                 items-center
             ">
 
@@ -54,7 +60,7 @@ export function AppFooter({
                     className="
                         order-2
                         md:order-1
-                        text-[clamp(12px,0.73vw,14px)]
+                        lg:text-label-sm
                         text-center
                     "
                     variant="label-xs"
@@ -65,6 +71,7 @@ export function AppFooter({
                 </Text>
 
                 <nav
+                    aria-label="Links do rodapé"
                     className="
                         order-1
                         md:order-2
@@ -75,19 +82,20 @@ export function AppFooter({
                     "
                 >
                     {links.map(({ label, href }) => (
-                        <a
+                        <Text
                             key={href}
+                            as="a"
                             href={href}
+                            variant="label-sm"
+                            tone="primary"
                             className="
-                                text-[clamp(12px,1.05vw,16px)]
-                                font-inter
-                                text-text-primary
+                                md:text-label-md
                                 transition-colors
                                 hover:text-text-brand
                             "
                         >
                             {label}
-                        </a>
+                        </Text>
                     ))}
                 </nav>
             </div>
