@@ -52,7 +52,7 @@ export const Collapsed: Story = {
   args: { collapsed: true },
   decorators: [
     (Story) => (
-      <div className="w-16">
+      <div className="w-24">
         <Story />
       </div>
     ),
