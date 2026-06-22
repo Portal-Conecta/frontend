@@ -1,7 +1,10 @@
-# ADR-002: Next.js 15 com App Router como Shell da Aplicação
+# ADR-0002: Next.js 15 com App Router como Shell da Aplicação
 
 ## Status
 Aceita
+
+## Data
+2026-05-25
 
 ## Contexto
 

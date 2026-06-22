@@ -3,7 +3,7 @@
 **Público:** plataforma / squad Front (autoria de Design System).
 
 Este guia cobre o fluxo completo para criar um novo atom ou molecule no design system.
-Leia o [AGENTS.md](../../AGENTS.md) e o [ADR-005](../adr/ADR-005-atomic-design-ui.md) antes de começar.
+Leia o [AGENTS.md](../../AGENTS.md) e o [ADR-0005](../adr/ADR-0005-atomic-design-ui.md) antes de começar.
 
 ---
 
@@ -156,7 +156,7 @@ export const AllVariants: Story = {
 
 Critérios para adicionar uma story: cada variante visual distinta, estados difíceis de reproduzir no app (error, disabled, loading), e contexto que muda o significado visual (ex: fundo colorido com decorator).
 
-→ [ADR-007 — Storybook](../adr/ADR-007-storybook.md)
+→ [ADR-0007 — Storybook](../adr/ADR-0007-storybook.md)
 
 ---
 

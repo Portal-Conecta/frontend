@@ -20,7 +20,7 @@ apps/root         ← shell Next.js: registra rotas, importa domínios
 
 Cada camada importa apenas das camadas abaixo. Domínios nunca importam outros domínios — a violação quebra o CI. Lógica compartilhada entre domínios vai para `@portal/shared` (utilitário genérico) ou `@portal/core` (infraestrutura de negócio).
 
-→ [ADR-004 — Arquitetura em Camadas](docs/adr/ADR-004-arquitetura-em-camadas.md)
+→ [ADR-0004 — Arquitetura em Camadas](docs/adr/ADR-0004-arquitetura-em-camadas.md)
 
 ---
 

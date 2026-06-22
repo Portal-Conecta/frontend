@@ -4,7 +4,7 @@
 
 Esta convenção explica **o que são os tokens do nosso Design System**, como consumi-los no código
 e as **melhores práticas** para manter a base livre de valores hardcodados. Complementa o
-[ADR-008 (pipeline de tokens)](../adr/ADR-008-token-pipeline.md), que registra a decisão de como os
+[ADR-0008 (pipeline de tokens)](../adr/ADR-0008-token-pipeline.md), que registra a decisão de como os
 tokens são sincronizados a partir do Figma.
 
 > **Regra de ouro:** se existe um token para o valor, use o token. Hex cru e tamanhos de fonte
@@ -215,4 +215,4 @@ Se apenas um lugar usa o valor, o literal com comentário é suficiente por ora.
 7. Remova o literal temporário e o comentário de dívida.
 8. Remova a entrada da tabela no `AGENTS.md`.
 
-Ver [ADR-008 (pipeline de tokens)](../adr/ADR-008-token-pipeline.md).
+Ver [ADR-0008 (pipeline de tokens)](../adr/ADR-0008-token-pipeline.md).

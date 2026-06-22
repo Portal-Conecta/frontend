@@ -10,23 +10,27 @@ Uma ADR documenta uma decisão de arquitetura significativa: o contexto que moti
 
 | ADR | Título | Status |
 |-----|--------|--------|
-| [ADR-001](ADR-001-monorepo-pnpm-workspaces.md) | Monorepo com pnpm Workspaces | Aceita |
-| [ADR-002](ADR-002-nextjs-15-app-router.md) | Next.js 15 com App Router como Shell | Aceita |
-| [ADR-003](ADR-003-typescript-strict-composite.md) | TypeScript Estrito com Project References | Aceita |
-| [ADR-004](ADR-004-arquitetura-em-camadas.md) | Arquitetura em Camadas com Fronteiras de Importação | Aceita |
-| [ADR-005](ADR-005-atomic-design-ui.md) | Atomic Design para o Pacote UI | Aceita |
-| [ADR-006](ADR-006-tailwind-css-v4.md) | Tailwind CSS v4 como Solução de Estilização | Aceita |
-| [ADR-007](ADR-007-storybook.md) | Storybook para Documentação de Componentes | Aceita |
+| [ADR-0001](ADR-0001-monorepo-pnpm-workspaces.md) | Monorepo com pnpm Workspaces | Aceita |
+| [ADR-0002](ADR-0002-nextjs-15-app-router.md) | Next.js 15 com App Router como Shell | Aceita |
+| [ADR-0003](ADR-0003-typescript-strict-composite.md) | TypeScript Estrito com Project References | Aceita |
+| [ADR-0004](ADR-0004-arquitetura-em-camadas.md) | Arquitetura em Camadas com Fronteiras de Importação | Aceita |
+| [ADR-0005](ADR-0005-atomic-design-ui.md) | Atomic Design para o Pacote UI | Aceita |
+| [ADR-0006](ADR-0006-tailwind-css-v4.md) | Tailwind CSS v4 como Solução de Estilização | Aceita |
+| [ADR-0007](ADR-0007-storybook.md) | Storybook para Documentação de Componentes | Aceita |
+| [ADR-0008](ADR-0008-token-pipeline.md) | Pipeline de Tokens (Figma Variables para TypeScript) | Aceita |
 
 ## Como criar uma nova ADR
 
-Copie o template abaixo, nomeie o arquivo como `ADR-NNN-titulo-kebab-case.md` e adicione ao índice acima.
+Copie o template abaixo, nomeie o arquivo como `ADR-NNNN-titulo-kebab-case.md` e adicione ao índice acima.
 
 ```markdown
-# ADR-NNN: Título
+# ADR-NNNN: Título
 
 ## Status
-Proposta | Aceita | Depreciada | Substituída por [ADR-NNN]
+Proposta | Aceita | Depreciada | Substituída por [ADR-NNNN]
+
+## Data
+AAAA-MM-DD
 
 ## Contexto
 Por que essa decisão precisou ser tomada.
@@ -35,5 +39,5 @@ Por que essa decisão precisou ser tomada.
 O que foi decidido.
 
 ## Consequências
-O que resulta dessa decisão — positivos e negativos.
+O que resulta dessa decisão (positivos e negativos).
 ```

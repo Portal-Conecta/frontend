@@ -1,7 +1,10 @@
-# ADR-008: Pipeline de Tokens — Figma Variables → TypeScript
+# ADR-0008: Pipeline de Tokens (Figma Variables para TypeScript)
 
 ## Status
 Aceita
+
+## Data
+2026-06-02
 
 ## Contexto
 
@@ -10,7 +13,7 @@ O pacote `@portal/ui` foi scaffoldado com arquivos de token vazios em
 (arquivo *Portal Conecta - Design System*, fileKey `GPvf4G2qpP8MMyK3HB6n2t`)
 e precisavam ser trazidas para o código de forma reproduzível e rastreável.
 
-A ADR-006 já havia decidido que o Tailwind CSS seria alimentado por tokens
+A ADR-0006 já havia decidido que o Tailwind CSS seria alimentado por tokens
 TypeScript via `theme.extend`. Esta ADR documenta como esses tokens são
 gerados e quais decisões foram tomadas no processo.
 
@@ -139,7 +142,7 @@ Pode ser adotado no futuro se a frequência de atualizações aumentar.
 **Positivo:**
 - Tokens type-safe com autocomplete em todo o monorepo.
 - Zero runtime JavaScript para estilos — compatível com React Server
-  Components (alinhado com ADR-006).
+  Components (alinhado com ADR-0006).
 - Camada semântica desacopla componentes da paleta primitiva — mudar
   `blue/500` no Figma reflete em todos os componentes sem busca-e-substituição.
 - Script `sync-tokens.ts` valida a estrutura do JSON e emite erros
@@ -158,7 +161,7 @@ Pode ser adotado no futuro se a frequência de atualizações aumentar.
 
 ## Referências
 
-- ADR-006: Tailwind CSS v4 como Solução de Estilização
+- ADR-0006: Tailwind CSS v4 como Solução de Estilização
 - `scripts/sync-tokens.ts` — script de validação, normalização e relatório
 - `variables_from_figma.json` — snapshot das variáveis (atualizado a cada sprint)
 - Figma DS: `https://figma.com/design/GPvf4G2qpP8MMyK3HB6n2t`

@@ -1,7 +1,10 @@
-# ADR-005: Atomic Design para o Pacote UI
+# ADR-0005: Atomic Design para o Pacote UI
 
 ## Status
 Aceita
+
+## Data
+2026-05-25
 
 ## Contexto
 

@@ -1,7 +1,10 @@
-# ADR-006: Tailwind CSS v4 como Solução de Estilização
+# ADR-0006: Tailwind CSS v4 como Solução de Estilização
 
 ## Status
 Aceita
+
+## Data
+2026-05-25
 
 ## Contexto
 
