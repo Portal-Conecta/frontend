@@ -1,4 +1,6 @@
-# Guia de Criação de Componentes — @portal/ui
+# Guia de Criação de Componentes (@portal/ui)
+
+**Público:** plataforma / squad Front (autoria de Design System).
 
 Este guia cobre o fluxo completo para criar um novo atom ou molecule no design system.
 Leia o [AGENTS.md](../../AGENTS.md) e o [ADR-005](../adr/ADR-005-atomic-design-ui.md) antes de começar.

@@ -1,8 +1,10 @@
-# Guia de Tokens — Portal Conecta
+# Convenção: Tokens e Theming
 
-Este guia explica **o que são os tokens do nosso Design System**, como consumi-los no código
+**Público:** todos (plataforma e squads operacionais).
+
+Esta convenção explica **o que são os tokens do nosso Design System**, como consumi-los no código
 e as **melhores práticas** para manter a base livre de valores hardcodados. Complementa o
-[ADR-008 (pipeline de tokens)](adr/ADR-008-token-pipeline.md), que registra a decisão de como os
+[ADR-008 (pipeline de tokens)](../adr/ADR-008-token-pipeline.md), que registra a decisão de como os
 tokens são sincronizados a partir do Figma.
 
 > **Regra de ouro:** se existe um token para o valor, use o token. Hex cru e tamanhos de fonte
