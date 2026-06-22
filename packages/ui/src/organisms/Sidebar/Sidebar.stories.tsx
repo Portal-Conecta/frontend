@@ -45,6 +45,25 @@ const meta: Meta<typeof Sidebar> = {
   title: 'Organisms/Sidebar',
   component: Sidebar,
   parameters: { layout: 'fullscreen' },
+  argTypes: {
+    items: {
+      control: false,
+      description: 'Itens de navegação: `{ key, icon, label, onClick? }`.',
+    },
+    activeKey: {
+      control: 'text',
+      description: 'Key do item ativo (marca `aria-current` e estilo de ativo).',
+    },
+    expanded: {
+      control: 'boolean',
+      description:
+        'Estado controlado (vive no pai): aberto (rail expandido / drawer) ou fechado (rail colapsado / FAB).',
+    },
+    onToggle: {
+      control: false,
+      description: 'Callback de alternância do estado `expanded` (Reduzir, scrim, Esc, FAB).',
+    },
+  },
 }
 
 export default meta

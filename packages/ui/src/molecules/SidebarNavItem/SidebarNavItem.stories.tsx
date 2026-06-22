@@ -10,9 +10,23 @@ const meta: Meta<typeof SidebarNavItem> = {
   component: SidebarNavItem,
   parameters: { layout: 'padded' },
   argTypes: {
-    icon: { control: 'select', options: iconNames },
-    active: { control: 'boolean' },
-    collapsed: { control: 'boolean' },
+    icon: {
+      control: 'select',
+      options: iconNames,
+      description: 'Ícone do item (set aprovado do DS).',
+    },
+    label: {
+      control: 'text',
+      description: 'Texto do item de navegação.',
+    },
+    active: {
+      control: 'boolean',
+      description: 'Marca o item como página atual (cor de ativo + indicador + `aria-current`).',
+    },
+    collapsed: {
+      control: 'boolean',
+      description: 'Colapsa o label (anima encolher + fade, mantido no DOM para leitores de tela).',
+    },
   },
   args: {
     icon: 'newspaper',

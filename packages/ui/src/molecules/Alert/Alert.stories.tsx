@@ -7,7 +7,12 @@ const meta: Meta<typeof Alert> = {
   component: Alert,
   parameters: { layout: 'padded' },
   argTypes: {
-    variant: { control: 'inline-radio', options: ['error', 'info'] },
+    variant: {
+      control: 'inline-radio',
+      options: ['error', 'info'],
+      description:
+        'Tipo da mensagem: `error` (barra vermelha, role `alert`) ou `info` (barra branca, role `status`). Default `error`.',
+    },
   },
   args: {
     variant: 'error',

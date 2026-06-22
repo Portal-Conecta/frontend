@@ -8,9 +8,21 @@ const meta = {
         layout: 'padded',
     },
     argTypes: {
-        variant: { control: 'select', options: textVariants },
-        tone: { control: 'inline-radio', options: ['primary', 'secondary', 'brand', 'inverse', 'disabled'] },
-        as: { control: 'select', options: ['p', 'span', 'label', 'div', 'h1', 'h2', 'h3'] },
+        variant: {
+            control: 'select',
+            options: textVariants,
+            description: 'Intenção tipográfica — pareia tamanho + entrelinha + peso + família do token. Default `body-md`.',
+        },
+        tone: {
+            control: 'inline-radio',
+            options: ['primary', 'secondary', 'brand', 'inverse', 'disabled'],
+            description: 'Cor semântica do texto (token). Omitido herda a cor do contexto.',
+        },
+        as: {
+            control: 'select',
+            options: ['p', 'span', 'label', 'div', 'h1', 'h2', 'h3'],
+            description: 'Elemento HTML renderizado. Default `p`.',
+        },
     },
     args: {
         children: 'Texto de exemplo',

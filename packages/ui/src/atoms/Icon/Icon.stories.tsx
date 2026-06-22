@@ -10,10 +10,29 @@ const meta = {
   component: Icon,
   parameters: { layout: 'centered' },
   argTypes: {
-    name: { control: 'select', options: iconNames },
-    size: { control: 'inline-radio', options: ['sm', 'md', 'lg'] },
-    tone: { control: 'inline-radio', options: [undefined, 'primary', 'secondary', 'inverse'] },
-    decorative: { control: 'boolean' },
+    name: {
+      control: 'select',
+      options: iconNames,
+      description: 'Ícone do set aprovado pelo DS (registry curado).',
+    },
+    size: {
+      control: 'inline-radio',
+      options: ['sm', 'md', 'lg'],
+      description: 'Tamanho: sm=16 · md=24 · lg=32. Default md.',
+    },
+    tone: {
+      control: 'inline-radio',
+      options: [undefined, 'primary', 'secondary', 'inverse'],
+      description: 'Cor semântica. Omitir para herdar a cor do contexto (currentColor).',
+    },
+    label: {
+      control: 'text',
+      description: 'Nome acessível. Default: o próprio `name`. Ignorado se `decorative`.',
+    },
+    decorative: {
+      control: 'boolean',
+      description: 'Ícone puramente decorativo (oculto de leitores de tela).',
+    },
   },
   args: { name: 'search', size: 'md' },
 } satisfies Meta<typeof Icon>
