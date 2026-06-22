@@ -18,6 +18,8 @@ Uma ADR documenta uma decisão de arquitetura significativa: o contexto que moti
 | [ADR-0006](ADR-0006-tailwind-css-v4.md) | Tailwind CSS v4 como Solução de Estilização | Aceita |
 | [ADR-0007](ADR-0007-storybook.md) | Storybook para Documentação de Componentes | Aceita |
 | [ADR-0008](ADR-0008-token-pipeline.md) | Pipeline de Tokens (Figma Variables para TypeScript) | Aceita |
+| [ADR-0009](ADR-0009-enforcement-de-token.md) | Enforcement de Token via Lint/CI | Aceita |
+| [ADR-0010](ADR-0010-governanca-ci-como-portao.md) | Governança e CI como Portão | Aceita |
 
 ## Como criar uma nova ADR
 
