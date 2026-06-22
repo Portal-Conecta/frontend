@@ -51,7 +51,7 @@ packages/ui/src/molecules/MeuComponente/   ← se compõe outros atoms
 
 O PR de migração exige ao menos um aprovador do squad de Front-End e uma story no Storybook.
 
-→ [Guia de criação de componentes](docs/guides/creating-components.md)
+→ [Guia de criação de componentes](docs/conventions/creating-components.md)
 
 ---
 
@@ -71,7 +71,7 @@ Se existe um token, use o token. Hex cru, tamanho de fonte arbitrário e valores
 
 **Única exceção:** o gradiente do `AuthLayout` usa primitivos `blue/300` e `blue/500` diretamente — Tailwind não suporta gradiente via token semântico. Toda nova exceção exige comentário explicando o motivo e aprovação do Tech Lead.
 
-→ [Guia completo de tokens](docs/tokens.md)
+→ [Guia completo de tokens](docs/conventions/tokens-e-theming.md)
 
 ---
 
@@ -103,4 +103,4 @@ export function LoginForm() {
 | Border radius 24px sem token | `packages/ui/src/tokens/radius.ts` | Adicionar `xl: '1.5rem'` após aprovação do DS |
 | `body/sm-emphasis` font family | `scripts/sync-tokens.ts` | Correção hardcoded no script — depende de ajuste no Figma DS |
 
-→ [Como registrar e tratar dívidas de token](docs/guides/token-debt.md)
+→ [Como registrar e tratar dívidas de token](docs/conventions/tokens-e-theming.md)
