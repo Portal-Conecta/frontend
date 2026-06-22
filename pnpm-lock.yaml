@@ -14,6 +14,9 @@ importers:
       '@fontsource/inter':
         specifier: ^5.2.8
         version: 5.2.8
+      '@storybook/addon-a11y':
+        specifier: ^8.0.0
+        version: 8.6.18(storybook@8.6.18(prettier@3.8.3))
       '@storybook/addon-essentials':
         specifier: ^8.0.0
         version: 8.6.14(@types/react@19.2.17)(storybook@8.6.18(prettier@3.8.3))
@@ -1550,6 +1553,11 @@ packages:
       webpack-plugin-serve:
         optional: true
 
+  '@storybook/addon-a11y@8.6.18':
+    resolution: {integrity: sha512-LFvudttdIfDTNWprA8/N1vbiWbJRrNscyt2OP9Qwi85E1d3LKLy+e8AWiqY08gpy2OUYujK7AjxfpKtNeddrxw==}
+    peerDependencies:
+      storybook: ^8.6.18
+
   '@storybook/addon-actions@8.6.14':
     resolution: {integrity: sha512-mDQxylxGGCQSK7tJPkD144J8jWh9IU9ziJMHfB84PKpI/V5ZgqMDnpr2bssTrUaGDqU5e1/z8KcRF+Melhs9pQ==}
     peerDependencies:
@@ -1579,6 +1587,11 @@ packages:
     resolution: {integrity: sha512-4H19OJlapkofiE9tM6K/vsepf4ir9jMm9T+zw5L85blJZxhKZIbJ6FO0TCG9PDc4iPt3L6+aq5B0X29s9zicNQ==}
     peerDependencies:
       storybook: ^8.6.14
+
+  '@storybook/addon-highlight@8.6.18':
+    resolution: {integrity: sha512-wTFJ1DPM0C8gK6nGTJxH75byayQj7BPAz02fME4AOmT6clrBpVl1zSTFTkXaSr+k4xOfeMR/xNUfVskaXz6T9w==}
+    peerDependencies:
+      storybook: ^8.6.18
 
   '@storybook/addon-interactions@8.6.14':
     resolution: {integrity: sha512-8VmElhm2XOjh22l/dO4UmXxNOolGhNiSpBcls2pqWSraVh4a670EyYBZsHpkXqfNHo2YgKyZN3C91+9zfH79qQ==}
@@ -2157,6 +2170,10 @@ packages:
   available-typed-arrays@1.0.7:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
+
+  axe-core@4.12.1:
+    resolution: {integrity: sha512-s7iGf5GaVMxEG0ENN9x+xTr7GFZCb1ZP/1uATUpCEK2X78nDB3RwbtFCo9pGAf9ru+VwoQ464DkaLEeRM08wJA==}
+    engines: {node: '>=4'}
 
   babel-loader@9.2.1:
     resolution: {integrity: sha512-fqe8naHt46e0yIdkjUZYqddSXfej3AHajX+CSO5X7oy0EmPc6o5Xh+RClNoHjnieWz9AW4kZxW9yyFMhVB1QLA==}
@@ -5356,6 +5373,14 @@ snapshots:
       type-fest: 2.19.0
       webpack-hot-middleware: 2.26.1
 
+  '@storybook/addon-a11y@8.6.18(storybook@8.6.18(prettier@3.8.3))':
+    dependencies:
+      '@storybook/addon-highlight': 8.6.18(storybook@8.6.18(prettier@3.8.3))
+      '@storybook/global': 5.0.0
+      '@storybook/test': 8.6.18(storybook@8.6.18(prettier@3.8.3))
+      axe-core: 4.12.1
+      storybook: 8.6.18(prettier@3.8.3)
+
   '@storybook/addon-actions@8.6.14(storybook@8.6.18(prettier@3.8.3))':
     dependencies:
       '@storybook/global': 5.0.0
@@ -5409,6 +5434,11 @@ snapshots:
       - '@types/react'
 
   '@storybook/addon-highlight@8.6.14(storybook@8.6.18(prettier@3.8.3))':
+    dependencies:
+      '@storybook/global': 5.0.0
+      storybook: 8.6.18(prettier@3.8.3)
+
+  '@storybook/addon-highlight@8.6.18(storybook@8.6.18(prettier@3.8.3))':
     dependencies:
       '@storybook/global': 5.0.0
       storybook: 8.6.18(prettier@3.8.3)
@@ -6194,6 +6224,8 @@ snapshots:
   available-typed-arrays@1.0.7:
     dependencies:
       possible-typed-array-names: 1.1.0
+
+  axe-core@4.12.1: {}
 
   babel-loader@9.2.1(@babel/core@7.29.7)(webpack@5.101.2(esbuild@0.25.12)(postcss@8.5.15)):
     dependencies:

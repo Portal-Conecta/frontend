@@ -42,6 +42,18 @@ const meta: Meta<typeof AppFooter> = {
   title: 'Organisms/AppFooter',
   component: AppFooter,
   parameters: { layout: 'fullscreen' },
+  argTypes: {
+    sidebarExpanded: {
+      control: 'boolean',
+      description:
+        'Alinha a largura da coluna esquerda ao estado da sidebar (colapsada 96px / expandida 254px).',
+    },
+    leftSlot: {
+      control: false,
+      description:
+        'Conteúdo da coluna esquerda alinhada à sidebar (ex.: botão de reduzir). Visível só em ≥lg.',
+    },
+  },
 }
 
 export default meta

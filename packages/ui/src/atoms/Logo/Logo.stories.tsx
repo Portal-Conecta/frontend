@@ -9,10 +9,28 @@ const meta = {
     layout: 'centered',
   },
   argTypes: {
-    variant: { control: 'inline-radio', options: ['full', 'mark'] },
-    tone: { control: 'inline-radio', options: ['brand', 'inverse'] },
-    size: { control: { type: 'range', min: 16, max: 120, step: 2 } },
-    decorative: { control: 'boolean' },
+    variant: {
+      control: 'inline-radio',
+      options: ['full', 'mark'],
+      description: 'Versão da marca: `full` (símbolo + wordmark) ou `mark` (só símbolo). Default `full`.',
+    },
+    tone: {
+      control: 'inline-radio',
+      options: ['brand', 'inverse'],
+      description: 'Tom de cor derivado de token: `brand` (azul) ou `inverse` (branco). Default `brand`.',
+    },
+    size: {
+      control: { type: 'range', min: 16, max: 120, step: 2 },
+      description: 'Altura em px (largura deriva da proporção). DS: 16 · 24 · 32 · 54. Default 54.',
+    },
+    title: {
+      control: 'text',
+      description: 'Nome acessível da marca. Default "Portal Conecta". Ignorado se `decorative`.',
+    },
+    decorative: {
+      control: 'boolean',
+      description: 'Quando a logo é puramente decorativa (oculta de leitores de tela).',
+    },
   },
   args: {
     variant: 'full',
