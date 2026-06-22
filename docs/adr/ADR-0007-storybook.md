@@ -1,7 +1,10 @@
-# ADR-007: Storybook para Documentação de Componentes
+# ADR-0007: Storybook para Documentação de Componentes
 
 ## Status
 Aceita
+
+## Data
+2026-05-25
 
 ## Contexto
 

@@ -2,7 +2,7 @@
  * Sidebar — navegação lateral do Portal Conecta. Compõe a molecule
  * SidebarNavItem (+ Logo e Icon). Organismo **controlado**: o estado `expanded`
  * vive no pai (sincroniza com footer/header/conteúdo). Sem dependência de
- * Next.js — navegação via `onClick`/`activeKey` (ADR-004).
+ * Next.js — navegação via `onClick`/`activeKey` (ADR-0004).
  *
  * Dois comportamentos por breakpoint (corte em `lg` = 1024px):
  * - Desktop (≥lg): rail persistente que anima 96px↔254px e empurra o conteúdo.

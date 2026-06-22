@@ -1,7 +1,10 @@
-# ADR-003: TypeScript Estrito com Project References Compostos
+# ADR-0003: TypeScript Estrito com Project References Compostos
 
 ## Status
 Aceita
+
+## Data
+2026-05-25
 
 ## Contexto
 
