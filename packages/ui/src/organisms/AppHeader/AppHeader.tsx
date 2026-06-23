@@ -59,7 +59,12 @@ export function AppHeader({
     { icon: 'circle-user', label: 'Perfil', onClick: onProfileClick },
   ]
 
-  const headerClasses = ['flex w-full items-center bg-background-default min-h-[64px] md:h-[64px]', className]
+  // Mobile/tablet: a sidebar é separada (drawer/FAB), então o header é branco.
+  // Desktop: o header se conecta ao rail da sidebar — ambos em background/default.
+  const headerClasses = [
+    'flex w-full items-center bg-background-surface lg:bg-background-default min-h-[64px] md:h-[64px]',
+    className,
+  ]
     .filter(Boolean)
     .join(' ')
 
@@ -91,8 +96,8 @@ export function AppHeader({
           <Logo variant="mark" tone="brand" size={32} decorative />
         </button>
 
-        {/* Pílula no mobile/tablet; sem container no desktop. Cada botão tem rótulo próprio. */}
-        <div className="ml-auto flex items-center gap-2 rounded-full border-sm border-border-default bg-background-surface px-3 py-1.5 lg:gap-4 lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0">
+        {/* Pílula (background/default) no mobile/tablet; sem container no desktop. Cada botão tem rótulo próprio. */}
+        <div className="ml-auto flex items-center gap-4 rounded-full border-sm border-border-default bg-background-default px-6 py-1.5 lg:gap-6 lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0">
           {actions.map(({ icon, label, onClick }) => (
             <button
               key={icon}
