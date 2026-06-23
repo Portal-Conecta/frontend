@@ -1,55 +1,44 @@
+/**
+ * AppHeader — barra superior do AppLayout, presente em todos os breakpoints.
+ * Compõe os átomos Logo e Icon. Organismo **controlado**: o estado
+ * `sidebarExpanded` vive no shell (AppLayout) e é compartilhado com Sidebar e
+ * AppFooter — por isso o bloco da logo reusa as larguras e a transição do rail
+ * (`SIDEBAR_WIDTH_*` do AppFooter) e anima em lockstep com a Sidebar.
+ *
+ * Sem dependência de Next.js (ADR-0004): navegação e ações via callbacks.
+ * Sem `'use client'`: só repassa os callbacks recebidos, não usa hooks.
+ *
+ * Layout por breakpoint (corte em `lg` = 1024px):
+ * - Desktop (≥lg): bloco da logo alinhado à largura do rail (full quando
+ *   `sidebarExpanded`, senão mark) + ações soltas à direita.
+ * - Tablet/Mobile (<lg): logo-mark à esquerda + ações dentro de uma pílula.
+ */
 import { Icon, type IconName } from '../../atoms/Icon'
 import { Logo } from '../../atoms/Logo'
-
-
-const SIDEBAR_WIDTH_COLLAPSED = 96
-const SIDEBAR_WIDTH_EXPANDED  = 254
-
-const LOGO_SIZE = 'calc(clamp(24px, 12.12121vw - 69.0909px, 32px) + clamp(0px, 7.91367vw - 66px, 22px))'
-
-const ACTION_ICON_SIZE = 'calc(clamp(16px, 3.9vw - 13.95px, 24px) + clamp(0px, 5.76vw - 56px, 8px))'
-
-const HEADER_PY = 'calc(clamp(0px, 5.7554vw - 48px, 8px) + clamp(0px, 11.8705vw - 115.5px, 15.5px))'
-const HEADER_PL = 'calc(clamp(12px, 8.63309vw - 60px, 24px) + clamp(0px, 5.7554vw - 56px, 8px))'
-const HEADER_PR = 'calc(clamp(12px, 8.63309vw - 60px, 24px) + clamp(0px, 17.26619vw - 168px, 24px))'
-
-const ACTION_BAR_GAP = 'clamp(8px, 11.51079vw - 88px, 24px)'
-const ACTION_BAR_PX  = 'calc(clamp(12px, 8.63309vw - 60px, 24px) + clamp(-24px, -17.26619vw + 168px, 0px))'
-const ACTION_BAR_PY  = 'calc(clamp(4px, 2.8777vw - 20px, 8px) + clamp(-8px, -5.7554vw + 56px, 0px))'
-
-
-function ResponsiveLogo({ variant }: { variant: 'full' | 'mark' }) {
-  return (
-    <Logo
-      variant={variant}
-      size={54}
-      tone="brand"
-      decorative
-      style={{ height: LOGO_SIZE, width: 'auto' }}
-    />
-  )
-}
-
-function ActionIcon({ name }: { name: IconName }) {
-  return (
-    <Icon
-      name={name}
-      size="lg"
-      tone="primary"
-      decorative
-      style={{ width: ACTION_ICON_SIZE, height: ACTION_ICON_SIZE }}
-    />
-  )
-}
+import { SIDEBAR_WIDTH_COLLAPSED, SIDEBAR_WIDTH_EXPANDED } from '../AppFooter'
 
 export interface AppHeaderProps {
+  /** Espelha o estado da Sidebar (vive no AppLayout). Desktop: expande o bloco da logo e troca mark→full. */
   sidebarExpanded?: boolean
+  /** Clique na logo — navegação para a home. */
   onLogoClick?: () => void
+  /** Clique no ícone "mais opções" (ellipsis). */
   onMoreOptionsClick?: () => void
+  /** Clique no ícone de notificações (bell). */
   onNotificationsClick?: () => void
+  /** Clique no ícone de perfil (circle-user). */
   onProfileClick?: () => void
-  unreadNotificationsCount?: number
   className?: string
+}
+
+// Foco visível via token (border-focus), padrão dos demais interativos do DS.
+const focusRing =
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2'
+
+interface ActionItem {
+  icon: IconName
+  label: string
+  onClick: (() => void) | undefined
 }
 
 export function AppHeader({
@@ -58,98 +47,64 @@ export function AppHeader({
   onMoreOptionsClick,
   onNotificationsClick,
   onProfileClick,
-  unreadNotificationsCount = 0,
   className,
 }: AppHeaderProps) {
-  const hasUnread    = unreadNotificationsCount > 0
   const sidebarWidth = sidebarExpanded ? SIDEBAR_WIDTH_EXPANDED : SIDEBAR_WIDTH_COLLAPSED
+  // Alinha a logo ao recuo dos itens de nav do rail (SidebarNavItem: pl-4 expandido / pl-8 colapsado).
+  const logoPadding = sidebarExpanded ? 'pl-4' : 'pl-8'
+
+  const actions: ActionItem[] = [
+    { icon: 'ellipsis', label: 'Mais opções', onClick: onMoreOptionsClick },
+    { icon: 'bell', label: 'Notificações', onClick: onNotificationsClick },
+    { icon: 'circle-user', label: 'Perfil', onClick: onProfileClick },
+  ]
+
+  const headerClasses = ['flex w-full items-center bg-background-default min-h-[64px] md:h-[64px]', className]
+    .filter(Boolean)
+    .join(' ')
 
   return (
-    <header
-      className={['flex w-full items-center justify-between', 'bg-background-surface', className]
-        .filter(Boolean)
-        .join(' ')}
-      style={{
-        paddingTop:    HEADER_PY,
-        paddingBottom: HEADER_PY,
-        paddingLeft:   HEADER_PL,
-        paddingRight:  HEADER_PR,
-      }}
-    >
-      <button
-        type="button"
-        onClick={onLogoClick}
-        aria-label="Ir para o menu principal"
-        className="rounded-md transition-transform duration-150 ease-out hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive-focus-ring focus-visible:ring-offset-2 lg:hidden"
-      >
-        <ResponsiveLogo variant="mark" />
-      </button>
-
+    <header className={headerClasses}>
+      {/* Bloco da logo — desktop (≥lg): largura = rail, anima em lockstep com a Sidebar */}
       <div
-        className="hidden lg:flex lg:items-center self-stretch shrink-0"
-        style={{ width: sidebarWidth, transition: 'width 300ms ease-in-out' }}
+        className={`hidden shrink-0 items-center transition-[width] duration-300 ease-in-out lg:flex ${logoPadding}`}
+        style={{ width: sidebarWidth }}
       >
         <button
           type="button"
           onClick={onLogoClick}
-          aria-label="Ir para o menu principal"
-          className="inline-flex items-center justify-start rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive-focus-ring focus-visible:ring-offset-2"
-          style={{ height: LOGO_SIZE }}
+          aria-label="Página inicial"
+          className={`rounded-md ${focusRing}`}
         >
-          <span
-            key={sidebarExpanded ? 'full' : 'mark'}
-            style={{ animation: 'fadeIn 300ms ease-in-out', display: 'inline-flex', height: '100%', alignItems: 'center' }}
-          >
-            <Logo
-              variant={sidebarExpanded ? 'full' : 'mark'}
-              size={54}
-              tone="brand"
-              decorative
-              style={{ height: '100%', width: 'auto' }}
-            />
-          </span>
+          <Logo variant={sidebarExpanded ? 'full' : 'mark'} tone="brand" size={32} decorative />
         </button>
       </div>
 
-      <div
-        className="flex items-center rounded-full border border-border-default bg-background-default lg:rounded-none lg:border-0 lg:bg-transparent"
-        style={{
-          gap:           ACTION_BAR_GAP,
-          paddingTop:    ACTION_BAR_PY,
-          paddingBottom: ACTION_BAR_PY,
-          paddingLeft:   ACTION_BAR_PX,
-          paddingRight:  ACTION_BAR_PX,
-        }}
-      >
+      {/* Linha principal: logo-mark (mobile/tablet) + ações à direita */}
+      <div className="flex flex-1 items-center px-6 lg:px-10">
         <button
           type="button"
-          onClick={onMoreOptionsClick}
-          aria-label="Mais opções"
-          className="rounded-full lg:rounded-md transition-transform duration-150 hover:scale-110 active:scale-95"
+          onClick={onLogoClick}
+          aria-label="Página inicial"
+          className={`rounded-md lg:hidden ${focusRing}`}
         >
-          <ActionIcon name="ellipsis" />
+          <Logo variant="mark" tone="brand" size={32} decorative />
         </button>
 
-        <button
-          type="button"
-          onClick={onNotificationsClick}
-          aria-label={hasUnread ? `Notificações, ${unreadNotificationsCount} não lidas` : 'Notificações'}
-          className="relative rounded-full lg:rounded-md transition-transform duration-150 hover:scale-110 active:scale-95"
-        >
-          <ActionIcon name="bell" />
-          {hasUnread && (
-            <span aria-hidden="true" className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-feedback-error" />
-          )}
-        </button>
-
-        <button
-          type="button"
-          onClick={onProfileClick}
-          aria-label="Perfil"
-          className="rounded-full lg:rounded-md transition-transform duration-150 hover:scale-110 active:scale-95"
-        >
-          <ActionIcon name="circle-user" />
-        </button>
+        {/* Pílula no mobile/tablet; sem container no desktop. Cada botão tem rótulo próprio. */}
+        <div className="ml-auto flex items-center gap-2 rounded-full border-sm border-border-default bg-background-surface px-3 py-1.5 lg:gap-4 lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0">
+          {actions.map(({ icon, label, onClick }) => (
+            <button
+              key={icon}
+              type="button"
+              onClick={onClick}
+              aria-label={label}
+              className={`rounded-md ${focusRing}`}
+            >
+              <Icon name={icon} size="md" tone="primary" decorative />
+            </button>
+          ))}
+        </div>
       </div>
     </header>
   )
