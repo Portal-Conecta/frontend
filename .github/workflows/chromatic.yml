@@ -1,14 +1,12 @@
 name: Chromatic
 
+# Roda só no push (não em pull_request): o Chromatic associa o build ao commit,
+# então o status check aparece no PR sem rodar duas vezes por push.
 on:
   push:
     branches:
       - 'feature/**'
       - develop
-  pull_request:
-    branches:
-      - develop
-      - main
 
 jobs:
   chromatic:
