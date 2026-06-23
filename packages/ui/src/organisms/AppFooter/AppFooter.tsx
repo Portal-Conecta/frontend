@@ -36,6 +36,7 @@ export function AppFooter({
                     lg:items-center
                     lg:justify-center
                     self-stretch
+                    shrink-0
                     transition-[width]
                     duration-300
                     ease-in-out"
