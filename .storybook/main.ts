@@ -2,7 +2,7 @@ import type { StorybookConfig } from '@storybook/nextjs'
 import path from 'path'
 
 const config: StorybookConfig = {
-  stories: ['../packages/ui/src/**/*.stories.@(ts|tsx)'],
+  stories: ['../packages/*/src/**/*.stories.@(ts|tsx)'],
   addons: [
     '@storybook/addon-essentials',
     '@storybook/addon-interactions',
@@ -17,6 +17,7 @@ const config: StorybookConfig = {
     webpackConfig.resolve.alias = {
       ...webpackConfig.resolve.alias,
       '@portal/ui': path.resolve(__dirname, '../packages/ui/src'),
+      '@portal/core': path.resolve(__dirname, '../packages/core/src'),
       '@portal/shared': path.resolve(__dirname, '../packages/shared/src'),
     }
     return webpackConfig
