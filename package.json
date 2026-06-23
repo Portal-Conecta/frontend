@@ -12,7 +12,8 @@
     "sb:css": "node scripts/build-storybook-css.mjs",
     "storybook": "pnpm sb:css && storybook dev -p 6006",
     "build-storybook": "pnpm sb:css && storybook build",
-    "sync:tokens": "tsx scripts/sync-tokens.ts"
+    "sync:tokens": "tsx scripts/sync-tokens.ts",
+    "chromatic": "chromatic"
   },
   "devDependencies": {
     "@fontsource/afacad": "^5.2.10",
@@ -26,6 +27,7 @@
     "@types/node": "^22.0.0",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
+    "chromatic": "^17.5.0",
     "eslint": "^8.57.0",
     "postcss": "8.5.15",
     "prettier": "^3.0.0",
