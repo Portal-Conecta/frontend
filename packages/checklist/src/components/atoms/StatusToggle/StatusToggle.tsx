@@ -52,7 +52,7 @@ export function StatusToggle({
   return (
     <div
       role="radiogroup"
-      className={['inline-flex gap-2 flex-row-reverse md:flex-row', className]
+      className={['inline-flex gap-3 flex-row-reverse md:flex-row', className]
         .filter(Boolean)
         .join(' ')}
     >
