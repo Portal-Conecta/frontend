@@ -41,6 +41,9 @@ importers:
       '@typescript-eslint/parser':
         specifier: ^8.0.0
         version: 8.61.0(eslint@8.57.1)(typescript@5.9.3)
+      chromatic:
+        specifier: ^17.5.0
+        version: 17.5.0
       eslint:
         specifier: ^8.57.0
         version: 8.57.1
@@ -2336,6 +2339,22 @@ packages:
   chokidar@3.6.0:
     resolution: {integrity: sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw==}
     engines: {node: '>= 8.10.0'}
+
+  chromatic@17.5.0:
+    resolution: {integrity: sha512-jYtXDaY1VeaNaWMom4HewLQTL574s4wTtkg5Kryov9Cj7D6i8Pe7twpLsetG7apxD0aITWUhx6KiqfN6p380rw==}
+    engines: {node: '>=22.0.0'}
+    hasBin: true
+    peerDependencies:
+      '@chromatic-com/cypress': ^0.*.* || ^1.0.0
+      '@chromatic-com/playwright': ^0.*.* || ^1.0.0
+      '@chromatic-com/vitest': ^0.*.* || ^1.0.0
+    peerDependenciesMeta:
+      '@chromatic-com/cypress':
+        optional: true
+      '@chromatic-com/playwright':
+        optional: true
+      '@chromatic-com/vitest':
+        optional: true
 
   chrome-trace-event@1.0.4:
     resolution: {integrity: sha512-rNjApaLzuwaOTjCiT8lSDdGN1APCiqkChLMJxJPWLunPAt5fy8xgU9/jNOchV84wfIxrA0lRQB7oCT8jrn/wrQ==}
@@ -6427,6 +6446,10 @@ snapshots:
       readdirp: 3.6.0
     optionalDependencies:
       fsevents: 2.3.3
+
+  chromatic@17.5.0:
+    dependencies:
+      semver: 7.8.3
 
   chrome-trace-event@1.0.4: {}
 
