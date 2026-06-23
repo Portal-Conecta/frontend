@@ -28,8 +28,8 @@ const selectedClass: Record<StatusValue, string> = {
 }
 
 const options = [
-  { value: 'conforme', label: 'conforme', icon: 'check-check' },
   { value: 'nao-conforme', label: 'não conforme', icon: 'x' },
+  { value: 'conforme', label: 'conforme', icon: 'check-check' },
 ] as const
 
 export function StatusToggle({
@@ -51,10 +51,8 @@ export function StatusToggle({
 
   return (
     <div
-      role="radiogroup"
-      className={['inline-flex gap-3 flex-row-reverse md:flex-row', className]
-        .filter(Boolean)
-        .join(' ')}
+        role="radiogroup"
+        className={['inline-flex gap-3', className].filter(Boolean).join(' ')}
     >
       {options.map(({ value: optValue, label, icon }) => {
         const isSelected = selected === optValue
