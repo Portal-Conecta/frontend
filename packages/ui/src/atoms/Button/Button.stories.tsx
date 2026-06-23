@@ -10,12 +10,33 @@ const meta = {
   component: Button,
   parameters: { layout: 'centered' },
   argTypes: {
-    variant: { control: 'inline-radio', options: ['primary', 'outlined'] },
-    iconLeft: { control: 'select', options: iconOptions },
-    iconRight: { control: 'select', options: iconOptions },
-    loading: { control: 'boolean' },
-    fullWidth: { control: 'boolean' },
-    disabled: { control: 'boolean' },
+    variant: {
+      control: 'inline-radio',
+      options: ['primary', 'outlined'],
+      description: 'Estilo do botão. Default `primary`.',
+    },
+    iconLeft: {
+      control: 'select',
+      options: iconOptions,
+      description: 'Ícone à esquerda do label (do set aprovado do DS).',
+    },
+    iconRight: {
+      control: 'select',
+      options: iconOptions,
+      description: 'Ícone à direita do label.',
+    },
+    loading: {
+      control: 'boolean',
+      description: 'Mostra spinner, desabilita e marca `aria-busy`.',
+    },
+    fullWidth: {
+      control: 'boolean',
+      description: 'Ocupa toda a largura disponível.',
+    },
+    disabled: {
+      control: 'boolean',
+      description: 'Desabilita o botão (atributo nativo).',
+    },
   },
   args: { children: 'Button', variant: 'primary' },
 } satisfies Meta<typeof Button>

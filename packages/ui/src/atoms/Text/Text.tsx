@@ -13,6 +13,8 @@ import type { HTMLAttributes, ReactNode } from 'react'
 const variantClass = {
   'heading-h1': 'text-heading-h1 font-inter',
   'heading-h2': 'text-heading-h2 font-inter',
+  'body-xl': 'text-body-xl font-afacad',
+  'body-xl-emphasis': 'text-body-xl-emphasis font-afacad',
   'body-md': 'text-body-md font-afacad',
   'body-md-emphasis': 'text-body-md-emphasis font-afacad',
   'body-sm': 'text-body-sm font-afacad',
@@ -40,7 +42,7 @@ const toneClass: Record<TextTone, string> = {
   disabled: 'text-text-disabled',
 }
 
-export type TextElement = 'p' | 'span' | 'label' | 'div' | 'h1' | 'h2' | 'h3'
+export type TextElement = 'p' | 'span' | 'label' | 'div' | 'h1' | 'h2' | 'h3' | 'a'
 
 export interface TextProps extends HTMLAttributes<HTMLElement> {
   variant?: TextVariant
@@ -48,6 +50,8 @@ export interface TextProps extends HTMLAttributes<HTMLElement> {
   tone?: TextTone
   /** Para `as="label"`: associa o label a um input (atributo `for`). */
   htmlFor?: string
+  /** Para `as="a"`: destino do link (atributo `href`). */
+  href?: string
   children: ReactNode
 }
 

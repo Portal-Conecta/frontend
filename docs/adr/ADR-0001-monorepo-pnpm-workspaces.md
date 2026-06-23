@@ -1,7 +1,10 @@
-# ADR-001: Monorepo com pnpm Workspaces
+# ADR-0001: Monorepo com pnpm Workspaces
 
 ## Status
 Aceita
+
+## Data
+2026-05-25
 
 ## Contexto
 

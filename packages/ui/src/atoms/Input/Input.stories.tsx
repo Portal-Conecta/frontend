@@ -7,11 +7,29 @@ const meta: Meta<typeof Input> = {
   component: Input,
   parameters: { layout: 'padded' },
   argTypes: {
-    tone: { control: 'inline-radio', options: ['default', 'overlay'] },
-    type: { control: 'inline-radio', options: ['text', 'email', 'password'] },
-    error: { control: 'text' },
-    iconRight: { control: 'select', options: [undefined, 'search', 'mail'] },
-    disabled: { control: 'boolean' },
+    tone: {
+      control: 'inline-radio',
+      options: ['default', 'overlay'],
+      description: 'Tom: `default` (claro) ou `overlay` (transparente/branco, p/ painéis coloridos).',
+    },
+    type: {
+      control: 'inline-radio',
+      options: ['text', 'email', 'password'],
+      description: 'Tipo do input nativo. `password` ativa o toggle de olho.',
+    },
+    error: {
+      control: 'text',
+      description: 'Mensagem de erro. A presença ativa o estado de erro (barra + mensagem).',
+    },
+    iconRight: {
+      control: 'select',
+      options: [undefined, 'search', 'mail'],
+      description: 'Ícone à direita (set aprovado). Ignorado quando `type="password"`.',
+    },
+    disabled: {
+      control: 'boolean',
+      description: 'Desabilita o campo (atributo nativo).',
+    },
   },
   args: { placeholder: 'Placeholder' },
   decorators: [

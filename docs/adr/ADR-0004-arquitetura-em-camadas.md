@@ -1,7 +1,10 @@
-# ADR-004: Arquitetura em Camadas com Fronteiras de Importação
+# ADR-0004: Arquitetura em Camadas com Fronteiras de Importação
 
 ## Status
 Aceita
+
+## Data
+2026-05-25
 
 ## Contexto
 
