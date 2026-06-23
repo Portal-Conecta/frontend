@@ -33,6 +33,13 @@ export interface SidebarProps {
   activeKey?: string
   expanded: boolean
   onToggle: () => void
+  /**
+   * Mostra o toggle "Reduzir" no rodapé do rail (desktop). Default `true`.
+   * Defina `false` quando o shell (AppLayout) provê o controle de colapso em
+   * outro lugar (ex.: no `leftSlot` do footer) — evita dois toggles. Não afeta
+   * o FAB nem o "Reduzir" do drawer no mobile.
+   */
+  railToggle?: boolean
   className?: string
 }
 
@@ -62,7 +69,7 @@ function NavList({
   )
 }
 
-export function Sidebar({ items, activeKey, expanded, onToggle, className }: SidebarProps) {
+export function Sidebar({ items, activeKey, expanded, onToggle, railToggle = true, className }: SidebarProps) {
   const drawerId = useId()
   const panelRef = useRef<HTMLDivElement>(null)
   const previousFocusRef = useRef<HTMLElement | null>(null)
@@ -129,14 +136,16 @@ export function Sidebar({ items, activeKey, expanded, onToggle, className }: Sid
         <div className="flex-1 overflow-x-hidden overflow-y-auto">
           <NavList items={items} activeKey={activeKey} collapsed={!expanded} />
         </div>
-        <div className="border-t border-border-default py-2">
-          <SidebarNavItem
-            icon={expanded ? 'chevrons-left' : 'chevrons-right'}
-            label="Reduzir"
-            collapsed={!expanded}
-            onClick={onToggle}
-          />
-        </div>
+        {railToggle && (
+          <div className="border-t border-border-default py-2">
+            <SidebarNavItem
+              icon={expanded ? 'chevrons-left' : 'chevrons-right'}
+              label="Reduzir"
+              collapsed={!expanded}
+              onClick={onToggle}
+            />
+          </div>
+        )}
       </aside>
 
       {/* Drawer sobreposto — tablet/mobile (<lg), apenas expandido */}
