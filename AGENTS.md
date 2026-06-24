@@ -106,5 +106,6 @@ export function LoginForm() {
 | `Button` sem `tone="overlay"` | `packages/ui/src/atoms/Button/Button.tsx` | Variante para fundo colorido — override pontual em `PageLogin` com `className` |
 | Border radius 24px sem token | `packages/ui/src/tokens/radius.ts` | Adicionar `xl: '1.5rem'` após aprovação do DS |
 | `body/sm-emphasis` font family | `scripts/sync-tokens.ts` | Correção hardcoded no script — depende de ajuste no Figma DS |
+| Spacing cru no auth (`px-[30px]`, `lg:py-[60px]`) | `packages/core/src/pages/AuthLayout.tsx` | Snapar p/ escala (`px-8`/`lg:py-14`) ou virar token — decisão do dono da tela; allowlistado no `.eslintrc.base.js` |
 
 → [Como registrar e tratar dívidas de token](docs/conventions/tokens-e-theming.md)
