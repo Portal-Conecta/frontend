@@ -17,10 +17,11 @@ const base =
   'inline-flex items-center border-sm bg-background-surface ' +
   'font-inter text-label-sm cursor-pointer transition-colors ' +
   'h-[32px] w-[40px] justify-center rounded-md ' +
-'md:w-[136px] md:justify-start md:gap-1 md:pl-3 md:pr-3 md:whitespace-nowrap ' +  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 ' +
+  'md:w-auto md:justify-start md:gap-1 md:pl-3 md:pr-3 md:whitespace-nowrap ' +
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 ' +
   'disabled:cursor-not-allowed disabled:opacity-50'
 
-const neutral = 'border-[#011142] text-[#011142]'
+const neutral = 'border-interactive-default text-interactive-default'
 
 const selectedClass: Record<StatusValue, string> = {
   conforme: 'border-feedback-success text-feedback-success',
@@ -28,8 +29,8 @@ const selectedClass: Record<StatusValue, string> = {
 }
 
 const options = [
-  { value: 'nao-conforme', label: 'não conforme', icon: 'x' },
-  { value: 'conforme', label: 'conforme', icon: 'check-check' },
+  { value: 'nao-conforme', label: 'Não Conforme', icon: 'x' },
+  { value: 'conforme', label: 'Conforme', icon: 'check-check' },
 ] as const
 
 export function StatusToggle({
