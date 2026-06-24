@@ -8,7 +8,7 @@ export type StatusValue = 'conforme' | 'nao-conforme'
 export interface StatusToggleProps {
   value?: StatusValue | null
   defaultValue?: StatusValue | null
-  onChange?: (value: StatusValue) => void
+  onChange?: ((value: StatusValue) => void) | undefined
   disabled?: boolean
   className?: string
 }
