@@ -8,15 +8,16 @@ export interface FormFieldProps extends Omit<InputProps, 'id'> {
   label: string
 }
 
-export function FormField({ label, ...inputProps }: FormFieldProps) {
+export function FormField({ label, tone, ...inputProps }: FormFieldProps) {
   const id = useId()
+  const labelTone = tone === 'overlay' ? 'inverse' : 'brand'
 
   return (
     <div className="flex flex-col gap-2">
-      <Text as="label" htmlFor={id} variant="body-md" tone="brand">
+      <Text as="label" htmlFor={id} variant="body-md" tone={labelTone}>
         {label}
       </Text>
-      <Input id={id} {...inputProps} />
+      <Input id={id} tone={tone} {...inputProps} />
     </div>
   )
 }
