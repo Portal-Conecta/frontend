@@ -1,16 +1,22 @@
-import { Text } from "@portal/ui/atoms";
-import { Input } from "@portal/ui/atoms";
+'use client'
 
-interface FormFieldProps {
-    label:string,
-    placeholder ?: string,
+import { useId } from 'react'
+
+import { Input, Text, type InputProps } from '@portal/ui/atoms'
+
+export interface FormFieldProps extends Omit<InputProps, 'id'> {
+  label: string
 }
 
-export function FormField({label,placeholder}:FormFieldProps){
-    return(
-       <>
-        <Text variant='body-md' className='text-text-brand'>{label}</Text>
-        <Input placeholder={placeholder}></Input>
-       </>
-    )
+export function FormField({ label, ...inputProps }: FormFieldProps) {
+  const id = useId()
+
+  return (
+    <div className="flex flex-col gap-2">
+      <Text as="label" htmlFor={id} variant="body-md" tone="brand">
+        {label}
+      </Text>
+      <Input id={id} {...inputProps} />
+    </div>
+  )
 }
