@@ -1,5 +1,3 @@
-import type { ReactNode } from 'react'
-
 import { Text } from "@portal/ui/atoms";
 import { Input } from "@portal/ui/atoms";
 
