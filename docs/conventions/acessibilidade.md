@@ -27,4 +27,18 @@
 
 ## Verificação
 
-- O addon de a11y do Storybook e a checagem no CI (grupo #101) validam contraste e atributos aria por componente. Trate violação como bug, não como aviso.
+- O addon de a11y do Storybook valida contraste e atributos aria por componente durante o desenvolvimento. Trate violação como bug, não como aviso.
+- No CI, o `@storybook/test-runner` roda o axe em cada story (job `a11y`, ver [ci.yml](../../.github/workflows/ci.yml) e [.storybook/test-runner.ts](../../.storybook/test-runner.ts)).
+
+## Severidade no gate de CI (#104)
+
+O gate classifica as violações do axe pelo campo `impact`:
+
+| Impacto | Efeito no CI |
+|---|---|
+| `critical`, `serious` | **Bloqueiam** o merge (o job `a11y` falha). |
+| `moderate`, `minor` | **Aviso** (`console.warn`), não bloqueiam. |
+
+Uma story pode desativar a checagem com `parameters.a11y.disable` ou ajustar regras via `parameters.a11y.config.rules` — use com parcimônia e justifique.
+
+> O Chromatic também executa a11y sobre as stories; o corte de severidade acima é o contrato do squad para ambos os caminhos.
