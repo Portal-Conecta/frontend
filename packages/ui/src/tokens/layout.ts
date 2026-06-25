@@ -13,4 +13,4 @@
  */
 
 export const SIDEBAR_WIDTH_COLLAPSED = 92
-export const SIDEBAR_WIDTH_EXPANDED = 254
+export const SIDEBAR_WIDTH_EXPANDED = 248
