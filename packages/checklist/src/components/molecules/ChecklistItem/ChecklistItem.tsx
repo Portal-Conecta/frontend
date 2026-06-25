@@ -26,30 +26,30 @@ export function ChecklistItem({
   return (
     <div
       className={[
-        'flex items-center justify-between border-t border-border-default py-3',
+        'flex items-center justify-between gap-4 border-t border-border-default py-3',
         className,
       ]
         .filter(Boolean)
         .join(' ')}
     >
-      <div className="flex flex-col gap-2 min-w-0" style={{ maxWidth: 'clamp(200px, 60vw, 1024px)' }}>
-        <Text variant="label-md" tone="brand" className="text-[clamp(14px,2vw,16px)]">
+      <div className="flex flex-col gap-2">
+        <Text variant="label-md" tone="brand" className='text-[clamp(14px,2vw,16px)]'>
           {title}
         </Text>
         {description && (
-          <Text variant="body-sm" tone="secondary" className="font-inter text-[14px] break-words">
+          <Text variant="body-sm" tone="secondary" className='font-inter text-[14px]'>
             {description}
           </Text>
         )}
       </div>
 
-      <StatusToggle
-          {...(value !== undefined ? { value: value ?? null } : {})}
-          defaultValue={defaultValue ?? null}
-          onChange={onChange}
-          disabled={disabled}
-          className="shrink-0 ml-8"
-      />
+    <StatusToggle
+        {...(value !== undefined ? { value: value ?? null } : {})}
+        defaultValue={defaultValue ?? null}
+        onChange={onChange}
+        disabled={disabled}
+        className="shrink-0"
+    />
     </div>
   )
 }

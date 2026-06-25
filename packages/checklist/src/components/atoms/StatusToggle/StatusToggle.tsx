@@ -46,8 +46,9 @@ export function StatusToggle({
 
   const handleSelect = (next: StatusValue) => {
     if (disabled) return
-    if (!isControlled) setInternal(next)
-    onChange?.(next)
+    const newValue = selected === next ? null : next
+    if (!isControlled) setInternal(newValue)
+    if (newValue !== null) onChange?.(newValue)
   }
 
   return (
