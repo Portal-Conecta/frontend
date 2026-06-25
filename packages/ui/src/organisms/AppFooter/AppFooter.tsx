@@ -55,6 +55,8 @@ export function AppFooter({
                 md:justify-between
                 md:py-0
                 lg:px-10
+                lg:border-l
+                lg:border-border-default
                 items-center
             ">
 
