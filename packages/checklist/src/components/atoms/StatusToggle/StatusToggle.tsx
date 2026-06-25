@@ -57,7 +57,15 @@ export function StatusToggle({
     >
       {options.map(({ value: optValue, label, icon }) => {
         const isSelected = selected === optValue
-        const classes = [base, isSelected ? selectedClass[optValue] : neutral].join(' ')
+
+        const classes = [
+          base,
+          disabled
+            ? 'border-border-disabled text-text-disabled cursor-not-allowed'
+            : isSelected
+              ? selectedClass[optValue]
+              : neutral,
+        ].join(' ')
 
         return (
           <button
