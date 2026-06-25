@@ -16,7 +16,7 @@ import { useEffect, useId, useRef, type CSSProperties } from 'react'
 import { Icon, type IconName } from '../../atoms/Icon'
 import { Logo } from '../../atoms/Logo'
 import { SidebarNavItem } from '../../molecules/SidebarNavItem'
-import { SIDEBAR_WIDTH_COLLAPSED, SIDEBAR_WIDTH_EXPANDED } from '../AppFooter'
+import { SIDEBAR_WIDTH_COLLAPSED, SIDEBAR_WIDTH_EXPANDED } from '../../tokens'
 
 /** Espelha o breakpoint `lg` do Tailwind: acima é rail, abaixo é drawer. */
 const LG_BREAKPOINT_PX = 1024
