@@ -2,7 +2,10 @@ import type { StorybookConfig } from '@storybook/nextjs'
 import path from 'path'
 
 const config: StorybookConfig = {
-  stories: ['../packages/*/src/**/*.stories.@(ts|tsx)'],
+  stories: ['../.storybook/*.mdx', '../packages/*/src/**/*.stories.@(ts|tsx)'],
+  // Serve os assets de docs (capa da Introdução) em /assets. Caminho relativo
+  // ao diretório de config (.storybook).
+  staticDirs: [{ from: './assets', to: '/assets' }],
   addons: [
     '@storybook/addon-essentials',
     '@storybook/addon-interactions',
