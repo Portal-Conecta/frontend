@@ -60,4 +60,8 @@ function main(): void {
   console.log(`\n✅ ${components.length} componentes verificados — todos têm story.\n`)
 }
 
-main()
+// Executa só quando invocado direto (`tsx scripts/check-stories.ts`); importar o
+// módulo (ex.: testes do gate na DoD #105) não dispara a checagem.
+if (process.argv[1]?.endsWith('check-stories.ts')) {
+  main()
+}
