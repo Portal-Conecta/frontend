@@ -1,17 +1,22 @@
 /**
- * test-runner.ts — gate de acessibilidade no CI (#104).
+ * test-runner.js — gate de acessibilidade no CI (#104).
  *
  * Roda o axe em cada story via @storybook/test-runner. Violações de impacto
  * critical/serious reprovam o pipeline; moderate/minor entram como aviso.
  * Política em docs/conventions/acessibilidade.md.
+ *
+ * CommonJS de propósito: o `test-storybook` carrega esta config via jest-runtime,
+ * cujo require sandboxed não honra o esbuild-register do test-runner — um `.ts`
+ * com import/export seria tratado como ESM e exigiria Node ≥24.9 (o job usa 22).
+ * Em CJS carrega em qualquer Node. Tipos via JSDoc, sem custo de runtime.
  */
-import type { TestRunnerConfig } from '@storybook/test-runner'
-import { getStoryContext } from '@storybook/test-runner'
-import { injectAxe, configureAxe, getViolations } from 'axe-playwright'
+const { getStoryContext } = require('@storybook/test-runner')
+const { injectAxe, configureAxe, getViolations } = require('axe-playwright')
 
 const BLOCKING_IMPACTS = new Set(['critical', 'serious'])
 
-const config: TestRunnerConfig = {
+/** @type {import('@storybook/test-runner').TestRunnerConfig} */
+const config = {
   async preVisit(page) {
     await injectAxe(page)
   },
@@ -22,7 +27,10 @@ const config: TestRunnerConfig = {
     // Respeita `parameters.a11y.disable` definido por story.
     if (a11y?.disable) return
 
-    await configureAxe(page, { rules: a11y?.config?.rules })
+    // Só reconfigura o axe quando a story declara regras próprias.
+    if (a11y?.config?.rules) {
+      await configureAxe(page, { rules: a11y.config.rules })
+    }
 
     const violations = await getViolations(page, '#storybook-root')
 
@@ -44,4 +52,4 @@ const config: TestRunnerConfig = {
   },
 }
 
-export default config
+module.exports = config
