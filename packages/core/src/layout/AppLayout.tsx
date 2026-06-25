@@ -12,8 +12,13 @@
  * o FAB e o drawer da própria Sidebar cuidam disso.
  *
  * Visual: mobile/tablet é todo branco (sidebar é overlay); desktop é um "frame"
- * cinza (`background/default`) — header + rail + footer — envolvendo um painel
- * de conteúdo branco (`background/surface`) com canto superior-esquerdo arredondado.
+ * cinza (`background/default`) — header + rail + a faixa do footer sob o rail —
+ * envolvendo um painel de conteúdo branco (`background/surface`) que se estende
+ * pela faixa do footer à direita do rail, com canto superior-esquerdo arredondado.
+ *
+ * A borda do frame (`border-border-default`) é dona do shell, não dos organismos:
+ * mora nos lados topo/esquerda/base do `<main>` — debaixo do header, à direita do
+ * rail e em cima do footer. Por isso a Sidebar não desenha mais `border-r`.
  */
 'use client'
 
@@ -74,7 +79,9 @@ export function AppLayout({
           railToggle={false}
           {...(activeKey ? { activeKey } : {})}
         />
-        <main className="flex-1 overflow-y-auto bg-background-surface lg:rounded-tl-xl">{children}</main>
+        <main className="flex-1 overflow-y-auto bg-background-surface lg:rounded-tl-xl lg:border-t lg:border-l lg:border-b lg:border-border-default">
+          {children}
+        </main>
       </div>
 
       <AppFooter

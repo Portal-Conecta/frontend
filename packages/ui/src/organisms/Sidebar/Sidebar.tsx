@@ -125,7 +125,7 @@ export function Sidebar({ items, activeKey, expanded, onToggle, railToggle = tru
       {/* Rail persistente — desktop (≥lg) */}
       <aside
         className={[
-          'hidden h-full shrink-0 flex-col overflow-hidden border-r border-border-default bg-background-default',
+          'hidden h-full shrink-0 flex-col overflow-hidden bg-background-default',
           'transition-[width] duration-300 ease-in-out lg:flex',
           className,
         ]
