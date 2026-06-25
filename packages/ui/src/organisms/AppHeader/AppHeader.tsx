@@ -41,6 +41,19 @@ interface ActionItem {
   onClick: (() => void) | undefined
 }
 
+// Ícone de ação por breakpoint: 24px (md) abaixo de lg, 32px (lg) no desktop,
+// espelhando o Figma. O `size` do átomo Icon é fixo, então o tamanho responsivo
+// vem de duas instâncias alternadas por visibilidade — ambas decorativas, então
+// não duplicam leitura para o leitor de tela (o rótulo vive no botão).
+function ActionIcon({ name }: { name: IconName }) {
+  return (
+    <>
+      <Icon name={name} size="md" tone="primary" decorative className="lg:hidden" />
+      <Icon name={name} size="lg" tone="primary" decorative className="hidden lg:block" />
+    </>
+  )
+}
+
 export function AppHeader({
   sidebarExpanded = false,
   onLogoClick,
@@ -81,7 +94,7 @@ export function AppHeader({
           aria-label="Página inicial"
           className={`rounded-md ${focusRing}`}
         >
-          <Logo variant={sidebarExpanded ? 'full' : 'mark'} tone="brand" size={32} decorative />
+          <Logo variant={sidebarExpanded ? 'full' : 'mark'} tone="brand" size={54} decorative />
         </button>
       </div>
 
@@ -106,7 +119,7 @@ export function AppHeader({
               aria-label={label}
               className={`rounded-md ${focusRing}`}
             >
-              <Icon name={icon} size="md" tone="primary" decorative />
+              <ActionIcon name={icon} />
             </button>
           ))}
         </div>
