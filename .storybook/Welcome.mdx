@@ -1,0 +1,55 @@
+import { Meta } from '@storybook/blocks'
+
+<Meta title="Boas-vindas" />
+
+# Portal Conecta · Design System
+
+Bem-vindo ao Storybook do Portal Conecta. Esta é a vitrine viva do nosso Design System. Aqui cada componente aparece isolado, do jeito que funciona de verdade, sem você precisar abrir o sistema inteiro só para ver como uma peça se comporta.
+
+Se você é da plataforma, este é o seu ambiente de trabalho. Se você é de um squad de produto, é aqui que descobre o que já existe pronto para montar suas telas. E se você está chegando agora, comece por esta página.
+
+## O que é o Design System
+
+O Design System é o conjunto de peças prontas (botões, campos, textos, layout) e das regras que mantêm tudo com a mesma cara e o mesmo comportamento. Ele é cuidado por um time de plataforma e existe por um motivo só: fazer os squads de produto entregarem mais rápido, sem reinventar um botão a cada tela.
+
+A ideia que guia o time é simples. Nenhum squad deveria ficar parado esperando pela plataforma. Quando o próximo passo de cada squad está sempre claro e desbloqueado, a plataforma cumpriu seu papel.
+
+## Como navegar
+
+O menu à esquerda segue o Atomic Design, em três níveis que vão do menor para o maior:
+
+- **Atoms** são as peças indivisíveis, com uma responsabilidade só. Botão, campo de texto, ícone, rótulo.
+- **Molecules** juntam alguns atoms em algo um pouco maior, como um campo de formulário com rótulo, input e mensagem de erro.
+- **Organisms** são blocos completos de interface, como o cabeçalho ou a barra lateral.
+
+A regra prática para saber onde uma peça mora: se ela usa outra peça do Design System por dentro, é uma molecule ou um organism, nunca um atom.
+
+Cada componente já traz suas variações e estados montados (carregando, desabilitado, com erro) e um painel de controles para você mexer nas props e ver o resultado na hora.
+
+## Tokens, a regra de ouro
+
+Cor, tamanho de texto e espaçamento não são escolhidos na mão. Eles vêm de tokens, que são decisões de design guardadas em um lugar só. Em vez de escrever a cor azul direto no código, a gente pede a cor `interactive-default`. Se a marca trocar de azul, muda em um ponto e vale para todo o sistema.
+
+A regra é direta: se existe um token, use o token. Cor escrita na mão e tamanho de fonte avulso não entram no código. A fonte da verdade dos tokens é o Figma, e eles chegam até o código por uma sincronização automática.
+
+## Acessibilidade
+
+Acessibilidade aqui é parte do trabalho, não um item extra do fim da lista. Todo elemento funciona pelo teclado, o foco é sempre visível e cor nunca é a única forma de comunicar um estado.
+
+O próprio Storybook ajuda a conferir isso. O painel de acessibilidade roda uma checagem em cada componente durante o desenvolvimento. O que ele apontar deve ser tratado como bug, não como aviso.
+
+## Quem cuida do quê
+
+A plataforma é dona da aparência e do comportamento: tokens, componentes base, layout compartilhado e os padrões de interação e acessibilidade. Os squads de produto são donos do que a tela faz, ou seja, a lógica, os dados e as rotas de cada módulo, montados a partir das peças daqui.
+
+Quando um squad precisa de algo que ainda não existe, ele constrói perto do próprio módulo. Se aquilo se mostrar útil para todos, a plataforma revisa e promove a peça para o Design System.
+
+## Links úteis
+
+- [Figma, Portal Conecta Design System](https://www.figma.com/design/GPvf4G2qpP8MMyK3HB6n2t/Portal-Conecta---Design-System?m=auto&t=PQQzZKcn1IKvdD3Q-1). A fonte da verdade do visual e dos tokens.
+- [AGENTS.md](https://github.com/Portal-Conecta/frontend/blob/main/AGENTS.md). Ponto de entrada para quem vai implementar.
+- [Modelo de trabalho do squad](https://github.com/Portal-Conecta/frontend/blob/main/docs/operating-model.md). Por que o time existe e como ele opera.
+- [Tokens e theming](https://github.com/Portal-Conecta/frontend/blob/main/docs/conventions/tokens-e-theming.md). Como consumir os tokens e manter a base sem valores na mão.
+- [Criação de componentes](https://github.com/Portal-Conecta/frontend/blob/main/docs/conventions/creating-components.md). O fluxo para criar um atom ou molecule no Design System.
+- [Acessibilidade](https://github.com/Portal-Conecta/frontend/blob/main/docs/conventions/acessibilidade.md). As práticas de foco, teclado, ARIA e contraste já adotadas.
+- [Índice de ADRs](https://github.com/Portal-Conecta/frontend/blob/main/docs/adr/README.md). O porquê das decisões de arquitetura.

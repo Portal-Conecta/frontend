@@ -23,10 +23,11 @@ const preview: Preview = {
     a11y: {
       test: 'todo',
     },
-    // Ordena o sidebar por camada do Atomic Design; a Welcome (#108) entra antes.
+    // Ordena o sidebar: a página de boas-vindas (#108) primeiro, depois as
+    // camadas do Atomic Design.
     options: {
       storySort: {
-        order: ['Atoms', 'Molecules', 'Organisms'],
+        order: ['Boas-vindas', 'Atoms', 'Molecules', 'Organisms'],
       },
     },
   },
