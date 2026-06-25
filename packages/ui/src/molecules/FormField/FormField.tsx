@@ -17,7 +17,7 @@ export function FormField({ label, tone, ...inputProps }: FormFieldProps) {
       <Text as="label" htmlFor={id} variant="body-md" tone={labelTone}>
         {label}
       </Text>
-      <Input id={id} tone={tone} {...inputProps} />
+      <Input id={id} {...inputProps} {...(tone !== undefined ? { tone } : {})} />
     </div>
   )
 }
