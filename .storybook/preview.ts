@@ -23,11 +23,18 @@ const preview: Preview = {
     a11y: {
       test: 'todo',
     },
-    // Ordena o sidebar: a página de boas-vindas (#108) primeiro, depois as
-    // camadas do Atomic Design.
+    // Ordena o sidebar: a seção Sobre (#108) primeiro, depois Fundação e as
+    // camadas do Atomic Design. O array aninhado fixa a ordem dentro de Sobre.
     options: {
       storySort: {
-        order: ['Boas-vindas', 'Atoms', 'Molecules', 'Organisms'],
+        order: [
+          'Sobre',
+          ['Introdução', 'Começando'],
+          'Fundação',
+          'Atoms',
+          'Molecules',
+          'Organisms',
+        ],
       },
     },
   },
