@@ -3,7 +3,7 @@
  * Compõe os átomos Logo e Icon. Organismo **controlado**: o estado
  * `sidebarExpanded` vive no shell (AppLayout) e é compartilhado com Sidebar e
  * AppFooter — por isso o bloco da logo reusa as larguras e a transição do rail
- * (`SIDEBAR_WIDTH_*` do AppFooter) e anima em lockstep com a Sidebar.
+ * (`SIDEBAR_WIDTH_*` dos tokens de layout) e anima em lockstep com a Sidebar.
  *
  * Sem dependência de Next.js (ADR-0004): navegação e ações via callbacks.
  * Sem `'use client'`: só repassa os callbacks recebidos, não usa hooks.
@@ -15,7 +15,7 @@
  */
 import { Icon, type IconName } from '../../atoms/Icon'
 import { Logo } from '../../atoms/Logo'
-import { SIDEBAR_WIDTH_COLLAPSED, SIDEBAR_WIDTH_EXPANDED } from '../AppFooter'
+import { SIDEBAR_WIDTH_COLLAPSED, SIDEBAR_WIDTH_EXPANDED } from '../../tokens'
 
 export interface AppHeaderProps {
   /** Espelha o estado da Sidebar (vive no AppLayout). Desktop: expande o bloco da logo e troca mark→full. */
