@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { AppFooter, SIDEBAR_WIDTH_COLLAPSED, SIDEBAR_WIDTH_EXPANDED } from './AppFooter'
+import { AppFooter } from './AppFooter'
 import { Icon } from '../../atoms/Icon'
 import { Text } from '../../atoms/Text'
+import { SIDEBAR_WIDTH_COLLAPSED, SIDEBAR_WIDTH_EXPANDED } from '../../tokens'
 
 function SidebarToggleButton({ expanded }: { expanded: boolean }) {
   return (

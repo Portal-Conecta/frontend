@@ -63,6 +63,11 @@ const meta: Meta<typeof Sidebar> = {
       control: false,
       description: 'Callback de alternância do estado `expanded` (Reduzir, scrim, Esc, FAB).',
     },
+    railToggle: {
+      control: 'boolean',
+      description:
+        'Mostra o toggle "Reduzir" no rodapé do rail (desktop). Default `true`. `false` quando o shell provê o controle (ex.: AppLayout no footer). Não afeta FAB/drawer.',
+    },
   },
 }
 

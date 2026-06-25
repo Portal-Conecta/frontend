@@ -106,5 +106,8 @@ export function LoginForm() {
 | `Button` sem `tone="overlay"` | `packages/ui/src/atoms/Button/Button.tsx` | Variante para fundo colorido — override pontual em `PageLogin` com `className` |
 | Border radius 24px sem token | `packages/ui/src/tokens/radius.ts` | Adicionar `xl: '1.5rem'` após aprovação do DS |
 | `body/sm-emphasis` font family | `scripts/sync-tokens.ts` | Correção hardcoded no script — depende de ajuste no Figma DS |
+| Focus-trap inline na `Sidebar` | `packages/ui/src/organisms/Sidebar/Sidebar.tsx` | Extrair `useDrawerFocusTrap(panelRef, { active, onClose })` — isola a11y do layout e abre para teste (DoD [#105](https://github.com/Portal-Conecta/frontend/issues/105)). Validar navegação por teclado antes |
+| `logoPadding` do `AppHeader` espelha o padding do `SidebarNavItem` | `packages/ui/src/organisms/AppHeader/AppHeader.tsx` | Promover `pl-4`/`pl-8` a constante compartilhada (`tokens/layout.ts`) — hoje desalinha se um dos dois mudar |
+| Toggle "Reduzir" duplicado (rail, drawer e `leftSlot` do footer) | `packages/ui/src/organisms/Sidebar/Sidebar.tsx` · `packages/core/src/layout/AppLayout.tsx` | Extrair molecule `SidebarToggle` (ícone `chevrons-left/right` + label) reusado pelos três |
 
 → [Como registrar e tratar dívidas de token](docs/conventions/tokens-e-theming.md)
