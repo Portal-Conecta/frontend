@@ -36,9 +36,9 @@ export function ChecklistItem({
   const [internalJustification, setInternalJustification] = useState('')
   const justificationValue = isJustificationControlled ? justification : internalJustification
 
-  const handleStatusChange = (next: StatusValue) => {
+  const handleStatusChange = (next: StatusValue | null) => {
     if (!isControlled) setInternalStatus(next)
-    onChange?.(next)
+    if (next !== null) onChange?.(next)
   }
 
   const handleJustificationChange = (text: string) => {

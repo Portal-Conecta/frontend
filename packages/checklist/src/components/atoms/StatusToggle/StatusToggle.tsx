@@ -4,11 +4,10 @@ import { Icon } from '@portal/ui'
 import { useState } from 'react'
 
 export type StatusValue = 'conforme' | 'nao-conforme'
-
 export interface StatusToggleProps {
   value?: StatusValue | null
   defaultValue?: StatusValue | null
-  onChange?: ((value: StatusValue) => void) | undefined
+  onChange?: ((value: StatusValue | null) => void) | undefined
   disabled?: boolean
   className?: string
 }
@@ -48,9 +47,8 @@ export function StatusToggle({
     if (disabled) return
     const newValue = selected === next ? null : next
     if (!isControlled) setInternal(newValue)
-    if (newValue !== null) onChange?.(newValue)
+    onChange?.(newValue)
   }
-
   return (
     <div
         role="radiogroup"
