@@ -14,6 +14,8 @@
 import {
   Bell,
   CheckCheck,
+  Circle,
+  CircleDot,
   ChevronDown,
   ChevronRight,
   ChevronUp,
@@ -55,6 +57,8 @@ export const iconRegistry = {
   bell: Bell,
   'circle-user': CircleUser,
   'check-check': CheckCheck,
+  circle: Circle,
+  'circle-dot': CircleDot,
   'square-check': SquareCheck,
   'log-out': LogOut,
   settings: Settings,
