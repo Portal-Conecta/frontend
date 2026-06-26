@@ -88,7 +88,7 @@ export function ChecklistItem({
             style={{ height: '103px' }}
             className={[
               'w-full resize-none rounded-md border-sm border-border-default bg-background-surface',
-              'px-3 py-[10px] font-inter text-label-md text-text-primary',
+              'px-3 py-[10px] font-inter text-[14px] text-text-primary',
               'placeholder:text-text-placeholder outline-none',
               'focus:border-border-focus transition-colors',
               'md:!h-12',
