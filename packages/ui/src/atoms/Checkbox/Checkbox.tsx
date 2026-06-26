@@ -34,7 +34,7 @@ export function Checkbox({
   // fora da camada semântica (tokens-e-theming §4), pendente de aprovação do TL.
   const colorClass = checked
     ? "text-text-brand"
-    : "text-text-secondary hover:text-blue-300 active:text-text-brand";
+    : "text-text-secondary hover:text-interactive-hover active:text-interactive-pressed";
 
   return (
     <button
