@@ -9,12 +9,12 @@ import { iconRegistry, type IconName } from './icons'
 
 export type { IconName }
 
-export type IconSize = 'sm' | 'md' | 'lg'
+export type IconSize = 'xs' | 'sm' | 'md' | 'lg'
 
 /** Cor semântica do ícone. Omitido = herda `currentColor` do contexto. */
 export type IconTone = 'primary' | 'secondary' | 'inverse'
 
-const sizePx: Record<IconSize, number> = { sm: 16, md: 24, lg: 32 }
+const sizePx: Record<IconSize, number> = { xs: 12, sm: 16, md: 24, lg: 32 }
 
 const toneClass: Record<IconTone, string> = {
   primary: 'text-interactive-default',
@@ -26,7 +26,7 @@ export interface IconProps
   extends Omit<LucideProps, 'ref' | 'size' | 'strokeWidth' | 'color'> {
   /** Ícone do set aprovado pelo DS. */
   name: IconName
-  /** Tamanho: sm=16 · md=24 · lg=32. Default md. */
+  /** Tamanho: xs=12 · sm=16 · md=24 · lg=32. Default md. */
   size?: IconSize
   /** Cor semântica. Omitir para herdar a cor do contexto (currentColor). */
   tone?: IconTone
