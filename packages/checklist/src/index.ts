@@ -1,3 +1,4 @@
 export * from './components/atoms/StatusToggle'
 export * from './components/molecules/ChecklistItem'
 export * from './components/molecules/ChecklistActions'
+export * from './components/molecules/ChecklistManagerItem'

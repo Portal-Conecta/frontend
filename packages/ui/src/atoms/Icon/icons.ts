@@ -38,6 +38,8 @@ import {
   Settings,
   Square,
   SquareCheck,
+  SquarePen,
+  Trash2,
   X,
   type LucideIcon,
 } from 'lucide-react'
@@ -60,6 +62,8 @@ export const iconRegistry = {
   circle: Circle,
   'circle-dot': CircleDot,
   'square-check': SquareCheck,
+  'square-pen': SquarePen,
+  'trash-2': Trash2,
   'log-out': LogOut,
   settings: Settings,
   lock: Lock,
