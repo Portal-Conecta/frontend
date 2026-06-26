@@ -38,21 +38,13 @@ const sizeClass: Record<
 }
 
 export interface TagProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'color'> {
-  /** Conteúdo do rótulo. */
   children: ReactNode
-  /** Tom semântico. Default `neutral`. */
   tone?: TagTone
-  /** Tamanho compacto. Default `md` (Figma). */
   size?: TagSize
-  /** Raio do contorno. Default `full` (pill). */
   radius?: TagRadius
-  /** Ícone opcional (set aprovado). */
   icon?: IconName
-  /** Posição do ícone quando `icon` está definido. Default `left`. */
   iconPosition?: TagIconPosition
-  /** Callback de remoção — exibe botão `x` quando presente. */
   onRemove?: () => void
-  /** Rótulo acessível do botão de remoção. Default `Remover`. */
   removeLabel?: string
 }
 
@@ -79,7 +71,6 @@ export function Tag({
   const decorativeIcon = icon && !(onRemove && icon === 'x') ? icon : undefined
 
   const classes = [
-    // self-start evita stretch horizontal em pais flex-col (mesmo sem items-start no CSS gerado).
     'inline-flex w-fit max-w-full self-start shrink-0 items-center whitespace-nowrap',
     padding,
     gap,
