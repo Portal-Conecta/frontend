@@ -13,6 +13,7 @@
  */
 import {
   Bell,
+  Check,
   CheckCheck,
   Circle,
   CircleDot,
@@ -50,6 +51,7 @@ export const iconRegistry = {
   'chevron-right': ChevronRight,
   'chevrons-left': ChevronsLeft,
   'chevrons-right': ChevronsRight,
+  
   mail: Mail,
   search: Search,
   funnel: Funnel,
@@ -58,6 +60,7 @@ export const iconRegistry = {
   ellipsis: Ellipsis,
   bell: Bell,
   'circle-user': CircleUser,
+  check: Check,
   'check-check': CheckCheck,
   circle: Circle,
   'circle-dot': CircleDot,
