@@ -30,6 +30,9 @@ jobs:
       - name: Run ESLint
         run: pnpm lint
 
+      - name: Check component stories
+        run: pnpm check:stories
+
   typecheck:
     name: Type Check
     runs-on: ubuntu-latest
@@ -68,3 +71,29 @@ jobs:
 
       - name: Build app
         run: pnpm --filter @portal/root build
+
+  a11y:
+    name: Accessibility
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright (chromium)
+        run: pnpm exec playwright install --with-deps chromium
+
+      # Rollout warn-only (#104): o gate roda e reporta, mas não bloqueia o
+      # merge enquanto a dívida de a11y pré-existente no DS não for tratada.
+      # Para tornar bloqueante, remova `continue-on-error`.
+      - name: Run accessibility tests
+        run: pnpm test:a11y
+        continue-on-error: true

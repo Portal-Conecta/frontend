@@ -42,7 +42,7 @@ function Demo({ activeKey, initialExpanded }: { activeKey: string; initialExpand
 }
 
 const meta: Meta<typeof Sidebar> = {
-  title: 'Organisms/Sidebar',
+  title: 'Componentes/Navegação/Sidebar',
   component: Sidebar,
   parameters: { layout: 'fullscreen' },
   argTypes: {
@@ -62,6 +62,11 @@ const meta: Meta<typeof Sidebar> = {
     onToggle: {
       control: false,
       description: 'Callback de alternância do estado `expanded` (Reduzir, scrim, Esc, FAB).',
+    },
+    railToggle: {
+      control: 'boolean',
+      description:
+        'Mostra o toggle "Reduzir" no rodapé do rail (desktop). Default `true`. `false` quando o shell provê o controle (ex.: AppLayout no footer). Não afeta FAB/drawer.',
     },
   },
 }

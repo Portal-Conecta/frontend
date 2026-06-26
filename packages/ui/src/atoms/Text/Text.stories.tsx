@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { Text, textVariants } from './Text'
 
 const meta = {
-    title: 'Atoms/Text',
+    title: 'Componentes/Conteúdo/Text',
     component: Text,
     parameters: {
         layout: 'padded',

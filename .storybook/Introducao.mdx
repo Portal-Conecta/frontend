@@ -1,0 +1,47 @@
+import { Meta } from '@storybook/blocks'
+
+<Meta title="Sobre/Introdução" />
+
+<img src="/assets/capa-portal-conecta.png" alt="Portal Conecta Design System" style={{ width: '100%', borderRadius: '0.75rem', display: 'block' }} />
+
+# Portal Conecta · Design System
+
+Componentes acessíveis e consistentes para montar as telas do Portal Conecta com mais rapidez.
+
+Bem-vindo ao Storybook do Portal Conecta Design System. Ele existe por um motivo só: ajudar os squads a entregar telas com qualidade e no mesmo padrão, sem refazer o básico a cada projeto. Aqui cada componente aparece isolado, do jeito que funciona de verdade.
+
+O Design System é formado por três partes:
+
+- **@portal/ui**: a biblioteca de componentes React, com tokens, atoms, molecules e organisms.
+- **Figma do Design System**: os mesmos componentes no Figma, que é a fonte da verdade do visual e dos tokens.
+- **Layout e padrões compartilhados**: o AppLayout, a navegação e as regras de interação e acessibilidade que mantêm tudo coerente.
+
+## Como navegar
+
+O menu à esquerda está dividido em seções. **Sobre** reúne as páginas de orientação, como esta e o **Começando**. **Fundação** traz os tokens e as bases visuais. **Componentes** é o catálogo, agrupado por função em vez de pela camada técnica — você procura pelo que o componente faz, não por como ele é classificado no código:
+
+- **Ações**: o Button.
+- **Inputs**: o Input e a família de controles de formulário.
+- **Formulário**: o FormField, que estrutura label, erro e ajuda em volta de um controle.
+- **Feedback**: o Alert e demais sinais de estado.
+- **Navegação**: a Sidebar, o AppHeader e o AppFooter.
+- **Conteúdo**: o Text, o Icon e o Logo.
+- **Layout**: o AppLayout, que monta o shell das telas.
+
+Novas categorias, como **Overlay**, aparecem conforme novos componentes (Toast, por exemplo) entram no Design System.
+
+Cada componente traz suas variações e estados já montados e um painel de controles para você testar as props na hora. A organização interna do código continua seguindo o Atomic Design (atoms, molecules, organisms); essa classificação é detalhe de implementação e não aparece mais no menu — ver [ADR-0011](https://github.com/Portal-Conecta/frontend/blob/main/docs/adr/ADR-0011-storybook-navegacao-funcional.md).
+
+## Por onde começar
+
+Se você vai usar o Design System em uma tela, vá direto para o **Começando**. Para entender as decisões por trás dele, os links abaixo levam à documentação no GitHub.
+
+## Links úteis
+
+- [Figma do Design System](https://www.figma.com/design/GPvf4G2qpP8MMyK3HB6n2t/Portal-Conecta---Design-System?m=auto&t=PQQzZKcn1IKvdD3Q-1). A fonte da verdade do visual e dos tokens.
+- [AGENTS.md](https://github.com/Portal-Conecta/frontend/blob/main/AGENTS.md). Ponto de entrada para quem vai implementar.
+- [Modelo de trabalho do squad](https://github.com/Portal-Conecta/frontend/blob/main/docs/operating-model.md). Por que o time existe e como ele opera.
+- [Tokens e theming](https://github.com/Portal-Conecta/frontend/blob/main/docs/conventions/tokens-e-theming.md). Como consumir os tokens e manter a base sem valores na mão.
+- [Criação de componentes](https://github.com/Portal-Conecta/frontend/blob/main/docs/conventions/creating-components.md). O fluxo para criar um atom ou molecule no Design System.
+- [Acessibilidade](https://github.com/Portal-Conecta/frontend/blob/main/docs/conventions/acessibilidade.md). As práticas de foco, teclado, ARIA e contraste já adotadas.
+- [Índice de ADRs](https://github.com/Portal-Conecta/frontend/blob/main/docs/adr/README.md). O porquê das decisões de arquitetura.

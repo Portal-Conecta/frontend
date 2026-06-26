@@ -3,7 +3,7 @@
  * Compõe os átomos Logo e Icon. Organismo **controlado**: o estado
  * `sidebarExpanded` vive no shell (AppLayout) e é compartilhado com Sidebar e
  * AppFooter — por isso o bloco da logo reusa as larguras e a transição do rail
- * (`SIDEBAR_WIDTH_*` do AppFooter) e anima em lockstep com a Sidebar.
+ * (`SIDEBAR_WIDTH_*` dos tokens de layout) e anima em lockstep com a Sidebar.
  *
  * Sem dependência de Next.js (ADR-0004): navegação e ações via callbacks.
  * Sem `'use client'`: só repassa os callbacks recebidos, não usa hooks.
@@ -15,7 +15,7 @@
  */
 import { Icon, type IconName } from '../../atoms/Icon'
 import { Logo } from '../../atoms/Logo'
-import { SIDEBAR_WIDTH_COLLAPSED, SIDEBAR_WIDTH_EXPANDED } from '../AppFooter'
+import { SIDEBAR_WIDTH_COLLAPSED, SIDEBAR_WIDTH_EXPANDED } from '../../tokens'
 
 export interface AppHeaderProps {
   /** Espelha o estado da Sidebar (vive no AppLayout). Desktop: expande o bloco da logo e troca mark→full. */
@@ -39,6 +39,19 @@ interface ActionItem {
   icon: IconName
   label: string
   onClick: (() => void) | undefined
+}
+
+// Ícone de ação por breakpoint: 24px (md) abaixo de lg, 32px (lg) no desktop,
+// espelhando o Figma. O `size` do átomo Icon é fixo, então o tamanho responsivo
+// vem de duas instâncias alternadas por visibilidade — ambas decorativas, então
+// não duplicam leitura para o leitor de tela (o rótulo vive no botão).
+function ActionIcon({ name }: { name: IconName }) {
+  return (
+    <>
+      <Icon name={name} size="md" tone="primary" decorative className="lg:hidden" />
+      <Icon name={name} size="lg" tone="primary" decorative className="hidden lg:block" />
+    </>
+  )
 }
 
 export function AppHeader({
@@ -81,7 +94,7 @@ export function AppHeader({
           aria-label="Página inicial"
           className={`rounded-md ${focusRing}`}
         >
-          <Logo variant={sidebarExpanded ? 'full' : 'mark'} tone="brand" size={32} decorative />
+          <Logo variant={sidebarExpanded ? 'full' : 'mark'} tone="brand" size={54} decorative />
         </button>
       </div>
 
@@ -106,7 +119,7 @@ export function AppHeader({
               aria-label={label}
               className={`rounded-md ${focusRing}`}
             >
-              <Icon name={icon} size="md" tone="primary" decorative />
+              <ActionIcon name={icon} />
             </button>
           ))}
         </div>

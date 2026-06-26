@@ -1,0 +1,21 @@
+# CODEOWNERS — Portal Conecta Frontend
+#
+# Governança em camadas (ADR-0010): a revisão humana fica reservada a Design
+# System, tokens, ADRs e configuração de repositório. Composição de primitivos
+# dentro de um domínio é mergeada pelo próprio squad, sem gate humano — por isso
+# NÃO existe owner global (`*`); só os caminhos abaixo exigem code owner.
+#
+# Sintaxe gitignore-style, última regra casada vence. O time precisa de acesso
+# de escrita no repositório para ser code owner válido.
+
+# Design System — atoms, molecules, organisms e tokens (packages/ui/src/tokens)
+/packages/ui/                 @Portal-Conecta/team-frontend
+
+# Pipeline de tokens (sincronização Figma -> código)
+/scripts/sync-tokens.ts       @Portal-Conecta/team-frontend
+
+# Decisões de arquitetura
+/docs/adr/                    @Portal-Conecta/team-frontend
+
+# Configuração de repositório, CI e governança (inclui este arquivo)
+/.github/                     @Portal-Conecta/team-frontend

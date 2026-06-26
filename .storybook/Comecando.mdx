@@ -1,0 +1,65 @@
+import { Meta } from '@storybook/blocks'
+
+<Meta title="Sobre/Começando" />
+
+# Começando
+
+Este guia mostra como usar o Portal Conecta Design System em uma tela. Diferente de bibliotecas publicadas, aqui não existe `npm install`: o Design System vive dentro do próprio monorepo, no pacote `@portal/ui`, e qualquer pacote do projeto consome ele direto pelo nome.
+
+## Antes de começar
+
+Você não precisa instalar nada além do projeto: Node 22+ e pnpm 11+ (conforme o `package.json`), e um `pnpm install` na raiz do monorepo.
+
+## 1. Importe os componentes
+
+Tudo sai de um único ponto de entrada. Atoms, molecules, organisms e tokens são exportados pelo `@portal/ui`:
+
+```tsx
+import { Text, Button } from '@portal/ui'
+```
+
+## 2. Texto e cor sempre por token
+
+Texto pelo componente `Text`, escolhendo a intenção (`variant`) e o tom (`tone`), nunca o tamanho na mão. Cor, espaçamento e raio vêm de classes semânticas de token, como `bg-interactive-default`, `text-text-inverse` e `mt-2`. A regra de ouro: se existe um token, use o token. Hex cru e tamanho avulso não entram no código.
+
+```tsx
+<Text as="h1" variant="heading-h2" tone="primary">
+  Mural de Comunicados
+</Text>
+```
+
+## 3. Monte a tela dentro do AppLayout
+
+O shell compartilhado vem do `@portal/core`. Ele entrega a Sidebar, o cabeçalho e a navegação, e embrulha o conteúdo da sua tela. Exemplo real de uma página de módulo:
+
+```tsx
+import { Text } from '@portal/ui'
+
+import { AppShell } from '../_components/AppShell'
+
+export default function ComunicadosPage() {
+  return (
+    <AppShell activeKey="comunicados">
+      <div className="p-8">
+        <Text as="h1" variant="heading-h2" tone="primary">
+          Mural de Comunicados
+        </Text>
+      </div>
+    </AppShell>
+  )
+}
+```
+
+## 4. Server Component é o padrão
+
+Não adicione `'use client'` por precaução. Use apenas quando o arquivo precisa de `useState`, `useEffect` ou `useRef`, ou define um event handler.
+
+## Onde cada coisa mora
+
+A página de um módulo nasce em `packages/[domínio]/src/pages/` e o shell a monta em `apps/root/src/app/[rota]/page.tsx`. As camadas importam só de cima para baixo, e um domínio nunca importa outro domínio.
+
+## Precisa de um componente que não existe?
+
+Construa local ao seu módulo primeiro. Se ele for útil para todos, a plataforma revisa e promove para o `@portal/ui`. Todo componente novo no Design System precisa de ao menos uma story aqui no Storybook antes do merge.
+
+Mais detalhes em [Criação de componentes](https://github.com/Portal-Conecta/frontend/blob/main/docs/conventions/creating-components.md).
