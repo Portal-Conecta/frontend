@@ -27,8 +27,6 @@ const meta: Meta<typeof Checkbox> = {
 export default meta;
 type Story = StoryObj<typeof Checkbox>;
 
-// Toggle controlado. Hover (blue-300) e pressed (active) são CSS do próprio
-// átomo — funcionam aqui e em qualquer molecule que o importe, sem wrapper.
 const render: Story["render"] = (args) => {
   const [checked, setChecked] = useState(args.checked ?? false);
   return <Checkbox {...args} checked={checked} onChange={setChecked} />;

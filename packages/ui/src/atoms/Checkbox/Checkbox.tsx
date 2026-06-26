@@ -28,10 +28,6 @@ export function Checkbox({
   disabled,
   id,
 }: CheckboxProps) {
-  // Marcado: cor de brand fixa. Desmarcado: secondary em repouso, com hover e
-  // active (pressed) reais via pseudo-classe.
-  // EXCEÇÃO de token: o hover usa o primitivo `blue-300` a pedido do produto —
-  // fora da camada semântica (tokens-e-theming §4), pendente de aprovação do TL.
   const colorClass = checked
     ? "text-text-brand"
     : "text-text-secondary hover:text-interactive-hover active:text-interactive-pressed";
