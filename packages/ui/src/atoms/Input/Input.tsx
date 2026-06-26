@@ -50,6 +50,7 @@ export function Input({
   ...rest
 }: InputProps) {
   const [revealed, setRevealed] = useState(false)
+  const [focused, setFocused] = useState(false)
   const generatedId = useId()
   const inputId = id ?? generatedId
   const errorId = `${inputId}-error`
@@ -71,7 +72,11 @@ export function Input({
 
   return (
     <div className={className ? `w-full ${className}` : 'w-full'}>
-      <div className={boxClasses}>
+      <div
+        className={boxClasses}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+      >
         <input
           id={inputId}
           type={inputType}
@@ -94,7 +99,7 @@ export function Input({
             <Icon name={revealed ? 'eye-closed' : 'eye'} size="sm" decorative />
           </button>
         ) : iconRight ? (
-          <span className={`shrink-0 ${disabled ? 'text-text-disabled' : styles.suffix}`}>
+          <span className={`shrink-0 ${disabled ? 'text-text-disabled' : focused ? 'text-border-focus' : styles.suffix}`}>
             <Icon name={iconRight} size="sm" decorative />
           </span>
         ) : null}
