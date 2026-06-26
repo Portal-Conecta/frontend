@@ -1,27 +1,27 @@
-import { Button } from "@portal/ui";
+'use client'
+
+import { Button } from '@portal/ui'
 
 interface ChecklistActionsProps {
-    onSaveDraft: () => void;
-    onSubmit: () => void;
-    isSubmitDisabled?: boolean;
-    isSubmitting?: boolean;
+    onSubmit: () => void
+    isSubmitDisabled?: boolean
+    isSubmitting?: boolean
 }
 
 export function ChecklistActions({
-    onSaveDraft,
     onSubmit,
     isSubmitDisabled = false,
     isSubmitting = false,
 }: ChecklistActionsProps) {
     return (
         <Button
-            iconLeft="check-check"
-            onClick={onSubmit}
-            disabled={isSubmitDisabled}
-            loading={isSubmitting}
-            className="font-semibold text-base"
+        iconLeft="check-check"
+        onClick={onSubmit}
+        disabled={isSubmitDisabled}
+        loading={isSubmitting}
+        className="font-semibold text-base"
         >
-            Enviar Checklist
+        Enviar Checklist
         </Button>
-    );
+    )
 }
