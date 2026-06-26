@@ -10,6 +10,8 @@
     "check:stories": "tsx scripts/check-stories.ts",
     "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
     "typecheck": "tsc --build",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "sb:css": "node scripts/build-storybook-css.mjs",
     "storybook": "pnpm sb:css && storybook dev -p 6006",
     "build-storybook": "pnpm sb:css && storybook build",
@@ -42,6 +44,8 @@
     "tailwindcss": "^4.0.0",
     "tsx": "^4.22.4",
     "typescript": "^5.0.0",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.9",
     "wait-on": "^9.0.10"
   },
   "engines": {
