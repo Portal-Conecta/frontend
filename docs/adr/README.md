@@ -20,6 +20,7 @@ Uma ADR documenta uma decisão de arquitetura significativa: o contexto que moti
 | [ADR-0008](ADR-0008-token-pipeline.md) | Pipeline de Tokens (Figma Variables para TypeScript) | Aceita |
 | [ADR-0009](ADR-0009-enforcement-de-token.md) | Enforcement de Token via Lint/CI | Aceita |
 | [ADR-0010](ADR-0010-governanca-ci-como-portao.md) | Governança e CI como Portão | Aceita |
+| [ADR-0011](ADR-0011-storybook-navegacao-funcional.md) | Navegação do Storybook por Categoria Funcional | Aceita |
 
 ## Como criar uma nova ADR
 

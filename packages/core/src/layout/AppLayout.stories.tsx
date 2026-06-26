@@ -26,7 +26,7 @@ function FakeContent() {
 }
 
 const meta: Meta<typeof AppLayout> = {
-  title: 'Layout/AppLayout',
+  title: 'Componentes/Layout/AppLayout',
   component: AppLayout,
   parameters: { layout: 'fullscreen' },
   argTypes: {

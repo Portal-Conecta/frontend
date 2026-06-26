@@ -6,7 +6,7 @@ import { Button } from './Button'
 const iconOptions = [undefined, ...(Object.keys(iconRegistry) as IconName[])]
 
 const meta = {
-  title: 'Atoms/Button',
+  title: 'Componentes/Ações/Button',
   component: Button,
   parameters: { layout: 'centered' },
   argTypes: {

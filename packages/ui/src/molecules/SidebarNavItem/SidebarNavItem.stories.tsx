@@ -6,7 +6,7 @@ import { SidebarNavItem } from './SidebarNavItem'
 const iconNames = Object.keys(iconRegistry) as IconName[]
 
 const meta: Meta<typeof SidebarNavItem> = {
-  title: 'Molecules/SidebarNavItem',
+  title: 'Componentes/Navegação/SidebarNavItem',
   component: SidebarNavItem,
   parameters: { layout: 'padded' },
   argTypes: {

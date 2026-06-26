@@ -18,13 +18,19 @@ O Design System é formado por três partes:
 
 ## Como navegar
 
-O menu à esquerda está dividido em seções. **Sobre** reúne as páginas de orientação, como esta e o **Começando**. Abaixo vêm as camadas do Atomic Design, do menor para o maior:
+O menu à esquerda está dividido em seções. **Sobre** reúne as páginas de orientação, como esta e o **Começando**. **Fundação** traz os tokens e as bases visuais. **Componentes** é o catálogo, agrupado por função em vez de pela camada técnica — você procura pelo que o componente faz, não por como ele é classificado no código:
 
-- **Atoms**: peças indivisíveis, como Button, Input, Text e Icon.
-- **Molecules**: combinações simples de atoms, como o FormField.
-- **Organisms**: blocos completos de interface, como a Sidebar e o AppHeader.
+- **Ações**: o Button.
+- **Inputs**: o Input e a família de controles de formulário.
+- **Formulário**: o FormField, que estrutura label, erro e ajuda em volta de um controle.
+- **Feedback**: o Alert e demais sinais de estado.
+- **Navegação**: a Sidebar, o AppHeader e o AppFooter.
+- **Conteúdo**: o Text, o Icon e o Logo.
+- **Layout**: o AppLayout, que monta o shell das telas.
 
-Cada componente traz suas variações e estados já montados e um painel de controles para você testar as props na hora.
+Novas categorias, como **Overlay**, aparecem conforme novos componentes (Toast, por exemplo) entram no Design System.
+
+Cada componente traz suas variações e estados já montados e um painel de controles para você testar as props na hora. A organização interna do código continua seguindo o Atomic Design (atoms, molecules, organisms); essa classificação é detalhe de implementação e não aparece mais no menu — ver [ADR-0011](https://github.com/Portal-Conecta/frontend/blob/main/docs/adr/ADR-0011-storybook-navegacao-funcional.md).
 
 ## Por onde começar
 
