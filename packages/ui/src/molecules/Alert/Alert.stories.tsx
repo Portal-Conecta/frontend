@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { Alert } from './Alert'
 
 const meta: Meta<typeof Alert> = {
-  title: 'Molecules/Alert',
+  title: 'Componentes/Feedback/Alert',
   component: Alert,
   parameters: { layout: 'padded' },
   argTypes: {

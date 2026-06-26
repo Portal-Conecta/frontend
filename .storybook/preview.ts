@@ -23,17 +23,18 @@ const preview: Preview = {
     a11y: {
       test: 'todo',
     },
-    // Ordena o sidebar: a seção Sobre (#108) primeiro, depois Fundação e as
-    // camadas do Atomic Design. O array aninhado fixa a ordem dentro de Sobre.
+    // Ordena o sidebar: a seção Sobre (#108) primeiro, depois Fundação e os
+    // componentes agrupados por categoria funcional (ADR-0011). Os arrays
+    // aninhados fixam a ordem dentro de cada seção. Categorias ainda sem
+    // componente (ex. Overlay) ficam na lista para fixar a ordem quando entrarem.
     options: {
       storySort: {
         order: [
           'Sobre',
           ['Introdução', 'Começando'],
           'Fundação',
-          'Atoms',
-          'Molecules',
-          'Organisms',
+          'Componentes',
+          ['Ações', 'Inputs', 'Formulário', 'Feedback', 'Overlay', 'Navegação', 'Conteúdo', 'Layout'],
         ],
       },
     },

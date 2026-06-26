@@ -6,7 +6,7 @@ import { iconRegistry, type IconName } from './icons'
 const iconNames = Object.keys(iconRegistry) as IconName[]
 
 const meta = {
-  title: 'Atoms/Icon',
+  title: 'Componentes/Conteúdo/Icon',
   component: Icon,
   parameters: { layout: 'centered' },
   argTypes: {

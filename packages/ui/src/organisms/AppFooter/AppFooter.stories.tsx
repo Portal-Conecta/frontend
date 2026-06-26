@@ -40,7 +40,7 @@ function SidebarToggleButton({ expanded }: { expanded: boolean }) {
 }
 
 const meta: Meta<typeof AppFooter> = {
-  title: 'Organisms/AppFooter',
+  title: 'Componentes/Navegação/AppFooter',
   component: AppFooter,
   parameters: { layout: 'fullscreen' },
   argTypes: {
