@@ -21,6 +21,8 @@ Uma ADR documenta uma decisão de arquitetura significativa: o contexto que moti
 | [ADR-0009](ADR-0009-enforcement-de-token.md) | Enforcement de Token via Lint/CI | Aceita |
 | [ADR-0010](ADR-0010-governanca-ci-como-portao.md) | Governança e CI como Portão | Aceita |
 | [ADR-0011](ADR-0011-storybook-navegacao-funcional.md) | Navegação do Storybook por Categoria Funcional | Aceita |
+| [ADR-0012](ADR-0012-contrato-do-applayout.md) | Contrato do AppLayout | Aceita |
+| [ADR-0013](ADR-0013-baseline-de-acessibilidade.md) | Baseline de Acessibilidade | Aceita |
 
 ## Como criar uma nova ADR
 
