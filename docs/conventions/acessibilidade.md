@@ -2,7 +2,7 @@
 
 **Público:** todos (plataforma e squads operacionais).
 
-> O nível formal de conformidade (alvo WCAG) será fixado em uma ADR de baseline de acessibilidade, ainda a definir. Esta convenção reúne as práticas já adotadas no DS.
+> O nível-alvo de conformidade é **WCAG 2.1 AA** e a postura do gate (consultivo, não bloqueante por ora) estão fixados na [ADR-0013 (baseline de acessibilidade)](../adr/ADR-0013-baseline-de-acessibilidade.md). Esta convenção reúne as práticas já adotadas no DS para alcançar esse alvo.
 
 ## Foco e teclado
 
@@ -32,12 +32,14 @@
 
 ## Severidade no gate de CI (#104)
 
-O gate classifica as violações do axe pelo campo `impact`:
+Por ora, **o gate é consultivo: roda e reporta, mas não bloqueia o merge** — o job `a11y` da CI usa `continue-on-error: true` enquanto a dívida de a11y pré-existente no DS não é tratada (ver [ADR-0013](../adr/ADR-0013-baseline-de-acessibilidade.md)). A classificação por `impact` serve para **priorizar** o que tratar primeiro:
 
-| Impacto | Efeito no CI |
+| Impacto | Como tratar |
 |---|---|
-| `critical`, `serious` | **Bloqueiam** o merge (o job `a11y` falha). |
-| `moderate`, `minor` | **Aviso** (`console.warn`), não bloqueiam. |
+| `critical`, `serious` | Prioridade — são o que fará o gate bloquear quando ele apertar. |
+| `moderate`, `minor` | Aviso (`console.warn`); seguem como aviso mesmo após o gate virar bloqueante. |
+
+Quando a dívida `critical`/`serious` for zerada, remove-se o `continue-on-error` e o gate passa a **bloquear** essas severidades. Até lá, trate todo aviso como dívida a não acumular.
 
 Uma story pode desativar a checagem com `parameters.a11y.disable` ou ajustar regras via `parameters.a11y.config.rules` — use com parcimônia e justifique.
 

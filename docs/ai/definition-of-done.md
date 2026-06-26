@@ -20,7 +20,7 @@ Rodam hoje em todo push de `feature/**` e em PR para `develop`/`main` (ver [ci.y
 |---|---|---|
 | **Token sem hardcode** | [#102](https://github.com/Portal-Conecta/frontend/issues/102) | Regra ESLint barrando arbitrary value do Tailwind (`w-[280px]`, `text-[14px]`, `bg-[#hex]`), com allowlist comentada para exceções. |
 | **Story obrigatória** | [#103](https://github.com/Portal-Conecta/frontend/issues/103) | Script que falha se um componente em `atoms`/`molecules`/`organisms` não tem story irmã. Integrado ao job de lint. |
-| **Acessibilidade** | [#104](https://github.com/Portal-Conecta/frontend/issues/104) | `addon-a11y` + a11y do Chromatic sobre as stories (contraste, atributos aria). Severidade de bloqueio a definir. |
+| **Acessibilidade** | [#104](https://github.com/Portal-Conecta/frontend/issues/104) | `addon-a11y` + a11y do Chromatic sobre as stories (contraste, atributos aria). Alvo WCAG 2.1 AA; gate consultivo (warn-only) por ora — ver [ADR-0013](../adr/ADR-0013-baseline-de-acessibilidade.md). |
 | **Testes de lógica** | [#105](https://github.com/Portal-Conecta/frontend/issues/105) | Vitest + Testing Library: auth/session em `core`, script de sync de tokens, utils de `shared`. Job `test` no CI. |
 
 ## Checklist antes do PR
