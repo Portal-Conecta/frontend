@@ -4,16 +4,16 @@
  * SelectList — lista (listbox) presentacional da família Select.
  *
  * "Burra" de propósito: não gere foco nem estado aberto — o controle (`Select`,
- * e nas próximas fases `SelectAsync`/multi) mantém o foco no combobox via
- * `aria-activedescendant` e só passa `activeIndex`, `value`, `options` e os
- * callbacks. Aqui ficam o render das opções, os divisores, o realce ativo, o
- * scroll e a animação de entrada. É o lar natural dos estados loading/vazio/
- * erro do SelectAsync (fase seguinte) e da variante "rail" do Figma (prop 19).
+ * `SelectAsync`, multi) mantém o foco no combobox via `aria-activedescendant` e
+ * só passa `activeIndex`, `value`, `options` e os callbacks. Aqui ficam o render
+ * das opções, os divisores, o realce ativo, o scroll, a animação de entrada e os
+ * estados assíncronos (carregando / vazio / erro) + o botão de atualizar.
  *
  * Interna à família: NÃO é exportada no barrel de `molecules`.
  */
 import { forwardRef } from 'react'
 
+import { Icon } from '../../atoms/Icon'
 import { sizeStyles, type SelectOption, type SelectSize } from './types'
 
 export interface SelectListProps {
@@ -30,6 +30,13 @@ export interface SelectListProps {
   'aria-labelledby'?: string | undefined
   onSelect: (index: number) => void
   onActivate: (index: number) => void
+  // --- estados assíncronos (usados pelo SelectAsync) ---
+  loading?: boolean | undefined
+  loadError?: string | undefined
+  onRetry?: (() => void) | undefined
+  emptyMessage?: string | undefined
+  /** Quando presente, mostra um botão de atualizar (reusa `loading-circle`). */
+  onRefresh?: (() => void) | undefined
 }
 
 export const SelectList = forwardRef<HTMLUListElement, SelectListProps>(function SelectList(
@@ -45,9 +52,74 @@ export const SelectList = forwardRef<HTMLUListElement, SelectListProps>(function
     'aria-labelledby': ariaLabelledby,
     onSelect,
     onActivate,
+    loading = false,
+    loadError,
+    onRetry,
+    emptyMessage = 'Nenhuma opção',
+    onRefresh,
   },
   ref,
 ) {
+  const rowPad = sizeStyles[size].option
+
+  let body
+  if (loading) {
+    body = (
+      <li role="presentation" className={`flex items-center gap-2 text-text-secondary ${rowPad}`}>
+        <Icon name="loading-circle" size="sm" decorative className="animate-spin" />
+        <span className="text-label-md font-inter">Carregando…</span>
+      </li>
+    )
+  } else if (loadError) {
+    body = (
+      <li role="alert" className={`flex items-center justify-between gap-2 ${rowPad}`}>
+        <span className="text-label-md font-inter text-feedback-error">{loadError}</span>
+        {onRetry ? (
+          <button
+            type="button"
+            onClick={onRetry}
+            className="shrink-0 cursor-pointer rounded text-label-sm font-inter text-text-brand outline-none hover:underline focus-visible:ring-2 focus-visible:ring-border-focus"
+          >
+            Tentar de novo
+          </button>
+        ) : null}
+      </li>
+    )
+  } else if (options.length === 0) {
+    body = (
+      <li role="presentation" className={`text-label-md font-inter text-text-placeholder ${rowPad}`}>
+        {emptyMessage}
+      </li>
+    )
+  } else {
+    body = options.map((option, index) => {
+      const selected = option.value === value
+      const active = index === activeIndex
+      return (
+        <li
+          key={option.value}
+          id={optionId(index)}
+          role="option"
+          aria-selected={selected}
+          aria-disabled={option.disabled || undefined}
+          onClick={() => onSelect(index)}
+          onMouseEnter={() => !option.disabled && onActivate(index)}
+          className={[
+            rowPad,
+            'font-inter transition-colors',
+            option.disabled
+              ? 'cursor-not-allowed text-text-disabled'
+              : 'cursor-pointer ' +
+                (selected ? 'text-text-brand font-semibold' : 'text-text-primary') +
+                (active ? ' bg-background-default' : ''),
+          ].join(' ')}
+        >
+          {option.label}
+        </li>
+      )
+    })
+  }
+
   return (
     <ul
       ref={ref}
@@ -55,6 +127,7 @@ export const SelectList = forwardRef<HTMLUListElement, SelectListProps>(function
       role="listbox"
       aria-label={ariaLabel}
       aria-labelledby={ariaLabelledby}
+      aria-busy={loading || undefined}
       className={[
         'absolute left-0 right-0 z-50 mt-2 max-h-60 w-full overflow-auto',
         'rounded-md border-sm border-border-default bg-background-surface',
@@ -63,32 +136,20 @@ export const SelectList = forwardRef<HTMLUListElement, SelectListProps>(function
         entered ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1',
       ].join(' ')}
     >
-      {options.map((option, index) => {
-        const selected = option.value === value
-        const active = index === activeIndex
-        return (
-          <li
-            key={option.value}
-            id={optionId(index)}
-            role="option"
-            aria-selected={selected}
-            aria-disabled={option.disabled || undefined}
-            onClick={() => onSelect(index)}
-            onMouseEnter={() => !option.disabled && onActivate(index)}
-            className={[
-              sizeStyles[size].option,
-              'font-inter transition-colors',
-              option.disabled
-                ? 'cursor-not-allowed text-text-disabled'
-                : 'cursor-pointer ' +
-                  (selected ? 'text-text-brand font-semibold' : 'text-text-primary') +
-                  (active ? ' bg-background-default' : ''),
-            ].join(' ')}
+      {onRefresh ? (
+        <li role="presentation" className="flex justify-end px-2 py-1">
+          <button
+            type="button"
+            aria-label="Atualizar"
+            onClick={onRefresh}
+            disabled={loading}
+            className="cursor-pointer rounded p-1 text-text-secondary outline-none transition-colors hover:text-text-primary focus-visible:ring-2 focus-visible:ring-border-focus disabled:cursor-not-allowed"
           >
-            {option.label}
-          </li>
-        )
-      })}
+            <Icon name="loading-circle" size="sm" decorative className={loading ? 'animate-spin' : undefined} />
+          </button>
+        </li>
+      ) : null}
+      {body}
     </ul>
   )
 })

@@ -40,6 +40,14 @@ export interface SelectProps {
   'aria-labelledby'?: string
   /** Só para layout externo. */
   className?: string
+  // --- estados assíncronos (preenchidos pelo SelectAsync) ---
+  loading?: boolean | undefined
+  loadError?: string | undefined
+  onRetry?: (() => void) | undefined
+  emptyMessage?: string | undefined
+  onRefresh?: (() => void) | undefined
+  /** Avisa abertura/fechamento (o SelectAsync usa para carregar ao abrir). */
+  onOpenChange?: (open: boolean) => void
 }
 
 /** Próximo índice habilitado a partir de `from` (exclusivo) na direção `dir`. */
@@ -75,6 +83,12 @@ export function Select({
   'aria-label': ariaLabel,
   'aria-labelledby': ariaLabelledby,
   className,
+  loading,
+  loadError,
+  onRetry,
+  emptyMessage,
+  onRefresh,
+  onOpenChange,
 }: SelectProps) {
   const generatedId = useId()
   const baseId = id ?? generatedId
@@ -97,11 +111,13 @@ export function Select({
     if (disabled) return
     setOpen(true)
     setActiveIndex(toIndex ?? (selectedIndex === -1 ? firstEnabled(options) : selectedIndex))
+    onOpenChange?.(true)
   }
 
   function closeMenu(refocus = true) {
     setOpen(false)
     setActiveIndex(-1)
+    onOpenChange?.(false)
     if (refocus) triggerRef.current?.focus()
   }
 
@@ -221,7 +237,7 @@ export function Select({
           aria-haspopup="listbox"
           aria-expanded={open}
           aria-controls={open ? listId : undefined}
-          aria-activedescendant={open && activeIndex >= 0 ? optionId(activeIndex) : undefined}
+          aria-activedescendant={open && activeIndex >= 0 && options[activeIndex] ? optionId(activeIndex) : undefined}
           aria-label={ariaLabel}
           aria-labelledby={ariaLabelledby}
           aria-invalid={error ? true : undefined}
@@ -259,6 +275,11 @@ export function Select({
           aria-labelledby={ariaLabelledby}
           onSelect={selectOption}
           onActivate={setActiveIndex}
+          loading={loading}
+          loadError={loadError}
+          onRetry={onRetry}
+          emptyMessage={emptyMessage}
+          onRefresh={onRefresh}
         />
       ) : null}
 
