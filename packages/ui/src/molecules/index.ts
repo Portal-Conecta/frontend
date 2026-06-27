@@ -1,4 +1,4 @@
 export * from './Alert'
-export * from './FormField'
+export * from './Field'
 export * from './Select'
 export * from './SidebarNavItem'

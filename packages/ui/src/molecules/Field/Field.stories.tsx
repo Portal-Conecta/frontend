@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react'
 
-import { FormField } from './FormField'
+import { Field } from './Field'
 
-const meta: Meta<typeof FormField> = {
-  title: 'Componentes/Inputs/Input/FormField',
-  component: FormField,
+const meta: Meta<typeof Field> = {
+  title: 'Componentes/Formulário/Field',
+  component: Field,
   parameters: { layout: 'padded' },
   decorators: [
     (Story) => (
@@ -16,7 +16,7 @@ const meta: Meta<typeof FormField> = {
 }
 
 export default meta
-type Story = StoryObj<typeof FormField>
+type Story = StoryObj<typeof Field>
 
 export const Default: Story = {
   args: {

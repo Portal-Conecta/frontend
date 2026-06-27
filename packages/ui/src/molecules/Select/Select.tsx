@@ -10,7 +10,7 @@
  * pelo multi-select nas próximas fases (ver issue #94).
  *
  * Sem label visível (placeholder-only, como o `Input`): use `aria-label` ou um
- * FormField. A borda focada usa `border-border-focus` (#01258f) — confirmado
+ * Field. A borda focada usa `border-border-focus` (#01258f) — confirmado
  * como o token do input focado no Figma; o blue/700 do Figma é o label e o rail
  * da lista (variante), não a borda do input.
  */

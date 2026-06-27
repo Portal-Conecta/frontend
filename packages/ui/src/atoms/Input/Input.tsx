@@ -5,7 +5,7 @@
  * `filled`/`focused` são automáticos (input nativo + :focus-within); `error`,
  * `disabled`, `tone` e `type=password` (toggle de olho) são props. A cor da
  * mensagem de erro segue o tom. Compõe o átomo `Icon`. Sem label visível
- * (placeholder-only, como no DS) — use aria-label ou um FormField.
+ * (placeholder-only, como no DS) — use aria-label ou um Field.
  */
 import { useId, useState, type InputHTMLAttributes } from 'react'
 
