@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react'
 
+import { Input } from '@portal/ui/atoms'
+
 import { Field } from './Field'
 
 const meta: Meta<typeof Field> = {
@@ -19,42 +21,43 @@ export default meta
 type Story = StoryObj<typeof Field>
 
 export const Default: Story = {
-  args: {
-    label: 'Titulo',
-    placeholder: 'placeholder',
-  },
+  render: () => (
+    <Field label="Título">
+      <Input placeholder="placeholder" />
+    </Field>
+  ),
 }
 
 export const WithError: Story = {
-  args: {
-    label: 'E-mail',
-    placeholder: 'seu@email.com',
-    error: 'E-mail inválido.',
-  },
+  render: () => (
+    <Field label="E-mail">
+      <Input placeholder="seu@email.com" error="E-mail inválido." />
+    </Field>
+  ),
 }
 
 export const Disabled: Story = {
-  args: {
-    label: 'Campo desabilitado',
-    placeholder: 'Não editável',
-    disabled: true,
-  },
+  render: () => (
+    <Field label="Campo desabilitado">
+      <Input placeholder="Não editável" disabled />
+    </Field>
+  ),
 }
 
 export const Password: Story = {
-  args: {
-    label: 'Senha',
-    placeholder: '••••••••',
-    type: 'password',
-  },
+  render: () => (
+    <Field label="Senha">
+      <Input placeholder="••••••••" type="password" />
+    </Field>
+  ),
 }
 
 export const WithIcon: Story = {
-  args: {
-    label: 'Busca',
-    placeholder: 'Pesquisar...',
-    iconRight: 'search',
-  },
+  render: () => (
+    <Field label="Busca">
+      <Input placeholder="Pesquisar..." iconRight="search" />
+    </Field>
+  ),
 }
 
 export const Overlay: Story = {
@@ -65,9 +68,9 @@ export const Overlay: Story = {
       </div>
     ),
   ],
-  args: {
-    label: 'Usuário',
-    placeholder: 'Digite seu usuário',
-    tone: 'overlay',
-  },
+  render: () => (
+    <Field label="Usuário" tone="overlay">
+      <Input placeholder="Digite seu usuário" tone="overlay" />
+    </Field>
+  ),
 }
