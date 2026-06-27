@@ -110,3 +110,9 @@ export const WithField: Story = {
     )
   },
 }
+
+/** Clearable: o `x` na borda esquerda limpa a seleção (aparece só quando há valor). */
+export const Clearable: Story = {
+  args: { options: salas, placeholder: 'Todos', clearable: true, value: '205', 'aria-label': 'Período' },
+  render,
+}

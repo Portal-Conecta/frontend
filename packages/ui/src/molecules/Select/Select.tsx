@@ -32,6 +32,8 @@ export interface SelectProps {
   disabled?: boolean
   /** Mensagem de erro. Presença ativa o estado de erro (barra + mensagem). */
   error?: string
+  /** Mostra um `x` na borda esquerda para limpar a seleção. */
+  clearable?: boolean
   size?: SelectSize
   id?: string
   'aria-label'?: string
@@ -67,6 +69,7 @@ export function Select({
   placeholder = 'Selecione',
   disabled = false,
   error,
+  clearable = false,
   size = 'md',
   id,
   'aria-label': ariaLabel,
@@ -191,36 +194,56 @@ export function Select({
         (open ? 'border-border-focus' : error ? 'border-border-error' : 'border-border-default'),
   ].join(' ')
 
+  // `x` de limpar só aparece com valor selecionado e habilitado.
+  const showClear = clearable && !!selectedOption && !disabled
+
   return (
     <div ref={containerRef} className={className ? `relative w-full ${className}` : 'relative w-full'}>
-      <button
-        ref={triggerRef}
-        type="button"
-        id={baseId}
-        role="combobox"
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        aria-controls={open ? listId : undefined}
-        aria-activedescendant={open && activeIndex >= 0 ? optionId(activeIndex) : undefined}
-        aria-label={ariaLabel}
-        aria-labelledby={ariaLabelledby}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={error ? errorId : undefined}
-        disabled={disabled}
-        onClick={() => (open ? closeMenu() : openMenu())}
-        onKeyDown={onKeyDown}
-        className={triggerBox}
-      >
-        <span className={`flex-1 min-w-0 truncate text-left ${selectedOption ? '' : 'text-text-placeholder'}`}>
-          {selectedOption ? selectedOption.label : placeholder}
-        </span>
-        <Icon
-          name="chevron-down"
-          size={sizeStyles[size].icon}
-          decorative
-          className={`shrink-0 transition-transform ${open ? 'rotate-180' : ''}`}
-        />
-      </button>
+      <div className="relative">
+        {showClear ? (
+          <button
+            type="button"
+            aria-label="Limpar seleção"
+            onClick={() => {
+              onChange(null)
+              triggerRef.current?.focus()
+            }}
+            className="absolute left-3 top-1/2 z-10 -translate-y-1/2 cursor-pointer rounded text-text-secondary outline-none transition-colors hover:text-text-primary focus-visible:ring-2 focus-visible:ring-border-focus"
+          >
+            <Icon name="x" size={sizeStyles[size].icon} decorative />
+          </button>
+        ) : null}
+        <button
+          ref={triggerRef}
+          type="button"
+          id={baseId}
+          role="combobox"
+          aria-haspopup="listbox"
+          aria-expanded={open}
+          aria-controls={open ? listId : undefined}
+          aria-activedescendant={open && activeIndex >= 0 ? optionId(activeIndex) : undefined}
+          aria-label={ariaLabel}
+          aria-labelledby={ariaLabelledby}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? errorId : undefined}
+          disabled={disabled}
+          onClick={() => (open ? closeMenu() : openMenu())}
+          onKeyDown={onKeyDown}
+          className={triggerBox}
+        >
+          <span
+            className={`min-w-0 flex-1 truncate text-left ${showClear ? 'pl-6' : ''} ${selectedOption ? '' : 'text-text-placeholder'}`}
+          >
+            {selectedOption ? selectedOption.label : placeholder}
+          </span>
+          <Icon
+            name="chevron-down"
+            size={sizeStyles[size].icon}
+            decorative
+            className={`shrink-0 transition-transform ${open ? 'rotate-180' : ''}`}
+          />
+        </button>
+      </div>
 
       {open ? (
         <SelectList
