@@ -37,7 +37,7 @@ const meta: Meta<typeof SelectAsync> = {
 export default meta
 type Story = StoryObj<typeof SelectAsync>
 
-/** Carrega ao abrir (spinner girando) e oferece o botão de atualizar no topo da lista. */
+/** Carrega ao abrir (spinner + "Carregando…" lado a lado); depois mostra a lista. Digite para filtrar. */
 export const Default: Story = {
   render: () => {
     const [value, setValue] = useState<string | null>(null)
@@ -53,7 +53,7 @@ export const Default: Story = {
   },
 }
 
-/** Resposta vazia → mensagem "Nenhuma opção". */
+/** Resposta vazia → mensagem "Nenhuma opção encontrada". */
 export const Empty: Story = {
   render: () => {
     const [value, setValue] = useState<string | null>(null)
@@ -69,8 +69,11 @@ export const Empty: Story = {
   },
 }
 
-/** Falha no carregamento → mensagem de erro + "Tentar de novo". */
-export const ErrorState: Story = {
+/**
+ * Falha no carregamento → cai no estado único "Nenhuma opção encontrada" (sem UI de erro
+ * dedicada). Reabrir o dropdown tenta carregar de novo (retry implícito).
+ */
+export const FailureBecomesEmpty: Story = {
   render: () => {
     const [value, setValue] = useState<string | null>(null)
     return (

@@ -5,9 +5,10 @@
  *
  * "Burra" de propósito: não gere foco nem estado aberto — o controle (`Select`,
  * `SelectAsync`, multi) mantém o foco no combobox via `aria-activedescendant` e
- * só passa `activeIndex`, `value`, `options` e os callbacks. Aqui ficam o render
- * das opções, os divisores, o realce ativo, o scroll, a animação de entrada e os
- * estados assíncronos (carregando / vazio / erro).
+ * só passa `activeIndex`, `value`, `options` (já filtradas) e os callbacks. Aqui
+ * ficam o render das opções, os divisores, o realce ativo, o scroll, a animação
+ * de entrada e dois estados especiais: carregando (ícone + texto lado a lado) e
+ * "sem opções" — que cobre filtro sem match, lista vazia ou falha de carregamento.
  *
  * Interna à família: NÃO é exportada no barrel de `molecules`.
  */
@@ -30,10 +31,9 @@ export interface SelectListProps {
   'aria-labelledby'?: string | undefined
   onSelect: (index: number) => void
   onActivate: (index: number) => void
-  // --- estados assíncronos (usados pelo SelectAsync) ---
+  /** Estado de carregamento (usado pelo SelectAsync). */
   loading?: boolean | undefined
-  loadError?: string | undefined
-  onRetry?: (() => void) | undefined
+  /** Texto do estado "sem opções". */
   emptyMessage?: string | undefined
 }
 
@@ -51,41 +51,26 @@ export const SelectList = forwardRef<HTMLUListElement, SelectListProps>(function
     onSelect,
     onActivate,
     loading = false,
-    loadError,
-    onRetry,
-    emptyMessage = 'Nenhuma opção',
+    emptyMessage = 'Nenhuma opção encontrada',
   },
   ref,
 ) {
   const rowPad = sizeStyles[size].option
+  // Carregando e "sem opções" compartilham a mesma célula centrada com respiro.
+  const stateCell = 'flex items-center justify-center gap-2 px-3 py-4 text-center'
 
   let body
   if (loading) {
     body = (
-      <li role="presentation" className={`flex items-center gap-2 text-text-secondary ${rowPad}`}>
-        <Icon name="loading-circle" size="sm" decorative className="animate-spin" />
+      <li role="presentation" className={`${stateCell} text-text-secondary`}>
+        <Icon name="loading-circle" size="sm" decorative />
         <span className="text-label-md font-inter">Carregando…</span>
-      </li>
-    )
-  } else if (loadError) {
-    body = (
-      <li role="alert" className={`flex items-center justify-between gap-2 ${rowPad}`}>
-        <span className="text-label-md font-inter text-feedback-error">{loadError}</span>
-        {onRetry ? (
-          <button
-            type="button"
-            onClick={onRetry}
-            className="shrink-0 cursor-pointer rounded text-label-sm font-inter text-text-brand outline-none hover:underline focus-visible:ring-2 focus-visible:ring-border-focus"
-          >
-            Tentar de novo
-          </button>
-        ) : null}
       </li>
     )
   } else if (options.length === 0) {
     body = (
-      <li role="presentation" className={`text-label-md font-inter text-text-placeholder ${rowPad}`}>
-        {emptyMessage}
+      <li role="presentation" className={`${stateCell} text-text-placeholder`}>
+        <span className="text-label-md font-inter">{emptyMessage}</span>
       </li>
     )
   } else {

@@ -50,7 +50,7 @@ const render: Story['render'] = (args) => {
   return <Select {...args} value={value} onChange={setValue} />
 }
 
-/** Playground — clique ou use as setas; Enter/Espaço seleciona, Esc fecha. */
+/** Playground — clique e **digite para filtrar** as opções; setas navegam, Enter seleciona, Esc fecha. */
 export const Default: Story = {
   args: { options: salas, placeholder: 'Todos', 'aria-label': 'Período' },
   render,
@@ -111,7 +111,7 @@ export const WithField: Story = {
   },
 }
 
-/** Clearable: o `x` na borda esquerda limpa a seleção (aparece só quando há valor). */
+/** Clearable: o `x` à direita (antes do chevron) limpa a seleção (aparece só quando há valor). */
 export const Clearable: Story = {
   args: { options: salas, placeholder: 'Todos', clearable: true, value: '205', 'aria-label': 'Período' },
   render,

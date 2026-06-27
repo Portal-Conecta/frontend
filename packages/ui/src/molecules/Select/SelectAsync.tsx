@@ -3,10 +3,11 @@
 /**
  * SelectAsync — variante do Select que carrega as opções de forma assíncrona.
  *
- * Wrapper fino sobre o `Select`: gerencia `options/loading/loadError` e os
- * repassa, então trigger, teclado e clearable não são reimplementados. Carrega
- * ao abrir pela 1ª vez (`onOpenChange`); em caso de falha, o "Tentar de novo"
- * do estado de erro (`onRetry`) re-busca.
+ * Wrapper fino sobre o `Select`: gerencia `options/loading` e os repassa, então
+ * input, filtro, teclado e clearable não são reimplementados. Carrega ao abrir
+ * pela 1ª vez (`onOpenChange`). Em caso de falha, a lista cai no estado único
+ * "Nenhuma opção encontrada" (sem UI de erro dedicada); como `loaded` só vira
+ * `true` no sucesso, reabrir tenta de novo — retry implícito.
  *
  * Story em `Componentes/Inputs/Select/SelectAsync` (ADR-0011, adendo #2).
  */
@@ -16,7 +17,7 @@ import { Select } from './Select'
 import type { SelectOption, SelectSize } from './types'
 
 export interface SelectAsyncProps {
-  /** Carrega as opções — chamado ao abrir pela 1ª vez e no atualizar. */
+  /** Carrega as opções — chamado ao abrir pela 1ª vez (e de novo se a anterior falhou). */
   loadOptions: () => Promise<SelectOption[]>
   value?: string | null
   onChange: (value: string | null) => void
@@ -35,17 +36,17 @@ export interface SelectAsyncProps {
 export function SelectAsync({ loadOptions, ...rest }: SelectAsyncProps) {
   const [options, setOptions] = useState<SelectOption[]>([])
   const [loading, setLoading] = useState(false)
-  const [loadError, setLoadError] = useState<string | undefined>(undefined)
   const [loaded, setLoaded] = useState(false)
 
   async function fetchOptions() {
     setLoading(true)
-    setLoadError(undefined)
     try {
       setOptions(await loadOptions())
       setLoaded(true)
     } catch {
-      setLoadError('Falha ao carregar as opções.')
+      // Sem UI de erro dedicada: a lista vazia mostra "Nenhuma opção encontrada".
+      // `loaded` permanece false → a próxima abertura tenta de novo.
+      setOptions([])
     } finally {
       setLoading(false)
     }
@@ -56,9 +57,6 @@ export function SelectAsync({ loadOptions, ...rest }: SelectAsyncProps) {
       {...rest}
       options={options}
       loading={loading}
-      loadError={loadError}
-      onRetry={fetchOptions}
-      emptyMessage="Nenhuma opção"
       onOpenChange={(open) => {
         if (open && !loaded && !loading) void fetchOptions()
       }}
