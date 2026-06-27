@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react'
 
+import { Field } from '../Field'
 import { Select, type SelectOption } from './Select'
 
 /**
@@ -93,6 +94,19 @@ export const Sizes: Story = {
         <Select options={salas} size="md" placeholder="md" aria-label="md" value={b} onChange={setB} />
         <Select options={salas} size="lg" placeholder="lg" aria-label="lg" value={c} onChange={setC} />
       </div>
+    )
+  },
+}
+
+/** Com label em cima via `Field` — o `Field` injeta o nome acessível, então o Select dispensa `aria-label`. */
+export const WithField: Story = {
+  args: { options: salas, placeholder: 'Todos' },
+  render: (args) => {
+    const [value, setValue] = useState<string | null>(args.value ?? null)
+    return (
+      <Field label="Período">
+        <Select {...args} value={value} onChange={setValue} />
+      </Field>
     )
   },
 }
