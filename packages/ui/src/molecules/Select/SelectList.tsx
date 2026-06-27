@@ -7,7 +7,7 @@
  * `SelectAsync`, multi) mantém o foco no combobox via `aria-activedescendant` e
  * só passa `activeIndex`, `value`, `options` e os callbacks. Aqui ficam o render
  * das opções, os divisores, o realce ativo, o scroll, a animação de entrada e os
- * estados assíncronos (carregando / vazio / erro) + o botão de atualizar.
+ * estados assíncronos (carregando / vazio / erro).
  *
  * Interna à família: NÃO é exportada no barrel de `molecules`.
  */
@@ -35,8 +35,6 @@ export interface SelectListProps {
   loadError?: string | undefined
   onRetry?: (() => void) | undefined
   emptyMessage?: string | undefined
-  /** Quando presente, mostra um botão de atualizar (reusa `loading-circle`). */
-  onRefresh?: (() => void) | undefined
 }
 
 export const SelectList = forwardRef<HTMLUListElement, SelectListProps>(function SelectList(
@@ -56,7 +54,6 @@ export const SelectList = forwardRef<HTMLUListElement, SelectListProps>(function
     loadError,
     onRetry,
     emptyMessage = 'Nenhuma opção',
-    onRefresh,
   },
   ref,
 ) {
@@ -136,19 +133,6 @@ export const SelectList = forwardRef<HTMLUListElement, SelectListProps>(function
         entered ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1',
       ].join(' ')}
     >
-      {onRefresh ? (
-        <li role="presentation" className="flex justify-end px-2 py-1">
-          <button
-            type="button"
-            aria-label="Atualizar"
-            onClick={onRefresh}
-            disabled={loading}
-            className="cursor-pointer rounded p-1 text-text-secondary outline-none transition-colors hover:text-text-primary focus-visible:ring-2 focus-visible:ring-border-focus disabled:cursor-not-allowed"
-          >
-            <Icon name="loading-circle" size="sm" decorative className={loading ? 'animate-spin' : undefined} />
-          </button>
-        </li>
-      ) : null}
       {body}
     </ul>
   )

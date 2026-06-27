@@ -5,8 +5,8 @@
  *
  * Wrapper fino sobre o `Select`: gerencia `options/loading/loadError` e os
  * repassa, então trigger, teclado e clearable não são reimplementados. Carrega
- * ao abrir pela 1ª vez (`onOpenChange`) e re-busca pelo botão de atualizar
- * (`onRefresh`/`onRetry`), que reusa o `loading-circle` girando — sem ícone novo.
+ * ao abrir pela 1ª vez (`onOpenChange`); em caso de falha, o "Tentar de novo"
+ * do estado de erro (`onRetry`) re-busca.
  *
  * Story em `Componentes/Inputs/Select/SelectAsync` (ADR-0011, adendo #2).
  */
@@ -58,7 +58,6 @@ export function SelectAsync({ loadOptions, ...rest }: SelectAsyncProps) {
       loading={loading}
       loadError={loadError}
       onRetry={fetchOptions}
-      onRefresh={fetchOptions}
       emptyMessage="Nenhuma opção"
       onOpenChange={(open) => {
         if (open && !loaded && !loading) void fetchOptions()

@@ -45,7 +45,6 @@ export interface SelectProps {
   loadError?: string | undefined
   onRetry?: (() => void) | undefined
   emptyMessage?: string | undefined
-  onRefresh?: (() => void) | undefined
   /** Avisa abertura/fechamento (o SelectAsync usa para carregar ao abrir). */
   onOpenChange?: (open: boolean) => void
 }
@@ -87,7 +86,6 @@ export function Select({
   loadError,
   onRetry,
   emptyMessage,
-  onRefresh,
   onOpenChange,
 }: SelectProps) {
   const generatedId = useId()
@@ -279,7 +277,6 @@ export function Select({
           loadError={loadError}
           onRetry={onRetry}
           emptyMessage={emptyMessage}
-          onRefresh={onRefresh}
         />
       ) : null}
 
