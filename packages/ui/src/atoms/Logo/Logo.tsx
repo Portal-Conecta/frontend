@@ -20,7 +20,7 @@ export interface LogoProps
   variant?: LogoVariant
   /** Tom de cor, derivado de token. Default `brand`. */
   tone?: LogoTone
-  /** Altura em px (largura deriva da proporção do vetor). DS: 16 · 24 · 32 · 54. Default 54. */
+  /** Altura em px (largura deriva da proporção do vetor). DS: 16 · 24 · 32 · 44 · 54. Default 54. */
   size?: number
   /** Nome acessível da marca. Default "Portal Conecta". Ignorado se `decorative`. */
   title?: string

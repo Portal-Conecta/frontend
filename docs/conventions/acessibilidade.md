@@ -13,7 +13,7 @@
 ## ARIA e semântica
 
 - Use o elemento HTML correto antes de recorrer a `role`.
-- Campos de formulário associam label e mensagens via `aria-describedby`; o estado de erro reflete em `aria-invalid`. A molecule `FormField` padroniza isso quando disponível.
+- Campos de formulário associam label e mensagens via `aria-describedby`; o estado de erro reflete em `aria-invalid`. A molecule `Field` padroniza isso quando disponível.
 - Regiões dinâmicas (notificações, validação assíncrona) anunciam via `aria-live`.
 
 ## Cor e contraste

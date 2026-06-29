@@ -168,8 +168,13 @@ export function Sidebar({ items, activeKey, expanded, onToggle, railToggle = tru
             style={{ '--sb-drawer-w': `${SIDEBAR_WIDTH_EXPANDED}px` } as CSSProperties}
             className="relative flex h-full w-[280px] max-w-[80%] flex-col rounded-r-xl bg-background-default shadow-lg md:w-[var(--sb-drawer-w)]"
           >
-            <div className="px-4 pt-6 pb-2">
-              <Logo variant="mark" tone="brand" size={32} />
+            {/* Espelha o bloco da logo do AppHeader (altura de 64px, `px-6`,
+                centralizado) para que a marca não "salte" de posição ao abrir/
+                fechar o drawer. Tamanho responsivo: 32px no mobile, 44px no tablet.
+                Manter em sincronia com o AppHeader. */}
+            <div className="flex h-16 shrink-0 items-center px-6">
+              <Logo variant="mark" tone="brand" size={32} className="md:hidden" />
+              <Logo variant="mark" tone="brand" size={44} className="hidden md:block" />
             </div>
             <div className="flex-1 overflow-x-hidden overflow-y-auto">
               <NavList items={items} activeKey={activeKey} collapsed={false} />
