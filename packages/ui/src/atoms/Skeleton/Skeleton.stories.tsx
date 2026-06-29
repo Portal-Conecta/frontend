@@ -25,7 +25,7 @@ type Story = StoryObj<typeof meta>
 
 export const Text: Story = {}
 
-export const Paragrafo: Story = {
+export const Paragraph: Story = {
   args: { variant: 'text', count: 4 },
 }
 

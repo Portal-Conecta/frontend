@@ -1,5 +1,7 @@
 import type { CSSProperties } from 'react'
 
+import { spacing } from '../../tokens'
+
 export type SkeletonVariant = 'text' | 'circle' | 'rect'
 
 const variantRadius: Record<SkeletonVariant, string> = {
@@ -8,10 +10,12 @@ const variantRadius: Record<SkeletonVariant, string> = {
   rect: 'rounded-md',
 }
 
+// Defaults ancorados na escala de `spacing` do DS (múltiplos de 4px). `width: '100%'`
+// é "preencher o container", não um valor de escala — fica como está.
 const fallbackSize: Record<SkeletonVariant, { width: string | number; height: string | number }> = {
-  text: { width: '100%', height: '1rem' },
-  circle: { width: 30, height: 30 },
-  rect: { width: '100%', height: '8rem' },
+  text: { width: '100%', height: spacing[4] }, // 16px
+  circle: { width: spacing[8], height: spacing[8] }, // 32px
+  rect: { width: '100%', height: spacing[30] }, // 120px
 }
 
 export interface SkeletonProps {
