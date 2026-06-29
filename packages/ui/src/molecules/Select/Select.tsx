@@ -230,7 +230,8 @@ export function Select({
     disabled
       ? 'bg-background-default border-border-disabled'
       : 'bg-background-surface ' +
-        (open ? 'border-border-focus' : error ? 'border-border-error' : 'border-border-default'),
+        // Erro não pinta a borda da caixa (espelha o átomo Input): só a barra + mensagem abaixo.
+        (open ? 'border-border-focus' : 'border-border-default'),
   ].join(' ')
 
   const inputClasses = [
