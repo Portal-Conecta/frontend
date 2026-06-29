@@ -21,7 +21,7 @@ const meta = {
     },
     size: {
       control: { type: 'range', min: 16, max: 120, step: 2 },
-      description: 'Altura em px (largura deriva da proporção). DS: 16 · 24 · 32 · 54. Default 54.',
+      description: 'Altura em px (largura deriva da proporção). DS: 16 · 24 · 32 · 44 · 54. Default 54.',
     },
     title: {
       control: 'text',
@@ -61,7 +61,7 @@ export const OnDarkPanel: Story = {
 export const Sizes: Story = {
   render: (args) => (
     <div className="flex items-end gap-6">
-      {[16, 24, 32, 54].map((size) => (
+      {[16, 24, 32, 44, 54].map((size) => (
         <Logo key={size} {...args} size={size} />
       ))}
     </div>
