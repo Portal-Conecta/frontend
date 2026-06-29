@@ -35,6 +35,7 @@ Componentes/Feedback     → Alert, Skeleton
 Componentes/Overlay      → Toast
 Componentes/Navegação    → Sidebar, SidebarNavItem, AppHeader, AppFooter
 Componentes/Conteúdo     → Text, Icon, Logo
+Componentes/Data        → Tag
 Componentes/Layout       → AppLayout
 ```
 
