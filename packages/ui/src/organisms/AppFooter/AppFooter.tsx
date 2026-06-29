@@ -31,7 +31,7 @@ const links = [
 export function AppFooter({ sidebarExpanded = false, leftSlot, className }: AppFooterProps) {
   const sidebarWidth = sidebarExpanded ? SIDEBAR_WIDTH_EXPANDED : SIDEBAR_WIDTH_COLLAPSED
 
-  const footerClasses = ['flex min-h-[64px] md:h-[64px] lg:bg-background-surface', className]
+  const footerClasses = ['flex min-h-[64px] lg:h-[64px] lg:bg-background-surface', className]
     .filter(Boolean)
     .join(' ')
 
@@ -46,12 +46,12 @@ export function AppFooter({ sidebarExpanded = false, leftSlot, className }: AppF
       </div>
 
       {/* Conteúdo: copyright + links. `border-l` fecha a coluna da sidebar no eixo do rail. */}
-      <div className="flex w-full flex-col items-center gap-2 px-6 py-2 md:flex-row md:justify-between md:py-0 lg:border-l lg:border-border-default lg:px-10">
-        <Text variant="label-xs" tone="secondary" as="span" className="order-2 text-center md:order-1 lg:text-label-sm">
+      <div className="flex w-full flex-col items-center gap-2 px-6 py-2 lg:flex-row lg:justify-between lg:py-0 lg:border-l lg:border-border-default lg:px-10">
+        <Text variant="label-xs" tone="secondary" as="span" className="order-2 text-center lg:order-1 lg:text-label-sm">
           Copyright @{new Date().getFullYear()} CentroWEG · Todos os direitos reservados
         </Text>
 
-        <nav aria-label="Links do rodapé" className="order-1 flex gap-4 text-center md:order-2 md:gap-6">
+        <nav aria-label="Links do rodapé" className="order-1 flex gap-4 text-center lg:order-2 lg:gap-6">
           {links.map(({ label, href }) => (
             <Text
               key={href}
@@ -59,7 +59,7 @@ export function AppFooter({ sidebarExpanded = false, leftSlot, className }: AppF
               href={href}
               variant="label-sm"
               tone="primary"
-              className="transition-colors hover:text-text-brand md:text-label-md"
+              className="transition-colors hover:text-text-brand lg:text-label-md"
             >
               {label}
             </Text>

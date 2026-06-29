@@ -106,7 +106,8 @@ export function AppHeader({
           aria-label="Página inicial"
           className={`rounded-md lg:hidden ${focusRing}`}
         >
-          <Logo variant="mark" tone="brand" size={32} decorative />
+          <Logo variant="mark" tone="brand" size={32} decorative className="md:hidden" />
+          <Logo variant="mark" tone="brand" size={44} decorative className="hidden md:block" />
         </button>
 
         {/* Pílula (background/default) no mobile/tablet; sem container no desktop. Cada botão tem rótulo próprio. */}
