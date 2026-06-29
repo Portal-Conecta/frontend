@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { ChecklistActions } from './ChecklistActions'
 
 const meta = {
-  title: 'Checklist/Molecules/ChecklistActions',
+title: 'Checklist/Atoms/ChecklistActions',
   component: ChecklistActions,
   parameters: { layout: 'centered' },
 } satisfies Meta<typeof ChecklistActions>
