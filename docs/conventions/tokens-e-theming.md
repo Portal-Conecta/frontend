@@ -37,7 +37,8 @@ Quatro grupos semânticos. Use como `bg-*`, `text-*`, `border-*`.
 
 | Grupo | Tokens | Exemplos de classe |
 |---|---|---|
-| `interactive` | default, hover, pressed, disabled, focus-ring | `bg-interactive-default`, `hover:bg-interactive-hover` |
+| `interactive` (brand) | default, hover, pressed, disabled, subtle, focus-ring | `bg-interactive-default`, `hover:bg-interactive-hover` |
+| `interactive` (positive/negative) | `{positive,negative}-{default,hover,pressed,subtle,focus-ring}` | `bg-interactive-positive-default`, `text-interactive-negative-default` |
 | `feedback` | success, error, warning, info | `bg-feedback-error`, `text-feedback-success` |
 | `background` | default, surface, overlay | `bg-background-surface` |
 | `text` | primary, secondary, disabled, placeholder, inverse, brand | `text-text-primary`, `text-text-inverse` |
