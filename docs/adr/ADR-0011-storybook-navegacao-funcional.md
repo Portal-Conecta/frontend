@@ -29,8 +29,8 @@ Vocabulário de categorias (fechado), todas sob o grupo `Componentes`:
 
 ```
 Componentes/Ações        → Button
-Componentes/Inputs       → Input e a família Input/* (Checkbox, Radio, Textarea, Select)
-Componentes/Formulário   → FormField
+Componentes/Inputs       → Input e a família Input/* (Checkbox, Radio, Textarea); subgrupo próprio Select/* (ver Adendo 2026-06-26 #2)
+Componentes/Formulário   → Field (wrapper de campo; ver Adendo 2026-06-26 #3)
 Componentes/Feedback     → Alert, Skeleton
 Componentes/Overlay      → Toast
 Componentes/Navegação    → Sidebar, SidebarNavItem, AppHeader, AppFooter
@@ -41,7 +41,7 @@ Componentes/Layout       → AppLayout
 
 Regras:
 - Um controle que pertence a uma família aninha sob ela no `title:` (ex. `Componentes/Inputs/Input/Checkbox`). O agrupamento de família existe apenas na navegação — no código os controles seguem como `atoms` planos, preservando o tree-shaking.
-- O wrapper `FormField` fica em `Formulário`, separado dos controles de input.
+- O wrapper de campo `Field` fica em `Componentes/Formulário/Field`, separado dos controles de input (ver Adendo 2026-06-26 #3).
 - Toda story usa exatamente uma categoria do vocabulário fechado. Adicionar categoria nova exige atualizar este ADR.
 - Ordem do `storySort`: `Sobre`, `Fundação`, `Componentes`.
 
@@ -58,3 +58,44 @@ Regras:
 - A migração inicial muda as URLs das stories existentes, quebrando links antigos para o Storybook uma única vez.
 - A "aula" de Atomic Design que o menu antigo passava some da navegação; o conceito segue documentado na seção `Sobre` e nos ADRs.
 - Substitui a consequência da ADR-0005 e da ADR-0007 de que "as histórias são organizadas pelos mesmos três níveis do Atomic Design".
+
+## Adendo (2026-06-26)
+
+A categoria **`Formulário`** é **removida** do vocabulário fechado. O wrapper `FormField` passa a aninhar em **`Componentes/Inputs/Input/FormField`**, junto dos demais controles da família. Este adendo **supera** o mapeamento `FormField → Formulário` originalmente validado pela WEG e a regra de mantê-lo "separado dos controles de input".
+
+No mesmo movimento, o `Input` base — antes uma story solta em `Componentes/Inputs/Input` — vira leaf do grupo, em **`Componentes/Inputs/Input/Input`**, espelhando o tratamento já dado ao `Checkbox`. O grupo `Inputs/Input/*` passa a reunir, lado a lado, o controle base, os controles da família e o wrapper `FormField`.
+
+Consequências:
+- O array de ordem do `storySort` em `.storybook/preview.ts` deixa de listar `'Formulário'`.
+- A introdução (`.storybook/Introducao.mdx`) descreve o `FormField` dentro de **Inputs**, não mais numa categoria própria.
+- Como em toda mudança de vocabulário, o código permanece atômico: `FormField` segue como `molecule` em `packages/ui/src/molecules/` — só o `title:` da story muda.
+
+## Adendo 2026-06-26 #2
+
+O **Select** sai da lista plana de `Input/*` e passa a ter **subgrupo próprio `Componentes/Inputs/Select/*`**. Diferente dos demais controles (Checkbox, Radio, Textarea), o Select é uma **família**: além do controle base ele terá variantes irmãs (`SelectAsync`, futuro `Creatable`), como no DS WEG de referência. Aninhá-las como folhas planas de `Input/*` (`Inputs/Input/SelectAsync`) misturaria a família com os controles simples; o subgrupo as mantém juntas.
+
+Estrutura:
+
+```
+Componentes/Inputs/Select/Select        → controle base (seleção única; multi, clearable e group label como stories/props)
+Componentes/Inputs/Select/SelectAsync   → variante com carregamento assíncrono (fase seguinte)
+(futuro) Componentes/Inputs/Select/Creatable
+```
+
+Consequências:
+- Reverte a inclusão de `Select` na enumeração de `Input/*` feita no adendo anterior; o Select agora é a única família de input com subgrupo próprio.
+- No código o Select é uma `molecule` (`packages/ui/src/molecules/Select/`) por compor um dropdown próprio — diferente dos controles que são `atoms` planos. O `title:` continua desacoplado da pasta.
+- Não há mudança no `storySort`: o subgrupo aninha sob `Inputs`, cuja ordem já está fixada.
+
+## Adendo 2026-06-26 #3
+
+A categoria **`Formulário`** é **reintroduzida** no vocabulário fechado, **revertendo o Adendo #1**. O wrapper de campo sai de `Componentes/Inputs/Input/FormField` e passa a viver em **`Componentes/Formulário/Field`**.
+
+No mesmo movimento o componente é **renomeado no código** de `FormField` para **`Field`** (`packages/ui/src/molecules/Field/`, export `Field`/`FieldProps`). Como ele ainda não tinha consumidor, o rename é barato; mantém a invariante do repo de que o leaf do menu espelha o nome do componente, e o nome segue em inglês como os demais do DS. O `Input` base permanece em `Componentes/Inputs/Input/Input`.
+
+Motivo: o `Field` estrutura um campo (label + erro + ajuda) em volta de um controle — é um conceito de formulário, não um controle de input. Mantê-lo junto dos controles em `Inputs/Input/*` (Adendo #1) misturava o wrapper com os controles que ele envolve.
+
+Consequências:
+- O array de ordem do `storySort` em `.storybook/preview.ts` volta a listar `'Formulário'` (após `'Inputs'`).
+- A introdução (`.storybook/Introducao.mdx`) volta a descrever o wrapper (como `Field`) numa categoria própria.
+- Código atômico preservado: `Field` segue como `molecule`; muda o nome do componente e o `title:` da story.
