@@ -40,10 +40,6 @@ const iconVariantByState: Record<SeatCardState, 'student' | 'teacher'> = {
 const colorClassByState: Record<SeatCardState, string> = {
   available: 'text-text-secondary',
   occupied: 'text-interactive-default',
-  // DS não tem token semântico para o azul de "selecionado/em troca" (blue/300
-  // = #0035D4, distinto de interactive-default = blue/500). Usando primitivo
-  // até proposta de token (ver tokens-e-theming.md §4) — dívida registrada no
-  // AGENTS.md do pacote.
   selected: 'text-blue-300',
   teacher: 'text-interactive-default',
 }
