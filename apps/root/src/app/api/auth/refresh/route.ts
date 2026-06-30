@@ -4,6 +4,7 @@ import { cookies } from 'next/headers'
 import { refresh } from '@portal/core/auth/authService'
 import { setSession, clearSession } from '@portal/core/auth/session'
 import { REFRESH_COOKIE } from '@portal/core/auth/cookies'
+import { safeNext } from '@portal/core/auth/safeNext'
 import type { LoginResponse } from '@portal/core/auth/authService'
 
 /**
@@ -31,16 +32,12 @@ function singleFlightRefresh(token: string): Promise<LoginResponse> {
   return inFlight.get(token)!
 }
 
-// Aceita só caminhos relativos para evitar open redirect.
-function safeNext(raw: string | null): string {
-  if (raw && raw.startsWith('/') && !raw.startsWith('//')) return raw
-  return '/comunicados'
-}
-
 // GET porque o middleware redireciona o browser (302 → GET de navegação).
 export async function GET(req: Request) {
   const url = new URL(req.url)
-  const next = safeNext(url.searchParams.get('next'))
+  // Sanitiza contra open redirect resolvendo a URL e exigindo mesma origin
+  // (ver @portal/core/auth/safeNext).
+  const next = safeNext(url.searchParams.get('next'), req.url)
 
   const store = await cookies()
   const refreshToken = store.get(REFRESH_COOKIE)?.value

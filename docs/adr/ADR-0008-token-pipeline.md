@@ -158,6 +158,17 @@ Pode ser adotado no futuro se a frequência de atualizações aumentar.
 - CSS do Storybook (PostCSS + `globals.css`) ainda não está configurado —
   validação visual dos tokens depende dessa infraestrutura ser adicionada
   quando o primeiro componente real for implementado.
+  *(Ver Adendo 2026-06-29 — resolvido.)*
+
+## Adendo (2026-06-29)
+
+A última consequência negativa ("CSS do Storybook ainda não está configurado")
+**não vale mais**: o pipeline de CSS do Storybook foi configurado. O script
+`scripts/build-storybook-css.mjs` (npm script `sb:css`) gera
+`.storybook/tailwind.generated.css` a partir de `.storybook/tailwind.css`, e os
+comandos `storybook`/`build-storybook` rodam `sb:css` antes de subir/buildar. A
+validação visual dos tokens nas stories já está disponível. A sincronização
+manual e o workaround de `body/sm-emphasis` seguem válidos.
 
 ## Referências
 
