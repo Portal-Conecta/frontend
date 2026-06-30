@@ -22,7 +22,7 @@
  */
 'use client'
 
-import { useState, type ReactNode } from 'react'
+import { useCallback, useState, type ReactNode } from 'react'
 
 import { AppFooter, AppHeader, Sidebar, SidebarNavItem, type SidebarItem } from '@portal/ui'
 
@@ -56,7 +56,9 @@ export function AppLayout({
   onMoreOptionsClick,
 }: AppLayoutProps) {
   const [expanded, setExpanded] = useState(defaultExpanded)
-  const toggle = () => setExpanded((value) => !value)
+  // Estável: a Sidebar usa `onToggle` num efeito de focus-trap; uma identidade
+  // nova a cada render re-rodaria o efeito com o drawer aberto.
+  const toggle = useCallback(() => setExpanded((value) => !value), [])
 
   // Spread condicional: com `exactOptionalPropertyTypes`, não se passa `undefined`
   // explícito a uma prop opcional — só se inclui a chave quando há valor.

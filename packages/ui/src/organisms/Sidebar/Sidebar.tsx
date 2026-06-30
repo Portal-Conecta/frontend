@@ -74,6 +74,15 @@ export function Sidebar({ items, activeKey, expanded, onToggle, railToggle = tru
   const panelRef = useRef<HTMLDivElement>(null)
   const previousFocusRef = useRef<HTMLElement | null>(null)
 
+  // `onToggle` num ref: o efeito do focus-trap depende só de `expanded`. Sem isso,
+  // um `onToggle` recriado a cada render do pai (ex.: AppLayout) re-rodaria o efeito
+  // com o drawer aberto — roubando o foco (`panel.focus()`) e sobrescrevendo o
+  // `previousFocusRef`, o que quebra o retorno de foco ao gatilho no fechamento.
+  const onToggleRef = useRef(onToggle)
+  useEffect(() => {
+    onToggleRef.current = onToggle
+  }, [onToggle])
+
   // Esc + focus-trap só fazem sentido no modo drawer (<lg). No desktop o drawer
   // fica `display:none`, então o efeito é dispensado via matchMedia para não
   // interferir na navegação por teclado do rail.
@@ -90,7 +99,7 @@ export function Sidebar({ items, activeKey, expanded, onToggle, railToggle = tru
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        onToggle()
+        onToggleRef.current()
         return
       }
       if (event.key !== 'Tab') return
@@ -116,7 +125,7 @@ export function Sidebar({ items, activeKey, expanded, onToggle, railToggle = tru
       document.removeEventListener('keydown', onKeyDown)
       previousFocusRef.current?.focus()
     }
-  }, [expanded, onToggle])
+  }, [expanded])
 
   const railWidth = expanded ? SIDEBAR_WIDTH_EXPANDED : SIDEBAR_WIDTH_COLLAPSED
 
@@ -192,8 +201,10 @@ export function Sidebar({ items, activeKey, expanded, onToggle, railToggle = tru
           type="button"
           onClick={onToggle}
           aria-label="Abrir menu"
+          // Sem `aria-controls`: o drawer (id={drawerId}) só existe quando
+          // expandido, e o FAB só quando colapsado — referenciar um id ausente é
+          // violação de a11y. `aria-expanded` + `aria-label` já bastam.
           aria-expanded={false}
-          aria-controls={drawerId}
           className={[
             'fixed bottom-4 left-4 z-40 flex h-[48px] w-[48px] items-center justify-center rounded-full',
             'bg-interactive-default text-text-inverse shadow-lg transition-colors',
