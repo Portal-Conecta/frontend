@@ -1,14 +1,12 @@
 import type { ListAnnouncementsResponse, ListPostsParams } from '../../types'
 
-import { type QueryParams } from '../query'
-import { postsApiClient } from './postsApiClient'
+import { createHttpClient } from '@portal/core/http/httpClient'
+import type { QueryParams } from '@portal/core/http/query'
 
-export async function listPosts(
-  params: ListPostsParams = {},
-  accessToken: string,
-): Promise<ListAnnouncementsResponse> {
-  return postsApiClient.get<ListAnnouncementsResponse>('/api/posts', {
+const http = createHttpClient('COMUNICADOS_API_URL')
+
+export async function listPosts(params: ListPostsParams = {}): Promise<ListAnnouncementsResponse> {
+  return http.get<ListAnnouncementsResponse>('/api/posts', {
     params: params as QueryParams,
-    token: accessToken,
   })
 }

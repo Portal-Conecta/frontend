@@ -1,15 +1,15 @@
 import type { AnnouncementSummary } from '../types'
 
 import { AppShell } from '@portal/core'
-import { getSession } from '@portal/core/auth/session'
+import { HttpError } from '@portal/core/http/errors'
 import { Text } from '@portal/ui'
 import { redirect } from 'next/navigation'
 
 import { AnnouncementsBoard } from '../components/AnnouncementsBoard'
-import { ComunicadosApiError, listPosts } from '../services'
+import { listPosts } from '../services'
 
 function resolveFetchError(error: unknown): string {
-  if (error instanceof ComunicadosApiError) {
+  if (error instanceof HttpError) {
     if (error.kind === 'network') {
       return 'Não foi possível carregar os comunicados. Verifique sua conexão e tente novamente.'
     }
@@ -25,17 +25,14 @@ function resolveFetchError(error: unknown): string {
 }
 
 export async function PageAnnouncements() {
-  const token = await getSession()
-  if (!token) redirect('/login')
-
   let items: AnnouncementSummary[] = []
   let errorMessage: string | undefined
 
   try {
-    const result = await listPosts({ page: 0, size: 20 }, token)
+    const result = await listPosts({ page: 0, size: 20 })
     items = result.items
   } catch (error) {
-    if (error instanceof ComunicadosApiError && error.kind === 'unauthorized') {
+    if (error instanceof HttpError && error.kind === 'unauthorized') {
       redirect('/login')
     }
     errorMessage = resolveFetchError(error)

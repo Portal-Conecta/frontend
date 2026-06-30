@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { ComunicadosApiError } from '@portal/comunicados/services/errors'
-import { postsApiClient } from '@portal/comunicados/services/server/postsApiClient'
+import { HttpError } from '@portal/core/http/errors'
+import { createHttpClient } from '@portal/core/http/httpClient'
 
 const API_URL = 'https://comunicados.test'
 
@@ -20,24 +20,11 @@ function stubFetch() {
 }
 
 const listResponse = {
-  items: [
-    {
-      id: '11111111-1111-1111-1111-111111111111',
-      title: 'Comunicado teste',
-      description: 'Descrição',
-      origin: 'SENAI',
-      status: 'PUBLISHED',
-      pinned: false,
-      pinnedOrder: null,
-      scheduledFor: null,
-      publishedAt: '2026-01-15T10:00:00Z',
-      createdAt: '2026-01-15T09:00:00Z',
-    },
-  ],
+  items: [],
   page: 0,
   size: 20,
-  totalElements: 1,
-  totalPages: 1,
+  totalElements: 0,
+  totalPages: 0,
 }
 
 beforeEach(() => {
@@ -49,13 +36,14 @@ afterEach(() => {
   delete process.env.COMUNICADOS_API_URL
 })
 
-describe('postsApiClient.get', () => {
-  it('chama GET /api/posts com Bearer e query params', async () => {
+describe('createHttpClient', () => {
+  it('chama GET com Bearer e query params', async () => {
     const fetchMock = stubFetch()
     fetchMock.mockResolvedValue(response(200, listResponse))
+    const http = createHttpClient('COMUNICADOS_API_URL')
 
     await expect(
-      postsApiClient.get('/api/posts', {
+      http.get('/api/posts', {
         token: 'jwt-token',
         params: { page: 0, size: 20, search: 'retirada' },
       }),
@@ -71,43 +59,45 @@ describe('postsApiClient.get', () => {
     })
   })
 
-  it('mapeia 401 para ComunicadosApiError unauthorized', async () => {
+  it('mapeia 401 para HttpError unauthorized', async () => {
     stubFetch().mockResolvedValue(response(401, {}))
-    await expect(postsApiClient.get('/api/posts', { token: 'x' })).rejects.toMatchObject({
+    const http = createHttpClient('COMUNICADOS_API_URL')
+    await expect(http.get('/api/posts', { token: 'x' })).rejects.toMatchObject({
       kind: 'unauthorized',
     })
   })
 
-  it('mapeia 403 para ComunicadosApiError forbidden', async () => {
+  it('mapeia 403 para HttpError forbidden', async () => {
     stubFetch().mockResolvedValue(response(403, {}))
-    await expect(postsApiClient.get('/api/posts', { token: 'x' })).rejects.toMatchObject({
+    const http = createHttpClient('COMUNICADOS_API_URL')
+    await expect(http.get('/api/posts', { token: 'x' })).rejects.toMatchObject({
       kind: 'forbidden',
     })
   })
 
-  it('mapeia 404 para ComunicadosApiError not_found', async () => {
+  it('mapeia 404 para HttpError not_found', async () => {
     stubFetch().mockResolvedValue(response(404, {}))
-    await expect(postsApiClient.get('/api/posts/1', { token: 'x' })).rejects.toMatchObject({
+    const http = createHttpClient('COMUNICADOS_API_URL')
+    await expect(http.get('/api/posts/1', { token: 'x' })).rejects.toMatchObject({
       kind: 'not_found',
     })
   })
 
-  it('mapeia falha de rede para ComunicadosApiError network preservando cause', async () => {
+  it('mapeia falha de rede para HttpError network preservando cause', async () => {
     const networkError = new TypeError('fetch failed')
     stubFetch().mockRejectedValue(networkError)
+    const http = createHttpClient('COMUNICADOS_API_URL')
 
-    await expect(postsApiClient.get('/api/posts', { token: 'x' })).rejects.toBeInstanceOf(
-      ComunicadosApiError,
-    )
-
-    const error = await postsApiClient.get('/api/posts', { token: 'x' }).catch((e) => e)
+    const error = await http.get('/api/posts', { token: 'x' }).catch((e) => e)
+    expect(error).toBeInstanceOf(HttpError)
     expect(error).toMatchObject({ kind: 'network' })
     expect(error.cause).toBe(networkError)
   })
 
-  it('falha quando COMUNICADOS_API_URL não está configurada', async () => {
+  it('falha quando a env de base URL não está configurada', async () => {
     delete process.env.COMUNICADOS_API_URL
-    await expect(postsApiClient.get('/api/posts', { token: 'x' })).rejects.toMatchObject({
+    const http = createHttpClient('COMUNICADOS_API_URL')
+    await expect(http.get('/api/posts', { token: 'x' })).rejects.toMatchObject({
       kind: 'server',
     })
   })
