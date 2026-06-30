@@ -1,10 +1,9 @@
 import type { ApiError } from '../../types'
 
 import { ComunicadosApiError, type ComunicadosApiErrorKind } from '../errors'
+import { buildQuery, type QueryParams } from '../query'
 
-export type QueryParamValue = string | number | boolean | string[] | undefined | null
-
-export type QueryParams = Record<string, QueryParamValue>
+export type { QueryParamValue, QueryParams } from '../query'
 
 function baseUrl(): string {
   const url = process.env.COMUNICADOS_API_URL
@@ -12,25 +11,6 @@ function baseUrl(): string {
     throw new ComunicadosApiError('server', undefined, undefined, 'COMUNICADOS_API_URL não configurada')
   }
   return url.replace(/\/$/, '')
-}
-
-function buildQuery(params?: QueryParams): string {
-  if (!params) return ''
-
-  const search = new URLSearchParams()
-  for (const [key, value] of Object.entries(params)) {
-    if (value === undefined || value === null || value === '') continue
-    if (Array.isArray(value)) {
-      for (const item of value) {
-        if (item !== '') search.append(key, item)
-      }
-      continue
-    }
-    search.set(key, String(value))
-  }
-
-  const query = search.toString()
-  return query ? `?${query}` : ''
 }
 
 function authHeaders(accessToken: string, extra?: HeadersInit): HeadersInit {
@@ -43,6 +23,7 @@ function authHeaders(accessToken: string, extra?: HeadersInit): HeadersInit {
 
 function mapStatusToKind(status: number): ComunicadosApiErrorKind {
   if (status === 401) return 'unauthorized'
+  if (status === 403) return 'forbidden'
   if (status === 404) return 'not_found'
   if (status === 400 || status === 422) return 'validation'
   return 'server'
@@ -74,8 +55,8 @@ async function request<T>(
       init.body = JSON.stringify(options.body)
     }
     res = await fetch(url, init)
-  } catch {
-    throw new ComunicadosApiError('network')
+  } catch (cause) {
+    throw new ComunicadosApiError('network', undefined, undefined, undefined, { cause })
   }
 
   if (res.ok) {
@@ -91,7 +72,7 @@ async function request<T>(
   throw new ComunicadosApiError(mapStatusToKind(res.status), res.status, body)
 }
 
-export const comunicadosApiClient = {
+export const postsApiClient = {
   get<T>(path: string, options: { token: string; params?: QueryParams; cache?: RequestCache }) {
     return request<T>('GET', path, options)
   },

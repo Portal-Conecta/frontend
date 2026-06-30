@@ -1,12 +1,13 @@
 import type { ListAnnouncementsResponse, ListPostsParams } from '../../types'
 
-import { comunicadosApiClient, type QueryParams } from './comunicadosApiClient'
+import { type QueryParams } from '../query'
+import { postsApiClient } from './postsApiClient'
 
 export async function listPosts(
   params: ListPostsParams = {},
   accessToken: string,
 ): Promise<ListAnnouncementsResponse> {
-  return comunicadosApiClient.get<ListAnnouncementsResponse>('/api/posts', {
+  return postsApiClient.get<ListAnnouncementsResponse>('/api/posts', {
     params: params as QueryParams,
     token: accessToken,
   })

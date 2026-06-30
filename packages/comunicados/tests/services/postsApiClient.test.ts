@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { ComunicadosApiError } from '@portal/comunicados/services/errors'
-import { comunicadosApiClient } from '@portal/comunicados/services/server/comunicadosApiClient'
+import { postsApiClient } from '@portal/comunicados/services/server/postsApiClient'
 
 const API_URL = 'https://comunicados.test'
 
@@ -49,13 +49,13 @@ afterEach(() => {
   delete process.env.COMUNICADOS_API_URL
 })
 
-describe('comunicadosApiClient.get', () => {
+describe('postsApiClient.get', () => {
   it('chama GET /api/posts com Bearer e query params', async () => {
     const fetchMock = stubFetch()
     fetchMock.mockResolvedValue(response(200, listResponse))
 
     await expect(
-      comunicadosApiClient.get('/api/posts', {
+      postsApiClient.get('/api/posts', {
         token: 'jwt-token',
         params: { page: 0, size: 20, search: 'retirada' },
       }),
@@ -73,31 +73,41 @@ describe('comunicadosApiClient.get', () => {
 
   it('mapeia 401 para ComunicadosApiError unauthorized', async () => {
     stubFetch().mockResolvedValue(response(401, {}))
-    await expect(comunicadosApiClient.get('/api/posts', { token: 'x' })).rejects.toMatchObject({
+    await expect(postsApiClient.get('/api/posts', { token: 'x' })).rejects.toMatchObject({
       kind: 'unauthorized',
+    })
+  })
+
+  it('mapeia 403 para ComunicadosApiError forbidden', async () => {
+    stubFetch().mockResolvedValue(response(403, {}))
+    await expect(postsApiClient.get('/api/posts', { token: 'x' })).rejects.toMatchObject({
+      kind: 'forbidden',
     })
   })
 
   it('mapeia 404 para ComunicadosApiError not_found', async () => {
     stubFetch().mockResolvedValue(response(404, {}))
-    await expect(comunicadosApiClient.get('/api/posts/1', { token: 'x' })).rejects.toMatchObject({
+    await expect(postsApiClient.get('/api/posts/1', { token: 'x' })).rejects.toMatchObject({
       kind: 'not_found',
     })
   })
 
-  it('mapeia falha de rede para ComunicadosApiError network', async () => {
-    stubFetch().mockRejectedValue(new TypeError('fetch failed'))
-    await expect(comunicadosApiClient.get('/api/posts', { token: 'x' })).rejects.toBeInstanceOf(
+  it('mapeia falha de rede para ComunicadosApiError network preservando cause', async () => {
+    const networkError = new TypeError('fetch failed')
+    stubFetch().mockRejectedValue(networkError)
+
+    await expect(postsApiClient.get('/api/posts', { token: 'x' })).rejects.toBeInstanceOf(
       ComunicadosApiError,
     )
-    await expect(comunicadosApiClient.get('/api/posts', { token: 'x' })).rejects.toMatchObject({
-      kind: 'network',
-    })
+
+    const error = await postsApiClient.get('/api/posts', { token: 'x' }).catch((e) => e)
+    expect(error).toMatchObject({ kind: 'network' })
+    expect(error.cause).toBe(networkError)
   })
 
   it('falha quando COMUNICADOS_API_URL não está configurada', async () => {
     delete process.env.COMUNICADOS_API_URL
-    await expect(comunicadosApiClient.get('/api/posts', { token: 'x' })).rejects.toMatchObject({
+    await expect(postsApiClient.get('/api/posts', { token: 'x' })).rejects.toMatchObject({
       kind: 'server',
     })
   })

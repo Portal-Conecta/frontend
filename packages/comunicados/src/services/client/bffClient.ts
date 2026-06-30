@@ -1,3 +1,8 @@
+/**
+ * Client browser para o BFF (`/api/comunicados/*`). Scaffolding da #184 —
+ * `BffError` será unificado com `HttpError` (kind-based) ao subir a camada HTTP
+ * para `@portal/core` (ver PR #218).
+ */
 export class BffError extends Error {
   constructor(
     public readonly status: number,

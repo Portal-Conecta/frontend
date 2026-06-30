@@ -13,11 +13,20 @@ function formatDate(iso: string | null): string | null {
   return new Date(iso).toLocaleDateString('pt-BR')
 }
 
-export interface ComunicadosMuralProps {
+export interface AnnouncementsBoardProps {
   items: AnnouncementSummary[]
+  errorMessage?: string
 }
 
-export function ComunicadosMural({ items }: ComunicadosMuralProps) {
+export function AnnouncementsBoard({ items, errorMessage }: AnnouncementsBoardProps) {
+  if (errorMessage) {
+    return (
+      <Text as="p" variant="body-md" tone="secondary" role="alert">
+        {errorMessage}
+      </Text>
+    )
+  }
+
   if (items.length === 0) {
     return (
       <Text as="p" variant="body-md" tone="secondary">

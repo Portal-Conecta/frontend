@@ -1,4 +1,7 @@
-/** Espelha `ApiError` do comunicados-backend. */
+/**
+ * Envelope de erro Spring. Tipo compartilhado entre backends WEG/SENAI —
+ * candidato a `@portal/shared` (ver PR #218).
+ */
 export interface ApiFieldError {
   field: string
   message: string
