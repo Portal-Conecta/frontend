@@ -1,0 +1,12 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/shared" },
+    { "path": "./packages/ui" },
+    { "path": "./packages/core" },
+    { "path": "./packages/comunicados" },
+    { "path": "./packages/checklist" },
+    { "path": "./packages/mapa-salas" },
+    { "path": "./apps/root" }
+  ]
+}

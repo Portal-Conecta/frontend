@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Guia de contribuição
+    url: https://github.com/Portal-Conecta/frontend/blob/main/CONTRIBUTING.md
+    about: Regras de branch, commit e abertura de PR antes de começar.
+  - name: Dúvida ou alinhamento com o squad
+    url: https://github.com/orgs/Portal-Conecta/teams/team-frontend
+    about: Para dúvidas que não são uma tarefa ou bug, fale com o squad de Front-End.

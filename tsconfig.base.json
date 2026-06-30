@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "dom", "dom.iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "exactOptionalPropertyTypes": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "incremental": true,
+    "composite": true,
+    "paths": {
+      "@portal/ui": ["./packages/ui/src/index.ts"],
+      "@portal/ui/*": ["./packages/ui/src/*"],
+      "@portal/core": ["./packages/core/src/index.ts"],
+      "@portal/core/*": ["./packages/core/src/*"],
+      "@portal/shared": ["./packages/shared/src/index.ts"],
+      "@portal/shared/*": ["./packages/shared/src/*"],
+      "@portal/comunicados": ["./packages/comunicados/src/index.ts"],
+      "@portal/comunicados/*": ["./packages/comunicados/src/*"],
+      "@portal/checklist": ["./packages/checklist/src/index.ts"],
+      "@portal/checklist/*": ["./packages/checklist/src/*"],
+      "@portal/mapa-salas": ["./packages/mapa-salas/src/index.ts"],
+      "@portal/mapa-salas/*": ["./packages/mapa-salas/src/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist", ".next"]
+}
