@@ -1,20 +1,20 @@
 'use client'
 
 /**
- * AppShell — wrapper que liga o AppLayout (@portal/core) ao roteamento do Next.
+ * AppShell — wrapper que liga o AppLayout ao roteamento do Next.js.
  * Define a navegação global (um `router.push` por item) e o item ativo, e
  * embrulha o conteúdo da tela.
  *
- * Provisório: o padrão final de página/rota (domínio dono da page + rota fina em
- * apps/root) fecha com o piloto de Comunicados — ver
- * docs/conventions/layout-e-paginas.md. Até lá, este wrapper centraliza o wiring
- * de navegação num lugar só.
+ * Vive em `@portal/core` para que páginas de domínio (`@portal/comunicados`, etc.)
+ * usem o shell sem importar `apps/root`. Padrão fechado no piloto de Comunicados —
+ * ver docs/conventions/layout-e-paginas.md.
  */
 import type { ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 
-import { AppLayout } from '@portal/core'
 import type { SidebarItem } from '@portal/ui'
+
+import { AppLayout } from './AppLayout'
 
 const NAV: ReadonlyArray<{ key: string; icon: SidebarItem['icon']; label: string; href: string }> = [
   { key: 'checklist', icon: 'clipboard-list', label: 'Checklist', href: '/checklist' },
@@ -23,7 +23,12 @@ const NAV: ReadonlyArray<{ key: string; icon: SidebarItem['icon']; label: string
   { key: 'config', icon: 'settings', label: 'Configurações', href: '/configuracoes' },
 ]
 
-export function AppShell({ activeKey, children }: { activeKey: string; children: ReactNode }) {
+export interface AppShellProps {
+  activeKey: string
+  children: ReactNode
+}
+
+export function AppShell({ activeKey, children }: AppShellProps) {
   const router = useRouter()
 
   const items: SidebarItem[] = NAV.map(({ key, icon, label, href }) => ({
