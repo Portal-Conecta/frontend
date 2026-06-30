@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { StudentListItem } from './StudentListItem'
 
 const meta = {
-  title: 'Molecules/StudentListItem',
+  title: 'Mapa de Salas/StudentListItem',
   component: StudentListItem,
   parameters: { layout: 'padded' },
   args: {
@@ -18,7 +18,7 @@ type Story = StoryObj<typeof meta>
 /** Modo visualização — sem interação, sem destaque */
 export const Default: Story = {}
 
-/** Modo edição — cursor pointer, mas sem seleção */
+/** Modo edição — operável por mouse e teclado, mas sem seleção */
 export const Editing: Story = {
   args: { isEditing: true },
 }
