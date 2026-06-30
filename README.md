@@ -17,18 +17,19 @@ pnpm install
 
 ## Variáveis de ambiente
 
-Copie o arquivo de exemplo e ajuste os valores para o seu ambiente:
+As variáveis ficam em `apps/root` — o Next as carrega a partir do diretório do app. Copie o template e ajuste:
 
 ```bash
-cp .env.example .env.local
+cp apps/root/.env.example apps/root/.env.local
 ```
 
-| Variável | Descrição |
-|---|---|
-| `NEXT_PUBLIC_API_URL` | URL base da API (padrão: `http://localhost:8080`) |
-| `NEXT_PUBLIC_AUTH_SECRET` | Segredo usado para assinar a sessão |
-| `NEXT_PUBLIC_SESSION_EXPIRY` | Tempo de expiração da sessão em segundos |
-| `NEXT_PUBLIC_APP_ENV` | Ambiente (`development`, `production`) |
+| Variável | Lado | Descrição |
+|---|---|---|
+| `API_URL` | servidor | Base do back-end usada pelos Route Handlers (`/api/auth/*`). Privada, não exposta ao browser. Padrão: `http://localhost:8090`. |
+| `NEXT_PUBLIC_API_URL` | cliente | Base do back-end para chamadas diretas do browser (uso futuro). |
+| `NEXT_PUBLIC_APP_ENV` | cliente | Ambiente da aplicação (`development`, `production`). |
+
+O `.env.local` é ignorado pelo Git. Reinicie o `pnpm dev` após alterá-lo — o Next lê as variáveis só na inicialização.
 
 ## Rodando localmente
 
@@ -36,21 +37,26 @@ cp .env.example .env.local
 pnpm dev
 ```
 
-Sobe o shell da aplicação em `http://localhost:3000`. O backend precisa estar em execução no endereço configurado em `NEXT_PUBLIC_API_URL`.
+Sobe o shell em `http://localhost:3000`. O back-end precisa estar no endereço de `API_URL`; sem ele, o login responde como serviço indisponível.
 
 ## Design system
 
 ```bash
-pnpm storybook
+pnpm storybook        # Storybook do @portal/ui em http://localhost:6006
+pnpm build-storybook  # build estático
 ```
-
-Abre o Storybook do `@portal/ui` em `http://localhost:6006`, com todos os componentes isolados e documentados.
 
 ## Verificação
 
+Os mesmos portões que o CI roda (ver `.github/workflows/ci.yml`):
+
 ```bash
-pnpm typecheck   # checagem de tipos em todos os pacotes
-pnpm lint        # ESLint recursivo
+pnpm lint          # ESLint: fronteiras de import, token sem hardcode
+pnpm check:stories # toda story irmã presente em ui
+pnpm typecheck     # tsc --build em modo estrito
+pnpm test          # Vitest (lógica de core/shared/scripts)
+pnpm build         # build de produção
+pnpm test:a11y     # axe sobre as stories (consultivo)
 ```
 
 ## Estrutura
@@ -61,7 +67,7 @@ apps/
 packages/
   shared/         tipos e utilitários sem React
   ui/             design system: tokens, atoms, molecules, organisms
-  core/           auth, layouts de page, serviços compartilhados
+  core/           auth, layout (AppLayout), páginas e serviços compartilhados
   comunicados/    domínio: comunicados internos
   checklist/      domínio: checklist de sala
   mapa-salas/     domínio: mapa de salas
@@ -69,4 +75,8 @@ packages/
 
 Cada camada importa apenas das camadas abaixo. Domínios nunca importam outros domínios.
 
-Para contribuir, leia [CONTRIBUTING.md](CONTRIBUTING.md). Para entender decisões de arquitetura, veja [docs/adr/README.md](docs/adr/README.md).
+## Documentação
+
+- [AGENTS.md](AGENTS.md) — ponto de entrada de regras e arquitetura.
+- [CONTRIBUTING.md](CONTRIBUTING.md) — GitFlow, commits e PRs.
+- [docs/](docs/README.md) — convenções e ADRs.

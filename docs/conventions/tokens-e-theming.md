@@ -37,7 +37,8 @@ Quatro grupos semânticos. Use como `bg-*`, `text-*`, `border-*`.
 
 | Grupo | Tokens | Exemplos de classe |
 |---|---|---|
-| `interactive` | default, hover, pressed, disabled, focus-ring | `bg-interactive-default`, `hover:bg-interactive-hover` |
+| `interactive` (brand) | default, hover, pressed, disabled, subtle, focus-ring | `bg-interactive-default`, `hover:bg-interactive-hover` |
+| `interactive` (positive/negative) | `{positive,negative}-{default,hover,pressed,subtle,focus-ring}` | `bg-interactive-positive-default`, `text-interactive-negative-default` |
 | `feedback` | success, error, warning, info | `bg-feedback-error`, `text-feedback-success` |
 | `background` | default, surface, overlay | `bg-background-surface` |
 | `text` | primary, secondary, disabled, placeholder, inverse, brand | `text-text-primary`, `text-text-inverse` |
@@ -69,9 +70,9 @@ Escala curada (segue a convenção do Tailwind, valor px ÷ 4). Use em `p-*`, `m
 > A escala é **intencionalmente esparsa** (não tem `5`, `7`, `11`, `12`...). Se você usar `mt-11`, o Tailwind cai no default dele (44px) e você **furou a escala do DS** sem perceber. Prefira o token mais próximo (`mt-10`/`mt-14`).
 
 ### Radius — `tokens/radius.ts`
-`rounded-sm` (4px) · `rounded-md` (8px) · `rounded-lg` (12px) · `rounded-full`.
+`rounded-sm` (4px) · `rounded-md` (8px) · `rounded-lg` (12px) · `rounded-xl` (24px) · `rounded-full`.
 
-> **Lacuna conhecida:** o fundo de auth usa raio **24px**, que não tem token (a escala para em `lg`/12px). Hoje está como `rounded-r-[24px]` (literal). Quando esse valor se repetir, vale propor um `radius.xl = 24px` ao DS (com aprovação do Tech Lead).
+> `rounded-xl` (24px) é o raio de marca de painéis/superfícies (ex.: o gradiente do `AuthLayout` usa `rounded-r-xl`, o painel de conteúdo do `AppLayout` usa `rounded-tl-xl`). Ele sobrescreve o `rounded-xl` default do Tailwind (0.75rem → 1.5rem).
 
 ### Border width — `tokens/border.ts`
 `border-sm` etc., conforme a escala definida.
@@ -151,7 +152,7 @@ O que fazer quando o token que você precisa não existe no design system. Nem t
 | Cor fora da camada semântica | `bg-[#01258F]` | Não, use o token semântico |
 | Tamanho de fonte fora da escala | `text-[14px]` | Não, use `Text` ou classe de token |
 | Espaçamento fora da escala do DS | `mt-[44px]`, `mt-11` | Não, snap para o token mais próximo |
-| Radius sem token definido | `rounded-[24px]` | Temporariamente sim, com dívida registrada |
+| Radius sem token definido | `rounded-[20px]` | Temporariamente sim, com dívida registrada (o 24px já tem token `xl`) |
 
 ### 8.2 Como documentar uma dívida
 
