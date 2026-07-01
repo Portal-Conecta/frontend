@@ -51,8 +51,17 @@ export function ChecklistItem({
   return (
     <div className={['border-t border-border-default py-3', className].filter(Boolean).join(' ')}>
       <div className="flex items-center justify-between gap-4">
-        <div className="flex flex-col gap-2 min-w-0" style={{ maxWidth: 'clamp(200px, 60vw, 1024px)' }}>
-          <Text variant="label-md" tone="brand" className="text-[clamp(14px,2vw,16px)]">
+        <div
+          className="flex flex-col gap-2 min-w-0"
+          // eslint-disable-next-line no-restricted-syntax -- clamp responsivo intencional, ver AGENTS.md §Tokens, exceção pendente de aprovação do TL.
+          style={{ maxWidth: 'clamp(200px, 60vw, 1024px)' }}
+        >
+          <Text
+            variant="label-md"
+            tone="brand"
+            // eslint-disable-next-line no-restricted-syntax -- clamp responsivo intencional. Ver acima.
+            className="text-[clamp(14px,2vw,16px)]"
+          >
             {title}
           </Text>
           {description && (
@@ -60,7 +69,9 @@ export function ChecklistItem({
               variant="body-sm"
               tone="secondary"
               className={[
-                'font-inter text-[14px] break-words',
+                'font-inter break-words',
+                // eslint-disable-next-line no-restricted-syntax -- clamp responsivo intencional. Ver acima.
+                'text-[14px]',
                 showJustification ? 'hidden md:block' : '',
               ].join(' ')}
             >
@@ -85,9 +96,11 @@ export function ChecklistItem({
             value={justificationValue}
             onChange={(e) => handleJustificationChange(e.target.value)}
             disabled={disabled}
+            // eslint-disable-next-line no-restricted-syntax -- altura intencional, ver AGENTS.md §Tokens, exceção pendente de aprovação do TL.
             style={{ height: '103px' }}
             className={[
               'w-full resize-none rounded-md border-sm border-border-default bg-background-surface',
+              // eslint-disable-next-line no-restricted-syntax -- padding e tamanho intencionais. Ver acima.
               'px-3 py-[10px] font-inter text-[14px] text-text-primary',
               'placeholder:text-text-placeholder outline-none',
               'focus:border-border-focus transition-colors',
