@@ -1,5 +1,3 @@
-'use client'
-
 import { Button, Text } from '@portal/ui'
 
 export interface ChecklistSubmissionCardProps {
