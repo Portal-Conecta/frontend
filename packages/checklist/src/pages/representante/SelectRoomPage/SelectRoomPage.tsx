@@ -3,10 +3,14 @@
 import { RoomSelector, type Room } from '../../../components/molecules/RoomSelector'
 
 export interface SelectRoomPageProps {
-    rooms: Room[]
-    onSelectRoom: (room: Room) => void
+  rooms: Room[]
+  onSelectRoom: (room: Room) => void
 }
 
 export function SelectRoomPage({ rooms, onSelectRoom }: SelectRoomPageProps) {
-    return <RoomSelector rooms={rooms} onSelect={onSelectRoom} />
+  return (
+    <div className="flex h-full items-center justify-center">
+      <RoomSelector rooms={rooms} onSelect={onSelectRoom} />
+    </div>
+  )
 }
