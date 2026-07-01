@@ -33,10 +33,7 @@ export default function PreencherChecklistRoute({
     <FillChecklistPage
       header={header}
       items={items}
-      onItemChange={(id, status, justification) =>
-        console.log('item', salaId, id, status, justification)
-      }
-      onSubmit={() => console.log('enviar checklist', salaId)}
+      onSubmit={(answers) => console.log('enviar checklist', salaId, answers)}
     />
   )
 }

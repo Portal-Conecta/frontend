@@ -1,6 +1,6 @@
 'use client'
 
-import { Button, Check } from '@portal/ui'
+import { Button, Icon, Text } from '@portal/ui'
 import { useEffect } from 'react'
 
 export interface SuccessModalProps {
@@ -29,7 +29,7 @@ export function SuccessModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 "
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
       onClick={onClose}
     >
       <div
@@ -39,11 +39,11 @@ export function SuccessModal({
         onClick={(e) => e.stopPropagation()}
         className="flex flex-col items-center gap-6 rounded-md bg-background-surface px-6 py-8 text-center shadow-xl h-[286px] w-[366px]"
       >
-        <Check size={80} className="text-text-brand" />
-        <p className="text-center font-['Afacad'] text-[20px] font-normal text-text-brand">
+        <Icon name="check" size="lg" decorative className="text-text-brand" />
+        <Text variant="body-md" tone="brand" className="text-center">
           {message}
-        </p>
-        <Button variant="primary" onClick={onClose} className="w-full text-[12px] font-normal font-inter">
+        </Text>
+        <Button variant="solid" onClick={onClose} className="w-full">
           {confirmLabel}
         </Button>
       </div>
