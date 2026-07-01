@@ -1,12 +1,7 @@
 import { Button, Text } from '@portal/ui'
+import type { ChecklistSubmission } from 'src/types'
 
-export interface ChecklistSubmissionCardProps {
-  room: string
-  checklistType: string
-  submittedAt: string
-  filledBy: string
-  group: string
-  hasNonConformity?: boolean
+export interface ChecklistSubmissionCardProps extends ChecklistSubmission {
   onView?: () => void
   className?: string
 }
