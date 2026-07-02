@@ -1,12 +1,13 @@
-import { SeatIcon } from '@portal/ui'
 import { Text } from '@portal/ui'
+
+import { SeatIcon } from '../SeatIcon'
 
 export type SeatCardState = 'available' | 'occupied' | 'selected' | 'teacher'
 
 export type SeatCardProps = {
   /**
    * Estado visual e semântico do assento.
-   * Controla ícone, cor, borda e label padrão.
+   * Controla ícone, cor e label padrão.
    */
   state: SeatCardState
   /**
@@ -30,25 +31,13 @@ const defaultLabel: Partial<Record<SeatCardState, string>> = {
   teacher: 'Professor',
 }
 
-const iconVariantByState: Record<SeatCardState, 'student' | 'teacher'> = {
-  available: 'student',
-  occupied: 'student',
-  selected: 'student',
-  teacher: 'teacher',
-}
-
 const colorClassByState: Record<SeatCardState, string> = {
   available: 'text-text-secondary',
   occupied: 'text-interactive-default',
-  selected: 'text-blue-300',
+  // "Selecionado" reusa interactive-pressed, mesmo padrão do estado ativo do
+  // SidebarNavItem — não há token dedicado a seleção no DS.
+  selected: 'text-interactive-pressed',
   teacher: 'text-interactive-default',
-}
-
-const borderClassByState: Record<SeatCardState, string> = {
-  available: 'border-transparent',
-  occupied: 'border-transparent',
-  selected: 'border-transparent',
-  teacher: 'border-transparent',
 }
 
 export function SeatCard({
@@ -64,8 +53,7 @@ export function SeatCard({
   const cursorClass = isEditing ? 'cursor-pointer' : 'cursor-default'
 
   const classes = [
-    'flex flex-col items-center justify-center gap-1 rounded-md border-2 p-2',
-    borderClassByState[state],
+    'flex flex-col items-center justify-center gap-1 rounded-md p-2',
     colorClassByState[state],
     cursorClass,
     className,
@@ -85,10 +73,8 @@ export function SeatCard({
       disabled={!isEditing}
       aria-pressed={state === 'selected'}
     >
-      <SeatIcon variant={iconVariantByState[state]} size="md" />
-      <Text variant="label-sm" className={colorClassByState[state]}>
-        {resolvedLabel}
-      </Text>
+      <SeatIcon size="md" />
+      <Text variant="label-sm">{resolvedLabel}</Text>
     </button>
   )
 }
