@@ -23,6 +23,7 @@ Uma ADR documenta uma decisão de arquitetura significativa: o contexto que moti
 | [ADR-0011](ADR-0011-storybook-navegacao-funcional.md) | Navegação do Storybook por Categoria Funcional | Aceita |
 | [ADR-0012](ADR-0012-contrato-do-applayout.md) | Contrato do AppLayout | Aceita |
 | [ADR-0013](ADR-0013-baseline-de-acessibilidade.md) | Baseline de Acessibilidade | Aceita |
+| [ADR-0014](ADR-0014-contrato-rbac.md) | Contrato de RBAC (papéis × permissões) | Aceita |
 
 ## Como criar uma nova ADR
 
