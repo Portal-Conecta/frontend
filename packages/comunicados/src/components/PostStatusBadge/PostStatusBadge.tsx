@@ -56,7 +56,7 @@ export function PostStatusBadge({ status, className, style, ...rest }: PostStatu
       <Text
         as="span"
         variant="label-sm-emphasis"
-        className={['ml-4 min-w-0 flex-1 truncate', config.textClassName].filter(Boolean).join(' ')}
+        className={['min-w-0 flex-1 truncate text-center', config.textClassName].filter(Boolean).join(' ')}
         style={config.textStyle}
       >
         {config.label}
