@@ -8,6 +8,8 @@
  * matching union types stay type-safe.
  */
 
+import type { AnnouncementFile } from './file'
+
 export const ANNOUNCEMENT_ORIGIN = {
   WEG: 'WEG',
   SENAI: 'SENAI',
@@ -100,7 +102,7 @@ export interface AnnouncementMention {
 
 /** Detalhe (`AnnouncementDetailResponse`). */
 export interface AnnouncementDetail {
-  announcement: Announcement
+  announcement: AnnouncementResponse
   destinations: AnnouncementDestination[]
   files: AnnouncementFile[]
   tags: AnnouncementTag[]
@@ -109,7 +111,7 @@ export interface AnnouncementDetail {
 
 /** Paginação de `GET /api/posts` (`ListAnnouncementsResponse`). */
 export interface ListAnnouncementsResponse {
-  items: AnnouncementSummary[]
+  items: AnnouncementDetail[]
   page: number
   size: number
   totalElements: number
@@ -131,5 +133,5 @@ export interface ListPostsParams {
 }
 
 export interface ListPinnedAnnouncementsResponse {
-  items: AnnouncementSummary[]
+  items: AnnouncementDetail[]
 }
