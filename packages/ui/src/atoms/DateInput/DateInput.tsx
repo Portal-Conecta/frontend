@@ -6,10 +6,10 @@
  * Espelha o component set `Data/Hora` (variante data) do DS: caixa com borda
  * neutra, ícone à esquerda e valor placeholder-only (sem label visível — use
  * `aria-label` ou um `Field`). Controlado por `value` no formato nativo
- * `yyyy-mm-dd`. O indicador nativo (à direita) é escondido e estendido sobre o
- * campo, então clicar em qualquer ponto abre o seletor; o ícone à esquerda
- * também abre via `showPicker()`. Estado de erro (barra + mensagem) espelha o
- * átomo `Input`; a borda permanece neutra.
+ * `yyyy-mm-dd`. Geometria e tokens espelham o átomo `Input` (altura `h-11`,
+ * `text-label-md`). O indicador nativo é escondido: o seletor abre **apenas**
+ * pelo botão do ícone à esquerda (`showPicker()`), focável por teclado. Estado
+ * de erro (barra + mensagem) espelha o átomo `Input`; a borda permanece neutra.
  */
 import { useId, useRef } from 'react'
 
@@ -73,18 +73,18 @@ export function DateInput({
   }
 
   const boxClasses = [
-    'relative flex items-center gap-3 rounded-md border-sm px-3 py-1.5 transition-colors',
+    'flex items-center gap-2 h-11 rounded-md border-sm px-3 py-2.5 transition-colors',
     disabled
       ? 'bg-background-default border-border-disabled'
       : 'bg-background-surface border-border-default focus-within:border-border-focus',
   ].join(' ')
 
   const inputClasses = [
-    'relative min-w-0 flex-1 border-0 bg-transparent p-0 outline-none appearance-none',
-    'font-inter text-label-xs',
+    'min-w-0 flex-1 border-0 bg-transparent p-0 outline-none appearance-none',
+    'font-inter text-label-md',
     disabled ? 'text-text-disabled' : value ? 'text-text-brand' : 'text-text-placeholder',
-    '[&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0',
-    '[&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0',
+    // indicador nativo escondido: a abertura do seletor é só pelo botão do ícone
+    '[&::-webkit-calendar-picker-indicator]:hidden',
   ].join(' ')
 
   return (
@@ -92,13 +92,12 @@ export function DateInput({
       <div className={boxClasses}>
         <button
           type="button"
-          tabIndex={-1}
-          aria-hidden="true"
           disabled={disabled}
           onClick={openPicker}
-          className={`shrink-0 ${disabled ? 'text-text-disabled' : 'cursor-pointer text-interactive-default'}`}
+          aria-label="Abrir calendário"
+          className={`shrink-0 rounded-sm ${disabled ? 'text-text-disabled' : 'cursor-pointer text-interactive-default'} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus`}
         >
-          <Icon name="calendar" size="md" decorative />
+          <Icon name="calendar" size="sm" decorative />
         </button>
 
         <input

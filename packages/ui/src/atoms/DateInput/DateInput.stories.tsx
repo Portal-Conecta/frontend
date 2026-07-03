@@ -4,12 +4,12 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { DateInput } from './DateInput'
 
 /**
- * DateInput — átomo de data (input nativo + ícone `calendar`). Fica sob a
- * família **Inputs/Select** por ser um campo de seleção. Controlado por `value`
- * no formato nativo `yyyy-mm-dd`; clicar em qualquer ponto abre o calendário.
+ * DateInput — átomo de data (input nativo + ícone `calendar`). Agrupado em
+ * **Inputs/Input** (input plano, como o `Input`). Controlado por `value` no
+ * formato nativo `yyyy-mm-dd`; o calendário abre pelo botão do ícone.
  */
 const meta: Meta<typeof DateInput> = {
-  title: 'Componentes/Inputs/Select/DateInput',
+  title: 'Componentes/Inputs/Input/Date',
   component: DateInput,
   parameters: { layout: 'padded' },
   argTypes: {

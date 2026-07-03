@@ -4,12 +4,12 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { TimeInput } from './TimeInput'
 
 /**
- * TimeInput — átomo de hora (input nativo + ícone `clock`). Fica sob a família
- * **Inputs/Select** por ser um campo de seleção. Controlado por `value` no
- * formato nativo `HH:mm` (24h); clicar em qualquer ponto abre o seletor de hora.
+ * TimeInput — átomo de hora (input nativo + ícone `clock`). Agrupado em
+ * **Inputs/Input** (input plano, como o `Input`). Controlado por `value` no
+ * formato nativo `HH:mm` (24h); o seletor abre pelo botão do ícone.
  */
 const meta: Meta<typeof TimeInput> = {
-  title: 'Componentes/Inputs/Select/TimeInput',
+  title: 'Componentes/Inputs/Input/Time',
   component: TimeInput,
   parameters: { layout: 'padded' },
   argTypes: {

@@ -6,8 +6,8 @@ import { ScheduleDatePicker } from './ScheduleDatePicker'
 /**
  * ScheduleDatePicker — seção "Publicar agora / Agendar publicação" (molecule)
  * que compõe o `RadioGroup` (publicar agora × agendar) + os átomos `DateInput` e
- * `TimeInput`. Fica sob a família **Inputs/Select** por ser um campo composto de
- * seleção de data/hora.
+ * `TimeInput`. Agrupado em **Inputs/Input**, junto dos átomos de data/hora que
+ * compõe.
  *
  * Um único `value` ISO-8601 UTC (`scheduledFor`) controla tudo: `null` =
  * publicar agora (opção "Publicar agora", campos ocultos). O `onChange` devolve
@@ -15,7 +15,7 @@ import { ScheduleDatePicker } from './ScheduleDatePicker'
  * validação no client.
  */
 const meta: Meta<typeof ScheduleDatePicker> = {
-  title: 'Componentes/Inputs/Select/ScheduleDatePicker',
+  title: 'Componentes/Inputs/Input/ScheduleDatePicker',
   component: ScheduleDatePicker,
   parameters: { layout: 'padded' },
   argTypes: {
