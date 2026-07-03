@@ -1,7 +1,7 @@
 import { getCurrentUser } from '@portal/core/auth/getCurrentUser'
 import { Text } from '@portal/ui'
 
-import { AppShell } from '../_components/AppShell'
+import { AppShell } from '@portal/core'
 
 /**
  * Mural de comunicados — destino pós-login e rota protegida. Embrulhado no
