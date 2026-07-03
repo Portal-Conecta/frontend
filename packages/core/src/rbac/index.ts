@@ -7,3 +7,5 @@
  */
 export * from './types'
 export * from './rolePermissions'
+export * from './can'
+export * from './parseUserFromToken'
