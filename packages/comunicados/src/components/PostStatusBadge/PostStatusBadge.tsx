@@ -2,7 +2,7 @@ import type { HTMLAttributes } from 'react'
 
 import { Icon, Text, type IconName } from '@portal/ui'
 
-import type { AnnouncementStatus } from '../../../types'
+import type { AnnouncementStatus } from '../../types'
 
 interface StatusBadgeConfig {
   label: string
