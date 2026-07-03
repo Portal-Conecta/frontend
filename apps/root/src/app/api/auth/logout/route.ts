@@ -22,7 +22,8 @@ export async function POST() {
   if (refreshToken) {
     try {
       await logout(refreshToken)
-    } catch {
+    } catch (err) {
+      console.error('Falha ao invalidar refresh token no gateway:', err)
     }
   }
 
