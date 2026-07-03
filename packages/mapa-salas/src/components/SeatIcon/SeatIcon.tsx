@@ -1,11 +1,8 @@
 import type { SVGAttributes } from 'react'
 
-export type SeatIconVariant = 'student' | 'teacher'
-export type SeatIconSize    = 'sm' | 'md'
+export type SeatIconSize = 'sm' | 'md'
 
 export interface SeatIconProps extends SVGAttributes<SVGSVGElement> {
-  /** Forma do ícone: carteira de aluno ou mesa do professor */
-  variant?: SeatIconVariant
   /** sm = 48px de largura | md = 99px de largura (proporção original mantida) */
   size?: SeatIconSize
   className?: string
@@ -16,12 +13,7 @@ const sizeMap: Record<SeatIconSize, { width: number; height: number }> = {
   md: { width: 99, height: 58 },
 }
 
-export function SeatIcon({
-  variant = 'student',
-  size = 'md',
-  className,
-  ...rest
-}: SeatIconProps) {
+export function SeatIcon({ size = 'md', className, ...rest }: SeatIconProps) {
   const { width, height } = sizeMap[size]
 
   return (
@@ -32,7 +24,6 @@ export function SeatIcon({
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
-      data-variant={variant}
       className={className}
       {...rest}
     >
