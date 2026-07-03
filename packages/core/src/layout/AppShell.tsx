@@ -15,8 +15,6 @@ import { useRouter } from 'next/navigation'
 import { AppLayout, PermissionsProvider, filterByPermission, type CurrentUser } from '@portal/core'
 import type { SidebarItem } from '@portal/ui'
 
-import { AppLayout } from './AppLayout'
-
 import { NAV_REGISTRY } from './navRegistry'
 
 export function AppShell({
