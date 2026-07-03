@@ -13,11 +13,12 @@
 
 import type {
   AnnouncementResponse,
-  ApiError,
-  FieldErrorDetail,
   PublishAnnouncementRequest,
   ScheduleAnnouncementRequest,
 } from '../types/announcement'
+
+import type { ApiError, ApiFieldError } from '../../../shared/src/types/api-error'
+
 
 export type PostsErrorKind = 'validation' | 'unauthorized' | 'forbidden' | 'server' | 'network'
 
@@ -25,7 +26,7 @@ export class PostsError extends Error {
   constructor(
     public readonly kind: PostsErrorKind,
     public readonly status: number,
-    public readonly fieldErrors: FieldErrorDetail[] = [],
+    public readonly fieldErrors: ApiFieldError[] = [],
     message?: string,
   ) {
     super(message ?? kind)

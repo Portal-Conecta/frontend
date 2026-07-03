@@ -9,10 +9,11 @@ import {
   type AnnouncementOrigin,
   type AnnouncementResponse,
   type CreateAnnouncementDestinationInput,
-  type FieldErrorDetail,
   type PublishAnnouncementRequest,
   type ScheduleAnnouncementRequest,
 } from '../types/announcement'
+
+import type { ApiFieldError } from '../../../shared/src/types/api-error'
 
 /**
  * useCreateAnnouncement — form state + submit for creating an announcement,
@@ -82,7 +83,7 @@ function baseField(field: string): string {
  * kept (so a form can target `destinations[0].type`) and the base segment is
  * filled as a fallback (so a simpler form can target `destinations`).
  */
-function mapFieldErrors(errors: FieldErrorDetail[]): Record<string, string> {
+function mapFieldErrors(errors: ApiFieldError[]): Record<string, string> {
   const mapped: Record<string, string> = {}
   for (const { field, message } of errors) {
     if (!(field in mapped)) {
@@ -99,7 +100,7 @@ function mapFieldErrors(errors: FieldErrorDetail[]): Record<string, string> {
 interface BffErrorBody {
   code?: string
   message?: string
-  errors?: FieldErrorDetail[]
+  errors?: ApiFieldError[]
 }
 
 export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}) {
