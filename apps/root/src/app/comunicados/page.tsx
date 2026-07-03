@@ -1,14 +1,18 @@
+import { getCurrentUser } from '@portal/core/auth/getCurrentUser'
 import { Text } from '@portal/ui'
 
 import { AppShell } from '../_components/AppShell'
 
 /**
  * Mural de comunicados — destino pós-login e rota protegida. Embrulhado no
- * AppLayout (via AppShell) enquanto o domínio de comunicados não existe.
+ * AppLayout (via AppShell) enquanto o domínio de comunicados não existe. Resolve
+ * o usuário no servidor para a Sidebar refletir o papel (RBAC).
  */
-export default function ComunicadosPage() {
+export default async function ComunicadosPage() {
+  const user = await getCurrentUser()
+
   return (
-    <AppShell activeKey="comunicados">
+    <AppShell user={user} activeKey="comunicados">
       <div className="p-8">
         <Text as="h1" variant="heading-h2" tone="primary">
           Mural de Comunicados
