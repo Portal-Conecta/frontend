@@ -61,9 +61,9 @@ export function PostStatusBadge({ status, className, style, ...rest }: PostStatu
       style={{
         ...config.containerStyle,
         ...style,
-        width: 290,
+        width: 220,
         height: 47,
-        flex: '0 0 290px',
+        flex: '0 0 220px',
       }}
       {...rest}
     >
