@@ -7,6 +7,8 @@ import type { AnnouncementStatus } from '../../types'
 interface StatusBadgeConfig {
   label: string
   icon: IconName
+  className: string
+  barClassName: string
   iconClassName: string
   textClassName: string
 }
@@ -15,24 +17,30 @@ const statusConfig: Record<AnnouncementStatus, StatusBadgeConfig> = {
   PUBLISHED: {
     label: 'Publicado',
     icon: 'check-check',
-    iconClassName: 'bg-interactive-positive-default text-text-inverse',
+    className: 'bg-interactive-positive-subtle',
+    barClassName: 'bg-interactive-positive-default',
+    iconClassName: 'bg-interactive-positive-default text-text-inverse rounded-full',
     textClassName: 'text-interactive-positive-default',
   },
   SCHEDULED: {
     label: 'Agendado',
     icon: 'bell',
-    iconClassName: 'bg-feedback-warning text-text-primary',
-    textClassName: 'text-text-primary',
+    className: 'bg-feedback-warning/15',
+    barClassName: 'bg-feedback-warning',
+    iconClassName: 'text-feedback-warning',
+    textClassName: 'text-text-secondary',
   },
   REMOVED: {
     label: 'Removido',
     icon: 'x',
-    iconClassName: 'bg-interactive-negative-default text-text-inverse',
+    className: 'bg-interactive-negative-subtle',
+    barClassName: 'bg-interactive-negative-default',
+    iconClassName: 'bg-interactive-negative-default text-text-inverse rounded-full',
     textClassName: 'text-interactive-negative-default',
   },
 }
 
-export interface PostStatusBadgeProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'children'> {
+export interface PostStatusBadgeProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
   status: AnnouncementStatus
 }
 
@@ -40,26 +48,29 @@ export function PostStatusBadge({ status, className, ...rest }: PostStatusBadgeP
   const config = statusConfig[status]
 
   const classes = [
-    'inline-flex w-fit max-w-full shrink-0 items-center gap-4 whitespace-nowrap',
+    'relative flex h-[47px] w-[290px] max-w-full shrink-0 items-center overflow-hidden rounded-md',
+    config.className,
     className,
   ]
     .filter(Boolean)
     .join(' ')
 
   return (
-    <span className={classes} {...rest}>
+    <div className={classes} {...rest}>
+      <span className={['absolute left-0 top-0 h-full w-[5px]', config.barClassName].join(' ')} aria-hidden="true" />
       <span
         className={[
-          'flex h-12 w-6 shrink-0 items-center justify-center rounded-full',
+          'ml-2 flex h-6 w-6 shrink-0 items-center justify-center',
           config.iconClassName,
         ].join(' ')}
         aria-hidden="true"
       >
-        <Icon name={config.icon} size="md" decorative />
+        <Icon name={config.icon} size={status === 'SCHEDULED' ? 'md' : 'sm'} decorative />
       </span>
-      <Text as="span" variant="label-xl-emphasis" className={['min-w-0 truncate', config.textClassName].join(' ')}>
+      <Text as="span" variant="label-sm-emphasis" className={['ml-2 min-w-0 flex-1 truncate', config.textClassName].join(' ')}>
         {config.label}
       </Text>
-    </span>
+      <Icon name="x" size="sm" decorative className={['mr-4 shrink-0', config.textClassName].join(' ')} />
+    </div>
   )
 }
