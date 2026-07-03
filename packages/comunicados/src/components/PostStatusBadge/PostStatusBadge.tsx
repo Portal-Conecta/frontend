@@ -49,14 +49,24 @@ export function PostStatusBadge({ status, className, style, ...rest }: PostStatu
   const config = statusConfig[status]
 
   const classes = [
-    'relative flex h-[47px] w-[290px] max-w-full shrink-0 items-center overflow-hidden rounded-sm',
+    'relative flex shrink-0 items-center overflow-hidden rounded-sm',
     className,
   ]
     .filter(Boolean)
     .join(' ')
 
   return (
-    <div className={classes} style={{ ...config.containerStyle, ...style }} {...rest}>
+    <div
+      className={classes}
+      style={{
+        ...config.containerStyle,
+        ...style,
+        width: 290,
+        height: 47,
+        flex: '0 0 290px',
+      }}
+      {...rest}
+    >
       <span
         className={['absolute left-0 top-0 h-full w-[5px] rounded-sm', config.barClassName].join(' ')}
         aria-hidden="true"
