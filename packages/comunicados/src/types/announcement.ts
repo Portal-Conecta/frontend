@@ -80,18 +80,56 @@ export interface AnnouncementResponse {
   updatedAt: string
 }
 
-/** Single field error inside a 400 validation `ApiError`. */
-export interface FieldErrorDetail {
-  field: string
-  message: string
+export interface AnnouncementDestination {
+  id: string
+  announcementId: string
+  type: AnnouncementDestinationType
+  referenceId: string | null
 }
 
-/** Error envelope returned by the comunicados backend on any non-2xx status. */
-export interface ApiError {
-  timestamp: string
-  status: number
-  error: string
-  message: string
-  path: string
-  errors?: FieldErrorDetail[]
+export interface AnnouncementTag {
+  announcementId: string
+  tagId: string
+  tagName: string
+}
+
+export interface AnnouncementMention {
+  announcementId: string
+  userId: string
+}
+
+/** Detalhe (`AnnouncementDetailResponse`). */
+export interface AnnouncementDetail {
+  announcement: Announcement
+  destinations: AnnouncementDestination[]
+  files: AnnouncementFile[]
+  tags: AnnouncementTag[]
+  mentions: AnnouncementMention[]
+}
+
+/** Paginação de `GET /api/posts` (`ListAnnouncementsResponse`). */
+export interface ListAnnouncementsResponse {
+  items: AnnouncementSummary[]
+  page: number
+  size: number
+  totalElements: number
+  totalPages: number
+}
+
+/** Query de `PostFilterRequest` — `page` é zero-based no back. */
+export interface ListPostsParams {
+  page?: number
+  size?: number
+  search?: string
+  origin?: AnnouncementOrigin
+  filterType?: string
+  classId?: string
+  publishedFrom?: string
+  publishedTo?: string
+  tagId?: string
+  tagIds?: string[]
+}
+
+export interface ListPinnedAnnouncementsResponse {
+  items: AnnouncementSummary[]
 }
