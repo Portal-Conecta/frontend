@@ -9,7 +9,7 @@ const meta: Meta<typeof PostStatusBadge> = {
   argTypes: {
     status: {
       control: 'inline-radio',
-      options: ['PUBLISHED', 'SCHEDULED', 'REMOVED'],
+      options: ['PUBLISHED', 'SCHEDULED'],
       description: 'Status do comunicado recebido da API.',
     },
   },
@@ -29,18 +29,11 @@ export const Scheduled: Story = {
   },
 }
 
-export const Removed: Story = {
-  args: {
-    status: 'REMOVED',
-  },
-}
-
 export const AllStatuses: Story = {
   render: () => (
     <div className="flex w-full max-w-3xl flex-col gap-4">
       <PostStatusBadge status="PUBLISHED" />
       <PostStatusBadge status="SCHEDULED" />
-      <PostStatusBadge status="REMOVED" />
     </div>
   ),
 }

@@ -4,6 +4,8 @@ import { Icon, Text, type IconName } from '@portal/ui'
 
 import type { AnnouncementStatus } from '../../types'
 
+type PostStatusBadgeStatus = Extract<AnnouncementStatus, 'PUBLISHED' | 'SCHEDULED'>
+
 interface StatusBadgeConfig {
   label: string
   icon: IconName
@@ -14,7 +16,7 @@ interface StatusBadgeConfig {
   textStyle?: CSSProperties
 }
 
-const statusConfig: Record<AnnouncementStatus, StatusBadgeConfig> = {
+const statusConfig: Record<PostStatusBadgeStatus, StatusBadgeConfig> = {
   PUBLISHED: {
     label: 'Publicado',
     icon: 'check-check',
@@ -32,24 +34,17 @@ const statusConfig: Record<AnnouncementStatus, StatusBadgeConfig> = {
     textClassName: '',
     textStyle: { color: '#adad22' },
   },
-  REMOVED: {
-    label: 'Removido',
-    icon: 'x',
-    barClassName: 'bg-interactive-negative-default',
-    iconClassName: 'bg-interactive-negative-default text-text-inverse rounded-full',
-    textClassName: 'text-interactive-negative-default',
-  },
 }
 
 export interface PostStatusBadgeProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
-  status: AnnouncementStatus
+  status: PostStatusBadgeStatus
 }
 
 export function PostStatusBadge({ status, className, style, ...rest }: PostStatusBadgeProps) {
   const config = statusConfig[status]
 
   const classes = [
-    'relative flex shrink-0 items-center overflow-hidden rounded-sm',
+    'relative flex shrink-0 items-center overflow-hidden rounded-full',
     className,
   ]
     .filter(Boolean)
@@ -61,14 +56,14 @@ export function PostStatusBadge({ status, className, style, ...rest }: PostStatu
       style={{
         ...config.containerStyle,
         ...style,
-        width: 110,
-        height: 47,
-        flex: '0 0 110px',
+        width: 47,
+        height: 25,
+        flex: '0 0 47px',
       }}
       {...rest}
     >
       <span
-        className={['absolute left-0 top-0 h-full w-[5px] rounded-sm', config.barClassName].join(' ')}
+        className={['absolute left-0 top-0 h-full w-[5px] rounded-full', config.barClassName].join(' ')}
         aria-hidden="true"
       />
       <span
