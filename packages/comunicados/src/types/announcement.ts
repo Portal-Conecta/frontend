@@ -68,6 +68,17 @@ export interface AnnouncementDetail {
   mentions: AnnouncementMention[]
 }
 
+export interface AnnouncementUpdatePayload {
+  title?: string
+  description?: string
+  origin?: AnnouncementOrigin
+  status?: AnnouncementStatus
+  pinned?: boolean
+  pinnedOrder?: number | null
+  scheduledFor?: string | null
+  destinations?: AnnouncementDestination[]
+}
+
 /** Paginação de `GET /api/posts` (`ListAnnouncementsResponse`). */
 export interface ListAnnouncementsResponse {
   items: AnnouncementSummary[]

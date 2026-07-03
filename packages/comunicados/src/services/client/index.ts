@@ -1,1 +1,6 @@
-export { listPostsClient } from './postsClient'
+export {
+  listPostsClient,
+  loadAnnouncementClient,
+  updateAnnouncementClient,
+  rescheduleAnnouncementClient,
+} from './postsClient'
