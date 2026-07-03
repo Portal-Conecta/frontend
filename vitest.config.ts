@@ -25,6 +25,6 @@ export default defineConfig({
   test: {
     root: rootDir,
     environment: 'node',
-    include: ['packages/**/tests/**/*.{test,spec}.ts'],
+    include: ['packages/**/tests/**/*.{test,spec}.{ts,tsx}'],
   },
 })
