@@ -35,7 +35,7 @@ export function PostStatusBadge({ status, className, style, ...rest }: PostStatu
   const config = statusConfig[status]
 
   const classes = [
-    'relative flex shrink-0 items-center overflow-hidden rounded-full',
+    'relative flex shrink-0 items-center overflow-hidden rounded',
     className,
   ]
     .filter(Boolean)
@@ -48,8 +48,8 @@ export function PostStatusBadge({ status, className, style, ...rest }: PostStatu
         ...config.containerStyle,
         ...style,
         width: 300,
-        height: 45,
-        flex: '0 0 300px',
+        height: 30,
+        flex: '0 0 55px',
       }}
       {...rest}
     >
