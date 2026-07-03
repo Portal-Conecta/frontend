@@ -45,7 +45,10 @@ export function useAnnouncementActions({ onChanged }: UseAnnouncementActionsOpti
   )
 
   const remove = useCallback((id: string) => run(id, deleteAnnouncementClient), [run])
-  const pin = useCallback((id: string) => run(id, pinAnnouncementClient), [run])
+  const pin = useCallback(
+    (id: string, pinnedOrder?: number) => run(id, (postId) => pinAnnouncementClient(postId, pinnedOrder)),
+    [run],
+  )
   const unpin = useCallback((id: string) => run(id, unpinAnnouncementClient), [run])
 
   return { remove, pin, unpin, pendingId, error }

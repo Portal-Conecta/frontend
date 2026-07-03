@@ -35,6 +35,9 @@ export async function listAnnouncements(
  * Recebe a query já como bag genérica (`QueryParams`) porque quem chama é o BFF,
  * repassando os filtros crus da URL. Os filtros suportados são os de
  * `ListPostsParams`.
+ *
+ * TODO(#211): o back ainda não expõe `/api/posts/mine` nem filtro por autor no
+ * `PostFilterRequest` — depende de endpoint/filtro novo no comunicados-backend.
  */
 export async function listMyAnnouncements(
   params: QueryParams = {},
@@ -47,9 +50,16 @@ export async function deleteAnnouncement(id: string): Promise<void> {
   await http.delete<void>(`/api/posts/${id}`)
 }
 
-/** Fixa um comunicado no mural (`PATCH /api/posts/{id}/pin`), retornando o estado atualizado. */
-export async function pinAnnouncement(id: string): Promise<AnnouncementResponse> {
-  return http.patch<AnnouncementResponse>(`/api/posts/${id}/pin`)
+/**
+ * Fixa um comunicado no mural (`PATCH /api/posts/{id}/pin`), retornando o estado
+ * atualizado. O back aceita `pinnedOrder` (inteiro positivo) opcional no body —
+ * omitido, ele resolve a ordem.
+ */
+export async function pinAnnouncement(
+  id: string,
+  pinnedOrder?: number,
+): Promise<AnnouncementResponse> {
+  return http.patch<AnnouncementResponse>(`/api/posts/${id}/pin`, { body: { pinnedOrder } })
 }
 
 /** Desafixa um comunicado (`PATCH /api/posts/{id}/unpin`), retornando o estado atualizado. */

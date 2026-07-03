@@ -111,15 +111,16 @@ describe('deleteAnnouncement', () => {
 })
 
 describe('pinAnnouncement / unpinAnnouncement', () => {
-  it('faz PATCH em /api/posts/{id}/pin e retorna o comunicado atualizado', async () => {
+  it('faz PATCH em /api/posts/{id}/pin com pinnedOrder no body e retorna o atualizado', async () => {
     const fetchMock = stubFetch()
     fetchMock.mockResolvedValue(response(200, announcement))
 
-    await expect(pinAnnouncement('a1')).resolves.toMatchObject({ pinned: true })
+    await expect(pinAnnouncement('a1', 2)).resolves.toMatchObject({ pinned: true })
 
     const [url, init] = fetchMock.mock.calls[0]!
     expect(url).toBe(`${API_URL}/api/posts/a1/pin`)
     expect(init?.method).toBe('PATCH')
+    expect(JSON.parse(init?.body as string)).toEqual({ pinnedOrder: 2 })
   })
 
   it('faz PATCH em /api/posts/{id}/unpin', async () => {

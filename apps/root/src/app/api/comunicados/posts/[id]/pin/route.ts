@@ -5,11 +5,12 @@ import { pinAnnouncement } from '@portal/comunicados/services/server/announcemen
 import { bffErrorResponse } from '../../../_lib/bffError'
 
 /** BFF — fixa um comunicado no mural, retornando o estado atualizado. */
-export async function PATCH(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+  const body = (await req.json().catch(() => ({}))) as { pinnedOrder?: number }
 
   try {
-    const data = await pinAnnouncement(id)
+    const data = await pinAnnouncement(id, body.pinnedOrder)
     return NextResponse.json(data)
   } catch (err) {
     return bffErrorResponse(err)

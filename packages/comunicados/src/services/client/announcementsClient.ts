@@ -33,8 +33,14 @@ export async function deleteAnnouncementClient(id: string): Promise<void> {
 }
 
 /** Fixa um comunicado via BFF (`PATCH /api/comunicados/posts/{id}/pin`). */
-export async function pinAnnouncementClient(id: string): Promise<AnnouncementResponse> {
-  return bffFetch<AnnouncementResponse>(`/api/comunicados/posts/${id}/pin`, { method: 'PATCH' })
+export async function pinAnnouncementClient(
+  id: string,
+  pinnedOrder?: number,
+): Promise<AnnouncementResponse> {
+  return bffFetch<AnnouncementResponse>(`/api/comunicados/posts/${id}/pin`, {
+    method: 'PATCH',
+    body: JSON.stringify({ pinnedOrder }),
+  })
 }
 
 /** Desafixa um comunicado via BFF (`PATCH /api/comunicados/posts/{id}/unpin`). */
