@@ -1,1 +1,1 @@
-export type AnnouncementStatus = 'PUBLISHED' | 'SCHEDULED'
+export type AnnouncementStatus = 'PUBLISHED' | 'SCHEDULED' | 'REMOVED'

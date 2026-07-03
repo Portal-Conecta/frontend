@@ -2,24 +2,24 @@ import type { Meta, StoryObj } from '@storybook/react'
 
 import { PostStatusBadge } from './PostStatusBadge'
 
-const meta = {
+const meta: Meta<typeof PostStatusBadge> = {
   title: 'Comunicados/Atoms/PostStatusBadge',
   component: PostStatusBadge,
   parameters: { layout: 'padded' },
   argTypes: {
     status: {
       control: 'inline-radio',
-      options: ['PUBLISHED', 'SCHEDULED'],
+      options: ['PUBLISHED', 'SCHEDULED', 'REMOVED'],
       description: 'Status do comunicado recebido da API.',
     },
   },
   args: {
     status: 'PUBLISHED',
   },
-} satisfies Meta<typeof PostStatusBadge>
+}
 
 export default meta
-type Story = StoryObj<typeof meta>
+type Story = StoryObj<typeof PostStatusBadge>
 
 export const Published: Story = {}
 
@@ -29,11 +29,18 @@ export const Scheduled: Story = {
   },
 }
 
+export const Removed: Story = {
+  args: {
+    status: 'REMOVED',
+  },
+}
+
 export const AllStatuses: Story = {
   render: () => (
-    <div className="flex flex-row flex-wrap items-center gap-3">
+    <div className="flex w-full max-w-3xl flex-col gap-4">
       <PostStatusBadge status="PUBLISHED" />
       <PostStatusBadge status="SCHEDULED" />
+      <PostStatusBadge status="REMOVED" />
     </div>
   ),
 }
