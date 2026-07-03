@@ -1,4 +1,4 @@
-import type { AnnouncementSummary } from '../types'
+import type { AnnouncementDetail } from '../types'
 
 import { AppShell } from '@portal/core'
 import { HttpError } from '@portal/core/http/errors'
@@ -25,7 +25,7 @@ function resolveFetchError(error: unknown): string {
 }
 
 export async function PageAnnouncements() {
-  let items: AnnouncementSummary[] = []
+  let items: AnnouncementDetail[] = []
   let errorMessage: string | undefined
 
   try {
