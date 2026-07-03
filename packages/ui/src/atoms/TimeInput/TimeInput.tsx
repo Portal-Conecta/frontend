@@ -72,15 +72,17 @@ export function TimeInput({
     }
   }
 
+  // `inline-flex`: o card acompanha o conteúdo (campo de data/hora tem largura
+  // intrínseca fixa), sem sobra depois do valor — diferente do Input de texto.
   const boxClasses = [
-    'flex items-center gap-2 h-11 rounded-md border-sm px-3 py-2.5 transition-colors',
+    'inline-flex items-center gap-2 h-11 rounded-md border-sm px-3 py-2.5 transition-colors',
     disabled
       ? 'bg-background-default border-border-disabled'
       : 'bg-background-surface border-border-default focus-within:border-border-focus',
   ].join(' ')
 
   const inputClasses = [
-    'min-w-0 flex-1 border-0 bg-transparent p-0 outline-none appearance-none',
+    'border-0 bg-transparent p-0 outline-none appearance-none',
     'font-inter text-label-md',
     disabled ? 'text-text-disabled' : value ? 'text-text-brand' : 'text-text-placeholder',
     // indicador nativo escondido: a abertura do seletor é só pelo botão do ícone
@@ -88,7 +90,7 @@ export function TimeInput({
   ].join(' ')
 
   return (
-    <div className={className ? `w-full ${className}` : 'w-full'}>
+    <div className={className}>
       <div className={boxClasses}>
         <button
           type="button"

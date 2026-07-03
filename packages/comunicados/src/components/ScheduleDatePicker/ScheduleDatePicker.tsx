@@ -124,7 +124,6 @@ export function ScheduleDatePicker({
                 disabled={disabled}
                 invalid={invalid}
                 aria-describedby={shownError ? errorId : undefined}
-                className="w-44"
               />
             </div>
 
@@ -139,7 +138,6 @@ export function ScheduleDatePicker({
                 disabled={disabled}
                 invalid={invalid}
                 aria-describedby={shownError ? errorId : undefined}
-                className="w-32"
               />
             </div>
           </div>
