@@ -1,0 +1,1 @@
+export { listPosts } from './postsService'
