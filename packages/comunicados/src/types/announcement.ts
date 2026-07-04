@@ -82,6 +82,21 @@ export interface AnnouncementResponse {
   updatedAt: string
 }
 
+/** Resumo consumido pelos cards/listas do mural. */
+export interface AnnouncementSummary {
+  id: string
+  title: string
+  description: string
+  origin: AnnouncementOrigin
+  status: AnnouncementStatus
+  pinned: boolean
+  pinnedOrder: number | null
+  scheduledFor: string | null
+  publishedAt: string | null
+  createdAt: string
+  tags?: readonly string[]
+}
+
 export interface AnnouncementDestination {
   id: string
   announcementId: string
