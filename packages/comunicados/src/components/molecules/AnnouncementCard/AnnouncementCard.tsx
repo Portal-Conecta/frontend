@@ -1,18 +1,9 @@
+import type { AnnouncementStatus, AnnouncementSummary } from '../../../types/announcement'
+import type { IconName, TagTone } from '@portal/ui'
+
 import Link from 'next/link'
 
-import { Icon, Tag, Text, type TagTone } from '@portal/ui'
-
-export type AnnouncementStatus = 'PUBLISHED' | 'SCHEDULED'
-
-export interface AnnouncementSummary {
-  id: string | number
-  title: string
-  origin: 'WEG' | 'SENAI' | string
-  date: string
-  preview: string
-  tags?: readonly string[]
-  status: AnnouncementStatus
-}
+import { Icon, Tag, Text } from '@portal/ui'
 
 export interface AnnouncementCardProps {
   announcement: AnnouncementSummary
@@ -20,7 +11,7 @@ export interface AnnouncementCardProps {
   className?: string
 }
 
-const statusConfig: Record<AnnouncementStatus, { label: string; tone: TagTone; icon: 'check-check' | 'bell' }> = {
+const statusConfig: Record<AnnouncementStatus, { label: string; tone: TagTone; icon: IconName }> = {
   PUBLISHED: {
     label: 'Publicado',
     tone: 'positive',
@@ -31,6 +22,17 @@ const statusConfig: Record<AnnouncementStatus, { label: string; tone: TagTone; i
     tone: 'warning',
     icon: 'bell',
   },
+  REMOVED: {
+    label: 'Removido',
+    tone: 'negative',
+    icon: 'x',
+  },
+}
+
+const originLabel: Record<AnnouncementSummary['origin'], string> = {
+  WEG: 'WEG',
+  SENAI: 'SENAI',
+  BOTH: 'WEG + SENAI',
 }
 
 function formatDate(value: string): string {
@@ -46,17 +48,19 @@ function formatDate(value: string): string {
 
 export function AnnouncementCard({
   announcement,
-  highlighted = false,
+  highlighted,
   className,
 }: AnnouncementCardProps) {
   const status = statusConfig[announcement.status]
   const href = `/comunicados/${announcement.id}`
+  const isHighlighted = highlighted ?? announcement.pinned
+  const date = announcement.publishedAt ?? announcement.scheduledFor ?? announcement.createdAt
 
   const classes = [
     'group flex w-full flex-col gap-4 rounded-md border-sm bg-background-surface p-4',
     'transition-colors hover:border-interactive-default hover:bg-background-default',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2',
-    highlighted
+    isHighlighted
       ? 'border-interactive-default shadow-lg'
       : 'border-border-default shadow-sm',
     className,
@@ -69,7 +73,7 @@ export function AnnouncementCard({
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           <div className="flex flex-row flex-wrap items-center gap-2">
-            {highlighted ? (
+            {isHighlighted ? (
               <Tag tone="info" size="sm" icon="bell">
                 Fixado
               </Tag>
@@ -100,16 +104,16 @@ export function AnnouncementCard({
 
       <div className="flex flex-row flex-wrap items-center gap-2 text-text-secondary">
         <Text as="span" variant="label-sm" className="whitespace-nowrap">
-          {announcement.origin}
+          {originLabel[announcement.origin]}
         </Text>
         <span className="h-1 w-1 rounded-full bg-border-default" aria-hidden="true" />
         <Text as="span" variant="label-sm" className="whitespace-nowrap">
-          {formatDate(announcement.date)}
+          {formatDate(date)}
         </Text>
       </div>
 
       <Text as="p" variant="body-sm" tone="secondary" className="line-clamp-2">
-        {announcement.preview}
+        {announcement.description}
       </Text>
 
       {announcement.tags?.length ? (

@@ -81,3 +81,10 @@ export async function refresh(refreshToken: string): Promise<LoginResponse> {
     if (res.status === 401) throw new AuthError('invalid_credentials')
     throw new AuthError('server')
 }
+
+export async function logout(refreshToken: string): Promise<void> {
+  await fetch(`${process.env.API_GATEWAY_URL}/auth/logout`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${refreshToken}` },
+  })
+}

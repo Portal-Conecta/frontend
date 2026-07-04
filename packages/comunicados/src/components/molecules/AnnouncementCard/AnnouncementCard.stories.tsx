@@ -1,27 +1,36 @@
 import type { Meta, StoryObj } from '@storybook/react'
+import type { AnnouncementSummary } from '../../../types/announcement'
 
-import { AnnouncementCard, type AnnouncementSummary } from './AnnouncementCard'
+import { AnnouncementCard } from './AnnouncementCard'
 
 const announcement: AnnouncementSummary = {
   id: 'seguranca-no-campus',
   title: 'Comunicado sobre atualização das orientações de segurança no campus',
   origin: 'WEG',
-  date: '2026-07-03T10:00:00.000Z',
-  preview:
+  status: 'PUBLISHED',
+  pinned: false,
+  pinnedOrder: null,
+  publishedAt: '2026-07-03T10:00:00.000Z',
+  scheduledFor: null,
+  createdAt: '2026-07-03T09:30:00.000Z',
+  description:
     'A partir desta semana, novas orientações de circulação e identificação estarão disponíveis para estudantes, docentes e colaboradores.',
   tags: ['Institucional', 'Segurança'],
-  status: 'PUBLISHED',
 }
 
 const scheduledAnnouncement: AnnouncementSummary = {
   id: 'agenda-senai',
   title: 'Agenda de atividades SENAI para a próxima semana',
   origin: 'SENAI',
-  date: '2026-07-08T12:00:00.000Z',
-  preview:
+  status: 'SCHEDULED',
+  pinned: false,
+  pinnedOrder: null,
+  publishedAt: null,
+  scheduledFor: '2026-07-08T12:00:00.000Z',
+  createdAt: '2026-07-03T09:30:00.000Z',
+  description:
     'Confira as atividades previstas para os cursos técnicos, encontros de turma e ações de integração no mural do portal.',
   tags: ['Cursos', 'Agenda'],
-  status: 'SCHEDULED',
 }
 
 const meta: Meta<typeof AnnouncementCard> = {
