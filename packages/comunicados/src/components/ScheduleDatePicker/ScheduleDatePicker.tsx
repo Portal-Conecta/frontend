@@ -11,7 +11,7 @@
  *
  * Controlado por um único `value` ISO-8601 UTC (`scheduledFor`): `null` =
  * publicar agora (opção "Publicar agora", campos ocultos). Internamente quebra o
- * instante em data/hora **locais** para os inputs nativos e recombina em UTC no
+ * instante em data/hora **de Brasília** para os inputs nativos e recombina em UTC no
  * `onChange`. Valida no client que o instante escolhido está no futuro; o
  * backend continua sendo a fonte da verdade.
  */
@@ -19,7 +19,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 
 import { DateInput, RadioGroup, Text, TimeInput } from '@portal/ui'
 
-import { combineToIso, isFutureIso, isoToLocalDate, isoToLocalTime, todayLocalDate } from './datetime'
+import { combineToIso, isFutureIso, isoToLocalDate, isoToLocalTime, resolveScheduleDefaults, todayLocalDate } from './datetime'
 
 const MODE_NOW = 'now'
 const MODE_SCHEDULE = 'schedule'
@@ -77,7 +77,14 @@ export function ScheduleDatePicker({
   function handleMode(mode: string) {
     const next = mode === MODE_SCHEDULE
     setEnabled(next)
-    emit(next, dateStr, timeStr)
+
+    const resolved = next ? resolveScheduleDefaults(dateStr, timeStr) : { date: dateStr, time: timeStr }
+    if (next) {
+      setDateStr(resolved.date)
+      setTimeStr(resolved.time)
+    }
+
+    emit(next, resolved.date, resolved.time)
   }
 
   function handleDate(next: string) {

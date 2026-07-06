@@ -44,9 +44,11 @@ const render: Story['render'] = (args) => {
   return (
     <div className="flex flex-col gap-4">
       <ScheduleDatePicker {...args} value={value} onChange={setValue} />
-      <p className="text-label-xs font-inter text-text-secondary">
-        Agendado para: <code>{value ? new Date(value).toLocaleString() : 'null'}</code>
-      </p>
+      {value ? (
+        <p className="text-label-xs font-inter text-text-secondary">
+          Agendado para: <code>{new Date(value).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}</code>
+        </p>
+      ) : null}
     </div>
   )
 }
