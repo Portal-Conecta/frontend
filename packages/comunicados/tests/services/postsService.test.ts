@@ -8,12 +8,19 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { PostsError, publishPost, schedulePost } from '../../src/services/postsService'
+import {
+  PostsError,
+  publishPost,
+  schedulePost,
+  getPostDetail,
+  getPostTags,
+  getPostImages,
+} from '../../src/services/postsService'
 import type {
   AnnouncementResponse,
   PublishAnnouncementRequest,
   ScheduleAnnouncementRequest,
-} from '../../src/types/announcement'
+} from '../../src/types'
 
 const COMUNICADOS_API_URL = 'https://comunicados.test'
 const TOKEN = 'jwt-token'
@@ -162,3 +169,62 @@ describe('schedulePost', () => {
     await expect(schedulePost(scheduleBody, TOKEN)).rejects.toMatchObject({ kind: 'validation' })
   })
 })
+
+describe('getPostDetail', () => {
+  it('retorna o detalhe do comunicado e faz GET para /api/posts/:id', async () => {
+    const fetchMock = stubFetch()
+    const detailMock = { announcement: { id: 'a1' }, tags: [], files: [], destinations: [], mentions: [] }
+    fetchMock.mockResolvedValue(response(200, detailMock))
+
+    await expect(getPostDetail('a1', TOKEN)).resolves.toEqual(detailMock)
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe(`${COMUNICADOS_API_URL}/api/posts/a1`)
+    expect(init?.method).toBe('GET')
+    expect((init?.headers as Record<string, string>).Authorization).toBe(`Bearer ${TOKEN}`)
+  })
+
+  it('mapeia erro de rede para PostsError network', async () => {
+    stubFetch().mockRejectedValue(new TypeError('Failed to fetch'))
+    await expect(getPostDetail('a1', TOKEN)).rejects.toMatchObject({ kind: 'network' })
+  })
+
+  it('mapeia status de erro HTTP para PostsError correspondente', async () => {
+    stubFetch().mockResolvedValue(response(404, {}))
+    await expect(getPostDetail('a1', TOKEN)).rejects.toMatchObject({ kind: 'server' })
+  })
+})
+
+describe('getPostTags', () => {
+  it('retorna a lista de tags e faz GET para /api/posts/:id/tags', async () => {
+    const fetchMock = stubFetch()
+    const tagsMock = [{ announcementId: 'a1', tagId: 't1', tagName: 'Tag 1' }]
+    fetchMock.mockResolvedValue(response(200, tagsMock))
+
+    await expect(getPostTags('a1', TOKEN)).resolves.toEqual(tagsMock)
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe(`${COMUNICADOS_API_URL}/api/posts/a1/tags`)
+    expect(init?.method).toBe('GET')
+    expect((init?.headers as Record<string, string>).Authorization).toBe(`Bearer ${TOKEN}`)
+  })
+})
+
+describe('getPostImages', () => {
+  it('retorna a lista de imagens e faz GET para /api/posts/:id/images', async () => {
+    const fetchMock = stubFetch()
+    const imagesMock = [{ id: 'f1', announcementId: 'a1', originalName: 'img.png' }]
+    fetchMock.mockResolvedValue(response(200, imagesMock))
+
+    await expect(getPostImages('a1', TOKEN)).resolves.toEqual(imagesMock)
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe(`${COMUNICADOS_API_URL}/api/posts/a1/images`)
+    expect(init?.method).toBe('GET')
+    expect((init?.headers as Record<string, string>).Authorization).toBe(`Bearer ${TOKEN}`)
+  })
+})
+

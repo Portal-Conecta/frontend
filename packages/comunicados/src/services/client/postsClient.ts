@@ -1,4 +1,10 @@
-import type { AnnouncementResponse, ListAnnouncementsResponse, ListPostsParams } from '../../types'
+import type { AnnouncementResponse, 
+  ListAnnouncementsResponse, 
+  ListPostsParams,
+  AnnouncementDetail,
+  AnnouncementTag,
+  AnnouncementFile,
+} from '../../types'
 
 import { bffFetch } from '@portal/core/http/bffClient'
 import { buildQuery, type QueryParams } from '@portal/core/http/query'
@@ -47,4 +53,16 @@ export async function unpinPostClient(id: string): Promise<AnnouncementResponse>
   return bffFetch<AnnouncementResponse>(`/api/comunicados/posts/${id}/unpin`, {
     method: 'PATCH',
   })
+}
+
+export async function getPostDetailClient(id: string): Promise<AnnouncementDetail> {
+  return bffFetch<AnnouncementDetail>(`/api/comunicados/posts/${id}`)
+}
+
+export async function getPostTagsClient(id: string): Promise<AnnouncementTag[]> {
+  return bffFetch<AnnouncementTag[]>(`/api/comunicados/posts/${id}/tags`)
+}
+
+export async function getPostImagesClient(id: string): Promise<AnnouncementFile[]> {
+  return bffFetch<AnnouncementFile[]>(`/api/comunicados/posts/${id}/images`)
 }

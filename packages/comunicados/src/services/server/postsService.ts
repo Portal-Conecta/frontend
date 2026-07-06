@@ -2,6 +2,9 @@ import type {
   AnnouncementResponse,
   ListAnnouncementsResponse,
   ListPostsParams,
+  AnnouncementDetail,
+  AnnouncementTag,
+  AnnouncementFile,
 } from '../../types'
 
 import { createHttpClient } from '@portal/core/http/httpClient'
@@ -56,4 +59,16 @@ export async function pinPost(
 /** Desafixa um post (`PATCH /api/posts/{id}/unpin`), retornando o estado atualizado. */
 export async function unpinPost(id: string): Promise<AnnouncementResponse> {
   return http.patch<AnnouncementResponse>(`/api/posts/${id}/unpin`)
+}
+
+export async function getPostDetail(id: string): Promise<AnnouncementDetail> {
+  return http.get<AnnouncementDetail>(`/api/posts/${id}`)
+}
+
+export async function getPostTags(id: string): Promise<AnnouncementTag[]> {
+  return http.get<AnnouncementTag[]>(`/api/posts/${id}/tags`)
+}
+
+export async function getPostImages(id: string): Promise<AnnouncementFile[]> {
+  return http.get<AnnouncementFile[]>(`/api/posts/${id}/images`)
 }
