@@ -13,6 +13,7 @@
  */
 import {
   Bell,
+  Calendar,
   CheckCheck,
   Circle,
   CircleDot,
@@ -23,6 +24,7 @@ import {
   ChevronsRight,
   CircleUser,
   ClipboardList,
+  Clock,
   Ellipsis,
   Eye,
   EyeClosed,
@@ -48,6 +50,8 @@ export const iconRegistry = {
   'chevron-right': ChevronRight,
   'chevrons-left': ChevronsLeft,
   'chevrons-right': ChevronsRight,
+  calendar: Calendar,
+  clock: Clock,
   mail: Mail,
   search: Search,
   funnel: Funnel,
