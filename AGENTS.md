@@ -108,5 +108,6 @@ export function LoginForm() {
 | Focus-trap inline na `Sidebar` | `packages/ui/src/organisms/Sidebar/Sidebar.tsx` | Bug de re-render já corrigido (`onToggle` em ref, efeito só depende de `expanded`). Falta extrair `useDrawerFocusTrap(panelRef, { active, onClose })` — isola a11y do layout e abre para teste (DoD [#105](https://github.com/Portal-Conecta/frontend/issues/105)) |
 | `logoPadding` do `AppHeader` espelha o padding do `SidebarNavItem` | `packages/ui/src/organisms/AppHeader/AppHeader.tsx` | Promover `pl-4`/`pl-8` a constante compartilhada (`tokens/layout.ts`) — hoje desalinha se um dos dois mudar |
 | Toggle "Reduzir" duplicado (rail, drawer e `leftSlot` do footer) | `packages/ui/src/organisms/Sidebar/Sidebar.tsx` · `packages/core/src/layout/AppLayout.tsx` | Extrair molecule `SidebarToggle` (ícone `chevrons-left/right` + label) reusado pelos três |
+| Valor preenchido de `DateInput`/`TimeInput` usa `text-text-brand` (blue/500) | `packages/ui/src/atoms/DateInput/DateInput.tsx` · `packages/ui/src/atoms/TimeInput/TimeInput.tsx` | Figma pede blue/700 no preenchido, mas não há token de texto blue/700 (só `interactive-hover`). Promover token de texto ou confirmar blue/500 — issue [#241](https://github.com/Portal-Conecta/frontend/issues/241) |
 
 → [Como registrar e tratar dívidas de token](docs/conventions/tokens-e-theming.md)
