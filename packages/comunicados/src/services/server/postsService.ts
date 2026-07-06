@@ -1,4 +1,4 @@
-import type { ListAnnouncementsResponse, ListPostsParams } from '../../types'
+import type { AnnouncementDetail, ListAnnouncementsResponse, ListPostsParams } from '../../types'
 
 import { createHttpClient } from '@portal/core/http/httpClient'
 import type { QueryParams } from '@portal/core/http/query'
@@ -9,4 +9,8 @@ export async function listPosts(params: ListPostsParams = {}): Promise<ListAnnou
   return http.get<ListAnnouncementsResponse>('/api/posts', {
     params: params as QueryParams,
   })
+}
+
+export async function getPostDetail(id: string): Promise<AnnouncementDetail> {
+  return http.get<AnnouncementDetail>(`/api/posts/${id}`)
 }
