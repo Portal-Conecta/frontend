@@ -63,5 +63,6 @@ interface CurrentUser {
 
 - [ADR-0004: Arquitetura em Camadas](ADR-0004-arquitetura-em-camadas.md)
 - [ADR-0012: Contrato do AppLayout](ADR-0012-contrato-do-applayout.md)
-- Issues [#171](https://github.com/Portal-Conecta/frontend/issues/171) · [#172](https://github.com/Portal-Conecta/frontend/issues/172) · [#159](https://github.com/Portal-Conecta/frontend/issues/159)
+- Issues [#171](https://github.com/Portal-Conecta/frontend/issues/171) · [#172](https://github.com/Portal-Conecta/frontend/issues/172) · [#173](https://github.com/Portal-Conecta/frontend/issues/173) · [#159](https://github.com/Portal-Conecta/frontend/issues/159)
 - `packages/core/src/rbac/`
+- Modelo de nav por papel: `packages/core/src/layout/navRegistry.ts` (`NAV_REGISTRY` + `visibleNavFor`), travado por `packages/core/tests/layout/navRegistry.test.ts`. A nav nunca fica vazia — comunicados e mapa são universais (decisão do "A decidir" da #173).
