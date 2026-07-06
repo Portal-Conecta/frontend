@@ -71,3 +71,19 @@ export const ComErro: Story = {
 export const Desabilitado: Story = {
   render: () => <Demo initial={sampleImages} disabled />,
 }
+
+/** Limite cheio — arrastar mais arquivos exibe mensagem de rejeição. */
+export const LimiteAtingido: Story = {
+  render: () => (
+    <Demo
+      initial={[
+        { id: '1', previewUrl: swatch('#01258F'), name: '1.png' },
+        { id: '2', previewUrl: swatch('#3B82F6'), name: '2.png' },
+        { id: '3', previewUrl: swatch('#93C5FD'), name: '3.png' },
+        { id: '4', previewUrl: swatch('#60A5FA'), name: '4.png' },
+        { id: '5', previewUrl: swatch('#2563EB'), name: '5.png' },
+      ]}
+      maxImages={5}
+    />
+  ),
+}
