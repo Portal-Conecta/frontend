@@ -73,6 +73,8 @@ export function DestinationSelector({
 
   const availableModes = MODE_OPTIONS.filter((option) => modes.includes(option.value))
   const [mode, setMode] = useState<DestinationMode>(availableModes[0]?.value ?? 'filter')
+  // Se `modes` mudar depois do mount (persona async no #197), evita painel órfão.
+  const activeMode = modes.includes(mode) ? mode : (availableModes[0]?.value ?? 'filter')
 
   function commit(next: Recipient[]) {
     if (value === undefined) setInternal(next)
@@ -96,18 +98,17 @@ export function DestinationSelector({
           </Text>
 
           <RadioGroup
-            value={mode}
+            value={activeMode}
             onChange={(next) => setMode(next as DestinationMode)}
             options={availableModes}
             size="sm"
             disabled={disabled}
             aria-label="Como selecionar os destinatários"
-            className='gap-4'
           />
         </aside>
 
         <div className="flex flex-1 flex-col gap-6 md:border-l md:border-border-default md:pl-8">
-          {mode === 'filter' ? (
+          {activeMode === 'filter' ? (
             <TagFilterPanel
               courses={courses}
               classes={classes}
@@ -117,11 +118,11 @@ export function DestinationSelector({
             />
           ) : null}
 
-          {mode === 'group' ? (
+          {activeMode === 'group' ? (
             <GroupTypePanel recipients={recipients} onToggle={handleToggle} disabled={disabled} />
           ) : null}
 
-          {mode === 'user' ? (
+          {activeMode === 'user' ? (
             <UserSearchPanel
               users={users}
               recipients={recipients}

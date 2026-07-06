@@ -96,7 +96,6 @@ export function UserSearchPanel({
             <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
-                className="h-9 py-0 text-label-sm"
                 onClick={() => setPage((current) => Math.max(1, current - 1))}
                 disabled={disabled || safePage <= 1}
               >
@@ -110,7 +109,6 @@ export function UserSearchPanel({
               <Button
                 variant="ghost"
                 iconRight="chevron-right"
-                className="h-9 py-0 text-label-sm"
                 onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
                 disabled={disabled || safePage >= totalPages}
               >
