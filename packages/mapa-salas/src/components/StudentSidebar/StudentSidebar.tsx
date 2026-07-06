@@ -1,10 +1,9 @@
-// packages/mapa-salas/src/components/StudentSidebar/StudentSidebar.tsx
-
 import { StudentListItem } from '../StudentListItem'
+import type { UnassignedStudent } from '../../types/student'
 
 export type StudentSidebarProps = {
   /** Alunos ainda não alocados em nenhum assento (vindos da API) */
-  unassignedStudents: Array<{ id: string; name: string }>
+  unassignedStudents: Array<UnassignedStudent>
   /**
    * Id do aluno atualmente selecionado para alocação.
    * null quando nenhum aluno está selecionado.
@@ -24,6 +23,16 @@ export type StudentSidebarProps = {
   className?: string
 }
 
+/**
+ * StudentSidebar não usa hooks e não é 'use client' por si só,
+ * mas recebe `onStudentClick` como função via prop — precisa ser
+ * renderizado dentro de uma árvore Client Component, ou o Next
+ * vai falhar em runtime ao tentar serializar a função.
+ *
+ * Nota de acessibilidade: o <ul> usa aria-label como rótulo mínimo.
+ * Migração completa para role="listbox" (conforme comentário do
+ * StudentListItem) fica como follow-up.
+ */
 export function StudentSidebar({
   unassignedStudents,
   selectedStudentId,
@@ -34,7 +43,7 @@ export function StudentSidebar({
   const classes = ['h-full overflow-y-auto', className].filter(Boolean).join(' ')
 
   return (
-    <ul className={classes}>
+    <ul className={classes} aria-label="Alunos não alocados">
       {unassignedStudents.map((student) => (
         <StudentListItem
           key={student.id}
