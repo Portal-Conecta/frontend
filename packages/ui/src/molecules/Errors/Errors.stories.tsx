@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react'
 
-import { ErrosPage } from './Errors'
+import { ErrorsPage } from './Errors'
 
-const meta: Meta<typeof ErrosPage> = {
-    title: "componentes/Feedback/ErrosPage",
-    component: ErrosPage,
+const meta: Meta<typeof ErrorsPage> = {
+    title: "Componentes/Feedback/ErrosPage",
+    component: ErrorsPage,
     parameters: { layout: 'padded' },
     argTypes: {
         code: { control: 'text' },
@@ -19,7 +19,7 @@ const meta: Meta<typeof ErrosPage> = {
 }
 
 export default meta
-type Story = StoryObj<typeof ErrosPage>
+type Story = StoryObj<typeof ErrorsPage>
 
 export const NotFound: Story = {}
 
