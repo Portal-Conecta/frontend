@@ -28,21 +28,21 @@ export async function listAnnouncements(
 }
 
 /**
- * Lista os comunicados do próprio autor (`GET /api/posts/mine`) — mesma
- * paginação do mural, mas escopado ao usuário da sessão pelo back. Alimenta a
- * tela "Meus Comunicados" (#211).
+ * Lista os comunicados do próprio autor via o filtro `GET /api/posts?mine=true` —
+ * mesma paginação do mural, mas escopado ao usuário da sessão pelo back. Esse
+ * filtro também inclui os agendados (SCHEDULED) e exige permissão de criação (o
+ * back responde 403 caso contrário). Alimenta a tela "Meus Comunicados" (#211).
  *
  * Recebe a query já como bag genérica (`QueryParams`) porque quem chama é o BFF,
  * repassando os filtros crus da URL. Os filtros suportados são os de
- * `ListPostsParams`.
- *
- * TODO(#211): o back ainda não expõe `/api/posts/mine` nem filtro por autor no
- * `PostFilterRequest` — depende de endpoint/filtro novo no comunicados-backend.
+ * `ListPostsParams`; `mine=true` é forçado aqui, não vem do cliente.
  */
 export async function listMyAnnouncements(
   params: QueryParams = {},
 ): Promise<ListAnnouncementsResponse> {
-  return http.get<ListAnnouncementsResponse>('/api/posts/mine', { params })
+  return http.get<ListAnnouncementsResponse>('/api/posts', {
+    params: { ...params, mine: true },
+  })
 }
 
 /** Soft delete de um comunicado próprio (`DELETE /api/posts/{id}`); o back responde 204. */

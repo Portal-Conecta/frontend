@@ -71,7 +71,7 @@ afterEach(() => {
 })
 
 describe('listMyAnnouncements', () => {
-  it('faz GET em /api/posts/mine com Bearer e repassa os filtros como query', async () => {
+  it('faz GET em /api/posts com mine=true e Bearer, repassando os filtros como query', async () => {
     const fetchMock = stubFetch()
     fetchMock.mockResolvedValue(response(200, listResponse))
 
@@ -81,7 +81,7 @@ describe('listMyAnnouncements', () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
     const [url, init] = fetchMock.mock.calls[0]!
-    expect(url).toBe(`${API_URL}/api/posts/mine?page=0&size=20&search=prova`)
+    expect(url).toBe(`${API_URL}/api/posts?page=0&size=20&search=prova&mine=true`)
     expect(init?.method).toBe('GET')
     expect((init?.headers as Record<string, string>).Authorization).toBe('Bearer jwt-token')
   })
