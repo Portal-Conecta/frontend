@@ -6,7 +6,7 @@
  * `filterByPermission` (motor de RBAC do core). Mudar quem vê o quê = editar aqui
  * + a tabela `rolePermissions` do core.
  */
-import type { Permission } from '@portal/core'
+import { filterByPermission, type CurrentUser, type Permission } from '../rbac'
 import type { IconName } from '@portal/ui'
 
 export interface NavEntry {
@@ -24,3 +24,24 @@ export const NAV_REGISTRY: readonly NavEntry[] = [
   { key: 'checklist', icon: 'clipboard-list', label: 'Checklist', href: '/checklist', requires: 'checklist:ver' },
   { key: 'config', icon: 'settings', label: 'Configurações', href: '/configuracoes', requires: 'usuarios:gerenciar' },
 ]
+
+/**
+ * Modelo de nav por papel — resultado do `NAV_REGISTRY` cruzado com a matriz
+ * `rolePermissions` do RBAC. Contrato travado por teste (`tests/layout/navRegistry`).
+ *
+ * | Item        | requires           | STUDENT | REPRES. | TEACHER | SENAI | WEG | ADMIN |
+ * |-------------|--------------------|:-------:|:-------:|:-------:|:-----:|:---:|:-----:|
+ * | comunicados | - (universal)      |   sim   |   sim   |   sim   |  sim  | sim |  sim  |
+ * | mapa-salas  | - (universal)      |   sim   |   sim   |   sim   |  sim  | sim |  sim  |
+ * | checklist   | checklist:ver      |   nao   |   sim   |   sim   |  sim  | sim |  sim  |
+ * | config      | usuarios:gerenciar |   nao   |   nao   |   nao   |  sim  | sim |  sim  |
+ *
+ * Invariante: comunicados + mapa são universais, então todo papel autenticado vê
+ * >= 2 itens — a nav nunca fica vazia (decisão do "A decidir" da #173).
+ *
+ * Lembre: isto é UX (o que aparece na Sidebar). O gate real é o 403 do backend em
+ * toda chamada. Mudar quem vê o quê = editar `requires` aqui + `rolePermissions`.
+ */
+export function visibleNavFor(user: CurrentUser | null): NavEntry[] {
+  return filterByPermission(NAV_REGISTRY, user)
+}
