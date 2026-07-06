@@ -1,1 +1,1 @@
-export { listPosts } from './postsService'
+export { listPosts, getPostDetail, getPostTags, getPostImages } from './postsService'

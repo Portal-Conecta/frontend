@@ -15,7 +15,10 @@ import type {
   AnnouncementResponse,
   PublishAnnouncementRequest,
   ScheduleAnnouncementRequest,
-} from '../types/announcement'
+  AnnouncementDetail,
+  AnnouncementTag,
+  AnnouncementFile,
+} from '../types'
 
 import type { ApiError, ApiFieldError } from '../../../shared/src/types/api-error'
 
@@ -68,6 +71,35 @@ async function toPostsError(res: Response): Promise<PostsError> {
   }
 }
 
+async function getFromBackend<T>(
+  path: string,
+  token: string,
+): Promise<T> {
+  const url = `${baseUrl()}${path}`
+
+  let res: Response
+  try {
+    res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+  } catch {
+    throw new PostsError('network', 503)
+  }
+
+  if (res.status === 200) {
+    try {
+      return (await res.json()) as T
+    } catch {
+      throw new PostsError('server', 502)
+    }
+  }
+
+  throw await toPostsError(res)
+}
+
 async function createAnnouncement(
   path: string,
   body: PublishAnnouncementRequest | ScheduleAnnouncementRequest,
@@ -114,7 +146,31 @@ export function schedulePost(
   return createAnnouncement('/api/posts/schedule', body, token)
 }
 
+export function getPostDetail(
+  id: string,
+  token: string,
+): Promise<AnnouncementDetail> {
+  return getFromBackend<AnnouncementDetail>(`/api/posts/${id}`, token)
+}
+
+export function getPostTags(
+  id: string,
+  token: string,
+): Promise<AnnouncementTag[]> {
+  return getFromBackend<AnnouncementTag[]>(`/api/posts/${id}/tags`, token)
+}
+
+export function getPostImages(
+  id: string,
+  token: string,
+): Promise<AnnouncementFile[]> {
+  return getFromBackend<AnnouncementFile[]>(`/api/posts/${id}/images`, token)
+}
+
 export const postsService = {
   publishPost,
   schedulePost,
+  getPostDetail,
+  getPostTags,
+  getPostImages,
 }
