@@ -2,11 +2,7 @@
 
 import { useCallback, useState } from 'react'
 
-import {
-  deleteAnnouncementClient,
-  pinAnnouncementClient,
-  unpinAnnouncementClient,
-} from '../services/client'
+import { deletePostClient, pinPostClient, unpinPostClient } from '../services/client'
 
 /**
  * useAnnouncementActions — ações por item de "Meus Comunicados": excluir, fixar e
@@ -44,12 +40,12 @@ export function useAnnouncementActions({ onChanged }: UseAnnouncementActionsOpti
     [onChanged],
   )
 
-  const remove = useCallback((id: string) => run(id, deleteAnnouncementClient), [run])
+  const remove = useCallback((id: string) => run(id, deletePostClient), [run])
   const pin = useCallback(
-    (id: string, pinnedOrder?: number) => run(id, (postId) => pinAnnouncementClient(postId, pinnedOrder)),
+    (id: string, pinnedOrder?: number) => run(id, (postId) => pinPostClient(postId, pinnedOrder)),
     [run],
   )
-  const unpin = useCallback((id: string) => run(id, unpinAnnouncementClient), [run])
+  const unpin = useCallback((id: string) => run(id, unpinPostClient), [run])
 
   return { remove, pin, unpin, pendingId, error }
 }

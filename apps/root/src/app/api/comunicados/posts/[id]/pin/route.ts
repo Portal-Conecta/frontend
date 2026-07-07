@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-import { pinAnnouncement } from '@portal/comunicados/services/server/announcementsService'
+import { pinPost } from '@portal/comunicados/services/server/postsService'
 
 import { bffErrorResponse } from '../../../_lib/bffError'
 
@@ -10,7 +10,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const body = (await req.json().catch(() => ({}))) as { pinnedOrder?: number }
 
   try {
-    const data = await pinAnnouncement(id, body.pinnedOrder)
+    const data = await pinPost(id, body.pinnedOrder)
     return NextResponse.json(data)
   } catch (err) {
     return bffErrorResponse(err)
