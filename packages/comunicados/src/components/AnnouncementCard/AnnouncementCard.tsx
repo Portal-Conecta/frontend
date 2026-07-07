@@ -1,4 +1,4 @@
-import type { AnnouncementStatus, AnnouncementSummary } from '../../../types/announcement'
+import type { AnnouncementStatus, AnnouncementSummary } from '../../types/announcement'
 import type { IconName, TagTone } from '@portal/ui'
 
 import Link from 'next/link'
