@@ -1,24 +1,32 @@
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server";
 
-import { listMyAnnouncements } from '@portal/comunicados/services/server/announcementsService'
+import { listMyAnnouncements } from "@portal/comunicados/services/server/announcementsService";
+import type { QueryParams } from "@portal/core/http/query";
 
-import { bffErrorResponse } from '../../_lib/bffError'
+import { bffErrorResponse } from "../../_lib/bffError";
 
 /**
  * BFF — lista os comunicados do próprio autor. Repassa a query da URL como veio
- * (paginação/filtros) e delega ao service server, que resolve o JWT do cookie
- * httpOnly e chama o back. O token nunca trafega no JS do browser.
- *
- * `Object.fromEntries` colapsa chaves repetidas no último valor — ok para os
- * filtros single-value de "Meus Comunicados".
+ * (paginação/filtros), preservando chaves repetidas (ex.: `tagIds`), e delega ao
+ * service server, que resolve o JWT do cookie httpOnly e chama o back. O token
+ * nunca trafega no JS do browser.
  */
-export async function GET(req: Request) {
-  const params = Object.fromEntries(new URL(req.url).searchParams)
+function queryFromUrl(url: string): QueryParams {
+  const params: QueryParams = {};
+  for (const [key, value] of new URL(url).searchParams) {
+    const current = params[key];
+    if (current === undefined) params[key] = value;
+    else if (Array.isArray(current)) current.push(value);
+    else params[key] = [current as string, value];
+  }
+  return params;
+}
 
+export async function GET(req: Request) {
   try {
-    const data = await listMyAnnouncements(params)
-    return NextResponse.json(data)
+    const data = await listMyAnnouncements(queryFromUrl(req.url));
+    return NextResponse.json(data);
   } catch (err) {
-    return bffErrorResponse(err)
+    return bffErrorResponse(err);
   }
 }
