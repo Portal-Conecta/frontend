@@ -15,6 +15,11 @@ import {
 
 import type { ApiFieldError } from '../../../shared/src/types/api-error'
 
+import {
+  sanitizePublishBody,
+  sanitizeScheduleBody,
+} from '../services/sanitizeAnnouncementRequest'
+
 /**
  * useCreateAnnouncement — form state + submit for creating an announcement,
  * either published immediately (`publish`) or scheduled for the future
@@ -60,6 +65,14 @@ const DEFAULT_VALUES: CreateAnnouncementFormValues = {
 }
 
 const GENERIC_ERROR = 'Serviço indisponível, tente novamente.'
+
+function messageFromApi(message: string | undefined, status: number): string {
+  if (message === 'Data integrity violation.') {
+    return 'O título excede o limite de 255 caracteres.'
+  }
+  if (message) return message
+  return messageForStatus(status)
+}
 
 function messageForStatus(status: number): string {
   switch (status) {
@@ -139,14 +152,7 @@ export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}
   }, [options.initialValues])
 
   const buildPublishBody = useCallback((): PublishAnnouncementRequest => {
-    return {
-      title: values.title.trim(),
-      description: values.description.trim(),
-      origin: values.origin,
-      destinations: values.destinations,
-      pinned: values.pinned,
-      tagIds: values.tagIds,
-    }
+    return buildPublishBodyFrom(values)
   }, [values])
 
   const send = useCallback(
@@ -162,7 +168,11 @@ export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}
         const res = await fetch(`/api/comunicados/posts/${endpoint}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
+          body: JSON.stringify(
+            endpoint === 'schedule'
+              ? sanitizeScheduleBody(body as ScheduleAnnouncementRequest)
+              : sanitizePublishBody(body),
+          ),
         })
 
         if (res.ok) {
@@ -178,7 +188,7 @@ export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}
         if (errors.length > 0) {
           setFieldErrors(mapFieldErrors(errors))
         } else {
-          setFormError(data?.message ?? messageForStatus(res.status))
+          setFormError(messageFromApi(data?.message, res.status))
         }
         return null
       } catch {
@@ -207,11 +217,39 @@ export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}
       return Promise.resolve(null)
     }
 
-    return send('schedule', {
+    return send('schedule', sanitizeScheduleBody({
       ...buildPublishBody(),
       scheduledFor: scheduledAt.toISOString(),
-    })
+    }))
   }, [buildPublishBody, send, values.scheduledFor])
+
+  const publishFrom = useCallback(
+    (formValues: CreateAnnouncementFormValues): Promise<AnnouncementResponse | null> => {
+      return send('publish', buildPublishBodyFrom(formValues))
+    },
+    [send],
+  )
+
+  const scheduleFrom = useCallback(
+    (formValues: CreateAnnouncementFormValues): Promise<AnnouncementResponse | null> => {
+      if (!formValues.scheduledFor) {
+        setFieldErrors({ scheduledFor: 'Informe a data e a hora do agendamento.' })
+        return Promise.resolve(null)
+      }
+
+      const scheduledAt = new Date(formValues.scheduledFor)
+      if (Number.isNaN(scheduledAt.getTime())) {
+        setFieldErrors({ scheduledFor: 'Data inválida.' })
+        return Promise.resolve(null)
+      }
+
+      return send('schedule', sanitizeScheduleBody({
+        ...buildPublishBodyFrom(formValues),
+        scheduledFor: scheduledAt.toISOString(),
+      }))
+    },
+    [send],
+  )
 
   return {
     values,
@@ -222,5 +260,18 @@ export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}
     submitting,
     publish,
     schedule,
+    publishFrom,
+    scheduleFrom,
   }
+}
+
+function buildPublishBodyFrom(values: CreateAnnouncementFormValues): PublishAnnouncementRequest {
+  return sanitizePublishBody({
+    title: values.title.trim(),
+    description: values.description.trim(),
+    origin: values.origin,
+    destinations: values.destinations,
+    pinned: values.pinned,
+    tagIds: values.tagIds,
+  })
 }

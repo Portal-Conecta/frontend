@@ -1,7 +1,8 @@
 import { getCurrentUser } from '@portal/core/auth/getCurrentUser'
-import { Text } from '@portal/ui'
+import { Button, Text } from '@portal/ui'
 
 import { AppShell } from '@portal/core'
+import Link from 'next/link'
 
 /**
  * Mural de comunicados — destino pós-login e rota protegida. Embrulhado no
@@ -20,6 +21,9 @@ export default async function ComunicadosPage() {
         <Text as="p" variant="body-md" tone="secondary" className="mt-2">
           Em breve.
         </Text>
+        <Button className='mt-4'>
+          <Link href="/comunicados/criar">Criar Comunicado</Link>
+        </Button>
       </div>
     </AppShell>
   )
