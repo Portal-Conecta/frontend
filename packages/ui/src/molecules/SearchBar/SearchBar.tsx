@@ -15,6 +15,11 @@
  * - `true` (default): limpa o campo após escolher — caso de ação/navegação.
  * - `false`: preenche o campo com o `label` do item — espelha o `Select`.
  *
+ * Seleção persistente (opcional): passe `selectedItem` (controlado) para marcar o
+ * item escolhido como **pressed** e **fixá-lo no topo** da lista — mesmo que ele
+ * não venha nos resultados da busca atual. Útil quando a escolha permanece na
+ * tela (ex.: escolher a sala e seguir montando algo com ela).
+ *
  * Sem label visível (placeholder-only): use `aria-label` ou um Field.
  */
 import { useState, type ChangeEvent } from "react";
@@ -30,6 +35,12 @@ export interface SearchBarProps {
   items: SearchBarItem[];
   /** SEMPRE dispara ao escolher um item (Enter/click) — caso de ação/navegação. */
   onSelect: (item: SearchBarItem) => void;
+  /**
+   * Item selecionado (controlado). Quando presente, é fixado no topo da lista com
+   * estilo *pressed* e permanece lá em novas buscas, mesmo fora dos resultados.
+   * O consumidor tipicamente o define no `onSelect`.
+   */
+  selectedItem?: SearchBarItem | null;
   /** Avisa mudança do texto digitado (o SearchBarAsync escuta e busca). */
   onQueryChange?: (query: string) => void;
   /** `true` (default) limpa o campo ao escolher; `false` preenche com o `label` (como o Select). */
@@ -50,6 +61,7 @@ export interface SearchBarProps {
 export function SearchBar({
   items,
   onSelect,
+  selectedItem,
   onQueryChange,
   clearOnSelect = true,
   placeholder = "Buscar",
@@ -63,6 +75,11 @@ export function SearchBar({
   className,
 }: SearchBarProps) {
   const [query, setQuery] = useState("");
+
+  // Com seleção, o item escolhido é fixado no topo (deduplicado dos resultados).
+  const displayItems = selectedItem
+    ? [selectedItem, ...items.filter((i) => i.value !== selectedItem.value)]
+    : items;
 
   const {
     open,
@@ -79,8 +96,8 @@ export function SearchBar({
     closeMenu,
     comboboxAriaProps,
   } = useCombobox({
-    itemCount: items.length,
-    isItemDisabled: (i) => !!items[i]?.disabled,
+    itemCount: displayItems.length,
+    isItemDisabled: (i) => !!displayItems[i]?.disabled,
     disabled,
     onSelect: selectItem,
     // A SearchBar abre sem item destacado (diferente do Select): o usuário navega
@@ -90,7 +107,7 @@ export function SearchBar({
   });
 
   function selectItem(index: number) {
-    const item = items[index];
+    const item = displayItems[index];
     if (!item || item.disabled) return;
     onSelect(item);
     if (clearOnSelect) {
@@ -110,7 +127,9 @@ export function SearchBar({
     setActiveIndex(-1); // texto novo → sem destaque até o usuário navegar
     if (next) {
       if (!open) openMenu();
-    } else if (open) {
+    } else if (open && !selectedItem) {
+      // Sem texto e sem seleção → fecha. Com seleção, mantém aberto mostrando o
+      // item fixado no topo.
       closeMenu({ refocus: false });
     }
   }
@@ -151,10 +170,10 @@ export function SearchBar({
           onChange={onInputChange}
           onFocus={() => {
             inputRef.current?.select();
-            if (query) openMenu();
+            if (query || selectedItem) openMenu();
           }}
           onClick={() => {
-            if (query) openMenu();
+            if (query || selectedItem) openMenu();
           }}
           className={inputClasses}
         />
@@ -163,7 +182,8 @@ export function SearchBar({
       {open ? (
         <SearchBarResults
           ref={listRef}
-          items={items}
+          items={displayItems}
+          selectedValue={selectedItem?.value ?? null}
           activeIndex={activeIndex}
           size={size}
           listId={listId}

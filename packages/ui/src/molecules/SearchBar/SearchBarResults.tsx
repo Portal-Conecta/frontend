@@ -19,6 +19,8 @@ import { sizeStyles, type SearchBarItem, type SearchBarSize } from "./types";
 
 export interface SearchBarResultsProps {
   items: SearchBarItem[];
+  /** Valor do item selecionado (pressed). Espera-se que ele venha primeiro em `items`. */
+  selectedValue?: string | null | undefined;
   /** Índice realçado (dirigido pelo teclado/hover do controle). `-1` = nenhum. */
   activeIndex: number;
   size: SearchBarSize;
@@ -40,6 +42,7 @@ export const SearchBarResults = forwardRef<
 >(function SearchBarResults(
   {
     items,
+    selectedValue,
     activeIndex,
     size,
     listId,
@@ -76,12 +79,13 @@ export const SearchBarResults = forwardRef<
   } else {
     body = items.map((item, index) => {
       const active = index === activeIndex;
+      const selected = selectedValue != null && item.value === selectedValue;
       return (
         <li
           key={item.value}
           id={optionId(index)}
           role="option"
-          aria-selected={active}
+          aria-selected={selected}
           aria-disabled={item.disabled || undefined}
           onClick={() => onSelect(index)}
           onMouseEnter={() => !item.disabled && onActivate(index)}
@@ -90,8 +94,11 @@ export const SearchBarResults = forwardRef<
             "flex items-center font-inter transition-colors",
             item.disabled
               ? "cursor-not-allowed text-text-disabled"
-              : "cursor-pointer text-text-primary" +
-                (active ? " bg-background-default" : ""),
+              : selected
+                ? // Pressed: item escolhido, fixado no topo.
+                  "cursor-pointer bg-interactive-subtle font-semibold text-text-brand"
+                : "cursor-pointer text-text-primary" +
+                  (active ? " bg-background-default" : ""),
           ].join(" ")}
         >
           {item.icon ? (

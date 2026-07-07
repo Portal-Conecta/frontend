@@ -133,3 +133,64 @@ export const Sizes: Story = {
     </div>
   ),
 };
+
+/**
+ * Seleção persistente: ao escolher, o item fica *pressed* e fixado no topo da
+ * lista (via `selectedItem` controlado), permanecendo lá em novas buscas. Escolha
+ * um curso e depois busque outro — o escolhido segue no topo, destacado.
+ */
+export const SelecaoPersistente: Story = {
+  render: () => {
+    const [items, setItems] = useState<SearchBarItem[]>([]);
+    const [selected, setSelected] = useState<SearchBarItem | null>(null);
+    return (
+      <div>
+        <SearchBar
+          placeholder="Buscar curso"
+          aria-label="Buscar curso"
+          items={items}
+          selectedItem={selected}
+          onQueryChange={(q) => setItems(filtrar(q))}
+          onSelect={(item) => setSelected(item)}
+        />
+        {selected ? (
+          <p className="mt-4 text-body-sm text-text-secondary">
+            Fixado no topo (pressed):{" "}
+            <span className="text-text-primary">{selected.label}</span>
+          </p>
+        ) : null}
+      </div>
+    );
+  },
+};
+
+const muitasSalas: SearchBarItem[] = Array.from({ length: 25 }, (_, i) => ({
+  value: `s${i}`,
+  meta: `SALA - ${101 + i}`,
+  label: `Laboratório ${i + 1}`,
+}));
+
+/** Lista longa (25 resultados): digite "sala" para ver a **rolagem** — a lista limita a altura e rola; as setas mantêm o item ativo em vista. */
+export const MuitosResultados: Story = {
+  render: () => {
+    const [items, setItems] = useState<SearchBarItem[]>([]);
+    return (
+      <SearchBar
+        placeholder='Digite "sala" para ver a rolagem'
+        aria-label="Buscar sala"
+        items={items}
+        onQueryChange={(q) => {
+          const needle = q.trim().toLowerCase();
+          setItems(
+            needle
+              ? muitasSalas.filter((s) =>
+                  `${s.meta} ${s.label}`.toLowerCase().includes(needle),
+                )
+              : [],
+          );
+        }}
+        onSelect={() => undefined}
+      />
+    );
+  },
+};
