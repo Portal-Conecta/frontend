@@ -1,4 +1,4 @@
-import type { AnnouncementSummary } from '../../../types/announcement'
+import type { AnnouncementSummary } from '../../types/announcement'
 
 import Link from 'next/link'
 

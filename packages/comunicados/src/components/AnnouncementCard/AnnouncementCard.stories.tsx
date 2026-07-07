@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import type { AnnouncementSummary } from '../../../types/announcement'
+import type { AnnouncementSummary } from '../../types/announcement'
 
 import { AnnouncementCard } from './AnnouncementCard'
 
