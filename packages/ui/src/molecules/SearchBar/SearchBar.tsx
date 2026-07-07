@@ -76,6 +76,11 @@ export function SearchBar({
 }: SearchBarProps) {
   const [query, setQuery] = useState("");
 
+  // Seleção "controlada" = o consumidor passou `selectedItem` (mesmo `null`).
+  // Nesse modo a lista permanece aberta após escolher, mostrando o item pinado;
+  // sem a prop, a SearchBar age como ação/navegação (fecha ao escolher).
+  const isControlledSelection = selectedItem !== undefined;
+
   // Com seleção, o item escolhido é fixado no topo (deduplicado dos resultados).
   const displayItems = selectedItem
     ? [selectedItem, ...items.filter((i) => i.value !== selectedItem.value)]
@@ -110,6 +115,18 @@ export function SearchBar({
     const item = displayItems[index];
     if (!item || item.disabled) return;
     onSelect(item);
+
+    if (isControlledSelection) {
+      // Seleção persistente: o item vira o pinado no topo (pressed). Mantém a lista
+      // ABERTA mostrando-o e limpa o texto, pronta para uma nova busca. Não fecha —
+      // é o que torna a seleção visível na hora, sem depender de re-foco.
+      setQuery("");
+      onQueryChange?.("");
+      setActiveIndex(-1);
+      return;
+    }
+
+    // Ação/navegação: limpa ou preenche o campo e fecha a lista.
     if (clearOnSelect) {
       setQuery("");
       onQueryChange?.("");
