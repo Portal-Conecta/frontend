@@ -19,9 +19,9 @@ import type { QueryParams } from '@portal/core/http/query'
 const http = createHttpClient('COMUNICADOS_API_URL')
 
 /** Lista o mural de comunicados (`GET /api/posts`), paginado. */
-export async function listPosts(
-  params: ListPostsParams = {},
-): Promise<ListAnnouncementsResponse> {
+
+
+export async function listPosts(params: ListPostsParams = {}): Promise<ListAnnouncementsResponse> {
   return http.get<ListAnnouncementsResponse>('/api/posts', {
     params: params as QueryParams,
   })

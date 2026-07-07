@@ -2,28 +2,12 @@ import { NextResponse } from 'next/server'
 
 import { deletePost } from '@portal/comunicados/services/server/postsService'
 
-import { bffErrorResponse } from '../../_lib/bffError'
 import { getSession } from '@portal/core/auth/session'
 import {
   getPostDetail,
   PostsError,
   type PostsErrorKind,
 } from '@portal/comunicados/services/postsService'
-
-/**
- * BFF — soft delete de um comunicado próprio. Delega ao service server (JWT do
- * cookie httpOnly) e devolve 204 no sucesso, sem corpo.
- */
-export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-
-  try {
-    await deletePost(id)
-    return new NextResponse(null, { status: 204 })
-  } catch (err) {
-    return bffErrorResponse(err)
-  }
-}
 
 
 const STATUS_BY_KIND: Record<PostsErrorKind, number> = {
@@ -58,4 +42,25 @@ export async function GET(
     return NextResponse.json({ code: 'server' }, { status: 503 })
   }
 }
+
+/**
+ * BFF — soft delete de um comunicado próprio. Delega ao service server (JWT do
+ * cookie httpOnly) e devolve 204 no sucesso, sem corpo.
+ */
+export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+
+  try {
+    await deletePost(id)
+    return new NextResponse(null, { status: 204 })
+  } catch (err) {
+    if (err instanceof PostsError) {
+      return NextResponse.json(
+        { code: err.kind, message: err.message, errors: err.fieldErrors },
+        { status: STATUS_BY_KIND[err.kind] },
+      )
+    }
+    return NextResponse.json({ code: 'server' }, { status: 503 })
+  }
+  }
 

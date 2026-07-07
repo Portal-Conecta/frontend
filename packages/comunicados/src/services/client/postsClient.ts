@@ -1,4 +1,5 @@
-import type { AnnouncementResponse, 
+import type { 
+  AnnouncementResponse, 
   ListAnnouncementsResponse, 
   ListPostsParams,
   AnnouncementDetail,
@@ -14,10 +15,9 @@ import { buildQuery, type QueryParams } from '@portal/core/http/query'
  * (`/api/comunicados/posts/*`); o JWT nunca sai do server.
  */
 
-/** Lista o mural via BFF (`GET /api/comunicados/posts`). */
-export async function listPostsClient(
-  params: ListPostsParams = {},
-): Promise<ListAnnouncementsResponse> {
+
+/** Lista posts via BFF (`GET /api/comunicados/posts`) — uso no browser. */
+export async function listPostsClient(params: ListPostsParams = {}): Promise<ListAnnouncementsResponse> {
   return bffFetch<ListAnnouncementsResponse>(
     `/api/comunicados/posts${buildQuery(params as QueryParams)}`,
   )
