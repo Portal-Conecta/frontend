@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "outDir": "./dist",
     "paths": {
       "@portal/ui": ["../ui/src/index.ts"],
