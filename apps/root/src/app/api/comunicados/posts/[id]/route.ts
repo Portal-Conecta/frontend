@@ -1,45 +1,18 @@
 import { NextResponse } from 'next/server'
 
-import { deletePost } from '@portal/comunicados/services/server/postsService'
+import { deletePost, getPostDetail } from '@portal/comunicados/services/server/postsService'
 
-import { getSession } from '@portal/core/auth/session'
-import {
-  getPostDetail,
-  PostsError,
-  type PostsErrorKind,
-} from '@portal/comunicados/services/postsService'
+import { bffErrorResponse } from '../../_lib/bffError'
 
-
-const STATUS_BY_KIND: Record<PostsErrorKind, number> = {
-  validation: 400,
-  unauthorized: 401,
-  forbidden: 403,
-  server: 503,
-  network: 503,
-}
-
-export async function GET(
-  _req: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
-  const token = await getSession()
-  if (!token) {
-    return NextResponse.json({ code: 'unauthorized' }, { status: 401 })
-  }
-
+/** BFF — detalhe de um post. Delega ao service server (JWT do cookie httpOnly). */
+export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
 
   try {
-    const detail = await getPostDetail(id, token)
+    const detail = await getPostDetail(id)
     return NextResponse.json(detail)
   } catch (err) {
-    if (err instanceof PostsError) {
-      return NextResponse.json(
-        { code: err.kind, message: err.message, errors: err.fieldErrors },
-        { status: STATUS_BY_KIND[err.kind] },
-      )
-    }
-    return NextResponse.json({ code: 'server' }, { status: 503 })
+    return bffErrorResponse(err)
   }
 }
 
@@ -54,13 +27,6 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
     await deletePost(id)
     return new NextResponse(null, { status: 204 })
   } catch (err) {
-    if (err instanceof PostsError) {
-      return NextResponse.json(
-        { code: err.kind, message: err.message, errors: err.fieldErrors },
-        { status: STATUS_BY_KIND[err.kind] },
-      )
-    }
-    return NextResponse.json({ code: 'server' }, { status: 503 })
+    return bffErrorResponse(err)
   }
-  }
-
+}

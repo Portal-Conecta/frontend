@@ -6,5 +6,5 @@ export {
   unpinPost,
   getPostDetail,
   getPostTags,
-  getPostImages
+  getPostImages,
 } from './postsService'

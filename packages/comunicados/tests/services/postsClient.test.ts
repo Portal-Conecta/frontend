@@ -5,6 +5,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import {
   deletePostClient,
+  getPostDetailClient,
+  getPostImagesClient,
+  getPostTagsClient,
   listPostsClient,
   listMyPostsClient,
   pinPostClient,
@@ -100,5 +103,45 @@ describe('pinPostClient / unpinPostClient', () => {
     const [url, init] = fetchMock.mock.calls[0]!
     expect(url).toBe('/api/comunicados/posts/a1/unpin')
     expect(init?.method).toBe('PATCH')
+  })
+})
+
+describe('getPostDetailClient / getPostTagsClient / getPostImagesClient', () => {
+  it('busca detalhe em GET /api/comunicados/posts/:id', async () => {
+    const fetchMock = stubFetch()
+    const detailMock = { announcement: { id: 'a1' }, tags: [], files: [], destinations: [], mentions: [] }
+    fetchMock.mockResolvedValue(response(200, detailMock))
+
+    await expect(getPostDetailClient('a1')).resolves.toEqual(detailMock)
+
+    const [url] = fetchMock.mock.calls[0]!
+    expect(url).toBe('/api/comunicados/posts/a1')
+  })
+
+  it('busca tags em GET /api/comunicados/posts/:id/tags', async () => {
+    const fetchMock = stubFetch()
+    const tagsMock = [{ announcementId: 'a1', tagId: 't1', tagName: 'Tag 1' }]
+    fetchMock.mockResolvedValue(response(200, tagsMock))
+
+    await expect(getPostTagsClient('a1')).resolves.toEqual(tagsMock)
+
+    const [url] = fetchMock.mock.calls[0]!
+    expect(url).toBe('/api/comunicados/posts/a1/tags')
+  })
+
+  it('busca imagens em GET /api/comunicados/posts/:id/images', async () => {
+    const fetchMock = stubFetch()
+    const imagesMock = [{ id: 'f1', announcementId: 'a1', originalName: 'img.png' }]
+    fetchMock.mockResolvedValue(response(200, imagesMock))
+
+    await expect(getPostImagesClient('a1')).resolves.toEqual(imagesMock)
+
+    const [url] = fetchMock.mock.calls[0]!
+    expect(url).toBe('/api/comunicados/posts/a1/images')
+  })
+
+  it('mapeia 404 do detalhe para HttpError not_found', async () => {
+    stubFetch().mockResolvedValue(response(404, {}))
+    await expect(getPostDetailClient('missing')).rejects.toMatchObject({ kind: 'not_found' })
   })
 })

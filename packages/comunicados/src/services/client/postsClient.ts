@@ -1,12 +1,11 @@
-import type { 
-  AnnouncementResponse, 
-  ListAnnouncementsResponse, 
+import type {
+  AnnouncementResponse,
+  ListAnnouncementsResponse,
   ListPostsParams,
   AnnouncementDetail,
   AnnouncementTag,
   AnnouncementFile,
 } from '../../types'
-
 import { bffFetch } from '@portal/core/http/bffClient'
 import { buildQuery, type QueryParams } from '@portal/core/http/query'
 
@@ -14,7 +13,6 @@ import { buildQuery, type QueryParams } from '@portal/core/http/query'
  * Serviço de posts no browser. Toda chamada vai ao BFF de mesma origem
  * (`/api/comunicados/posts/*`); o JWT nunca sai do server.
  */
-
 
 /** Lista posts via BFF (`GET /api/comunicados/posts`) — uso no browser. */
 export async function listPostsClient(params: ListPostsParams = {}): Promise<ListAnnouncementsResponse> {

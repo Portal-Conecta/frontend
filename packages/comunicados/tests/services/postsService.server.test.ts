@@ -9,7 +9,11 @@ vi.mock('@portal/core/auth/session', () => ({
 
 import {
   deletePost,
+  getPostDetail,
+  getPostImages,
+  getPostTags,
   listMyPosts,
+  listPosts,
   pinPost,
   unpinPost,
 } from '../../src/services/server/postsService'
@@ -125,5 +129,77 @@ describe('pinPost / unpinPost', () => {
     const [url, init] = fetchMock.mock.calls[0]!
     expect(url).toBe(`${API_URL}/api/posts/a1/unpin`)
     expect(init?.method).toBe('PATCH')
+  })
+})
+
+describe('listPosts', () => {
+  it('faz GET em /api/posts com paginação', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(response(200, listResponse))
+
+    await expect(listPosts({ page: 0, size: 20 })).resolves.toEqual(listResponse)
+
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe(`${API_URL}/api/posts?page=0&size=20`)
+    expect(init?.method).toBe('GET')
+    expect((init?.headers as Record<string, string>).Authorization).toBe('Bearer jwt-token')
+  })
+})
+
+describe('getPostDetail', () => {
+  it('retorna o detalhe e faz GET para /api/posts/:id', async () => {
+    const fetchMock = stubFetch()
+    const detailMock = { announcement: { id: 'a1' }, tags: [], files: [], destinations: [], mentions: [] }
+    fetchMock.mockResolvedValue(response(200, detailMock))
+
+    await expect(getPostDetail('a1')).resolves.toEqual(detailMock)
+
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe(`${API_URL}/api/posts/a1`)
+    expect(init?.method).toBe('GET')
+    expect((init?.headers as Record<string, string>).Authorization).toBe('Bearer jwt-token')
+  })
+
+  it('mapeia 404 para HttpError not_found', async () => {
+    stubFetch().mockResolvedValue(response(404, {}))
+    await expect(getPostDetail('missing')).rejects.toMatchObject({ kind: 'not_found' })
+  })
+})
+
+describe('getPostTags', () => {
+  it('retorna a lista de tags e faz GET para /api/posts/:id/tags', async () => {
+    const fetchMock = stubFetch()
+    const tagsMock = [{ announcementId: 'a1', tagId: 't1', tagName: 'Tag 1' }]
+    fetchMock.mockResolvedValue(response(200, tagsMock))
+
+    await expect(getPostTags('a1')).resolves.toEqual(tagsMock)
+
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe(`${API_URL}/api/posts/a1/tags`)
+    expect(init?.method).toBe('GET')
+  })
+
+  it('mapeia 403 para HttpError forbidden', async () => {
+    stubFetch().mockResolvedValue(response(403, {}))
+    await expect(getPostTags('a1')).rejects.toMatchObject({ kind: 'forbidden' })
+  })
+})
+
+describe('getPostImages', () => {
+  it('retorna a lista de imagens e faz GET para /api/posts/:id/images', async () => {
+    const fetchMock = stubFetch()
+    const imagesMock = [{ id: 'f1', announcementId: 'a1', originalName: 'img.png' }]
+    fetchMock.mockResolvedValue(response(200, imagesMock))
+
+    await expect(getPostImages('a1')).resolves.toEqual(imagesMock)
+
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe(`${API_URL}/api/posts/a1/images`)
+    expect(init?.method).toBe('GET')
+  })
+
+  it('mapeia erro de rede para HttpError network', async () => {
+    stubFetch().mockRejectedValue(new TypeError('Failed to fetch'))
+    await expect(getPostImages('a1')).rejects.toMatchObject({ kind: 'network' })
   })
 })
