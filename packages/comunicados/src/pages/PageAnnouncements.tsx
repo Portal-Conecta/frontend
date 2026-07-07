@@ -6,7 +6,7 @@ import { Text } from '@portal/ui'
 import { redirect } from 'next/navigation'
 
 import { AnnouncementsBoard } from '../components/AnnouncementsBoard'
-import { listPosts } from '../services'
+import { listAnnouncements } from '../services'
 
 function resolveFetchError(error: unknown): string {
   if (error instanceof HttpError) {
@@ -29,7 +29,7 @@ export async function PageAnnouncements() {
   let errorMessage: string | undefined
 
   try {
-    const result = await listPosts({ page: 0, size: 20 })
+    const result = await listAnnouncements({ page: 0, size: 20 })
     items = result.items
   } catch (error) {
     if (error instanceof HttpError && error.kind === 'unauthorized') {
