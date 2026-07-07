@@ -51,11 +51,11 @@ export function ReschedulePanel({
       </Text>
 
       <ScheduleDatePicker
-        value={scheduledFor}
-        onChange={setScheduledFor}
-        error={error || undefined}
-        disabled={saving}
-      />
+  value={scheduledFor}
+  onChange={setScheduledFor}
+  {...(error ? { error } : {})}
+  disabled={saving}
+/>
 
       {success && (
         <Text as="p" variant="body-sm" tone="secondary">

@@ -4,4 +4,5 @@ export {
   deleteAnnouncementClient,
   pinAnnouncementClient,
   unpinAnnouncementClient,
+  rescheduleAnnouncementClient,
 } from './announcementsClient'
