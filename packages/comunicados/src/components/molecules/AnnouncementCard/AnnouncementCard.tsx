@@ -2,7 +2,7 @@ import type { AnnouncementSummary } from '../../../types/announcement'
 
 import Link from 'next/link'
 
-import { Text } from '@portal/ui'
+import { Text, colors } from '@portal/ui'
 
 export interface AnnouncementCardProps {
   announcement: AnnouncementSummary
@@ -15,6 +15,8 @@ const originLabel: Record<AnnouncementSummary['origin'], string> = {
   SENAI: 'SENAI',
   BOTH: 'WEG',
 }
+
+const cardGradient = `linear-gradient(180deg, ${colors.background.surface} 0%, ${colors.text.secondary} 60%)`
 
 function formatDate(value: string): string {
   const date = new Date(value)
@@ -45,7 +47,8 @@ export function AnnouncementCard({
   return (
     <Link href={href} className={classes} aria-label={`Abrir comunicado: ${announcement.title}`}>
       <div
-        className="absolute inset-0 bg-[linear-gradient(180deg,var(--color-background-surface)_0%,var(--color-text-secondary)_60%)]"
+        className="absolute inset-0"
+        style={{ backgroundImage: cardGradient }}
         aria-hidden="true"
       />
 
