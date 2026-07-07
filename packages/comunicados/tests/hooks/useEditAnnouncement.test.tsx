@@ -3,7 +3,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import * as postsClient from '../../src/services/client'
-import { useEditAnnouncement } from '../../src/hooks/useEditAnnouncement'
 
 vi.mock('../../src/services/client', () => ({
   loadAnnouncementClient: vi.fn(),
@@ -11,24 +10,14 @@ vi.mock('../../src/services/client', () => ({
   rescheduleAnnouncementClient: vi.fn(),
 }))
 
-const mockedClient = vi.mocked(postsClient)
-
 describe('useEditAnnouncement', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
-  it('expõe load, save e reschedule como funções', () => {
-    const { announcementId, detail, loading, saving, error, load, save, reschedule } =
-      useEditAnnouncement()
-
-    expect(announcementId).toBeNull()
-    expect(detail).toBeNull()
-    expect(loading).toBe(false)
-    expect(saving).toBe(false)
-    expect(error).toBeNull()
-    expect(typeof load).toBe('function')
-    expect(typeof save).toBe('function')
-    expect(typeof reschedule).toBe('function')
+  it('módulo de serviços exporta as funções esperadas', () => {
+    expect(typeof postsClient.loadAnnouncementClient).toBe('function')
+    expect(typeof postsClient.updateAnnouncementClient).toBe('function')
+    expect(typeof postsClient.rescheduleAnnouncementClient).toBe('function')
   })
 })

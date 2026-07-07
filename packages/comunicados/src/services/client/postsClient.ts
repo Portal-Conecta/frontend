@@ -20,7 +20,7 @@ export async function updateAnnouncementClient(
   id: string,
   payload: AnnouncementUpdatePayload,
 ): Promise<AnnouncementDetail> {
-  const { destinations: _destinations, ...body } = payload
+const body = payload
 
   return bffFetch<AnnouncementDetail>(`/api/comunicados/posts/${id}`, {
     method: 'PUT',
