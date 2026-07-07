@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { Button, Text } from '@portal/ui'
 
 import { ScheduleDatePicker } from '../ScheduleDatePicker'
-import { rescheduleAnnouncementClient } from '../../../services/client/announcementsClient'
+import { rescheduleAnnouncementClient } from '../../services/client'
 
 export interface ReschedulePanelProps {
   announcementId: string
@@ -13,11 +13,6 @@ export interface ReschedulePanelProps {
   onSuccess?: (newScheduledFor: string) => void
 }
 
-/**
- * ReschedulePanel — painel para alterar a data de agendamento de um comunicado
- * em status SCHEDULED. Reutiliza ScheduleDatePicker e chama PATCH .../schedule
- * via announcementsClient.
- */
 export function ReschedulePanel({
   announcementId,
   currentScheduledFor,
@@ -25,7 +20,7 @@ export function ReschedulePanel({
 }: ReschedulePanelProps) {
   const [scheduledFor, setScheduledFor] = useState<string | null>(currentScheduledFor)
   const [saving, setSaving] = useState(false)
-  const [error, setError] = useState<string | undefined>()
+  const [error, setError] = useState<string>('')
   const [success, setSuccess] = useState(false)
 
   async function handleSave() {
@@ -35,7 +30,7 @@ export function ReschedulePanel({
     }
 
     setSaving(true)
-    setError(undefined)
+    setError('')
     setSuccess(false)
 
     try {
@@ -58,7 +53,7 @@ export function ReschedulePanel({
       <ScheduleDatePicker
         value={scheduledFor}
         onChange={setScheduledFor}
-        error={error ?? undefined}
+        error={error || undefined}
         disabled={saving}
       />
 
