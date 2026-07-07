@@ -2,9 +2,10 @@
  * Tokens de tipografia do Portal Conecta.
  *
  * Desmembrado por propriedade para integração direta com o Tailwind:
- * - fontFamily → theme.extend.fontFamily
- * - fontSize   → theme.extend.fontSize  (lineHeight e fontWeight embutidos)
- * - fontWeight → theme.extend.fontWeight
+ * - fontFamily    → theme.extend.fontFamily
+ * - fontSize      → theme.extend.fontSize  (lineHeight e fontWeight embutidos)
+ * - fontWeight    → theme.extend.fontWeight
+ * - letterSpacing → theme.extend.letterSpacing (classe `tracking-*`)
  *
  * Tokens de tamanho seguem o formato [tamanho, { lineHeight, fontWeight? }].
  * Tokens com peso ≠ 400 — *-emphasis e os headings (SemiBold por definição no
@@ -22,6 +23,15 @@ export const typography = {
   },
 
   fontSize: {
+    // Display — números gigantes das páginas de erro (404/403/500). Escala
+    // responsiva aplicada por breakpoint no consumidor (text-display-sm →
+    // sm:text-display-md → md:text-display-lg → lg:text-display-xl). lineHeight 1
+    // (número isolado, sem entrelinha). Pareia com o letterSpacing `display`.
+    'display-sm': ['5rem',  { lineHeight: '1' }], //  80px
+    'display-md': ['7rem',  { lineHeight: '1' }], // 112px
+    'display-lg': ['10rem', { lineHeight: '1' }], // 160px
+    'display-xl': ['15rem', { lineHeight: '1' }], // 240px
+
     // Headings — Inter SemiBold (peso embutido: headings são sempre 600 no DS)
     'heading-h1': ['3rem',    { lineHeight: '1.2',  fontWeight: '600' }], // 48px / 120% SemiBold
     'heading-h2': ['2.25rem', { lineHeight: '1.25', fontWeight: '600' }], // 36px / 125% SemiBold
@@ -47,6 +57,12 @@ export const typography = {
   fontWeight: {
     regular:  '400',
     semibold: '600',
+  },
+
+  // letterSpacing → theme.extend.letterSpacing (classe `tracking-*`).
+  // `display`: espaçamento largo do número das páginas de erro (tracking-display).
+  letterSpacing: {
+    display: '0.6em',
   },
 } as const
 
