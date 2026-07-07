@@ -45,7 +45,7 @@ export function AnnouncementCard({
   return (
     <Link href={href} className={classes} aria-label={`Abrir comunicado: ${announcement.title}`}>
       <div
-        className="absolute inset-0 bg-gradient-to-b from-background-surface from-0% to-text-primary/60 to-[60%]"
+        className="absolute inset-0 bg-[linear-gradient(180deg,var(--color-background-surface)_0%,var(--color-text-secondary)_60%)]"
         aria-hidden="true"
       />
 
