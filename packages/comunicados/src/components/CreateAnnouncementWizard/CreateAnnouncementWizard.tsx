@@ -21,6 +21,7 @@ import { DestinationSelector } from '../DestinationSelector'
 import type { Recipient } from '../DestinationSelector/types'
 import { ScheduleDatePicker } from '../ScheduleDatePicker'
 import { StepProgressBar } from '../StepProgressBar'
+import { useDestinationCatalog } from '../../hooks/useDestinationCatalog'
 import { mapRecipientsToPayload } from './mapRecipientsToPayload'
 
 const STEPS = [
@@ -65,6 +66,8 @@ export function CreateAnnouncementWizard() {
   const { fieldErrors, formError, submitting, publishFrom, scheduleFrom } = useCreateAnnouncement({
     redirectOnSuccess: false,
   })
+
+  const catalog = useDestinationCatalog()
 
   const step = STEPS[stepIndex]!.key
 
@@ -141,6 +144,15 @@ export function CreateAnnouncementWizard() {
             value={recipients}
             onChange={setRecipients}
             disabled={submitting}
+            courses={catalog.courses}
+            classes={catalog.classes}
+            shifts={catalog.shifts}
+            usersPage={catalog.usersPage}
+            usersQuery={catalog.usersQuery}
+            onUsersQueryChange={catalog.setUsersQuery}
+            onUsersPageChange={catalog.setUsersPage}
+            usersLoading={catalog.usersLoading}
+            catalogLoading={catalog.loading}
           />
         ) : null}
 
@@ -161,6 +173,7 @@ export function CreateAnnouncementWizard() {
       </div>
 
       {formError ? <Alert variant="error">{formError}</Alert> : null}
+      {catalog.error ? <Alert variant="error">{catalog.error}</Alert> : null}
 
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
