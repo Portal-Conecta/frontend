@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "jsx": "preserve",
+    "baseUrl": ".",
     "outDir": "./dist",
     "paths": {
       "@portal/ui": ["../ui/src/index.ts"],
