@@ -47,3 +47,14 @@ export async function pinAnnouncementClient(
 export async function unpinAnnouncementClient(id: string): Promise<AnnouncementResponse> {
   return bffFetch<AnnouncementResponse>(`/api/comunicados/posts/${id}/unpin`, { method: 'PATCH' })
 }
+
+/** Reagenda um comunicado via BFF (`PATCH /api/comunicados/posts/{id}/schedule`). */
+export async function rescheduleAnnouncementClient(
+  id: string,
+  scheduledFor: string,
+): Promise<AnnouncementResponse> {
+  return bffFetch<AnnouncementResponse>(`/api/comunicados/posts/${id}/schedule`, {
+    method: 'PATCH',
+    body: JSON.stringify({ scheduledFor }),
+  })
+}
