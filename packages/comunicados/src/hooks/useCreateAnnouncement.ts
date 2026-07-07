@@ -15,6 +15,9 @@ import {
 
 import type { ApiFieldError } from '../../../shared/src/types/api-error'
 
+import type { ImageItem } from '../components/AnnouncementForm/types'
+
+import { uploadAnnouncementImagesClient } from '../services/client/announcementImagesClient'
 import {
   sanitizePublishBody,
   sanitizeScheduleBody,
@@ -31,9 +34,9 @@ import {
  *
  * `publish`/`schedule` resolve to the created `AnnouncementResponse` (or `null`
  * on failure), so the caller can chain the 2-phase create flow: create the post
- * here, then upload images to `/api/comunicados/posts/{id}/images` (#198). Set
- * `redirectOnSuccess: false` to own the navigation and only redirect after the
- * uploads finish; by default it redirects to `redirectTo` (the mural).
+ * here, then o BFF presigna via API Gateway e envia ao S3 no servidor (#198). Set `redirectOnSuccess: false`
+ * to own the navigation and only redirect after the uploads finish; by default it
+ * redirects to `redirectTo` (the mural).
  */
 
 export interface CreateAnnouncementFormValues {
@@ -45,6 +48,11 @@ export interface CreateAnnouncementFormValues {
   scheduledFor: string
   pinned: boolean
   tagIds: string[]
+}
+
+export interface SubmitAnnouncementOptions {
+  /** Imagens locais a anexar após criar o comunicado (#198). */
+  images?: readonly ImageItem[]
 }
 
 export interface UseCreateAnnouncementOptions {
@@ -65,6 +73,8 @@ const DEFAULT_VALUES: CreateAnnouncementFormValues = {
 }
 
 const GENERIC_ERROR = 'Serviço indisponível, tente novamente.'
+const IMAGE_UPLOAD_ERROR =
+  'Comunicado criado, mas não foi possível enviar as imagens. Tente novamente.'
 
 function messageFromApi(message: string | undefined, status: number): string {
   if (message === 'Data integrity violation.') {
@@ -155,10 +165,24 @@ export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}
     return buildPublishBodyFrom(values)
   }, [values])
 
+  const uploadImages = useCallback(async (postId: string, images: readonly ImageItem[]) => {
+    const hasFiles = images.some((item) => Boolean(item.file))
+    if (!hasFiles) return true
+
+    try {
+      await uploadAnnouncementImagesClient(postId, images)
+      return true
+    } catch {
+      setFormError(IMAGE_UPLOAD_ERROR)
+      return false
+    }
+  }, [])
+
   const send = useCallback(
     async (
       endpoint: 'publish' | 'schedule',
       body: PublishAnnouncementRequest | ScheduleAnnouncementRequest,
+      options: SubmitAnnouncementOptions = {},
     ): Promise<AnnouncementResponse | null> => {
       setSubmitting(true)
       setFormError('')
@@ -175,22 +199,32 @@ export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}
           ),
         })
 
-        if (res.ok) {
-          const created = (await res.json().catch(() => null)) as AnnouncementResponse | null
-          if (redirectOnSuccess) {
-            router.push(redirectTo)
+        if (!res.ok) {
+          const data = (await res.json().catch(() => null)) as BffErrorBody | null
+          const errors = data?.errors ?? []
+          if (errors.length > 0) {
+            setFieldErrors(mapFieldErrors(errors))
+          } else {
+            setFormError(messageFromApi(data?.message, res.status))
           }
-          return created
+          return null
         }
 
-        const data = (await res.json().catch(() => null)) as BffErrorBody | null
-        const errors = data?.errors ?? []
-        if (errors.length > 0) {
-          setFieldErrors(mapFieldErrors(errors))
-        } else {
-          setFormError(messageFromApi(data?.message, res.status))
+        const created = (await res.json().catch(() => null)) as AnnouncementResponse | null
+        if (!created?.id) {
+          setFormError(GENERIC_ERROR)
+          return null
         }
-        return null
+
+        const imagesOk = await uploadImages(created.id, options.images ?? [])
+        if (!imagesOk) {
+          return null
+        }
+
+        if (redirectOnSuccess) {
+          router.push(redirectTo)
+        }
+        return created
       } catch {
         setFormError(GENERIC_ERROR)
         return null
@@ -198,7 +232,7 @@ export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}
         setSubmitting(false)
       }
     },
-    [redirectOnSuccess, redirectTo, router],
+    [redirectOnSuccess, redirectTo, router, uploadImages],
   )
 
   const publish = useCallback((): Promise<AnnouncementResponse | null> => {
@@ -224,14 +258,20 @@ export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}
   }, [buildPublishBody, send, values.scheduledFor])
 
   const publishFrom = useCallback(
-    (formValues: CreateAnnouncementFormValues): Promise<AnnouncementResponse | null> => {
-      return send('publish', buildPublishBodyFrom(formValues))
+    (
+      formValues: CreateAnnouncementFormValues,
+      options: SubmitAnnouncementOptions = {},
+    ): Promise<AnnouncementResponse | null> => {
+      return send('publish', buildPublishBodyFrom(formValues), options)
     },
     [send],
   )
 
   const scheduleFrom = useCallback(
-    (formValues: CreateAnnouncementFormValues): Promise<AnnouncementResponse | null> => {
+    (
+      formValues: CreateAnnouncementFormValues,
+      options: SubmitAnnouncementOptions = {},
+    ): Promise<AnnouncementResponse | null> => {
       if (!formValues.scheduledFor) {
         setFieldErrors({ scheduledFor: 'Informe a data e a hora do agendamento.' })
         return Promise.resolve(null)
@@ -243,10 +283,14 @@ export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}
         return Promise.resolve(null)
       }
 
-      return send('schedule', sanitizeScheduleBody({
-        ...buildPublishBodyFrom(formValues),
-        scheduledFor: scheduledAt.toISOString(),
-      }))
+      return send(
+        'schedule',
+        sanitizeScheduleBody({
+          ...buildPublishBodyFrom(formValues),
+          scheduledFor: scheduledAt.toISOString(),
+        }),
+        options,
+      )
     },
     [send],
   )

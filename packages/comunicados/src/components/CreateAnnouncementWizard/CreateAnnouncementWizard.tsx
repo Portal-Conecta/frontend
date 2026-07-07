@@ -99,9 +99,11 @@ export function CreateAnnouncementWizard() {
   async function handleSubmit() {
     const formValues = buildFormValues(content, recipients, scheduledFor)
 
+    const submitOptions = { images: content.images }
+
     const created = scheduledFor
-      ? await scheduleFrom({ ...formValues, scheduledFor })
-      : await publishFrom(formValues)
+      ? await scheduleFrom({ ...formValues, scheduledFor }, submitOptions)
+      : await publishFrom(formValues, submitOptions)
 
     if (created) {
       router.push('/comunicados')
