@@ -1,9 +1,8 @@
-import type { AnnouncementStatus, AnnouncementSummary } from '../../../types/announcement'
-import type { IconName, TagTone } from '@portal/ui'
+import type { AnnouncementSummary } from '../../../types/announcement'
 
 import Link from 'next/link'
 
-import { Icon, Tag, Text } from '@portal/ui'
+import { Text } from '@portal/ui'
 
 export interface AnnouncementCardProps {
   announcement: AnnouncementSummary
@@ -11,39 +10,17 @@ export interface AnnouncementCardProps {
   className?: string
 }
 
-const statusConfig: Record<AnnouncementStatus, { label: string; tone: TagTone; icon: IconName }> = {
-  PUBLISHED: {
-    label: 'Publicado',
-    tone: 'positive',
-    icon: 'check-check',
-  },
-  SCHEDULED: {
-    label: 'Agendado',
-    tone: 'warning',
-    icon: 'bell',
-  },
-  REMOVED: {
-    label: 'Removido',
-    tone: 'negative',
-    icon: 'x',
-  },
-}
-
 const originLabel: Record<AnnouncementSummary['origin'], string> = {
   WEG: 'WEG',
   SENAI: 'SENAI',
-  BOTH: 'WEG + SENAI',
+  BOTH: 'WEG',
 }
 
 function formatDate(value: string): string {
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return value
 
-  return new Intl.DateTimeFormat('pt-BR', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  }).format(date)
+  return new Intl.DateTimeFormat('pt-BR').format(date)
 }
 
 export function AnnouncementCard({
@@ -51,18 +28,15 @@ export function AnnouncementCard({
   highlighted,
   className,
 }: AnnouncementCardProps) {
-  const status = statusConfig[announcement.status]
   const href = `/comunicados/${announcement.id}`
   const isHighlighted = highlighted ?? announcement.pinned
   const date = announcement.publishedAt ?? announcement.scheduledFor ?? announcement.createdAt
 
   const classes = [
-    'group flex w-full flex-col gap-4 rounded-md border-sm bg-background-surface p-4',
-    'transition-colors hover:border-interactive-default hover:bg-background-default',
+    'group relative flex aspect-[665/374] w-full overflow-hidden rounded-md bg-interactive-disabled',
+    'items-end px-6 pb-6 pt-12 shadow-sm transition-opacity hover:opacity-95',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2',
-    isHighlighted
-      ? 'border-interactive-default shadow-lg'
-      : 'border-border-default shadow-sm',
+    isHighlighted ? 'shadow-lg' : undefined,
     className,
   ]
     .filter(Boolean)
@@ -70,61 +44,35 @@ export function AnnouncementCard({
 
   return (
     <Link href={href} className={classes} aria-label={`Abrir comunicado: ${announcement.title}`}>
-      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-        <div className="flex min-w-0 flex-1 flex-col gap-2">
-          <div className="flex flex-row flex-wrap items-center gap-2">
-            {isHighlighted ? (
-              <Tag tone="info" size="sm" icon="bell">
-                Fixado
-              </Tag>
-            ) : null}
-            <Tag tone={status.tone} size="sm" icon={status.icon}>
-              {status.label}
-            </Tag>
-          </div>
+      <div
+        className="absolute inset-0 bg-gradient-to-b from-interactive-disabled via-border-default to-border-focus"
+        aria-hidden="true"
+      />
+      <div
+        className="absolute inset-0 bg-gradient-to-b from-background-surface/60 via-background-surface/10 to-transparent"
+        aria-hidden="true"
+      />
 
-          <Text
-            as="h3"
-            variant="label-md-emphasis"
-            tone="primary"
-            className="transition-colors group-hover:text-text-brand"
-          >
-            {announcement.title}
-          </Text>
-        </div>
-
-        <Icon
-          name="chevron-right"
-          size="sm"
-          tone="secondary"
-          decorative
-          className="hidden shrink-0 transition-transform group-hover:translate-x-1 md:block"
-        />
-      </div>
-
-      <div className="flex flex-row flex-wrap items-center gap-2 text-text-secondary">
-        <Text as="span" variant="label-sm" className="whitespace-nowrap">
-          {originLabel[announcement.origin]}
+      <div className="relative flex w-full max-w-[340px] flex-col gap-3 overflow-hidden text-text-inverse">
+        <Text
+          as="h3"
+          variant="body-xl-emphasis"
+          tone="inverse"
+          className="truncate"
+          // Figma #38 usa 28px/30px; o DS salta de body-xl (24px) para label-xl (32px).
+          style={{ fontSize: '28px', lineHeight: '30px' }}
+        >
+          {announcement.title}
         </Text>
-        <span className="h-1 w-1 rounded-full bg-border-default" aria-hidden="true" />
-        <Text as="span" variant="label-sm" className="whitespace-nowrap">
+
+        <Text as="p" variant="label-sm" tone="inverse" className="truncate">
+          {originLabel[announcement.origin]}
+          <span className="px-2" aria-hidden="true">
+            |
+          </span>
           {formatDate(date)}
         </Text>
       </div>
-
-      <Text as="p" variant="body-sm" tone="secondary" className="line-clamp-2">
-        {announcement.description}
-      </Text>
-
-      {announcement.tags?.length ? (
-        <div className="flex flex-row flex-wrap gap-2">
-          {announcement.tags.map((tag) => (
-            <Tag key={tag} tone="neutral" size="sm">
-              {tag}
-            </Tag>
-          ))}
-        </div>
-      ) : null}
     </Link>
   )
 }
