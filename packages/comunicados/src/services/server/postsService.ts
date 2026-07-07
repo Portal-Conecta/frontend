@@ -19,7 +19,7 @@ export async function updateAnnouncement(
   id: string,
   payload: AnnouncementUpdatePayload,
 ): Promise<AnnouncementDetail> {
-  const { destinations: _destinations, ...body } = payload
+  const { destinations: _, ...body } = payload
 
   return http.put<AnnouncementDetail>(`/api/posts/${id}`, {
     body,
