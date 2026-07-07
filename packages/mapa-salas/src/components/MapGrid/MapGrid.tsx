@@ -1,6 +1,11 @@
 import type { RoomMapGrid, RoomMapGridPosition } from '../../types'
 import { SeatCard, type SeatCardState } from '../SeatCard'
 
+// Declaração mínima e local pra evitar precisar do @types/node no pacote.
+// process.env.NODE_ENV é injetado em runtime pelo bundler (Next/Vite/etc),
+// isso só resolve o erro de tipagem do TS.
+declare const process: { env: { NODE_ENV?: string } }
+
 export type MapGridProps = {
   /** Dimensões e posições vindas da API */
   grid: RoomMapGrid
@@ -21,7 +26,6 @@ export type MapGridProps = {
   className?: string
 }
 
-
 function positionKey(x: number, y: number) {
   return `${x},${y}`
 }
@@ -30,16 +34,22 @@ function positionKey(x: number, y: number) {
  * Calcula o SeatCardState de uma posição STUDENT a partir da allocation já
  * resolvida (ou ausente) e do aluno atualmente selecionado no sidebar.
  */
-function resolveStudentSeatState(
+export function resolveStudentSeatState(
   allocation: { studentId: string; studentName: string } | undefined,
   selectedStudentId: string | null,
 ): SeatCardState {
   if (!allocation) return 'available'
 
-
   return allocation.studentId === selectedStudentId ? 'selected' : 'occupied'
 }
 
+/**
+ * MapGrid não usa hooks nem anexa handlers DOM diretamente, mas repassa
+ * `onSeatClick` (função) e `draftAllocations` (Map) via props — nenhum dos
+ * dois serializa entre Server/Client Component. Precisa ser renderizado
+ * dentro de uma árvore que já tenha um Client Component boundary acima
+ * (ex: a página do mapa de sala, que já é 'use client' via useMapaDeSala).
+ */
 export function MapGrid({
   grid,
   draftAllocations,
@@ -51,6 +61,17 @@ export function MapGrid({
   // Lookup por coordenada montado uma vez, pra não fazer .find() a cada célula.
   const lookup = new Map<string, RoomMapGridPosition>()
   for (const position of grid.positions) {
+    // Posição fora dos limites do grid nunca é visitada pelo loop abaixo —
+    // some em silêncio. Avisa em dev pra pegar template quebrado vindo da API.
+    if (
+      process.env.NODE_ENV !== 'production' &&
+      (position.positionX >= grid.columns || position.positionY >= grid.rows)
+    ) {
+      console.warn(
+        `[MapGrid] Posição (${position.positionX}, ${position.positionY}) fora dos limites do grid (${grid.columns}x${grid.rows}) — layoutPositionId=${position.layoutPositionId}`,
+      )
+    }
+
     lookup.set(positionKey(position.positionX, position.positionY), position)
   }
 
@@ -63,24 +84,16 @@ export function MapGrid({
       const position = lookup.get(positionKey(x, y))
       const key = positionKey(x, y)
 
-      // Célula que não existe no template (ex: o "buraco" de um layout em L)
-      // ou existe mas não é assento (OBSTACLE/EQUIPMENT) → espaçador invisível.
-      // Nunca inferimos forma geométrica nem tratamos OBSTACLE/EQUIPMENT como
-      // recurso estético — isso é decisão de modelagem do backend.
       if (!position || position.type === 'OBSTACLE' || position.type === 'EQUIPMENT') {
         cells.push(<div key={key} />)
         continue
       }
 
       if (position.type === 'TEACHER') {
-        // Professor nunca é clicável, independente do modo do grid — sem
-        // onClick e sem isEditing=true, senão o card fica com cursor
-        // pointer/estados de hover sem nenhum efeito real ao clicar.
         cells.push(<SeatCard key={key} state="teacher" isEditing={false} />)
         continue
       }
 
-      // type === 'STUDENT'
       const allocation = draftAllocations.get(position.layoutPositionId)
       const state = resolveStudentSeatState(allocation, selectedStudentId)
 
@@ -97,10 +110,6 @@ export function MapGrid({
   }
 
   return (
-    // grid.columns/rows vêm da API (LayoutTemplate cadastrado no banco) — não dá
-    // pra saber em build-time, então não existe classe Tailwind pra escala aqui.
-    // Mesmo precedente de style inline pra valor dinâmico já usado pelo Sidebar
-    // (SIDEBAR_WIDTH_COLLAPSED/EXPANDED, packages/ui/tokens/layout.ts).
     <div
       className={classes}
       style={{

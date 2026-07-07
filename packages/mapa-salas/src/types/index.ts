@@ -1,1 +1,1 @@
-export * from './RoomMap'
+export * from './roomMap'
