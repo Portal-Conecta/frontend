@@ -1,4 +1,4 @@
-import type { RoomMapGrid, RoomMapGridPosition } from '../../types'
+import type { RoomMapGrid, RoomMapGridPosition, UnassignedStudent } from '../../types'
 import { SeatCard, type SeatCardState } from '../SeatCard'
 
 // Declaração mínima e local pra evitar precisar do @types/node no pacote.
@@ -11,9 +11,9 @@ export type MapGridProps = {
   grid: RoomMapGrid
   /**
    * Mapa de alocações em rascunho.
-   * Chave: layoutPositionId | Valor: { studentId, studentName }
+   * Chave: layoutPositionId | Valor: UnassignedStudent
    */
-  draftAllocations: Map<string, { studentId: string; studentName: string }>
+  draftAllocations: Map<string, UnassignedStudent>
   /** ID do aluno atualmente selecionado no sidebar (null se nenhum) */
   selectedStudentId: string | null
   /** Quando true, assentos respondem a clique */
@@ -35,12 +35,12 @@ function positionKey(x: number, y: number) {
  * resolvida (ou ausente) e do aluno atualmente selecionado no sidebar.
  */
 export function resolveStudentSeatState(
-  allocation: { studentId: string; studentName: string } | undefined,
+  allocation: UnassignedStudent | undefined,
   selectedStudentId: string | null,
 ): SeatCardState {
   if (!allocation) return 'available'
 
-  return allocation.studentId === selectedStudentId ? 'selected' : 'occupied'
+  return allocation.id === selectedStudentId ? 'selected' : 'occupied'
 }
 
 /**
@@ -101,7 +101,7 @@ export function MapGrid({
         <SeatCard
           key={key}
           state={state}
-          {...(allocation ? { label: allocation.studentName } : {})}
+          {...(allocation ? { label: allocation.name } : {})}
           isEditing={isEditing}
           onClick={() => onSeatClick?.(position.layoutPositionId)}
         />,
