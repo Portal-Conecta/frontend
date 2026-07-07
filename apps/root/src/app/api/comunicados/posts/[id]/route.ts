@@ -39,3 +39,29 @@ export async function GET(
     return NextResponse.json({ code: 'server' }, { status: 503 })
   }
 }
+
+/**
+ * BFF — soft delete de um comunicado próprio. Delega ao service server (JWT do
+ * cookie httpOnly) e devolve 204 no sucesso, sem corpo.
+ */
+export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+
+  try {
+    await deletePost(id)
+    return new NextResponse(null, { status: 204 })
+  } catch (err) {
+    if (err instanceof PostsError) {
+      return NextResponse.json(
+        { code: err.kind, message: err.message, errors: err.fieldErrors },
+        { status: STATUS_BY_KIND[err.kind] },
+      )
+    }
+    return NextResponse.json({ code: 'server' }, { status: 503 })
+  }
+  }
+
+function deletePost(id: string) {
+  throw new Error('Function not implemented.')
+}
+
