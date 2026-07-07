@@ -1,3 +1,4 @@
+export * from './components'
 export * from './components/AnnouncementFiltersBar'
 export * from './types/announcement'
 export * from './services/postsService'

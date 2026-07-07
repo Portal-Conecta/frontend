@@ -12,10 +12,10 @@
 import type { ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 
-import { AppLayout, PermissionsProvider, filterByPermission, type CurrentUser } from '@portal/core'
+import { AppLayout, PermissionsProvider, type CurrentUser } from '@portal/core'
 import type { SidebarItem } from '@portal/ui'
 
-import { NAV_REGISTRY } from './navRegistry'
+import { visibleNavFor } from './navRegistry'
 
 export function AppShell({
   user,
@@ -28,7 +28,7 @@ export function AppShell({
 }) {
   const router = useRouter()
 
-  const items: SidebarItem[] = filterByPermission(NAV_REGISTRY, user).map(
+  const items: SidebarItem[] = visibleNavFor(user).map(
     ({ key, icon, label, href }) => ({
       key,
       icon,

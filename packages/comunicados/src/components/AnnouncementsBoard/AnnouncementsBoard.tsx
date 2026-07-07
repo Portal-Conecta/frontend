@@ -1,4 +1,4 @@
-import type { AnnouncementOrigin, AnnouncementDetail } from '../types'
+import type { AnnouncementOrigin, AnnouncementDetail } from '../../types'
 
 import { Tag, Text } from '@portal/ui'
 

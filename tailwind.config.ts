@@ -28,9 +28,10 @@ const config: Config = {
 
       spacing,
 
-      fontFamily:  typography.fontFamily,
-      fontSize:    typography.fontSize  as Config['theme']['fontSize'],
-      fontWeight:  typography.fontWeight,
+      fontFamily:    typography.fontFamily,
+      fontSize:      typography.fontSize  as Config['theme']['fontSize'],
+      fontWeight:    typography.fontWeight,
+      letterSpacing: typography.letterSpacing,
 
       borderRadius: radius,
       borderWidth,
