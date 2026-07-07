@@ -20,7 +20,8 @@ export async function updateAnnouncementClient(
   id: string,
   payload: AnnouncementUpdatePayload,
 ): Promise<AnnouncementDetail> {
-const { destinations: _, ...body } = payload
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const { destinations, ...body } = payload
 
   return bffFetch<AnnouncementDetail>(`/api/comunicados/posts/${id}`, {
     method: 'PUT',
