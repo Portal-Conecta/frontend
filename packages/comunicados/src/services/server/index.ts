@@ -1,7 +1,7 @@
 export {
-  listAnnouncements,
-  listMyAnnouncements,
-  deleteAnnouncement,
-  pinAnnouncement,
-  unpinAnnouncement,
-} from './announcementsService'
+  listPosts,
+  listMyPosts,
+  deletePost,
+  pinPost,
+  unpinPost,
+} from './postsService'
