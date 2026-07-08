@@ -99,3 +99,19 @@ Consequências:
 - O array de ordem do `storySort` em `.storybook/preview.ts` volta a listar `'Formulário'` (após `'Inputs'`).
 - A introdução (`.storybook/Introducao.mdx`) volta a descrever o wrapper (como `Field`) numa categoria própria.
 - Código atômico preservado: `Field` segue como `molecule`; muda o nome do componente e o `title:` da story.
+
+## Adendo 2026-07-07
+
+A **SearchBar** ganha **subgrupo próprio `Componentes/Inputs/SearchBar/*`**, seguindo o mesmo critério do Select (Adendo #2): é uma **família** (controle base + `SearchBarAsync`), não um controle simples. Diferente do Select (que filtra opções de texto), a SearchBar mostra uma **lista de resultados ricos** (código + label) buscados sob demanda.
+
+Estrutura:
+
+```
+Componentes/Inputs/SearchBar/SearchBar        → controle base (controlado por `items`; dois modos via `clearOnSelect`)
+Componentes/Inputs/SearchBar/SearchBarAsync   → variante com busca no back (debounce + descarte de resposta obsoleta)
+```
+
+Consequências:
+- No código, `SearchBar` é uma `molecule` (`packages/ui/src/molecules/SearchBar/`) por compor uma lista própria. A lista interna (`SearchBarResults`) **não** tem story — espelha o `SelectList`, que também é interno à família.
+- A mecânica de combobox é compartilhada com o Select via o hook `packages/ui/src/hooks/useCombobox.ts` (não é um componente; sem story).
+- Não há mudança no `storySort`: o subgrupo aninha sob `Inputs`, cuja ordem já está fixada.
