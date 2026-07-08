@@ -6,6 +6,9 @@ import type {
 
 import { createHttpClient } from '@portal/core/http/httpClient'
 import type { QueryParams } from '@portal/core/http/query'
+import { comunicadosGatewayPath } from '../comunicadosGateway'
+
+const http = createHttpClient('API_GATEWAY_URL')
 
 /**
  * Serviço de posts no server. Fala direto com o back de comunicados pelo http
@@ -13,13 +16,11 @@ import type { QueryParams } from '@portal/core/http/query'
  * Components e Route Handlers, nunca no browser.
  */
 
-const http = createHttpClient('COMUNICADOS_API_URL')
-
 /** Lista o mural de comunicados (`GET /api/posts`), paginado. */
 export async function listPosts(
   params: ListPostsParams = {},
 ): Promise<ListAnnouncementsResponse> {
-  return http.get<ListAnnouncementsResponse>('/api/posts', {
+  return http.get<ListAnnouncementsResponse>(comunicadosGatewayPath('/api/posts'), {
     params: params as QueryParams,
   })
 }
@@ -32,14 +33,14 @@ export async function listPosts(
 export async function listMyPosts(
   params: QueryParams = {},
 ): Promise<ListAnnouncementsResponse> {
-  return http.get<ListAnnouncementsResponse>('/api/posts', {
+  return http.get<ListAnnouncementsResponse>(comunicadosGatewayPath('/api/posts'), {
     params: { ...params, mine: true },
   })
 }
 
 /** Soft delete de um post próprio (`DELETE /api/posts/{id}`); o back responde 204. */
 export async function deletePost(id: string): Promise<void> {
-  await http.delete<void>(`/api/posts/${id}`)
+  await http.delete<void>(comunicadosGatewayPath(`/api/posts/${id}`))
 }
 
 /**
@@ -50,10 +51,12 @@ export async function pinPost(
   id: string,
   pinnedOrder?: number,
 ): Promise<AnnouncementResponse> {
-  return http.patch<AnnouncementResponse>(`/api/posts/${id}/pin`, { body: { pinnedOrder } })
+  return http.patch<AnnouncementResponse>(comunicadosGatewayPath(`/api/posts/${id}/pin`), {
+    body: { pinnedOrder },
+  })
 }
 
 /** Desafixa um post (`PATCH /api/posts/{id}/unpin`), retornando o estado atualizado. */
 export async function unpinPost(id: string): Promise<AnnouncementResponse> {
-  return http.patch<AnnouncementResponse>(`/api/posts/${id}/unpin`)
+  return http.patch<AnnouncementResponse>(comunicadosGatewayPath(`/api/posts/${id}/unpin`))
 }

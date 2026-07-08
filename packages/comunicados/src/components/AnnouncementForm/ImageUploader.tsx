@@ -132,12 +132,12 @@ export function ImageUploader({
 
   return (
     <div className="w-full">
-      <div className="flex gap-4">
+      <div className="flex flex-col gap-4 md:flex-row">
         <div
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          className="h-[288px] flex-1"
+          className="h-[288px] w-full md:flex-1"
         >
           {primary ? (
             <ImageCell item={primary} onRemove={() => removeItem(primary.id)} disabled={disabled} />
@@ -154,7 +154,7 @@ export function ImageUploader({
         </div>
 
         {maxImages > 1 ? (
-          <div className="flex h-[288px] w-[128px] flex-col gap-4">
+          <div className="grid grid-cols-4 gap-4 md:flex md:h-[288px] md:w-[128px] md:flex-col">
             {thumbSlots.map((item, index) =>
               item ? (
                 <ImageCell
@@ -162,14 +162,14 @@ export function ImageUploader({
                   item={item}
                   onRemove={() => removeItem(item.id)}
                   disabled={disabled}
-                  className="min-h-0 flex-1"
+                  className="aspect-[4/3] min-h-0 md:aspect-auto md:flex-1"
                 />
               ) : (
                 <EmptyCell
                   key={`empty-${index}`}
                   onClick={openPicker}
                   disabled={disabled}
-                  className="min-h-0 flex-1"
+                  className="aspect-[4/3] min-h-0 md:aspect-auto md:flex-1"
                 />
               ),
             )}
