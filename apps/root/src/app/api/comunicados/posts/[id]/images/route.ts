@@ -3,10 +3,9 @@ import { NextResponse } from 'next/server'
 import { getSession } from '@portal/core/auth/session'
 import {
   ImagesError,
-  presignPostImage,
+  uploadPostImageViaPresign,
   type ImagesErrorKind,
 } from '@portal/comunicados/services/imagesService'
-import type { PresignUploadRequest } from '@portal/comunicados/types/presign'
 
 const STATUS_BY_KIND: Record<ImagesErrorKind, number> = {
   validation: 400,
@@ -18,13 +17,13 @@ const STATUS_BY_KIND: Record<ImagesErrorKind, number> = {
 }
 
 interface RouteContext {
-  params: Promise<{ postId: string }>
+  params: Promise<{ id: string }>
 }
 
 /**
- * BFF de presign (#198).
- * Proxy JSON → gateway `/comunicados/api/posts/{postId}/images/presign`.
- * O browser envia o arquivo com PUT direto ao `uploadUrl` retornado.
+ * BFF de anexar imagem (#198).
+ * 1. Presign via API Gateway
+ * 2. PUT ao S3 no servidor (browser não acessa S3 nem gateway para o binário)
  */
 export async function POST(req: Request, context: RouteContext) {
   const token = await getSession()
@@ -32,25 +31,30 @@ export async function POST(req: Request, context: RouteContext) {
     return NextResponse.json({ code: 'unauthorized' }, { status: 401 })
   }
 
-  const { postId } = await context.params
+  const { id } = await context.params
+  const thumbnail = new URL(req.url).searchParams.get('thumbnail') === 'true'
 
-  let body: PresignUploadRequest
+  let formData: FormData
   try {
-    body = (await req.json()) as PresignUploadRequest
+    formData = await req.formData()
   } catch {
     return NextResponse.json({ code: 'validation', message: 'Corpo inválido.' }, { status: 400 })
   }
 
-  if (!body.contentType?.trim() || !body.originalName?.trim()) {
+  const file = formData.get('file')
+  if (!(file instanceof File) || file.size === 0) {
     return NextResponse.json(
-      { code: 'validation', message: 'contentType e originalName são obrigatórios.' },
+      { code: 'validation', message: 'Arquivo de imagem obrigatório.' },
       { status: 400 },
     )
   }
 
   try {
-    const presigned = await presignPostImage(postId, body, token)
-    return NextResponse.json(presigned, { status: 201 })
+    const result = await uploadPostImageViaPresign(id, file, token, {
+      thumbnail,
+      filename: file.name,
+    })
+    return NextResponse.json(result, { status: 201 })
   } catch (err) {
     if (err instanceof ImagesError) {
       return NextResponse.json(

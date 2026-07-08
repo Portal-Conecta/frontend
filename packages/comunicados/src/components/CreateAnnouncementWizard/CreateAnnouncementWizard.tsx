@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-import { Alert, Button, Icon, Text } from '@portal/ui'
+import { Button, Icon, Text } from '@portal/ui'
 
 import { ANNOUNCEMENT_ORIGIN } from '../../types/announcement'
 import {
@@ -175,8 +175,28 @@ export function CreateAnnouncementWizard() {
         ) : null}
       </div>
 
-      {formError ? <Alert variant="error">{formError}</Alert> : null}
-      {catalog.error ? <Alert variant="error">{catalog.error}</Alert> : null}
+      {formError ? (
+        <div
+          role="alert"
+          className="flex items-stretch gap-4 rounded-md border-sm border-feedback-error/20 bg-feedback-error/5 p-4"
+        >
+          <span className="w-[3px] shrink-0 rounded-full bg-feedback-error" aria-hidden="true" />
+          <Text variant="label-md" className="text-feedback-error">
+            {formError}
+          </Text>
+        </div>
+      ) : null}
+      {catalog.error ? (
+        <div
+          role="alert"
+          className="flex items-stretch gap-4 rounded-md border-sm border-feedback-error/20 bg-feedback-error/5 p-4"
+        >
+          <span className="w-[3px] shrink-0 rounded-full bg-feedback-error" aria-hidden="true" />
+          <Text variant="label-md" className="text-feedback-error">
+            {catalog.error}
+          </Text>
+        </div>
+      ) : null}
 
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
