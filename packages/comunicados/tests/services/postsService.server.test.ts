@@ -15,7 +15,7 @@ import {
 } from '../../src/services/server/postsService'
 import type { AnnouncementResponse } from '../../src/types/announcement'
 
-const API_URL = 'https://comunicados.test'
+const API_GATEWAY_URL = 'https://gateway.test'
 
 function response(status: number, body: unknown): Response {
   return {
@@ -57,12 +57,12 @@ const post: AnnouncementResponse = {
 }
 
 beforeEach(() => {
-  process.env.COMUNICADOS_API_URL = API_URL
+  process.env.API_GATEWAY_URL = API_GATEWAY_URL
 })
 
 afterEach(() => {
   vi.unstubAllGlobals()
-  delete process.env.COMUNICADOS_API_URL
+  delete process.env.API_GATEWAY_URL
 })
 
 describe('listMyPosts', () => {
@@ -74,7 +74,7 @@ describe('listMyPosts', () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
     const [url, init] = fetchMock.mock.calls[0]!
-    expect(url).toBe(`${API_URL}/api/posts?page=0&size=20&search=prova&mine=true`)
+    expect(url).toBe(`${API_GATEWAY_URL}/comunicados/api/posts?page=0&size=20&search=prova&mine=true`)
     expect(init?.method).toBe('GET')
     expect((init?.headers as Record<string, string>).Authorization).toBe('Bearer jwt-token')
   })
@@ -93,7 +93,7 @@ describe('deletePost', () => {
     await expect(deletePost('a1')).resolves.toBeUndefined()
 
     const [url, init] = fetchMock.mock.calls[0]!
-    expect(url).toBe(`${API_URL}/api/posts/a1`)
+    expect(url).toBe(`${API_GATEWAY_URL}/comunicados/api/posts/a1`)
     expect(init?.method).toBe('DELETE')
   })
 
@@ -111,7 +111,7 @@ describe('pinPost / unpinPost', () => {
     await expect(pinPost('a1', 2)).resolves.toMatchObject({ pinned: true })
 
     const [url, init] = fetchMock.mock.calls[0]!
-    expect(url).toBe(`${API_URL}/api/posts/a1/pin`)
+    expect(url).toBe(`${API_GATEWAY_URL}/comunicados/api/posts/a1/pin`)
     expect(init?.method).toBe('PATCH')
     expect(JSON.parse(init?.body as string)).toEqual({ pinnedOrder: 2 })
   })
@@ -123,7 +123,7 @@ describe('pinPost / unpinPost', () => {
     await expect(unpinPost('a1')).resolves.toMatchObject({ pinned: false })
 
     const [url, init] = fetchMock.mock.calls[0]!
-    expect(url).toBe(`${API_URL}/api/posts/a1/unpin`)
+    expect(url).toBe(`${API_GATEWAY_URL}/comunicados/api/posts/a1/unpin`)
     expect(init?.method).toBe('PATCH')
   })
 })
