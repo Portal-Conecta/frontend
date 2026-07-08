@@ -7,7 +7,7 @@ import type {
 import { createHttpClient } from '@portal/core/http/httpClient'
 import type { QueryParams } from '@portal/core/http/query'
 
-const http = createHttpClient('COMUNICADOS_API_URL')
+const http = createHttpClient('API_GATEWAY_URL')
 
 /**
  * Serviço de posts no server. Fala direto com o back de comunicados pelo http
