@@ -1,5 +1,7 @@
 export * from './components'
 export * from './components/AnnouncementFiltersBar'
+export * from './components/CreateAnnouncementWizard'
+export * from './auth/canCreateAnnouncement'
 export * from './types/announcement'
 export * from './services/postsService'
 export * from './hooks/useCreateAnnouncement'

@@ -6,11 +6,25 @@ import { Button, Checkbox, Input, Text } from '@portal/ui'
 
 import { hasRecipient, makeRecipient, recipientKey, type Recipient, type UserSummary } from './types'
 
+export interface UsersPageState {
+  items: UserSummary[]
+  page: number
+  totalPages: number
+  totalElements: number
+}
+
 export interface UserSearchPanelProps {
-  users: UserSummary[]
+  /** Lista estática (Storybook). Ignorado quando `usersPage` é informado. */
+  users?: UserSummary[]
+  /** Paginação server-side via BFF. */
+  usersPage?: UsersPageState
+  usersQuery?: string
+  onUsersQueryChange?: (query: string) => void
+  onUsersPageChange?: (page: number) => void
+  usersLoading?: boolean
   recipients: readonly Recipient[]
   onToggle: (recipient: Recipient) => void
-  /** Itens por página. Default `6`. */
+  /** Itens por página no modo estático. Default `6`. */
   pageSize?: number
   disabled?: boolean
 }
@@ -18,34 +32,62 @@ export interface UserSearchPanelProps {
 /**
  * Modo "Buscar usuários específicos".
  *
- * Campo de busca por nome + lista paginada com seleção múltipla. Sem busca, lista
- * todos os usuários em ordem alfabética. A paginação/filtragem é client-side sobre
- * o mock; quando houver endpoint de usuários, trocar por busca server-side
- * (`page`/`q`) mantendo a mesma interface de props.
+ * Com `usersPage`, busca/paginação vêm do Hub via BFF. Sem `usersPage`, usa a
+ * lista `users` em memória (Storybook).
  */
 export function UserSearchPanel({
-  users,
+  users = [],
+  usersPage,
+  usersQuery: controlledQuery,
+  onUsersQueryChange,
+  onUsersPageChange,
+  usersLoading = false,
   recipients,
   onToggle,
   pageSize = 6,
   disabled = false,
 }: UserSearchPanelProps) {
-  const [query, setQuery] = useState('')
-  const [page, setPage] = useState(1)
+  const [internalQuery, setInternalQuery] = useState('')
+  const [internalPage, setInternalPage] = useState(1)
+
+  const serverMode = usersPage != null
+  const query = serverMode ? (controlledQuery ?? '') : internalQuery
 
   const filtered = useMemo(() => {
+    if (serverMode) return usersPage.items
     const needle = query.trim().toLowerCase()
     const sorted = [...users].sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'))
     return needle ? sorted.filter((user) => user.name.toLowerCase().includes(needle)) : sorted
-  }, [users, query])
+  }, [serverMode, users, usersPage, query])
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize))
-  const safePage = Math.min(page, totalPages)
-  const pageItems = filtered.slice((safePage - 1) * pageSize, safePage * pageSize)
+  const totalPages = serverMode
+    ? usersPage.totalPages
+    : Math.max(1, Math.ceil(filtered.length / pageSize))
+
+  const safePage = serverMode ? usersPage.page : Math.min(internalPage, totalPages)
+
+  const pageItems = serverMode
+    ? usersPage.items
+    : filtered.slice((safePage - 1) * pageSize, safePage * pageSize)
+
+  const totalCount = serverMode ? usersPage.totalElements : filtered.length
 
   function handleQuery(event: ChangeEvent<HTMLInputElement>) {
-    setQuery(event.target.value)
-    setPage(1)
+    const next = event.target.value
+    if (serverMode) {
+      onUsersQueryChange?.(next)
+      return
+    }
+    setInternalQuery(next)
+    setInternalPage(1)
+  }
+
+  function goToPage(page: number) {
+    if (serverMode) {
+      onUsersPageChange?.(page)
+      return
+    }
+    setInternalPage(page)
   }
 
   return (
@@ -56,15 +98,23 @@ export function UserSearchPanel({
         onChange={handleQuery}
         placeholder="Buscar usuário pelo nome"
         iconRight="search"
-        disabled={disabled}
+        disabled={disabled || usersLoading}
         aria-label="Buscar usuário pelo nome"
       />
 
-      {filtered.length === 0 ? (
+      {usersLoading ? (
+        <Text as="p" variant="body-sm" tone="secondary">
+          Carregando usuários…
+        </Text>
+      ) : null}
+
+      {!usersLoading && totalCount === 0 ? (
         <Text as="p" variant="body-sm" tone="secondary">
           Nenhum usuário encontrado.
         </Text>
-      ) : (
+      ) : null}
+
+      {!usersLoading && totalCount > 0 ? (
         <>
           <ul className="flex flex-col divide-y divide-border-default">
             {pageItems.map((user) => {
@@ -90,14 +140,14 @@ export function UserSearchPanel({
 
           <div className="flex items-center justify-between gap-4">
             <Text as="span" variant="body-sm" tone="secondary">
-              {filtered.length} usuário{filtered.length === 1 ? '' : 's'}
+              {totalCount} usuário{totalCount === 1 ? '' : 's'}
             </Text>
 
             <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
-                onClick={() => setPage((current) => Math.max(1, current - 1))}
-                disabled={disabled || safePage <= 1}
+                onClick={() => goToPage(Math.max(1, safePage - 1))}
+                disabled={disabled || usersLoading || safePage <= 1}
               >
                 Anterior
               </Button>
@@ -109,15 +159,15 @@ export function UserSearchPanel({
               <Button
                 variant="ghost"
                 iconRight="chevron-right"
-                onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
-                disabled={disabled || safePage >= totalPages}
+                onClick={() => goToPage(Math.min(totalPages, safePage + 1))}
+                disabled={disabled || usersLoading || safePage >= totalPages}
               >
                 Próxima
               </Button>
             </div>
           </div>
         </>
-      )}
+      ) : null}
     </div>
   )
 }
