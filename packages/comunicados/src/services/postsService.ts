@@ -1,14 +1,12 @@
 /**
- * postsService — talks to the comunicados backend to create announcements.
+ * postsService — cria comunicados via API Gateway (`/comunicados/api/posts/*`).
  *
  * Pure server-side logic: no React, no `next/headers`. Called from the BFF
  * Route Handlers (`apps/root/src/app/api/comunicados/posts/*`), which read the
- * JWT from the httpOnly cookie and pass it in as `token`. The token never
- * reaches the browser JS.
+ * JWT from the httpOnly cookie and pass it in as `token`. O gateway valida o
+ * Bearer e encaminha ao serviço de comunicados.
  *
- * The base URL lives in `COMUNICADOS_API_URL` (private, server-side). Errors are
- * surfaced as a typed `PostsError` carrying the HTTP status and, for validation
- * failures, the per-field details so the caller can map them back to the form.
+ * A base URL vive em `API_GATEWAY_URL` (privada, server-side).
  */
 
 import type {
@@ -17,7 +15,9 @@ import type {
   ScheduleAnnouncementRequest,
 } from '../types/announcement'
 
-import type { ApiError, ApiFieldError } from '../../../shared/src/types/api-error'
+import type { ApiError, ApiFieldError } from '@portal/shared'
+
+import { comunicadosGatewayPath, resolveApiGatewayUrl } from './comunicadosGateway'
 
 
 export type PostsErrorKind = 'validation' | 'unauthorized' | 'forbidden' | 'server' | 'network'
@@ -35,11 +35,11 @@ export class PostsError extends Error {
 }
 
 function baseUrl(): string {
-  const url = process.env.COMUNICADOS_API_URL
-  if (!url) {
-    throw new PostsError('server', 503, [], 'COMUNICADOS_API_URL não configurada')
+  try {
+    return resolveApiGatewayUrl()
+  } catch {
+    throw new PostsError('server', 503, [], 'API_GATEWAY_URL não configurada')
   }
-  return url
 }
 
 async function readApiError(res: Response): Promise<ApiError | undefined> {
@@ -68,12 +68,12 @@ async function toPostsError(res: Response): Promise<PostsError> {
   }
 }
 
-async function createAnnouncement(
+async function createPost(
   path: string,
   body: PublishAnnouncementRequest | ScheduleAnnouncementRequest,
   token: string,
 ): Promise<AnnouncementResponse> {
-  const url = `${baseUrl()}${path}`
+  const url = `${baseUrl()}${comunicadosGatewayPath(path)}`
 
   let res: Response
   try {
@@ -85,8 +85,19 @@ async function createAnnouncement(
       },
       body: JSON.stringify(body),
     })
-  } catch {
-    throw new PostsError('network', 503)
+  } catch (cause) {
+    const hint =
+      cause instanceof Error && 'cause' in cause && cause.cause instanceof Error
+        ? cause.cause.message
+        : cause instanceof Error
+          ? cause.message
+          : undefined
+    throw new PostsError(
+      'network',
+      503,
+      [],
+      hint ? `Falha ao conectar em ${url}: ${hint}` : `Falha ao conectar em ${url}`,
+    )
   }
 
   if (res.status === 201) {
@@ -104,14 +115,14 @@ export function publishPost(
   body: PublishAnnouncementRequest,
   token: string,
 ): Promise<AnnouncementResponse> {
-  return createAnnouncement('/api/posts/publish', body, token)
+  return createPost('/api/posts/publish', body, token)
 }
 
 export function schedulePost(
   body: ScheduleAnnouncementRequest,
   token: string,
 ): Promise<AnnouncementResponse> {
-  return createAnnouncement('/api/posts/schedule', body, token)
+  return createPost('/api/posts/schedule', body, token)
 }
 
 export const postsService = {
