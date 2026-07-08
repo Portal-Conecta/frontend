@@ -69,6 +69,15 @@ const variantIcon: Record<ToastVariant, IconName> = {
   warning: 'triangle-alert',
 }
 
+// Cada toast é sua própria live region (anunciada ao ser inserida): erro
+// interrompe (`alert` = assertivo), os demais são polidos (`status`) — mesmo
+// critério do molecule `Alert`.
+const roleByVariant: Record<ToastVariant, 'alert' | 'status'> = {
+  success: 'status',
+  error: 'alert',
+  warning: 'status',
+}
+
 const positionClass: Record<ToastPosition, string> = {
   'top-right': 'left-6 right-6 top-6 sm:left-auto sm:w-full',
   'top-left': 'left-6 right-6 top-6 sm:right-auto sm:w-full',
@@ -82,7 +91,10 @@ function createToastId() {
 
 export function Toast({ toast, onDismiss }: ToastProps) {
   return (
-    <div className="flex min-h-14 w-full overflow-hidden rounded-sm border-sm border-border-default bg-background-surface text-text-primary">
+    <div
+      role={roleByVariant[toast.variant]}
+      className="flex min-h-14 w-full overflow-hidden rounded-sm border-sm border-border-default bg-background-surface text-text-primary"
+    >
       <div className={`flex w-16 shrink-0 items-center justify-center ${variantClass[toast.variant]}`}>
         <Icon name={variantIcon[toast.variant]} size="lg" decorative />
       </div>
@@ -175,12 +187,9 @@ export function ToastProvider({
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <div
-        className={`fixed z-50 flex max-w-lg flex-col gap-2 ${positionClass[position]}`}
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-      >
+      {/* Wrapper só de posicionamento: a semântica de live region fica em cada
+          Toast (role por variante), evitando reanúncio da pilha inteira. */}
+      <div className={`fixed z-50 flex max-w-lg flex-col gap-2 ${positionClass[position]}`}>
         {toasts.map((item) => (
           <Toast key={item.id} toast={item} onDismiss={dismiss} />
         ))}
