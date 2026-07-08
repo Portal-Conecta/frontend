@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server'
 
 import { getSession } from '@portal/core/auth/session'
-import { rescheduleAnnouncement } from '@portal/comunicados/services/server'
+import { rescheduleAnnouncement } from '@portal/comunicados/services/server/postsService'
+
+import { bffErrorResponse } from '../../../_lib/bffError'
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const token = await getSession()
@@ -13,20 +15,22 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
   let body: { scheduledFor?: string }
   try {
-    body = await req.json()
+    body = (await req.json()) as { scheduledFor?: string }
   } catch {
-    return NextResponse.json({ code: 'validation' }, { status: 422 })
+    return NextResponse.json({ code: 'validation' }, { status: 400 })
   }
 
   if (!body.scheduledFor) {
-    return NextResponse.json({ code: 'validation' }, { status: 422 })
+    return NextResponse.json(
+      { code: 'validation', message: 'scheduledFor é obrigatório.' },
+      { status: 400 },
+    )
   }
 
   try {
     const result = await rescheduleAnnouncement(id, body.scheduledFor)
     return NextResponse.json(result)
-  } catch (error) {
-    const status = error instanceof Error && 'status' in error ? Number((error as { status?: number }).status) : 500
-    return NextResponse.json({ code: 'server' }, { status: Number.isFinite(status) && status > 0 ? status : 500 })
+  } catch (err) {
+    return bffErrorResponse(err)
   }
 }

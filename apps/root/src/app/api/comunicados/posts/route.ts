@@ -1,7 +1,47 @@
 import { NextResponse } from 'next/server'
 
 import { getSession } from '@portal/core/auth/session'
-import { listPosts } from '@portal/comunicados/services/server'
+import { HttpError, type HttpErrorKind } from '@portal/core/http'
+import { listPosts } from '@portal/comunicados/services/server/postsService'
+import { ANNOUNCEMENT_STATUS, type AnnouncementStatus, type ListPostsParams } from '@portal/comunicados/types'
+
+const STATUS_BY_KIND: Record<HttpErrorKind, number> = {
+  not_found: 404,
+  validation: 400,
+  unauthorized: 401,
+  forbidden: 403,
+  server: 503,
+  network: 503,
+}
+
+function numberParam(searchParams: URLSearchParams, key: 'page' | 'size'): number | undefined {
+  const value = searchParams.get(key)
+  if (!value) return undefined
+  const parsed = Number(value)
+  return Number.isFinite(parsed) ? parsed : undefined
+}
+
+function isAnnouncementStatus(value: string | null): value is AnnouncementStatus {
+  return (
+    typeof value === 'string' &&
+    (Object.values(ANNOUNCEMENT_STATUS) as readonly string[]).includes(value)
+  )
+}
+
+function listParams(searchParams: URLSearchParams): ListPostsParams {
+  const params: ListPostsParams = {}
+  const page = numberParam(searchParams, 'page')
+  const size = numberParam(searchParams, 'size')
+  const search = searchParams.get('search')
+  const status = searchParams.get('status')
+
+  if (page !== undefined) params.page = page
+  if (size !== undefined) params.size = size
+  if (search) params.search = search
+  if (isAnnouncementStatus(status)) params.status = status
+
+  return params
+}
 
 export async function GET(req: Request) {
   const token = await getSession()
@@ -9,27 +49,18 @@ export async function GET(req: Request) {
     return NextResponse.json({ code: 'unauthorized' }, { status: 401 })
   }
 
-  const url = new URL(req.url)
+  const { searchParams } = new URL(req.url)
 
   try {
-    const params = {
-      page: Number(url.searchParams.get('page') ?? 0),
-      size: Number(url.searchParams.get('size') ?? 20),
-      ...(url.searchParams.get('search') ? { search: url.searchParams.get('search')! } : {}),
-      ...(url.searchParams.get('origin') ? { origin: url.searchParams.get('origin') as 'WEG' | 'SENAI' | 'BOTH' } : {}),
-      ...(url.searchParams.get('filterType') ? { filterType: url.searchParams.get('filterType')! } : {}),
-      ...(url.searchParams.get('classId') ? { classId: url.searchParams.get('classId')! } : {}),
-      ...(url.searchParams.get('publishedFrom') ? { publishedFrom: url.searchParams.get('publishedFrom')! } : {}),
-      ...(url.searchParams.get('publishedTo') ? { publishedTo: url.searchParams.get('publishedTo')! } : {}),
-      ...(url.searchParams.get('tagId') ? { tagId: url.searchParams.get('tagId')! } : {}),
-      ...(url.searchParams.getAll('tagIds').length > 0 ? { tagIds: url.searchParams.getAll('tagIds') } : {}),
+    const data = await listPosts(listParams(searchParams))
+    return NextResponse.json(data)
+  } catch (err) {
+    if (err instanceof HttpError) {
+      return NextResponse.json(
+        { code: err.kind },
+        { status: STATUS_BY_KIND[err.kind] },
+      )
     }
-
-    const result = await listPosts(params)
-
-    return NextResponse.json(result)
-  } catch (error) {
-    const status = error instanceof Error && 'status' in error ? Number((error as { status?: number }).status) : 500
-    return NextResponse.json({ code: 'server' }, { status: Number.isFinite(status) && status > 0 ? status : 500 })
+    return NextResponse.json({ code: 'server' }, { status: 503 })
   }
 }

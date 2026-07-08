@@ -1,9 +1,16 @@
 import { NextResponse } from 'next/server'
 
 import { getSession } from '@portal/core/auth/session'
-import { getAnnouncement, updateAnnouncement } from '@portal/comunicados/services/server'
+import {
+  deletePost,
+  getAnnouncement,
+  updateAnnouncement,
+} from '@portal/comunicados/services/server/postsService'
+import type { AnnouncementUpdatePayload } from '@portal/comunicados/types/announcement'
 
-export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+import { bffErrorResponse } from '../../_lib/bffError'
+
+export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const token = await getSession()
   if (!token) {
     return NextResponse.json({ code: 'unauthorized' }, { status: 401 })
@@ -14,9 +21,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   try {
     const result = await getAnnouncement(id)
     return NextResponse.json(result)
-  } catch (error) {
-    const status = error instanceof Error && 'status' in error ? Number((error as { status?: number }).status) : 500
-    return NextResponse.json({ code: 'server' }, { status: Number.isFinite(status) && status > 0 ? status : 500 })
+  } catch (err) {
+    return bffErrorResponse(err)
   }
 }
 
@@ -28,18 +34,32 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
   const { id } = await params
 
-  let body: Record<string, unknown>
+  let body: AnnouncementUpdatePayload
   try {
-    body = await req.json()
+    body = (await req.json()) as AnnouncementUpdatePayload
   } catch {
-    return NextResponse.json({ code: 'validation' }, { status: 422 })
+    return NextResponse.json({ code: 'validation' }, { status: 400 })
   }
 
   try {
-    const result = await updateAnnouncement(id, body as Parameters<typeof updateAnnouncement>[1])
+    const result = await updateAnnouncement(id, body)
     return NextResponse.json(result)
-  } catch (error) {
-    const status = error instanceof Error && 'status' in error ? Number((error as { status?: number }).status) : 500
-    return NextResponse.json({ code: 'server' }, { status: Number.isFinite(status) && status > 0 ? status : 500 })
+  } catch (err) {
+    return bffErrorResponse(err)
+  }
+}
+
+/**
+ * BFF — soft delete de um comunicado próprio. Delega ao service server (JWT do
+ * cookie httpOnly) e devolve 204 no sucesso, sem corpo.
+ */
+export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+
+  try {
+    await deletePost(id)
+    return new NextResponse(null, { status: 204 })
+  } catch (err) {
+    return bffErrorResponse(err)
   }
 }
