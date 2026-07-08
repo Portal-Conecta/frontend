@@ -15,7 +15,7 @@ import type {
   ScheduleAnnouncementRequest,
 } from '../types/announcement'
 
-import type { ApiError, ApiFieldError } from '../../../shared/src/types/api-error'
+import type { ApiError, ApiFieldError } from '@portal/shared'
 
 import { comunicadosGatewayPath, resolveApiGatewayUrl } from './comunicadosGateway'
 

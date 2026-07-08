@@ -3,8 +3,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   ImagesError,
   presignPostImage,
+  uploadPostImage,
   uploadPostImageViaPresign,
 } from '../../src/services/imagesService'
+import type { AnnouncementFile } from '../../src/types/file'
 import type { PresignUploadResponse } from '../../src/types/presign'
 
 const API_GATEWAY_URL = 'https://gateway.test'
@@ -65,6 +67,47 @@ describe('presignPostImage', () => {
   it('mapeia 400 para validation', async () => {
     stubFetch().mockResolvedValue(response(400, { message: 'ARQ02' }))
     await expect(presignPostImage(POST_ID, presignBody, TOKEN)).rejects.toBeInstanceOf(ImagesError)
+  })
+})
+
+describe('uploadPostImage', () => {
+  const announcementFile = {
+    id: 'file-1',
+    announcementId: POST_ID,
+    originalName: 'foto.png',
+    s3Key: 'key',
+    s3Bucket: 'bucket',
+    contentType: 'image/png',
+    type: 'IMAGE',
+    sizeBytes: 6,
+    isThumbnail: true,
+    uploadedByUserId: 'u1',
+    createdAt: '2026-01-01T00:00:00.000Z',
+  } satisfies AnnouncementFile
+
+  it('faz POST multipart em /comunicados/api/posts/{id}/images sem duplicar a base URL', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(response(201, announcementFile))
+
+    await expect(
+      uploadPostImage(POST_ID, file, TOKEN, { thumbnail: true }),
+    ).resolves.toEqual(announcementFile)
+
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe(`${API_GATEWAY_URL}/comunicados/api/posts/${POST_ID}/images?thumbnail=true`)
+    expect(init?.method).toBe('POST')
+    expect((init?.headers as Record<string, string>).Authorization).toBe(`Bearer ${TOKEN}`)
+    expect(init?.body).toBeInstanceOf(FormData)
+  })
+
+  it('omite a query quando thumbnail é false', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(response(201, { ...announcementFile, isThumbnail: false }))
+
+    await uploadPostImage(POST_ID, file, TOKEN)
+
+    const [url] = fetchMock.mock.calls[0]!
+    expect(url).toBe(`${API_GATEWAY_URL}/comunicados/api/posts/${POST_ID}/images`)
   })
 })
 
