@@ -14,7 +14,7 @@ import {
 import { Icon, type IconName } from '../../atoms/Icon'
 import { Text } from '../../atoms/Text'
 
-export type ToastVariant = 'success' | 'error' | 'warning' | 'info'
+export type ToastVariant = 'success' | 'error' | 'warning'
 export type ToastPosition = 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left'
 
 export interface ToastOptions {
@@ -37,7 +37,6 @@ interface ToastContextValue {
     success: (message: string, options?: Omit<ToastOptions, 'message' | 'variant'>) => string
     error: (message: string, options?: Omit<ToastOptions, 'message' | 'variant'>) => string
     warning: (message: string, options?: Omit<ToastOptions, 'message' | 'variant'>) => string
-    info: (message: string, options?: Omit<ToastOptions, 'message' | 'variant'>) => string
   }
 }
 
@@ -62,14 +61,12 @@ const variantClass: Record<ToastVariant, string> = {
   success: 'bg-feedback-success text-text-inverse',
   error: 'bg-feedback-error text-text-inverse',
   warning: 'bg-feedback-warning text-text-primary',
-  info: 'bg-feedback-info text-text-inverse',
 }
 
 const variantIcon: Record<ToastVariant, IconName> = {
   success: 'circle-check',
   error: 'triangle-alert',
   warning: 'triangle-alert',
-  info: 'bell',
 }
 
 const positionClass: Record<ToastPosition, string> = {
@@ -131,7 +128,7 @@ export function ToastProvider({
   }, [])
 
   const show = useCallback(
-    ({ id = createToastId(), title, message, variant = 'info', duration = defaultDuration }: ToastOptions) => {
+    ({ id = createToastId(), title, message, variant = 'success', duration = defaultDuration }: ToastOptions) => {
       const nextToast: ToastItem = title
         ? { id, title, message, variant, duration }
         : { id, message, variant, duration }
@@ -161,8 +158,6 @@ export function ToastProvider({
         show({ ...options, message, variant: 'error' }),
       warning: (message: string, options?: Omit<ToastOptions, 'message' | 'variant'>) =>
         show({ ...options, message, variant: 'warning' }),
-      info: (message: string, options?: Omit<ToastOptions, 'message' | 'variant'>) =>
-        show({ ...options, message, variant: 'info' }),
     }),
     [show],
   )

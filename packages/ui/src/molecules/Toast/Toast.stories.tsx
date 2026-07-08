@@ -18,13 +18,6 @@ const toastByVariant: Record<ToastVariant, ToastItem> = {
     message: 'Mensagem enviada com Sucesso!',
     duration: 0,
   },
-  info: {
-    id: 'info',
-    variant: 'info',
-    title: 'Notificação',
-    message: 'faça uma prova agora',
-    duration: 0,
-  },
   warning: {
     id: 'warning',
     variant: 'warning',
@@ -42,7 +35,6 @@ const variantButtons: Array<{
 }> = [
   { label: 'Erro', variant: 'error', tone: 'negative' },
   { label: 'Sucesso', variant: 'success', tone: 'positive' },
-  { label: 'Info', variant: 'info' },
   { label: 'Warning', variant: 'warning' },
 ]
 
