@@ -1,0 +1,14 @@
+.scroller {
+  cursor: grab;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollerDragging {
+  cursor: grabbing;
+  user-select: none;
+}
