@@ -17,7 +17,7 @@ import type {
 
 import type { ApiError, ApiFieldError } from '../../../shared/src/types/api-error'
 
-import { comunicadosGatewayPath, resolveApiGatewayUrl } from './comunicadosGateway'
+import { resolveApiGatewayUrl } from './comunicadosGateway'
 
 
 export type PostsErrorKind = 'validation' | 'unauthorized' | 'forbidden' | 'server' | 'network'
