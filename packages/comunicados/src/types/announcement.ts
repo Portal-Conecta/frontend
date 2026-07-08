@@ -138,6 +138,7 @@ export interface ListPostsParams {
   page?: number
   size?: number
   search?: string
+  status?: AnnouncementStatus
   origin?: AnnouncementOrigin
   filterType?: string
   classId?: string
