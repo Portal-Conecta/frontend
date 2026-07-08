@@ -1,10 +1,5 @@
 /**
- * Testes do service server de comunicados (`services/server/announcementsService`).
- *
- * As funções falam com o API Gateway pelo http client compartilhado, que resolve
- * o JWT via `getSession` — então mockamos esse módulo para não depender de
- * `next/headers` e trocamos o `fetch` global por um dublê (`vi.stubGlobal`) para
- * controlar status e corpo. `API_GATEWAY_URL` é setada antes de cada teste e limpa depois.
+ * Testes do service server de posts (`services/server/postsService`).
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -13,11 +8,11 @@ vi.mock('@portal/core/auth/session', () => ({
 }))
 
 import {
-  deleteAnnouncement,
-  listMyAnnouncements,
-  pinAnnouncement,
-  unpinAnnouncement,
-} from '../../src/services/server/announcementsService'
+  deletePost,
+  listMyPosts,
+  pinPost,
+  unpinPost,
+} from '../../src/services/server/postsService'
 import type { AnnouncementResponse } from '../../src/types/announcement'
 
 const API_GATEWAY_URL = 'https://gateway.test'
@@ -44,7 +39,7 @@ const listResponse = {
   totalPages: 0,
 }
 
-const announcement: AnnouncementResponse = {
+const post: AnnouncementResponse = {
   id: 'a1',
   title: 'Título',
   description: 'Descrição',
@@ -70,14 +65,12 @@ afterEach(() => {
   delete process.env.API_GATEWAY_URL
 })
 
-describe('listMyAnnouncements', () => {
-  it('faz GET em /comunicados/api/posts com mine=true e Bearer, repassando os filtros como query', async () => {
+describe('listMyPosts', () => {
+  it('faz GET em /api/posts com mine=true e Bearer, repassando os filtros como query', async () => {
     const fetchMock = stubFetch()
     fetchMock.mockResolvedValue(response(200, listResponse))
 
-    await expect(listMyAnnouncements({ page: 0, size: 20, search: 'prova' })).resolves.toEqual(
-      listResponse,
-    )
+    await expect(listMyPosts({ page: 0, size: 20, search: 'prova' })).resolves.toEqual(listResponse)
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
     const [url, init] = fetchMock.mock.calls[0]!
@@ -88,16 +81,16 @@ describe('listMyAnnouncements', () => {
 
   it('mapeia 403 para HttpError forbidden', async () => {
     stubFetch().mockResolvedValue(response(403, {}))
-    await expect(listMyAnnouncements()).rejects.toMatchObject({ kind: 'forbidden' })
+    await expect(listMyPosts()).rejects.toMatchObject({ kind: 'forbidden' })
   })
 })
 
-describe('deleteAnnouncement', () => {
-  it('faz DELETE em /comunicados/api/posts/{id} e resolve sem corpo no 204', async () => {
+describe('deletePost', () => {
+  it('faz DELETE em /api/posts/{id} e resolve sem corpo no 204', async () => {
     const fetchMock = stubFetch()
     fetchMock.mockResolvedValue(response(204, null))
 
-    await expect(deleteAnnouncement('a1')).resolves.toBeUndefined()
+    await expect(deletePost('a1')).resolves.toBeUndefined()
 
     const [url, init] = fetchMock.mock.calls[0]!
     expect(url).toBe(`${API_GATEWAY_URL}/comunicados/api/posts/a1`)
@@ -106,16 +99,16 @@ describe('deleteAnnouncement', () => {
 
   it('mapeia 404 para HttpError not_found', async () => {
     stubFetch().mockResolvedValue(response(404, {}))
-    await expect(deleteAnnouncement('missing')).rejects.toMatchObject({ kind: 'not_found' })
+    await expect(deletePost('missing')).rejects.toMatchObject({ kind: 'not_found' })
   })
 })
 
-describe('pinAnnouncement / unpinAnnouncement', () => {
-  it('faz PATCH em /comunicados/api/posts/{id}/pin com pinnedOrder no body e retorna o atualizado', async () => {
+describe('pinPost / unpinPost', () => {
+  it('faz PATCH em /api/posts/{id}/pin com pinnedOrder no body e retorna o atualizado', async () => {
     const fetchMock = stubFetch()
-    fetchMock.mockResolvedValue(response(200, announcement))
+    fetchMock.mockResolvedValue(response(200, post))
 
-    await expect(pinAnnouncement('a1', 2)).resolves.toMatchObject({ pinned: true })
+    await expect(pinPost('a1', 2)).resolves.toMatchObject({ pinned: true })
 
     const [url, init] = fetchMock.mock.calls[0]!
     expect(url).toBe(`${API_GATEWAY_URL}/comunicados/api/posts/a1/pin`)
@@ -123,11 +116,11 @@ describe('pinAnnouncement / unpinAnnouncement', () => {
     expect(JSON.parse(init?.body as string)).toEqual({ pinnedOrder: 2 })
   })
 
-  it('faz PATCH em /comunicados/api/posts/{id}/unpin', async () => {
+  it('faz PATCH em /api/posts/{id}/unpin', async () => {
     const fetchMock = stubFetch()
-    fetchMock.mockResolvedValue(response(200, { ...announcement, pinned: false, pinnedOrder: null }))
+    fetchMock.mockResolvedValue(response(200, { ...post, pinned: false, pinnedOrder: null }))
 
-    await expect(unpinAnnouncement('a1')).resolves.toMatchObject({ pinned: false })
+    await expect(unpinPost('a1')).resolves.toMatchObject({ pinned: false })
 
     const [url, init] = fetchMock.mock.calls[0]!
     expect(url).toBe(`${API_GATEWAY_URL}/comunicados/api/posts/a1/unpin`)

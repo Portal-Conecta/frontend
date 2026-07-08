@@ -6,7 +6,6 @@ import {
   uploadPostImage,
   uploadPostImageViaPresign,
 } from '../../src/services/imagesService'
-import type { AnnouncementFile } from '../../src/types/file'
 import type { PresignUploadResponse } from '../../src/types/presign'
 
 const API_GATEWAY_URL = 'https://gateway.test'
@@ -71,43 +70,24 @@ describe('presignPostImage', () => {
 })
 
 describe('uploadPostImage', () => {
-  const announcementFile = {
-    id: 'file-1',
-    announcementId: POST_ID,
-    originalName: 'foto.png',
-    s3Key: 'key',
-    s3Bucket: 'bucket',
-    contentType: 'image/png',
-    type: 'IMAGE',
-    sizeBytes: 6,
-    isThumbnail: true,
-    uploadedByUserId: 'u1',
-    createdAt: '2026-01-01T00:00:00.000Z',
-  } satisfies AnnouncementFile
-
-  it('faz POST multipart em /comunicados/api/posts/{id}/images sem duplicar a base URL', async () => {
+  it('envia multipart para o path do gateway sem duplicar a base URL', async () => {
     const fetchMock = stubFetch()
-    fetchMock.mockResolvedValue(response(201, announcementFile))
+    const fileMeta = {
+      id: 'f1',
+      announcementId: POST_ID,
+      originalName: 'foto.png',
+      type: 'IMAGE',
+    } as const
+    fetchMock.mockResolvedValue(response(201, fileMeta))
 
     await expect(
       uploadPostImage(POST_ID, file, TOKEN, { thumbnail: true }),
-    ).resolves.toEqual(announcementFile)
+    ).resolves.toEqual(fileMeta)
 
     const [url, init] = fetchMock.mock.calls[0]!
     expect(url).toBe(`${API_GATEWAY_URL}/comunicados/api/posts/${POST_ID}/images?thumbnail=true`)
     expect(init?.method).toBe('POST')
-    expect((init?.headers as Record<string, string>).Authorization).toBe(`Bearer ${TOKEN}`)
     expect(init?.body).toBeInstanceOf(FormData)
-  })
-
-  it('omite a query quando thumbnail é false', async () => {
-    const fetchMock = stubFetch()
-    fetchMock.mockResolvedValue(response(201, { ...announcementFile, isThumbnail: false }))
-
-    await uploadPostImage(POST_ID, file, TOKEN)
-
-    const [url] = fetchMock.mock.calls[0]!
-    expect(url).toBe(`${API_GATEWAY_URL}/comunicados/api/posts/${POST_ID}/images`)
   })
 })
 

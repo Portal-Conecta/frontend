@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-import { unpinAnnouncement } from '@portal/comunicados/services/server/announcementsService'
+import { unpinPost } from '@portal/comunicados/services/server/postsService'
 
 import { bffErrorResponse } from '../../../_lib/bffError'
 
@@ -9,7 +9,7 @@ export async function PATCH(_req: Request, { params }: { params: Promise<{ id: s
   const { id } = await params
 
   try {
-    const data = await unpinAnnouncement(id)
+    const data = await unpinPost(id)
     return NextResponse.json(data)
   } catch (err) {
     return bffErrorResponse(err)

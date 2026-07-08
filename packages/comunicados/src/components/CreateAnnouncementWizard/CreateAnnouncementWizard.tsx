@@ -63,7 +63,7 @@ export function CreateAnnouncementWizard() {
   const [contentErrors, setContentErrors] = useState<Partial<Record<keyof AnnouncementContentValue, string>>>({})
   const [destinationsError, setDestinationsError] = useState<string | undefined>()
 
-  const { fieldErrors, formError, submitting, pendingImages, publishFrom, scheduleFrom } =
+  const { fieldErrors, formError, submitting, pendingImageUpload, publishFrom, scheduleFrom } =
     useCreateAnnouncement({
       redirectOnSuccess: false,
     })
@@ -129,6 +129,7 @@ export function CreateAnnouncementWizard() {
         <Text as="h1" variant="heading-h2" tone="brand">
           Criar comunicado
         </Text>
+
       </header>
 
       <div className="rounded-md border-sm border-border-default bg-background-surface p-6 md:p-8">
@@ -168,7 +169,7 @@ export function CreateAnnouncementWizard() {
           <ScheduleDatePicker
             value={scheduledFor}
             onChange={setScheduledFor}
-            disabled={submitting || pendingImages}
+            disabled={submitting || pendingImageUpload}
             {...(scheduleError ? { error: scheduleError } : {})}
           />
         ) : null}
@@ -180,9 +181,13 @@ export function CreateAnnouncementWizard() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           {stepIndex > 0 ? (
-            // Com o post já criado (pendingImages), voltar/editar não teria
+            // Com o post já criado (pendingImageUpload), voltar/editar não teria
             // efeito — o retry reenvia só as imagens. Navegação travada.
-            <Button variant="outlined" onClick={handleBack} disabled={submitting || pendingImages}>
+            <Button
+              variant="outlined"
+              onClick={handleBack}
+              disabled={submitting || pendingImageUpload}
+            >
               Voltar
             </Button>
           ) : null}
@@ -195,8 +200,8 @@ export function CreateAnnouncementWizard() {
             </Button>
           ) : (
             <Button onClick={handleSubmit} loading={submitting}>
-              {pendingImages
-                ? 'Reenviar imagens'
+              {pendingImageUpload
+                ? 'Tentar enviar imagens novamente'
                 : scheduledFor
                   ? 'Agendar publicação'
                   : 'Publicar agora'}

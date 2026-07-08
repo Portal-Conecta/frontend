@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-import { deleteAnnouncement } from '@portal/comunicados/services/server/announcementsService'
+import { deletePost } from '@portal/comunicados/services/server/postsService'
 
 import { bffErrorResponse } from '../../_lib/bffError'
 
@@ -12,7 +12,7 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   const { id } = await params
 
   try {
-    await deleteAnnouncement(id)
+    await deletePost(id)
     return new NextResponse(null, { status: 204 })
   } catch (err) {
     return bffErrorResponse(err)

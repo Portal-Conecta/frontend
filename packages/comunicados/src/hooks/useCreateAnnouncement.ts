@@ -37,6 +37,9 @@ import {
  * here, then o BFF presigna via API Gateway e envia ao S3 no servidor (#198). Set `redirectOnSuccess: false`
  * to own the navigation and only redirect after the uploads finish; by default it
  * redirects to `redirectTo` (the mural).
+ *
+ * Se o post for criado mas o upload de imagens falhar, o id fica em `pendingPost`
+ * e a próxima submissão tenta só o upload — evita duplicar o comunicado no retry.
  */
 
 export interface CreateAnnouncementFormValues {
@@ -140,12 +143,7 @@ export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [formError, setFormError] = useState('')
   const [submitting, setSubmitting] = useState(false)
-  /**
-   * Post já criado no back cuja subida de imagens falhou (#198). Enquanto
-   * preenchido, um novo submit NÃO recria o comunicado — só reenvia as imagens.
-   * Evita duplicar o post no retry (o create não é idempotente no back).
-   */
-  const [createdPost, setCreatedPost] = useState<AnnouncementResponse | null>(null)
+  const [pendingPost, setPendingPost] = useState<AnnouncementResponse | null>(null)
 
   const setField = useCallback(
     <K extends keyof CreateAnnouncementFormValues>(
@@ -167,7 +165,7 @@ export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}
     setValues({ ...DEFAULT_VALUES, ...options.initialValues })
     setFieldErrors({})
     setFormError('')
-    setCreatedPost(null)
+    setPendingPost(null)
   }, [options.initialValues])
 
   const buildPublishBody = useCallback((): PublishAnnouncementRequest => {
@@ -187,6 +185,26 @@ export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}
     }
   }, [])
 
+  const finishAfterImages = useCallback(
+    async (
+      post: AnnouncementResponse,
+      images: readonly ImageItem[],
+    ): Promise<AnnouncementResponse | null> => {
+      const imagesOk = await uploadImages(post.id, images)
+      if (!imagesOk) {
+        setPendingPost(post)
+        return null
+      }
+
+      setPendingPost(null)
+      if (redirectOnSuccess) {
+        router.push(redirectTo)
+      }
+      return post
+    },
+    [redirectOnSuccess, redirectTo, router, uploadImages],
+  )
+
   const send = useCallback(
     async (
       endpoint: 'publish' | 'schedule',
@@ -198,17 +216,8 @@ export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}
       setFieldErrors({})
 
       try {
-        // Retry após sucesso parcial: o post já existe, só as imagens pendem.
-        if (createdPost) {
-          const retryOk = await uploadImages(createdPost.id, options.images ?? [])
-          if (!retryOk) {
-            return null
-          }
-          setCreatedPost(null)
-          if (redirectOnSuccess) {
-            router.push(redirectTo)
-          }
-          return createdPost
+        if (pendingPost?.id) {
+          return await finishAfterImages(pendingPost, options.images ?? [])
         }
 
         const res = await fetch(`/api/comunicados/posts/${endpoint}`, {
@@ -238,17 +247,7 @@ export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}
           return null
         }
 
-        const imagesOk = await uploadImages(created.id, options.images ?? [])
-        if (!imagesOk) {
-          // Guarda o post criado para o próximo submit reenviar SÓ as imagens.
-          setCreatedPost(created)
-          return null
-        }
-
-        if (redirectOnSuccess) {
-          router.push(redirectTo)
-        }
-        return created
+        return await finishAfterImages(created, options.images ?? [])
       } catch {
         setFormError(GENERIC_ERROR)
         return null
@@ -256,7 +255,7 @@ export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}
         setSubmitting(false)
       }
     },
-    [createdPost, redirectOnSuccess, redirectTo, router, uploadImages],
+    [finishAfterImages, pendingPost],
   )
 
   const publish = useCallback((): Promise<AnnouncementResponse | null> => {
@@ -326,8 +325,7 @@ export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}
     fieldErrors,
     formError,
     submitting,
-    /** True quando o post foi criado mas as imagens falharam — o próximo submit só reenvia imagens. */
-    pendingImages: createdPost != null,
+    pendingImageUpload: pendingPost != null,
     publish,
     schedule,
     publishFrom,

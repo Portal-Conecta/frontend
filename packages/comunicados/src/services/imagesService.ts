@@ -208,14 +208,14 @@ export async function uploadPostImage(
   options: UploadPostImageOptions = {},
 ): Promise<AnnouncementFile> {
   const thumbnail = options.thumbnail === true
-  // `gatewayFetch` já resolve a base URL — aqui monta-se só o path (+ query).
-  const path = `${comunicadosGatewayPath(`/api/posts/${postId}/images`)}${thumbnail ? '?thumbnail=true' : ''}`
+  const path = comunicadosGatewayPath(`/api/posts/${postId}/images`)
+  const pathWithQuery = thumbnail ? `${path}?thumbnail=true` : path
 
   const formData = new FormData()
   const filename = file instanceof File ? file.name : options.filename
   formData.append('file', file, filename ?? 'image')
 
-  const res = await gatewayFetch(path, token, { method: 'POST', body: formData })
+  const res = await gatewayFetch(pathWithQuery, token, { method: 'POST', body: formData })
 
   if (res.status === 201) {
     try {
