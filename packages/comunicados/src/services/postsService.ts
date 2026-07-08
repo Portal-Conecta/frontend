@@ -18,6 +18,7 @@ import type {
 import type { ApiError, ApiFieldError } from '../../../shared/src/types/api-error'
 
 import { resolveApiGatewayUrl } from './comunicadosGateway'
+import { comunicadosGatewayPath } from './comunicadosGateway'
 
 
 export type PostsErrorKind = 'validation' | 'unauthorized' | 'forbidden' | 'server' | 'network'
@@ -73,7 +74,7 @@ async function createPost(
   body: PublishAnnouncementRequest | ScheduleAnnouncementRequest,
   token: string,
 ): Promise<AnnouncementResponse> {
-  const url = `${baseUrl()}${path}`
+  const url = `${baseUrl()}${comunicadosGatewayPath(path)}`
 
   let res: Response
   try {
