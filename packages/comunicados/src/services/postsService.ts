@@ -15,10 +15,9 @@ import type {
   ScheduleAnnouncementRequest,
 } from '../types/announcement'
 
-import type { ApiError, ApiFieldError } from '../../../shared/src/types/api-error'
+import type { ApiError, ApiFieldError } from '@portal/shared'
 
-import { resolveApiGatewayUrl } from './comunicadosGateway'
-import { comunicadosGatewayPath } from './comunicadosGateway'
+import { comunicadosGatewayPath, resolveApiGatewayUrl } from './comunicadosGateway'
 
 
 export type PostsErrorKind = 'validation' | 'unauthorized' | 'forbidden' | 'server' | 'network'

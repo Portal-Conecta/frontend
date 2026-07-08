@@ -63,9 +63,10 @@ export function CreateAnnouncementWizard() {
   const [contentErrors, setContentErrors] = useState<Partial<Record<keyof AnnouncementContentValue, string>>>({})
   const [destinationsError, setDestinationsError] = useState<string | undefined>()
 
-  const { fieldErrors, formError, submitting, publishFrom, scheduleFrom } = useCreateAnnouncement({
-    redirectOnSuccess: false,
-  })
+  const { fieldErrors, formError, submitting, pendingImageUpload, publishFrom, scheduleFrom } =
+    useCreateAnnouncement({
+      redirectOnSuccess: false,
+    })
 
   const catalog = useDestinationCatalog()
 
@@ -193,7 +194,11 @@ export function CreateAnnouncementWizard() {
             </Button>
           ) : (
             <Button onClick={handleSubmit} loading={submitting}>
-              {scheduledFor ? 'Agendar publicação' : 'Publicar agora'}
+              {pendingImageUpload
+                ? 'Tentar enviar imagens novamente'
+                : scheduledFor
+                  ? 'Agendar publicação'
+                  : 'Publicar agora'}
             </Button>
           )}
         </div>

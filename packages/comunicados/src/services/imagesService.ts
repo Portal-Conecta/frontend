@@ -13,7 +13,7 @@ import type {
 } from '../types/presign'
 import type { AnnouncementFile } from '../types/file'
 
-import type { ApiError, ApiFieldError } from '../../../shared/src/types/api-error'
+import type { ApiError, ApiFieldError } from '@portal/shared'
 
 import { comunicadosGatewayPath, resolveApiGatewayUrl } from './comunicadosGateway'
 
@@ -209,13 +209,13 @@ export async function uploadPostImage(
 ): Promise<AnnouncementFile> {
   const thumbnail = options.thumbnail === true
   const path = comunicadosGatewayPath(`/api/posts/${postId}/images`)
-  const url = `${baseUrl()}${path}${thumbnail ? '?thumbnail=true' : ''}`
+  const pathWithQuery = thumbnail ? `${path}?thumbnail=true` : path
 
   const formData = new FormData()
   const filename = file instanceof File ? file.name : options.filename
   formData.append('file', file, filename ?? 'image')
 
-  const res = await gatewayFetch(url, token, { method: 'POST', body: formData })
+  const res = await gatewayFetch(pathWithQuery, token, { method: 'POST', body: formData })
 
   if (res.status === 201) {
     try {

@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   ImagesError,
   presignPostImage,
+  uploadPostImage,
   uploadPostImageViaPresign,
 } from '../../src/services/imagesService'
 import type { PresignUploadResponse } from '../../src/types/presign'
@@ -65,6 +66,28 @@ describe('presignPostImage', () => {
   it('mapeia 400 para validation', async () => {
     stubFetch().mockResolvedValue(response(400, { message: 'ARQ02' }))
     await expect(presignPostImage(POST_ID, presignBody, TOKEN)).rejects.toBeInstanceOf(ImagesError)
+  })
+})
+
+describe('uploadPostImage', () => {
+  it('envia multipart para o path do gateway sem duplicar a base URL', async () => {
+    const fetchMock = stubFetch()
+    const fileMeta = {
+      id: 'f1',
+      announcementId: POST_ID,
+      originalName: 'foto.png',
+      type: 'IMAGE',
+    } as const
+    fetchMock.mockResolvedValue(response(201, fileMeta))
+
+    await expect(
+      uploadPostImage(POST_ID, file, TOKEN, { thumbnail: true }),
+    ).resolves.toEqual(fileMeta)
+
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe(`${API_GATEWAY_URL}/comunicados/api/posts/${POST_ID}/images?thumbnail=true`)
+    expect(init?.method).toBe('POST')
+    expect(init?.body).toBeInstanceOf(FormData)
   })
 })
 
