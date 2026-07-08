@@ -64,7 +64,7 @@ function ToastDocsDemo() {
         ))}
       </div>
 
-      <div className="w-full max-w-lg">
+      <div className="w-full max-w-md">
         <Toast toast={selectedToast} onDismiss={() => undefined} />
       </div>
     </div>
