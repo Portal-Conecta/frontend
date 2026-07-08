@@ -1,21 +1,10 @@
 /**
- * MOCK documentado — dados de exemplo para o `DestinationSelector`.
- *
- * A issue #195 sanciona o mock: "Hub (cursos/turmas): BFF futuro; se
- * indisponível, mock documentado no PR". Substituir por dados reais quando o
- * BFF existir:
- *
- * - `mockCourses`  → tags com `entityType === 'COURSE'` (módulo comunicados)
- * - `mockClasses`  → tags com `entityType === 'CLASS'`
- * - `mockShifts`   → **não há tipo de tag para turno** no back (só COURSE,
- *                    CLASS, USER, GENERAL). Mantido como lista fixa até o
- *                    contrato ganhar um `TURNO`/atributo de turno.
- * - `mockUsers`    → serviço de usuários (ainda em prototipação, #15/#165).
- *
- * O `DestinationSelector` recebe todos por props com estes valores como default,
- * então trocar a fonte é só passar as props reais — nenhum componente muda.
+ * Dados de exemplo para Storybook do `DestinationSelector`.
+ * Em produção, cursos/turmas/usuários vêm do Hub via BFF; turnos do enum `Shift`.
  */
 import type { SelectOption } from '@portal/ui'
+
+import { HUB_SHIFT_OPTIONS } from '../../constants/hubShifts'
 
 import type { UserSummary } from './types'
 
@@ -34,11 +23,7 @@ export const mockClasses: SelectOption[] = [
   { value: 'turma-adm-2025', label: 'ADM 2025' },
 ]
 
-export const mockShifts: SelectOption[] = [
-  { value: 'turno-manha', label: 'Manhã' },
-  { value: 'turno-tarde', label: 'Tarde' },
-  { value: 'turno-noite', label: 'Noite' },
-]
+export const mockShifts: SelectOption[] = HUB_SHIFT_OPTIONS
 
 export const mockUsers: UserSummary[] = [
   { id: 'u-01', name: 'Ana Beatriz Souza', role: 'Aluno · DS 2026' },
