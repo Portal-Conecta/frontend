@@ -1,88 +1,53 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { useEffect } from 'react'
 
-import { Button } from '../../atoms/Button'
-import { ToastProvider, useToast } from './Toast'
+import { Toast, type ToastItem } from './Toast'
 
-function ToastActions() {
-  const { toast } = useToast()
+const toastItems: ToastItem[] = [
+  {
+    id: 'error',
+    variant: 'error',
+    title: 'Erro',
+    message: 'Mensagem não encontrada',
+    duration: 0,
+  },
+  {
+    id: 'success',
+    variant: 'success',
+    message: 'Mensagem enviada com Sucesso!',
+    duration: 0,
+  },
+  {
+    id: 'info',
+    variant: 'info',
+    title: 'Notificação',
+    message: 'faça uma prova agora',
+    duration: 0,
+  },
+  {
+    id: 'warning',
+    variant: 'warning',
+    message: 'Revise os dados antes de continuar',
+    duration: 0,
+  },
+]
 
+function ToastVariants() {
   return (
-    <div className="flex flex-wrap gap-3">
-      <Button tone="negative" onClick={() => toast.error('Mensagem não encontrada', { title: 'Erro' })}>
-        Erro
-      </Button>
-      <Button tone="positive" onClick={() => toast.success('Mensagem enviada com Sucesso!')}>
-        Sucesso
-      </Button>
-      <Button onClick={() => toast.info('faça uma prova agora', { title: 'Notificação' })}>
-        Info
-      </Button>
-      <Button onClick={() => toast.warning('Revise os dados antes de continuar')}>
-        Warning
-      </Button>
+    <div className="flex min-h-80 items-center justify-center bg-background-default p-6">
+      <div className="flex w-full max-w-lg flex-col gap-2">
+        {toastItems.map((toast) => (
+          <Toast key={toast.id} toast={toast} onDismiss={() => undefined} />
+        ))}
+      </div>
     </div>
   )
 }
 
-function ToastDemo() {
-  return (
-    <ToastProvider defaultDuration={0} maxToasts={4}>
-      <ToastPreview />
-      <ToastActions />
-    </ToastProvider>
-  )
-}
-
-function ToastPreview() {
-  const { toast } = useToast()
-
-  useEffect(() => {
-    toast.warning('Revise os dados antes de continuar', { id: 'story-warning' })
-    toast.info('faça uma prova agora', { title: 'Notificação', id: 'story-info' })
-    toast.success('Mensagem enviada com Sucesso!', { id: 'story-success' })
-    toast.error('Mensagem não encontrada', { title: 'Erro', id: 'story-error' })
-  }, [toast])
-
-  return null
-}
-
-function StackedToastDemo() {
-  const { toast } = useToast()
-
-  return (
-    <Button
-      onClick={() => {
-        toast.info('faça uma prova agora', { title: 'Notificação', id: 'story-info' })
-        toast.success('Mensagem enviada com Sucesso!', { id: 'story-success' })
-        toast.error('Mensagem não encontrada', { title: 'Erro', id: 'story-error' })
-      }}
-    >
-      Mostrar pilha
-    </Button>
-  )
-}
-
-function StackedDemo() {
-  return (
-    <ToastProvider defaultDuration={0}>
-      <StackedToastDemo />
-    </ToastProvider>
-  )
-}
-
-const meta: Meta<typeof ToastDemo> = {
+const meta: Meta<typeof ToastVariants> = {
   title: 'Componentes/Overlay/Toast',
-  component: ToastDemo,
-  tags: ['autodocs'],
+  component: ToastVariants,
   parameters: {
-    layout: 'padded',
-    docs: {
-      description: {
-        component:
-          'Toast mostra feedback temporário de ações com empilhamento, dismiss manual e região aria-live.',
-      },
-    },
+    layout: 'fullscreen',
   },
 }
 
@@ -90,7 +55,3 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Variants: Story = {}
-
-export const Stack: Story = {
-  render: () => <StackedDemo />,
-}
