@@ -4,6 +4,9 @@ import { Skeleton, Text } from '@portal/ui'
 
 export default function LoadingComunicadosPage() {
   return (
+    // Enquanto a rota não compartilhar layout com a página final, o loading usa
+    // `user={null}` e pode renderizar uma sidebar mais enxuta que a versão
+    // resolvida pelo servidor. A diferença é aceitável neste estágio.
     <AppShell user={null} activeKey="comunicados">
       <div className="p-8">
         {/* Keep this title in sync with PageAnnouncements while the route has no shared layout. */}
