@@ -1,10 +1,10 @@
 /**
  * Testes do service server de comunicados (`services/server/announcementsService`).
  *
- * As funções falam com o back pelo http client compartilhado, que resolve o JWT
- * via `getSession` — então mockamos esse módulo para não depender de `next/headers`
- * e trocamos o `fetch` global por um dublê (`vi.stubGlobal`) para controlar status
- * e corpo. `COMUNICADOS_API_URL` é setada antes de cada teste e limpa depois.
+ * As funções falam com o API Gateway pelo http client compartilhado, que resolve
+ * o JWT via `getSession` — então mockamos esse módulo para não depender de
+ * `next/headers` e trocamos o `fetch` global por um dublê (`vi.stubGlobal`) para
+ * controlar status e corpo. `API_GATEWAY_URL` é setada antes de cada teste e limpa depois.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -20,7 +20,7 @@ import {
 } from '../../src/services/server/announcementsService'
 import type { AnnouncementResponse } from '../../src/types/announcement'
 
-const API_URL = 'https://comunicados.test'
+const API_GATEWAY_URL = 'https://gateway.test'
 
 function response(status: number, body: unknown): Response {
   return {
@@ -62,16 +62,16 @@ const announcement: AnnouncementResponse = {
 }
 
 beforeEach(() => {
-  process.env.COMUNICADOS_API_URL = API_URL
+  process.env.API_GATEWAY_URL = API_GATEWAY_URL
 })
 
 afterEach(() => {
   vi.unstubAllGlobals()
-  delete process.env.COMUNICADOS_API_URL
+  delete process.env.API_GATEWAY_URL
 })
 
 describe('listMyAnnouncements', () => {
-  it('faz GET em /api/posts com mine=true e Bearer, repassando os filtros como query', async () => {
+  it('faz GET em /comunicados/api/posts com mine=true e Bearer, repassando os filtros como query', async () => {
     const fetchMock = stubFetch()
     fetchMock.mockResolvedValue(response(200, listResponse))
 
@@ -81,7 +81,7 @@ describe('listMyAnnouncements', () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
     const [url, init] = fetchMock.mock.calls[0]!
-    expect(url).toBe(`${API_URL}/api/posts?page=0&size=20&search=prova&mine=true`)
+    expect(url).toBe(`${API_GATEWAY_URL}/comunicados/api/posts?page=0&size=20&search=prova&mine=true`)
     expect(init?.method).toBe('GET')
     expect((init?.headers as Record<string, string>).Authorization).toBe('Bearer jwt-token')
   })
@@ -93,14 +93,14 @@ describe('listMyAnnouncements', () => {
 })
 
 describe('deleteAnnouncement', () => {
-  it('faz DELETE em /api/posts/{id} e resolve sem corpo no 204', async () => {
+  it('faz DELETE em /comunicados/api/posts/{id} e resolve sem corpo no 204', async () => {
     const fetchMock = stubFetch()
     fetchMock.mockResolvedValue(response(204, null))
 
     await expect(deleteAnnouncement('a1')).resolves.toBeUndefined()
 
     const [url, init] = fetchMock.mock.calls[0]!
-    expect(url).toBe(`${API_URL}/api/posts/a1`)
+    expect(url).toBe(`${API_GATEWAY_URL}/comunicados/api/posts/a1`)
     expect(init?.method).toBe('DELETE')
   })
 
@@ -111,26 +111,26 @@ describe('deleteAnnouncement', () => {
 })
 
 describe('pinAnnouncement / unpinAnnouncement', () => {
-  it('faz PATCH em /api/posts/{id}/pin com pinnedOrder no body e retorna o atualizado', async () => {
+  it('faz PATCH em /comunicados/api/posts/{id}/pin com pinnedOrder no body e retorna o atualizado', async () => {
     const fetchMock = stubFetch()
     fetchMock.mockResolvedValue(response(200, announcement))
 
     await expect(pinAnnouncement('a1', 2)).resolves.toMatchObject({ pinned: true })
 
     const [url, init] = fetchMock.mock.calls[0]!
-    expect(url).toBe(`${API_URL}/api/posts/a1/pin`)
+    expect(url).toBe(`${API_GATEWAY_URL}/comunicados/api/posts/a1/pin`)
     expect(init?.method).toBe('PATCH')
     expect(JSON.parse(init?.body as string)).toEqual({ pinnedOrder: 2 })
   })
 
-  it('faz PATCH em /api/posts/{id}/unpin', async () => {
+  it('faz PATCH em /comunicados/api/posts/{id}/unpin', async () => {
     const fetchMock = stubFetch()
     fetchMock.mockResolvedValue(response(200, { ...announcement, pinned: false, pinnedOrder: null }))
 
     await expect(unpinAnnouncement('a1')).resolves.toMatchObject({ pinned: false })
 
     const [url, init] = fetchMock.mock.calls[0]!
-    expect(url).toBe(`${API_URL}/api/posts/a1/unpin`)
+    expect(url).toBe(`${API_GATEWAY_URL}/comunicados/api/posts/a1/unpin`)
     expect(init?.method).toBe('PATCH')
   })
 })

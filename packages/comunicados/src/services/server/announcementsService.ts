@@ -7,22 +7,25 @@ import type {
 import { createHttpClient } from '@portal/core/http/httpClient'
 import type { QueryParams } from '@portal/core/http/query'
 
+import { comunicadosGatewayPath } from '../comunicadosGateway'
+
 /**
- * Serviço de comunicados no server. Fala direto com o back de comunicados pelo
- * http client compartilhado, que lê o JWT do cookie de sessão — então só roda em
- * Server Components e Route Handlers, nunca no browser.
+ * Serviço de comunicados no server. Fala com o API Gateway
+ * (`/comunicados/api/posts/*`) pelo http client compartilhado, que lê o JWT do
+ * cookie de sessão — então só roda em Server Components e Route Handlers,
+ * nunca no browser.
  *
- * Os caminhos mantêm o vocabulário `/api/posts` do back; a superfície TypeScript
- * usa o nome de domínio `Announcement`.
+ * Os caminhos mantêm o vocabulário `/api/posts` do serviço de comunicados; a
+ * superfície TypeScript usa o nome de domínio `Announcement`.
  */
 
-const http = createHttpClient('COMUNICADOS_API_URL')
+const http = createHttpClient('API_GATEWAY_URL')
 
 /** Lista o mural de comunicados (`GET /api/posts`), paginado. */
 export async function listAnnouncements(
   params: ListPostsParams = {},
 ): Promise<ListAnnouncementsResponse> {
-  return http.get<ListAnnouncementsResponse>('/api/posts', {
+  return http.get<ListAnnouncementsResponse>(comunicadosGatewayPath('/api/posts'), {
     params: params as QueryParams,
   })
 }
@@ -40,14 +43,14 @@ export async function listAnnouncements(
 export async function listMyAnnouncements(
   params: QueryParams = {},
 ): Promise<ListAnnouncementsResponse> {
-  return http.get<ListAnnouncementsResponse>('/api/posts', {
+  return http.get<ListAnnouncementsResponse>(comunicadosGatewayPath('/api/posts'), {
     params: { ...params, mine: true },
   })
 }
 
 /** Soft delete de um comunicado próprio (`DELETE /api/posts/{id}`); o back responde 204. */
 export async function deleteAnnouncement(id: string): Promise<void> {
-  await http.delete<void>(`/api/posts/${id}`)
+  await http.delete<void>(comunicadosGatewayPath(`/api/posts/${id}`))
 }
 
 /**
@@ -59,10 +62,12 @@ export async function pinAnnouncement(
   id: string,
   pinnedOrder?: number,
 ): Promise<AnnouncementResponse> {
-  return http.patch<AnnouncementResponse>(`/api/posts/${id}/pin`, { body: { pinnedOrder } })
+  return http.patch<AnnouncementResponse>(comunicadosGatewayPath(`/api/posts/${id}/pin`), {
+    body: { pinnedOrder },
+  })
 }
 
 /** Desafixa um comunicado (`PATCH /api/posts/{id}/unpin`), retornando o estado atualizado. */
 export async function unpinAnnouncement(id: string): Promise<AnnouncementResponse> {
-  return http.patch<AnnouncementResponse>(`/api/posts/${id}/unpin`)
+  return http.patch<AnnouncementResponse>(comunicadosGatewayPath(`/api/posts/${id}/unpin`))
 }
