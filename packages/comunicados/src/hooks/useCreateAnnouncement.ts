@@ -13,7 +13,7 @@ import {
   type ScheduleAnnouncementRequest,
 } from '../types/announcement'
 
-import type { ApiFieldError } from '../../../shared/src/types/api-error'
+import type { ApiFieldError } from '@portal/shared'
 
 import type { ImageItem } from '../components/AnnouncementForm/types'
 
@@ -77,6 +77,8 @@ const IMAGE_UPLOAD_ERROR =
   'Comunicado criado, mas não foi possível enviar as imagens. Tente novamente.'
 
 function messageFromApi(message: string | undefined, status: number): string {
+  // FRÁGIL: o back ainda não envia `code` de erro — o match é pela frase exata.
+  // Quebra se o texto/locale mudar; trocar por código quando o contrato expor.
   if (message === 'Data integrity violation.') {
     return 'O título excede o limite de 255 caracteres.'
   }
@@ -138,6 +140,12 @@ export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [formError, setFormError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  /**
+   * Post já criado no back cuja subida de imagens falhou (#198). Enquanto
+   * preenchido, um novo submit NÃO recria o comunicado — só reenvia as imagens.
+   * Evita duplicar o post no retry (o create não é idempotente no back).
+   */
+  const [createdPost, setCreatedPost] = useState<AnnouncementResponse | null>(null)
 
   const setField = useCallback(
     <K extends keyof CreateAnnouncementFormValues>(
@@ -159,6 +167,7 @@ export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}
     setValues({ ...DEFAULT_VALUES, ...options.initialValues })
     setFieldErrors({})
     setFormError('')
+    setCreatedPost(null)
   }, [options.initialValues])
 
   const buildPublishBody = useCallback((): PublishAnnouncementRequest => {
@@ -189,6 +198,19 @@ export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}
       setFieldErrors({})
 
       try {
+        // Retry após sucesso parcial: o post já existe, só as imagens pendem.
+        if (createdPost) {
+          const retryOk = await uploadImages(createdPost.id, options.images ?? [])
+          if (!retryOk) {
+            return null
+          }
+          setCreatedPost(null)
+          if (redirectOnSuccess) {
+            router.push(redirectTo)
+          }
+          return createdPost
+        }
+
         const res = await fetch(`/api/comunicados/posts/${endpoint}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -218,6 +240,8 @@ export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}
 
         const imagesOk = await uploadImages(created.id, options.images ?? [])
         if (!imagesOk) {
+          // Guarda o post criado para o próximo submit reenviar SÓ as imagens.
+          setCreatedPost(created)
           return null
         }
 
@@ -232,7 +256,7 @@ export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}
         setSubmitting(false)
       }
     },
-    [redirectOnSuccess, redirectTo, router, uploadImages],
+    [createdPost, redirectOnSuccess, redirectTo, router, uploadImages],
   )
 
   const publish = useCallback((): Promise<AnnouncementResponse | null> => {
@@ -302,6 +326,8 @@ export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}
     fieldErrors,
     formError,
     submitting,
+    /** True quando o post foi criado mas as imagens falharam — o próximo submit só reenvia imagens. */
+    pendingImages: createdPost != null,
     publish,
     schedule,
     publishFrom,

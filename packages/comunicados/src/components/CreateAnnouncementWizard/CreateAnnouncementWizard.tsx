@@ -63,9 +63,10 @@ export function CreateAnnouncementWizard() {
   const [contentErrors, setContentErrors] = useState<Partial<Record<keyof AnnouncementContentValue, string>>>({})
   const [destinationsError, setDestinationsError] = useState<string | undefined>()
 
-  const { fieldErrors, formError, submitting, publishFrom, scheduleFrom } = useCreateAnnouncement({
-    redirectOnSuccess: false,
-  })
+  const { fieldErrors, formError, submitting, pendingImages, publishFrom, scheduleFrom } =
+    useCreateAnnouncement({
+      redirectOnSuccess: false,
+    })
 
   const catalog = useDestinationCatalog()
 
@@ -128,7 +129,6 @@ export function CreateAnnouncementWizard() {
         <Text as="h1" variant="heading-h2" tone="brand">
           Criar comunicado
         </Text>
-
       </header>
 
       <div className="rounded-md border-sm border-border-default bg-background-surface p-6 md:p-8">
@@ -168,7 +168,7 @@ export function CreateAnnouncementWizard() {
           <ScheduleDatePicker
             value={scheduledFor}
             onChange={setScheduledFor}
-            disabled={submitting}
+            disabled={submitting || pendingImages}
             {...(scheduleError ? { error: scheduleError } : {})}
           />
         ) : null}
@@ -180,7 +180,9 @@ export function CreateAnnouncementWizard() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           {stepIndex > 0 ? (
-            <Button variant="outlined" onClick={handleBack} disabled={submitting}>
+            // Com o post já criado (pendingImages), voltar/editar não teria
+            // efeito — o retry reenvia só as imagens. Navegação travada.
+            <Button variant="outlined" onClick={handleBack} disabled={submitting || pendingImages}>
               Voltar
             </Button>
           ) : null}
@@ -193,7 +195,11 @@ export function CreateAnnouncementWizard() {
             </Button>
           ) : (
             <Button onClick={handleSubmit} loading={submitting}>
-              {scheduledFor ? 'Agendar publicação' : 'Publicar agora'}
+              {pendingImages
+                ? 'Reenviar imagens'
+                : scheduledFor
+                  ? 'Agendar publicação'
+                  : 'Publicar agora'}
             </Button>
           )}
         </div>

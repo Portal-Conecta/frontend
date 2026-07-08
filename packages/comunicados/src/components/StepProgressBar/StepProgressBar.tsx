@@ -36,10 +36,16 @@ export function StepProgressBar({
           const label = labels?.[index] ?? `Etapa ${index + 1}`
 
           return (
-            <li key={index} className="flex-1" aria-current={index === safeCurrent ? 'step' : undefined}>
+            <li
+              key={index}
+              className="flex-1"
+              aria-current={index === safeCurrent ? 'step' : undefined}
+              // O rótulo fica no <li> (semântico): num filho com
+              // role="presentation" o aria-label seria ignorado pelos leitores.
+              aria-label={`${label}${filled ? ' — concluída ou em andamento' : ' — pendente'}`}
+            >
               <div
-                role="presentation"
-                aria-label={`${label}${filled ? ' — concluída ou em andamento' : ' — pendente'}`}
+                aria-hidden="true"
                 className={
                   'h-1 w-full ' + (filled ? 'bg-interactive-default' : 'bg-border-default')
                 }

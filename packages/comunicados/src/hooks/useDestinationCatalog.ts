@@ -38,6 +38,9 @@ export interface UseDestinationCatalogResult {
 }
 
 const USERS_PAGE_SIZE = 6
+// TODO(#195): a busca baixa só os USERS_SEARCH_FETCH_SIZE primeiros usuários e
+// filtra no client — matches além desse teto nunca aparecem. Mover o termo de
+// busca para o back quando o BFF real de usuários/tags existir.
 const USERS_SEARCH_FETCH_SIZE = 100
 
 export function useDestinationCatalog(): UseDestinationCatalogResult {
