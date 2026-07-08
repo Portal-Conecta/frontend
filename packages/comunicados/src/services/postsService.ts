@@ -68,7 +68,7 @@ async function toPostsError(res: Response): Promise<PostsError> {
   }
 }
 
-async function createAnnouncement(
+async function createPost(
   path: string,
   body: PublishAnnouncementRequest | ScheduleAnnouncementRequest,
   token: string,
@@ -115,14 +115,14 @@ export function publishPost(
   body: PublishAnnouncementRequest,
   token: string,
 ): Promise<AnnouncementResponse> {
-  return createAnnouncement(comunicadosGatewayPath('/api/posts/publish'), body, token)
+  return createPost('/api/posts/publish', body, token)
 }
 
 export function schedulePost(
   body: ScheduleAnnouncementRequest,
   token: string,
 ): Promise<AnnouncementResponse> {
-  return createAnnouncement(comunicadosGatewayPath('/api/posts/schedule'), body, token)
+  return createPost('/api/posts/schedule', body, token)
 }
 
 export const postsService = {

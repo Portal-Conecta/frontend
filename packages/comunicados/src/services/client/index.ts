@@ -8,9 +8,9 @@ export {
   listDestinationUsersClient,
 } from './destinationsClient'
 export {
-  listAnnouncementsClient,
-  listMyAnnouncementsClient,
-  deleteAnnouncementClient,
-  pinAnnouncementClient,
-  unpinAnnouncementClient,
-} from './announcementsClient'
+  listPostsClient,
+  listMyPostsClient,
+  deletePostClient,
+  pinPostClient,
+  unpinPostClient,
+} from './postsClient'
