@@ -1,6 +1,7 @@
 export * from './AnnouncementCard'
 export * from './AnnouncementsBoard'
 export * from './PinnedPostsSection'
+export * from './AnnouncementAttachmentGallery'
 export * from './AnnouncementForm'
 export * from './DestinationSelector'
 export * from './ScheduleDatePicker'
