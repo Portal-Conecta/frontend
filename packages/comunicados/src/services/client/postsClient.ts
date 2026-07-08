@@ -1,51 +1,50 @@
-import type { ListAnnouncementsResponse, ListPostsParams } from '../../types/posts'
+import type { AnnouncementResponse, ListAnnouncementsResponse, ListPostsParams } from '../../types'
 
-export class PostsClientError extends Error {
-  constructor(
-    public readonly status: number,
-    public readonly code = 'posts_client_error',
-  ) {
-    super(code)
-    this.name = 'PostsClientError'
-  }
+import { bffFetch } from '@portal/core/http/bffClient'
+import { buildQuery, type QueryParams } from '@portal/core/http/query'
+
+/**
+ * Serviço de posts no browser. Toda chamada vai ao BFF de mesma origem
+ * (`/api/comunicados/posts/*`); o JWT nunca sai do server.
+ */
+
+/** Lista o mural via BFF (`GET /api/comunicados/posts`). */
+export async function listPostsClient(
+  params: ListPostsParams = {},
+): Promise<ListAnnouncementsResponse> {
+  return bffFetch<ListAnnouncementsResponse>(
+    `/api/comunicados/posts${buildQuery(params as QueryParams)}`,
+  )
 }
 
-function buildQuery(params?: ListPostsParams): string {
-  if (!params) return ''
+/** Lista os posts do próprio autor via BFF (`GET /api/comunicados/posts/mine`). */
+export async function listMyPostsClient(
+  params: ListPostsParams = {},
+): Promise<ListAnnouncementsResponse> {
+  return bffFetch<ListAnnouncementsResponse>(
+    `/api/comunicados/posts/mine${buildQuery(params as QueryParams)}`,
+  )
+}
 
-  const searchParams = new URLSearchParams()
-  Object.entries(params).forEach(([key, value]) => {
-    if (value === undefined || value === '') return
+/** Exclui um post próprio via BFF (`DELETE /api/comunicados/posts/{id}`). */
+export async function deletePostClient(id: string): Promise<void> {
+  return bffFetch<void>(`/api/comunicados/posts/${id}`, { method: 'DELETE' })
+}
 
-    const values = Array.isArray(value) ? value : [value]
-    values.forEach((item) => {
-      searchParams.append(key, String(item))
-    })
+/** Fixa um post via BFF (`PATCH /api/comunicados/posts/{id}/pin`). */
+export async function pinPostClient(
+  id: string,
+  pinnedOrder?: number,
+): Promise<AnnouncementResponse> {
+  return bffFetch<AnnouncementResponse>(`/api/comunicados/posts/${id}/pin`, {
+    method: 'PATCH',
+    body: JSON.stringify({ pinnedOrder }),
   })
-
-  const query = searchParams.toString()
-  return query ? `?${query}` : ''
 }
 
-async function readErrorCode(res: Response): Promise<string> {
-  try {
-    const body = (await res.json()) as { code?: unknown }
-    if (typeof body.code === 'string') return body.code
-  } catch {
-    // Mantem o fallback quando o BFF responder sem corpo JSON.
-  }
-  return 'posts_client_error'
-}
-
-export async function listPostsClient(params?: ListPostsParams): Promise<ListAnnouncementsResponse> {
-  const res = await fetch(`/api/comunicados/posts${buildQuery(params)}`, {
-    method: 'GET',
-    headers: { Accept: 'application/json' },
+/** Desafixa um post via BFF (`PATCH /api/comunicados/posts/{id}/unpin`). */
+export async function unpinPostClient(id: string): Promise<AnnouncementResponse> {
+  return bffFetch<AnnouncementResponse>(`/api/comunicados/posts/${id}/unpin`, {
+    method: 'PATCH',
   })
-
-  if (!res.ok) {
-    throw new PostsClientError(res.status, await readErrorCode(res))
-  }
-
-  return (await res.json()) as ListAnnouncementsResponse
 }

@@ -1,9 +1,9 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { listPostsClient } from '../services/client/postsClient'
-import type { ListAnnouncementsResponse, ListPostsParams } from '../types/posts'
+import type { ListAnnouncementsResponse, ListPostsParams } from '../types'
 
 interface UsePostsListResult {
   data: ListAnnouncementsResponse | null
@@ -21,26 +21,36 @@ export function usePostsList(initialFilters: ListPostsParams = {}): UsePostsList
   const [data, setData] = useState<ListAnnouncementsResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
+  const [reloadKey, setReloadKey] = useState(0)
   const page = Number(filters.page ?? 0)
 
-  const requestParams = useMemo<ListPostsParams>(() => filters, [filters])
-
   const refetch = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      setData(await listPostsClient(requestParams))
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('posts_list_error'))
-    } finally {
-      setLoading(false)
-    }
-  }, [requestParams])
+    setReloadKey((value) => value + 1)
+  }, [])
 
   useEffect(() => {
-    void refetch()
-  }, [refetch])
+    let active = true
+
+    async function loadPosts() {
+      setLoading(true)
+      setError(null)
+
+      try {
+        const result = await listPostsClient(filters)
+        if (active) setData(result)
+      } catch (err) {
+        if (active) setError(err instanceof Error ? err : new Error('posts_list_error'))
+      } finally {
+        if (active) setLoading(false)
+      }
+    }
+
+    void loadPosts()
+
+    return () => {
+      active = false
+    }
+  }, [filters, reloadKey])
 
   const setPage = useCallback((nextPage: number) => {
     setFiltersState((current) => ({ ...current, page: nextPage }))
