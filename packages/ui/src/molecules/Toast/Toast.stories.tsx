@@ -32,10 +32,15 @@ const variantButtons: Array<{
   label: string
   variant: ToastVariant
   tone?: 'brand' | 'positive' | 'negative'
+  className?: string
 }> = [
   { label: 'Erro', variant: 'error', tone: 'negative' },
   { label: 'Sucesso', variant: 'success', tone: 'positive' },
-  { label: 'Warning', variant: 'warning' },
+  {
+    label: 'Warning',
+    variant: 'warning',
+    className: '!bg-feedback-warning !text-text-primary hover:!bg-feedback-warning active:!bg-feedback-warning',
+  },
 ]
 
 function ToastDocsDemo() {
@@ -45,10 +50,11 @@ function ToastDocsDemo() {
   return (
     <div className="flex min-h-64 flex-col items-center justify-center gap-6 bg-background-default p-6">
       <div className="flex flex-wrap justify-center gap-3">
-        {variantButtons.map(({ label, variant, tone }) => (
+        {variantButtons.map(({ label, variant, tone, className }) => (
           <Button
             key={variant}
             {...(tone ? { tone } : {})}
+            className={className}
             onClick={() => setSelectedVariant(variant)}
           >
             {label}
