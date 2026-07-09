@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Text } from '@portal/ui'
 
 import { DestinationSelector, type DestinationSelectorProps } from './DestinationSelector'
+import { mockClasses, mockCourses, mockShifts, mockUsers } from './mockData'
 import { makeRecipient, type Recipient } from './types'
 
 const meta: Meta<typeof DestinationSelector> = {
@@ -23,11 +24,18 @@ export default meta
 type Story = StoryObj<typeof DestinationSelector>
 
 /** Não controlado: o componente gerencia a própria lista de destinatários. */
-export const Default: Story = {}
+export const Default: Story = {
+  args: {
+    courses: mockCourses,
+    classes: mockClasses,
+    shifts: mockShifts,
+    users: mockUsers,
+  },
+}
 
 /** Persona sem permissão para os demais modos — só a busca de usuários. */
 export const ApenasBuscaDeUsuarios: Story = {
-  args: { modes: ['user'], usersPageSize: 5 },
+  args: { modes: ['user'], users: mockUsers, usersPageSize: 5 },
 }
 
 export const Desabilitado: Story = {

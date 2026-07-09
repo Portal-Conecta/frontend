@@ -1,7 +1,19 @@
 export {
-  listAnnouncementsClient,
-  listMyAnnouncementsClient,
-  deleteAnnouncementClient,
-  pinAnnouncementClient,
-  unpinAnnouncementClient,
-} from './announcementsClient'
+  uploadAnnouncementImageClient,
+  uploadAnnouncementImagesClient,
+} from './announcementImagesClient'
+export {
+  listDestinationCoursesClient,
+  listDestinationClassesClient,
+  listDestinationUsersClient,
+} from './destinationsClient'
+export {
+  listPostsClient,
+  listMyPostsClient,
+  loadAnnouncementClient,
+  updateAnnouncementClient,
+  rescheduleAnnouncementClient,
+  deletePostClient,
+  pinPostClient,
+  unpinPostClient,
+} from './postsClient'

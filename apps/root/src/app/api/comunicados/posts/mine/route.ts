@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { listMyAnnouncements } from "@portal/comunicados/services/server/announcementsService";
+import { listMyPosts } from "@portal/comunicados/services/server/postsService";
 import type { QueryParams } from "@portal/core/http/query";
 
 import { bffErrorResponse } from "../../_lib/bffError";
@@ -24,7 +24,7 @@ function queryFromUrl(url: string): QueryParams {
 
 export async function GET(req: Request) {
   try {
-    const data = await listMyAnnouncements(queryFromUrl(req.url));
+    const data = await listMyPosts(queryFromUrl(req.url));
     return NextResponse.json(data);
   } catch (err) {
     return bffErrorResponse(err);
