@@ -1,2 +1,2 @@
-export * from './roomMap'
 export * from './student'
+export * from './roomMap'

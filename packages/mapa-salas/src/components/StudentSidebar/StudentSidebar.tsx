@@ -3,7 +3,7 @@ import type { UnassignedStudent } from '../../types/student'
 
 export type StudentSidebarProps = {
   /** Alunos ainda não alocados em nenhum assento (vindos da API) */
-  unassignedStudents: Array<UnassignedStudent>
+  unassignedStudents: UnassignedStudent[]
   /**
    * Id do aluno atualmente selecionado para alocação.
    * null quando nenhum aluno está selecionado.
@@ -31,7 +31,7 @@ export type StudentSidebarProps = {
  *
  * Nota de acessibilidade: o <ul> usa aria-label como rótulo mínimo.
  * Migração completa para role="listbox" (conforme comentário do
- * StudentListItem) fica como follow-up.
+ * StudentListItem) fica como follow-up — TODO(#231).
  */
 export function StudentSidebar({
   unassignedStudents,
