@@ -124,6 +124,20 @@ export interface AnnouncementDetail {
   mentions: AnnouncementMention[]
 }
 
+/**
+ * Body parcial de `PUT /api/posts/{id}`.
+ * Destinos não são editáveis nesta versão do back.
+ */
+export interface AnnouncementUpdatePayload {
+  title?: string
+  description?: string
+  origin?: AnnouncementOrigin
+  status?: AnnouncementStatus
+  pinned?: boolean
+  pinnedOrder?: number | null
+  scheduledFor?: string | null
+}
+
 /** Paginação de `GET /api/posts` (`ListAnnouncementsResponse`). */
 export interface ListAnnouncementsResponse {
   items: AnnouncementDetail[]
@@ -138,6 +152,7 @@ export interface ListPostsParams {
   page?: number
   size?: number
   search?: string
+  status?: AnnouncementStatus
   origin?: AnnouncementOrigin
   filterType?: string
   classId?: string
