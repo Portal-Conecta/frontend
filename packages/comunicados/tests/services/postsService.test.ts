@@ -11,7 +11,7 @@ import type {
   AnnouncementResponse,
   PublishAnnouncementRequest,
   ScheduleAnnouncementRequest,
-} from '../../src/types/announcement'
+} from '../../src/types'
 
 const API_GATEWAY_URL = 'https://gateway.test'
 const TOKEN = 'jwt-token'

@@ -1,4 +1,5 @@
 export * from './molecules'
+export * from './organisms'
 export * from './AnnouncementCard'
 export * from './AnnouncementsBoard'
 export * from './AnnouncementAttachmentGallery'
