@@ -4,8 +4,8 @@ import { useState } from 'react'
 
 import { Button, Text } from '@portal/ui'
 
-import { ScheduleDatePicker } from '../ScheduleDatePicker'
 import { rescheduleAnnouncementClient } from '../../services/client'
+import { ScheduleDatePicker } from '../ScheduleDatePicker'
 
 export interface ReschedulePanelProps {
   announcementId: string
@@ -51,17 +51,21 @@ export function ReschedulePanel({
       </Text>
 
       <ScheduleDatePicker
-  value={scheduledFor}
-  onChange={setScheduledFor}
-  {...(error ? { error } : {})}
-  disabled={saving}
-/>
+        value={scheduledFor}
+        onChange={(value) => {
+          setScheduledFor(value)
+          if (error) setError('')
+          if (success) setSuccess(false)
+        }}
+        {...(error ? { error } : {})}
+        disabled={saving}
+      />
 
-      {success && (
-        <Text as="p" variant="body-sm" tone="secondary">
+      {success ? (
+        <Text as="p" variant="body-sm" tone="secondary" role="status">
           Comunicado reagendado com sucesso.
         </Text>
-      )}
+      ) : null}
 
       <Button onClick={handleSave} disabled={!scheduledFor || saving}>
         {saving ? 'Salvando…' : 'Salvar novo agendamento'}

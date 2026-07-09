@@ -1,15 +1,12 @@
 export {
-  listAnnouncementsClient,
-  listMyAnnouncementsClient,
-  deleteAnnouncementClient,
-  pinAnnouncementClient,
-  unpinAnnouncementClient,
-} from './announcementsClient'
-export {
   uploadAnnouncementImageClient,
   uploadAnnouncementImagesClient,
 } from './announcementImagesClient'
-
+export {
+  listDestinationCoursesClient,
+  listDestinationClassesClient,
+  listDestinationUsersClient,
+} from './destinationsClient'
 export {
   listPostsClient,
   listMyPostsClient,
