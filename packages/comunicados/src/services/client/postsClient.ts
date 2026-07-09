@@ -1,8 +1,8 @@
 import type {
-  AnnouncementTag,
-  AnnouncementFile,
   AnnouncementDetail,
+  AnnouncementFile,
   AnnouncementResponse,
+  AnnouncementTag,
   AnnouncementUpdatePayload,
   ListAnnouncementsResponse,
   ListPostsParams,
@@ -16,8 +16,10 @@ import { buildQuery, type QueryParams } from '@portal/core/http/query'
  * (`/api/comunicados/posts/*`); o JWT nunca sai do server.
  */
 
-/** Lista posts via BFF (`GET /api/comunicados/posts`) — uso no browser. */
-export async function listPostsClient(params: ListPostsParams = {}): Promise<ListAnnouncementsResponse> {
+/** Lista o mural via BFF (`GET /api/comunicados/posts`). */
+export async function listPostsClient(
+  params: ListPostsParams = {},
+): Promise<ListAnnouncementsResponse> {
   return bffFetch<ListAnnouncementsResponse>(
     `/api/comunicados/posts${buildQuery(params as QueryParams)}`,
   )
@@ -82,14 +84,12 @@ export async function unpinPostClient(id: string): Promise<AnnouncementResponse>
   })
 }
 
-export async function getPostDetailClient(id: string): Promise<AnnouncementDetail> {
-  return bffFetch<AnnouncementDetail>(`/api/comunicados/posts/${id}`)
-}
-
+/** Lista as tags via BFF (`GET /api/comunicados/posts/{id}/tags`). */
 export async function getPostTagsClient(id: string): Promise<AnnouncementTag[]> {
   return bffFetch<AnnouncementTag[]>(`/api/comunicados/posts/${id}/tags`)
 }
 
+/** Lista as imagens via BFF (`GET /api/comunicados/posts/{id}/images`). */
 export async function getPostImagesClient(id: string): Promise<AnnouncementFile[]> {
   return bffFetch<AnnouncementFile[]>(`/api/comunicados/posts/${id}/images`)
 }

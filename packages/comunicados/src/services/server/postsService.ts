@@ -21,8 +21,6 @@ const http = createHttpClient('API_GATEWAY_URL')
  */
 
 /** Lista o mural de comunicados (`GET /api/posts`), paginado. */
-
-
 export async function listPosts(
   params: ListPostsParams = {},
 ): Promise<ListAnnouncementsResponse> {
@@ -92,14 +90,12 @@ export async function unpinPost(id: string): Promise<AnnouncementResponse> {
   return http.patch<AnnouncementResponse>(comunicadosGatewayPath(`/api/posts/${id}/unpin`))
 }
 
-export async function getPostDetail(id: string): Promise<AnnouncementDetail> {
-  return http.get<AnnouncementDetail>(`/api/posts/${id}`)
-}
-
+/** Lista as tags de um comunicado (`GET /api/posts/{id}/tags`). */
 export async function getPostTags(id: string): Promise<AnnouncementTag[]> {
-  return http.get<AnnouncementTag[]>(`/api/posts/${id}/tags`)
+  return http.get<AnnouncementTag[]>(comunicadosGatewayPath(`/api/posts/${id}/tags`))
 }
 
+/** Lista as imagens anexadas de um comunicado (`GET /api/posts/{id}/images`). */
 export async function getPostImages(id: string): Promise<AnnouncementFile[]> {
-  return http.get<AnnouncementFile[]>(`/api/posts/${id}/images`)
+  return http.get<AnnouncementFile[]>(comunicadosGatewayPath(`/api/posts/${id}/images`))
 }

@@ -9,7 +9,7 @@ vi.mock('@portal/core/auth/session', () => ({
 
 import {
   deletePost,
-  getPostDetail,
+  getAnnouncement,
   getPostImages,
   getPostTags,
   listMyPosts,
@@ -140,29 +140,29 @@ describe('listPosts', () => {
     await expect(listPosts({ page: 0, size: 20 })).resolves.toEqual(listResponse)
 
     const [url, init] = fetchMock.mock.calls[0]!
-    expect(url).toBe(`${API_URL}/api/posts?page=0&size=20`)
+    expect(url).toBe(`${API_GATEWAY_URL}/comunicados/api/posts?page=0&size=20`)
     expect(init?.method).toBe('GET')
     expect((init?.headers as Record<string, string>).Authorization).toBe('Bearer jwt-token')
   })
 })
 
-describe('getPostDetail', () => {
+describe('getAnnouncement', () => {
   it('retorna o detalhe e faz GET para /api/posts/:id', async () => {
     const fetchMock = stubFetch()
     const detailMock = { announcement: { id: 'a1' }, tags: [], files: [], destinations: [], mentions: [] }
     fetchMock.mockResolvedValue(response(200, detailMock))
 
-    await expect(getPostDetail('a1')).resolves.toEqual(detailMock)
+    await expect(getAnnouncement('a1')).resolves.toEqual(detailMock)
 
     const [url, init] = fetchMock.mock.calls[0]!
-    expect(url).toBe(`${API_URL}/api/posts/a1`)
+    expect(url).toBe(`${API_GATEWAY_URL}/comunicados/api/posts/a1`)
     expect(init?.method).toBe('GET')
     expect((init?.headers as Record<string, string>).Authorization).toBe('Bearer jwt-token')
   })
 
   it('mapeia 404 para HttpError not_found', async () => {
     stubFetch().mockResolvedValue(response(404, {}))
-    await expect(getPostDetail('missing')).rejects.toMatchObject({ kind: 'not_found' })
+    await expect(getAnnouncement('missing')).rejects.toMatchObject({ kind: 'not_found' })
   })
 })
 
@@ -175,7 +175,7 @@ describe('getPostTags', () => {
     await expect(getPostTags('a1')).resolves.toEqual(tagsMock)
 
     const [url, init] = fetchMock.mock.calls[0]!
-    expect(url).toBe(`${API_URL}/api/posts/a1/tags`)
+    expect(url).toBe(`${API_GATEWAY_URL}/comunicados/api/posts/a1/tags`)
     expect(init?.method).toBe('GET')
   })
 
@@ -194,7 +194,7 @@ describe('getPostImages', () => {
     await expect(getPostImages('a1')).resolves.toEqual(imagesMock)
 
     const [url, init] = fetchMock.mock.calls[0]!
-    expect(url).toBe(`${API_URL}/api/posts/a1/images`)
+    expect(url).toBe(`${API_GATEWAY_URL}/comunicados/api/posts/a1/images`)
     expect(init?.method).toBe('GET')
   })
 

@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server'
 
 import { getSession } from '@portal/core/auth/session'
-import { deletePost, } from '@portal/comunicados/services/server/postsService'
-
 import {
+  deletePost,
   getAnnouncement,
   updateAnnouncement,
 } from '@portal/comunicados/services/server/postsService'
@@ -11,7 +10,6 @@ import type { AnnouncementUpdatePayload } from '@portal/comunicados/types/announ
 
 import { bffErrorResponse } from '../../_lib/bffError'
 
-/** BFF — detalhe de um post. Delega ao service server (JWT do cookie httpOnly). */
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const token = await getSession()
   if (!token) {
