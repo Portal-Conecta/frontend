@@ -1,3 +1,4 @@
+import { hubGatewayPath } from '@portal/core/http/hubGateway'
 import { createHttpClient } from '@portal/core/http/httpClient'
 
 import type {
@@ -7,7 +8,6 @@ import type {
   ListHubUsersParams,
   ListHubUsersResponse,
 } from '../../types/hub'
-import { hubGatewayPath } from '../hubGateway'
 
 const http = createHttpClient('API_GATEWAY_URL')
 
