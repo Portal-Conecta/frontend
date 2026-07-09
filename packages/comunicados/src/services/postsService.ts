@@ -13,7 +13,7 @@ import type {
   AnnouncementResponse,
   PublishAnnouncementRequest,
   ScheduleAnnouncementRequest,
-} from '../types/announcement'
+} from '../types'
 
 import type { ApiError, ApiFieldError } from '@portal/shared'
 
