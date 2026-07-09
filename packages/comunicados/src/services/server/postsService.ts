@@ -4,7 +4,6 @@ import type {
   AnnouncementUpdatePayload,
   ListAnnouncementsResponse,
   ListPostsParams,
-  AnnouncementDetail,
   AnnouncementTag,
   AnnouncementFile,
 } from '../../types'
