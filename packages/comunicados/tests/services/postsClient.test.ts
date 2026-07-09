@@ -7,8 +7,11 @@ import {
   deletePostClient,
   listPostsClient,
   listMyPostsClient,
+  loadAnnouncementClient,
   pinPostClient,
+  rescheduleAnnouncementClient,
   unpinPostClient,
+  updateAnnouncementClient,
 } from '../../src/services/client/postsClient'
 
 function response(status: number, body: unknown): Response {
@@ -57,6 +60,46 @@ describe('listPostsClient / listMyPostsClient', () => {
 
     const [url] = fetchMock.mock.calls[0]!
     expect(url).toBe('/api/comunicados/posts/mine?search=prova')
+  })
+})
+
+describe('loadAnnouncementClient / updateAnnouncementClient / rescheduleAnnouncementClient', () => {
+  it('carrega detalhe em GET /api/comunicados/posts/:id', async () => {
+    const fetchMock = stubFetch()
+    const detail = { announcement: { id: '1', title: 'Olá' } }
+    fetchMock.mockResolvedValue(response(200, detail))
+
+    await expect(loadAnnouncementClient('1')).resolves.toEqual(detail)
+
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe('/api/comunicados/posts/1')
+    expect(init?.method).toBeUndefined()
+  })
+
+  it('atualiza comunicado em PUT /api/comunicados/posts/:id', async () => {
+    const fetchMock = stubFetch()
+    const detail = { announcement: { id: '1', title: 'Novo título' } }
+    fetchMock.mockResolvedValue(response(200, detail))
+
+    await updateAnnouncementClient('1', { title: 'Novo título' })
+
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe('/api/comunicados/posts/1')
+    expect(init?.method).toBe('PUT')
+    expect(JSON.parse(init?.body as string)).toEqual({ title: 'Novo título' })
+  })
+
+  it('reagenda comunicado em PATCH /api/comunicados/posts/:id/schedule', async () => {
+    const fetchMock = stubFetch()
+    const detail = { announcement: { id: '1', status: 'SCHEDULED' } }
+    fetchMock.mockResolvedValue(response(200, detail))
+
+    await rescheduleAnnouncementClient('1', '2026-07-10T10:00:00.000Z')
+
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe('/api/comunicados/posts/1/schedule')
+    expect(init?.method).toBe('PATCH')
+    expect(JSON.parse(init?.body as string)).toEqual({ scheduledFor: '2026-07-10T10:00:00.000Z' })
   })
 })
 

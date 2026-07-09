@@ -1,5 +1,7 @@
 import type {
+  AnnouncementDetail,
   AnnouncementResponse,
+  AnnouncementUpdatePayload,
   ListAnnouncementsResponse,
   ListPostsParams,
 } from '../../types'
@@ -35,6 +37,31 @@ export async function listMyPosts(
 ): Promise<ListAnnouncementsResponse> {
   return http.get<ListAnnouncementsResponse>(comunicadosGatewayPath('/api/posts'), {
     params: { ...params, mine: true },
+  })
+}
+
+/** Carrega o detalhe de um comunicado (`GET /api/posts/{id}`). */
+export async function getAnnouncement(id: string): Promise<AnnouncementDetail> {
+  return http.get<AnnouncementDetail>(comunicadosGatewayPath(`/api/posts/${id}`))
+}
+
+/** Atualiza um comunicado (`PUT /api/posts/{id}`). */
+export async function updateAnnouncement(
+  id: string,
+  payload: AnnouncementUpdatePayload,
+): Promise<AnnouncementDetail> {
+  return http.put<AnnouncementDetail>(comunicadosGatewayPath(`/api/posts/${id}`), {
+    body: payload,
+  })
+}
+
+/** Reagenda um comunicado agendado (`PATCH /api/posts/{id}/schedule`). */
+export async function rescheduleAnnouncement(
+  id: string,
+  scheduledFor: string,
+): Promise<AnnouncementDetail> {
+  return http.patch<AnnouncementDetail>(comunicadosGatewayPath(`/api/posts/${id}/schedule`), {
+    body: { scheduledFor },
   })
 }
 
