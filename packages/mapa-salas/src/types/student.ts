@@ -11,4 +11,3 @@ export type UnassignedStudent = {
   /** Nome do aluno, exibido na lista/sidebar */
   name: string
 }
-
