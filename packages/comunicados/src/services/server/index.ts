@@ -7,7 +7,12 @@ export {
 export {
   listPosts,
   listMyPosts,
+  getAnnouncement,
+  updateAnnouncement,
+  rescheduleAnnouncement,
   deletePost,
   pinPost,
   unpinPost,
+  getPostTags,
+  getPostImages,
 } from './postsService'

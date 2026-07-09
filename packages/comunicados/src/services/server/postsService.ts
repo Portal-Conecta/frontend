@@ -1,7 +1,11 @@
 import type {
+  AnnouncementDetail,
   AnnouncementResponse,
+  AnnouncementUpdatePayload,
   ListAnnouncementsResponse,
   ListPostsParams,
+  AnnouncementTag,
+  AnnouncementFile,
 } from '../../types'
 
 import { createHttpClient } from '@portal/core/http/httpClient'
@@ -38,6 +42,31 @@ export async function listMyPosts(
   })
 }
 
+/** Carrega o detalhe de um comunicado (`GET /api/posts/{id}`). */
+export async function getAnnouncement(id: string): Promise<AnnouncementDetail> {
+  return http.get<AnnouncementDetail>(comunicadosGatewayPath(`/api/posts/${id}`))
+}
+
+/** Atualiza um comunicado (`PUT /api/posts/{id}`). */
+export async function updateAnnouncement(
+  id: string,
+  payload: AnnouncementUpdatePayload,
+): Promise<AnnouncementDetail> {
+  return http.put<AnnouncementDetail>(comunicadosGatewayPath(`/api/posts/${id}`), {
+    body: payload,
+  })
+}
+
+/** Reagenda um comunicado agendado (`PATCH /api/posts/{id}/schedule`). */
+export async function rescheduleAnnouncement(
+  id: string,
+  scheduledFor: string,
+): Promise<AnnouncementDetail> {
+  return http.patch<AnnouncementDetail>(comunicadosGatewayPath(`/api/posts/${id}/schedule`), {
+    body: { scheduledFor },
+  })
+}
+
 /** Soft delete de um post próprio (`DELETE /api/posts/{id}`); o back responde 204. */
 export async function deletePost(id: string): Promise<void> {
   await http.delete<void>(comunicadosGatewayPath(`/api/posts/${id}`))
@@ -59,4 +88,14 @@ export async function pinPost(
 /** Desafixa um post (`PATCH /api/posts/{id}/unpin`), retornando o estado atualizado. */
 export async function unpinPost(id: string): Promise<AnnouncementResponse> {
   return http.patch<AnnouncementResponse>(comunicadosGatewayPath(`/api/posts/${id}/unpin`))
+}
+
+/** Lista as tags de um comunicado (`GET /api/posts/{id}/tags`). */
+export async function getPostTags(id: string): Promise<AnnouncementTag[]> {
+  return http.get<AnnouncementTag[]>(comunicadosGatewayPath(`/api/posts/${id}/tags`))
+}
+
+/** Lista as imagens anexadas de um comunicado (`GET /api/posts/{id}/images`). */
+export async function getPostImages(id: string): Promise<AnnouncementFile[]> {
+  return http.get<AnnouncementFile[]>(comunicadosGatewayPath(`/api/posts/${id}/images`))
 }
