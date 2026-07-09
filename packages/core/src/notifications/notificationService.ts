@@ -60,3 +60,28 @@ export async function getNotifications(
   if (res.status === 400) throw new NotificationsError("validation");
   throw new NotificationsError("server");
 }
+
+export async function markNotificationAsRead(
+  accessToken: string,
+  notificationId: string
+): Promise<void> {
+  const url = `${baseUrl()}/notifications/${notificationId}/read`;
+
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+  } catch {
+    throw new NotificationsError("network");
+  }
+
+  if (res.ok) {
+    return;
+  }
+
+  if (res.status === 401) throw new NotificationsError("unauthorized");
+  if (res.status === 404) throw new NotificationsError("validation");
+  throw new NotificationsError("server");
+}
