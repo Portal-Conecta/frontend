@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import type { ImageItem } from '../../src/components/AnnouncementForm/types'
+import type { FileUploadItem } from '@portal/ui'
+
 import { uploadAnnouncementImagesClient } from '../../src/services/client/announcementImagesClient'
 
 function response(status: number, body: unknown): Response {
@@ -17,7 +18,7 @@ function stubFetch() {
   return mock
 }
 
-function imageItem(id: string, name: string): ImageItem & { file: File } {
+function imageItem(id: string, name: string): FileUploadItem & { file: File } {
   return {
     id,
     name,

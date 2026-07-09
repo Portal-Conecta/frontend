@@ -5,29 +5,11 @@
  * = destinatários (#195) e etapa 3 = publicar/agendar (#196). Estes tipos cobrem
  * a etapa 1; as demais entram quando os componentes chegarem à branch.
  */
+import type { FileUploadItem } from '@portal/ui'
 
-/**
- * Imagem escolhida no `ImageUploader`.
- *
- * O upload real acontece em duas fases (cria o comunicado, depois sobe os
- * arquivos ao id — ver `useCreateAnnouncement`/#193), então aqui guardamos o
- * `File` local e uma `previewUrl` (object URL) só para exibir a miniatura. Itens
- * que já existem no servidor (edição, futura) podem vir sem `file`, só com a URL.
- */
-export interface ImageItem {
-  /** id local, estável para key/remoção. */
-  id: string
-  /** URL de preview — object URL (arquivo local) ou URL remota. */
-  previewUrl: string
-  /** Arquivo local a enviar. Ausente para imagens já persistidas. */
-  file?: File
-  /** Nome do arquivo, usado no `alt` e no aria-label de remoção. */
-  name?: string
-}
-
-/** Conteúdo da etapa 1 do wizard. */
+/** Conteúdo da etapa 1 do wizard. Imagem escolhida no `FileUpload` do DS (#250). */
 export interface AnnouncementContentValue {
-  images: ImageItem[]
+  images: FileUploadItem[]
   title: string
   description: string
 }
