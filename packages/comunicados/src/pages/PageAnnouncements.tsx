@@ -6,7 +6,7 @@ import { Text } from '@portal/ui'
 import { redirect } from 'next/navigation'
 
 import { AnnouncementsBoard } from '../components/AnnouncementsBoard'
-import { listAnnouncements } from '../services'
+import { listPosts } from '../services'
 
 function resolveFetchError(error: unknown): string {
   if (error instanceof HttpError) {
@@ -29,7 +29,7 @@ export async function PageAnnouncements() {
   let errorMessage: string | undefined
 
   try {
-    const result = await listAnnouncements({ page: 0, size: 20 })
+    const result = await listPosts({ page: 0, size: 20 })
     items = result.items
   } catch (error) {
     if (error instanceof HttpError && error.kind === 'unauthorized') {
@@ -41,6 +41,8 @@ export async function PageAnnouncements() {
   return (
     <AppShell user={null} activeKey="comunicados">
       <div className="p-8">
+        {/* Keep this title in sync with `apps/root/src/app/comunicados/loading.tsx`
+            while the route still duplicates the shell/title during loading. */}
         <Text as="h1" variant="heading-h2" tone="primary">
           Mural de Comunicados
         </Text>

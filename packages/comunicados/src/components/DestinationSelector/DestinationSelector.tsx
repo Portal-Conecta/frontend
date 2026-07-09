@@ -7,8 +7,7 @@ import { RadioGroup, Text, type SelectOption } from '@portal/ui'
 import { GroupTypePanel } from './GroupTypePanel'
 import { RecipientChips } from './RecipientChips'
 import { TagFilterPanel } from './TagFilterPanel'
-import { UserSearchPanel } from './UserSearchPanel'
-import { mockClasses, mockCourses, mockShifts, mockUsers } from './mockData'
+import { UserSearchPanel, type UsersPageState } from './UserSearchPanel'
 import {
   addRecipient,
   removeRecipient,
@@ -31,14 +30,22 @@ export interface DestinationSelectorProps {
   value?: Recipient[]
   /** Notifica cada mudança na lista de destinatários. */
   onChange?: (recipients: Recipient[]) => void
-  /** Opções de curso (tags `COURSE`). Default: mock documentado. */
+  /** Opções de curso (Hub). */
   courses?: SelectOption[]
-  /** Opções de turma (tags `CLASS`). Default: mock documentado. */
+  /** Opções de turma (Hub). */
   classes?: SelectOption[]
-  /** Opções de turno (lista fixa até o back ter o conceito). Default: mock documentado. */
+  /** Turnos (`Shift` enum do core). */
   shifts?: SelectOption[]
-  /** Usuários para a busca do modo 3. Default: mock documentado. */
+  /** Usuários estáticos (Storybook). */
   users?: UserSummary[]
+  /** Paginação de usuários via BFF. */
+  usersPage?: UsersPageState
+  usersQuery?: string
+  onUsersQueryChange?: (query: string) => void
+  onUsersPageChange?: (page: number) => void
+  usersLoading?: boolean
+  /** Carregando cursos/turmas. */
+  catalogLoading?: boolean
   /** Modos disponíveis (varia por persona — RN-COM-PA02/PA03). Default: todos. */
   modes?: readonly DestinationMode[]
   /** Itens por página na busca de usuários. */
@@ -59,10 +66,16 @@ export interface DestinationSelectorProps {
 export function DestinationSelector({
   value,
   onChange,
-  courses = mockCourses,
-  classes = mockClasses,
-  shifts = mockShifts,
-  users = mockUsers,
+  courses = [],
+  classes = [],
+  shifts = [],
+  users,
+  usersPage,
+  usersQuery,
+  onUsersQueryChange,
+  onUsersPageChange,
+  usersLoading = false,
+  catalogLoading = false,
   modes = ['filter', 'group', 'user'],
   usersPageSize,
   disabled = false,
@@ -108,7 +121,13 @@ export function DestinationSelector({
         </aside>
 
         <div className="flex flex-1 flex-col gap-6 md:border-l md:border-border-default md:pl-8">
-          {activeMode === 'filter' ? (
+          {catalogLoading ? (
+            <Text as="p" variant="body-sm" tone="secondary">
+              Carregando cursos e turmas…
+            </Text>
+          ) : null}
+
+          {activeMode === 'filter' && !catalogLoading ? (
             <TagFilterPanel
               courses={courses}
               classes={classes}
@@ -124,7 +143,12 @@ export function DestinationSelector({
 
           {activeMode === 'user' ? (
             <UserSearchPanel
-              users={users}
+              {...(users != null ? { users } : {})}
+              {...(usersPage != null ? { usersPage } : {})}
+              {...(usersQuery != null ? { usersQuery } : {})}
+              {...(onUsersQueryChange ? { onUsersQueryChange } : {})}
+              {...(onUsersPageChange ? { onUsersPageChange } : {})}
+              usersLoading={usersLoading}
               recipients={recipients}
               onToggle={handleToggle}
               disabled={disabled}
