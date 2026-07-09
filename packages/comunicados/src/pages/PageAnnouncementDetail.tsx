@@ -3,10 +3,11 @@ import type { AnnouncementDetail } from '../types'
 import { AppShell } from '@portal/core'
 import { HttpError } from '@portal/core/http/errors'
 import { Text } from '@portal/ui'
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
 import { AnnouncementDetailView } from '../components/organisms/AnnouncementDetailView'
-import { getPostDetail } from '../services'
+import { getAnnouncement } from '../services'
 
 interface PageAnnouncementDetailProps {
   id: string
@@ -33,7 +34,7 @@ export async function PageAnnouncementDetail({ id }: PageAnnouncementDetailProps
   let errorMessage: string | undefined
 
   try {
-    detail = await getPostDetail(id)
+    detail = await getAnnouncement(id)
   } catch (error) {
     if (error instanceof HttpError && error.kind === 'unauthorized') {
       redirect('/login')
@@ -44,11 +45,11 @@ export async function PageAnnouncementDetail({ id }: PageAnnouncementDetailProps
   return (
     <AppShell user={null} activeKey="comunicados">
       <div className="p-8">
-        <nav className="mb-6">
+        <nav className="mb-6" aria-label="Trilha de navegação">
           <Text as="span" variant="label-sm" tone="secondary">
-            <a href="/comunicados" className="hover:text-text-brand transition-colors">
+            <Link href="/comunicados" className="hover:text-text-brand transition-colors">
               Mural de Comunicados
-            </a>
+            </Link>
             {' / '}
             <Text as="span" variant="label-sm" tone="primary">
               {detail?.announcement.title ?? 'Detalhe'}

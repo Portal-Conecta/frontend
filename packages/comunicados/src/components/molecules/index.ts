@@ -1,1 +1,1 @@
-export * from './AnnouncementCard'
+export * from './EditBlockedFieldsHint'
