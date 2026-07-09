@@ -10,6 +10,9 @@ export {
 export {
   listPostsClient,
   listMyPostsClient,
+  loadAnnouncementClient,
+  updateAnnouncementClient,
+  rescheduleAnnouncementClient,
   deletePostClient,
   pinPostClient,
   unpinPostClient,

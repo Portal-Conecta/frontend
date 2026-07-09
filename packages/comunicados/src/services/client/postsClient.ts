@@ -1,4 +1,10 @@
-import type { AnnouncementResponse, ListAnnouncementsResponse, ListPostsParams } from '../../types'
+import type {
+  AnnouncementDetail,
+  AnnouncementResponse,
+  AnnouncementUpdatePayload,
+  ListAnnouncementsResponse,
+  ListPostsParams,
+} from '../../types'
 
 import { bffFetch } from '@portal/core/http/bffClient'
 import { buildQuery, type QueryParams } from '@portal/core/http/query'
@@ -24,6 +30,33 @@ export async function listMyPostsClient(
   return bffFetch<ListAnnouncementsResponse>(
     `/api/comunicados/posts/mine${buildQuery(params as QueryParams)}`,
   )
+}
+
+/** Carrega o detalhe de um comunicado via BFF (`GET /api/comunicados/posts/:id`). */
+export async function loadAnnouncementClient(id: string): Promise<AnnouncementDetail> {
+  return bffFetch<AnnouncementDetail>(`/api/comunicados/posts/${id}`)
+}
+
+/** Atualiza um comunicado via BFF (`PUT /api/comunicados/posts/:id`). */
+export async function updateAnnouncementClient(
+  id: string,
+  payload: AnnouncementUpdatePayload,
+): Promise<AnnouncementDetail> {
+  return bffFetch<AnnouncementDetail>(`/api/comunicados/posts/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  })
+}
+
+/** Reagenda um comunicado via BFF (`PATCH /api/comunicados/posts/:id/schedule`). */
+export async function rescheduleAnnouncementClient(
+  id: string,
+  scheduledFor: string,
+): Promise<AnnouncementDetail> {
+  return bffFetch<AnnouncementDetail>(`/api/comunicados/posts/${id}/schedule`, {
+    method: 'PATCH',
+    body: JSON.stringify({ scheduledFor }),
+  })
 }
 
 /** Exclui um post próprio via BFF (`DELETE /api/comunicados/posts/{id}`). */
