@@ -1,42 +1,51 @@
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server'
 
-import { getNotifications, NotificationsError, type NotificationsErrorKind } from "@portal/core/notifications/notificationService";
-import { getSession } from "@portal/core/auth/session";
-import type { NotificationStatus } from "@portal/core/notifications/types";
+import { getSession } from '@portal/core/auth/session'
+import { HttpError } from '@portal/core/http/errors'
+import {
+  DEFAULT_PAGE_SIZE,
+  getNotifications,
+} from '@portal/core/notifications/notificationService'
+import { isNotificationStatus } from '@portal/core/notifications/types'
 
-const STATUS_BY_KIND: Record<NotificationsErrorKind, number> = {
-  unauthorized: 401,
-  validation: 400,
-  server: 503,
-  network: 503,
-};
+function parseIndex(raw: string | null, fallback: number): number {
+  if (!raw) return fallback
+  const parsed = Number(raw)
+  return Number.isInteger(parsed) && parsed >= 0 ? parsed : fallback
+}
 
 export async function GET(req: Request) {
-  const accessToken = await getSession();
-  if (!accessToken) {
-    return NextResponse.json({ code: "unauthorized" }, { status: 401 });
+  const token = await getSession()
+  if (!token) {
+    return NextResponse.json({ code: 'unauthorized' }, { status: 401 })
   }
 
-  const { searchParams } = new URL(req.url);
-  const status = searchParams.get("status") as NotificationStatus | null;
-  const page = searchParams.get("page");
-  const size = searchParams.get("size");
+  const { searchParams } = new URL(req.url)
+  const status = searchParams.get('status')
 
-  if (!status) {
-    return NextResponse.json({ code: "validation" }, { status: 400 });
+  if (!isNotificationStatus(status)) {
+    return NextResponse.json(
+      { code: 'validation', message: 'status deve ser READ ou UNREAD' },
+      { status: 400 },
+    )
   }
+
+  const size = parseIndex(searchParams.get('size'), DEFAULT_PAGE_SIZE) || DEFAULT_PAGE_SIZE
 
   try {
-    const data = await getNotifications(accessToken, {
-  status,
-  ...(page ? { page: Number(page) } : {}),
-  ...(size ? { size: Number(size) } : {}),
-});
-    return NextResponse.json(data);
+    const data = await getNotifications(token, {
+      status,
+      page: parseIndex(searchParams.get('page'), 0),
+      size,
+    })
+    return NextResponse.json(data)
   } catch (err) {
-    if (err instanceof NotificationsError) {
-      return NextResponse.json({ code: err.kind }, { status: STATUS_BY_KIND[err.kind] });
+    if (err instanceof HttpError) {
+      return NextResponse.json(
+        { code: err.kind, message: err.message },
+        { status: err.status ?? 503 },
+      )
     }
-    return NextResponse.json({ code: "server" }, { status: 503 });
+    return NextResponse.json({ code: 'server' }, { status: 503 })
   }
 }

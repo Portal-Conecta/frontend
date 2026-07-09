@@ -1,23 +1,23 @@
-import type { Notification, NotificationType } from "../types";
+import type { Notification, NotificationType } from '../types'
 
 const ICON_BY_TYPE: Record<NotificationType, string> = {
-  CHECKLIST: "checklist",
-  MAPA: "mapa",
-  COMUNICADO: "comunicado",
-  OUTRO: "outro",
-};
+  CHECKLIST: 'checklist',
+  MAPA: 'mapa',
+  COMUNICADO: 'comunicado',
+  OUTRO: 'outro',
+}
 
 interface NotificationsListProps {
-  notifications: Notification[];
+  notifications: Notification[]
 }
 
 function formatTimestamp(timestamp: string): string {
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "long",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(timestamp));
+  return new Intl.DateTimeFormat('pt-BR', {
+    day: '2-digit',
+    month: 'long',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(timestamp))
 }
 
 export function NotificationsList({ notifications }: NotificationsListProps) {
@@ -26,7 +26,7 @@ export function NotificationsList({ notifications }: NotificationsListProps) {
       <div>
         <p>Nenhuma notificação encontrada.</p>
       </div>
-    );
+    )
   }
 
   return (
@@ -40,5 +40,5 @@ export function NotificationsList({ notifications }: NotificationsListProps) {
         </li>
       ))}
     </ul>
-  );
+  )
 }

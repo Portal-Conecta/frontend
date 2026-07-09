@@ -1,87 +1,54 @@
 /**
- * notificationService — notificações contra o back-end.
+ * notificationService — notificações contra o back-end, via API Gateway.
  *
- * Lógica pura: sem React, sem `next/headers`. Roda no server (chamado pelo
- * Route Handler `/api/notifications`), onde a URL do back vive em `API_URL`
- * (privada, server-side). Testável com Vitest mockando `fetch`.
+ * Lógica pura: sem React, sem `next/headers`. Roda no server (Server Components e
+ * Route Handlers). Usa o http client compartilhado, que resolve base URL, Bearer,
+ * `no-store`, 204 e a taxonomia de erro (`HttpError`).
  */
 
-import type { GetNotificationsParams, PagedNotificationsResponse } from "./types";
+import { createHttpClient } from '../http/httpClient'
+import { hubGatewayPath } from '../http/hubGateway'
+import type {
+  GetNotificationsParams,
+  MarkAsReadRequest,
+  PagedNotificationsResponse,
+} from './types'
 
-export type NotificationsErrorKind = "unauthorized" | "validation" | "server" | "network";
+const http = createHttpClient('API_GATEWAY_URL')
 
-export class NotificationsError extends Error {
-  constructor(public readonly kind: NotificationsErrorKind, message?: string) {
-    super(message ?? kind);
-    this.name = "NotificationsError";
-  }
-}
+export const DEFAULT_PAGE_SIZE = 20
 
-function baseUrl(): string {
-  const url = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL;
-  if (!url) {
-    throw new NotificationsError("server", "API_URL não configurada");
-  }
-  return url;
-}
+/** Teto de ids por lote no PATCH — alinhado ao maior `size` que a tela pede. */
+export const MAX_READ_BATCH = 100
 
-export async function getNotifications(
+/** Lista notificações do usuário da sessão, paginadas e filtradas por status. */
+export function getNotifications(
   accessToken: string,
-  params: GetNotificationsParams
+  params: GetNotificationsParams,
 ): Promise<PagedNotificationsResponse> {
-  const searchParams = new URLSearchParams({
-    status: params.status,
-    page: String(params.page ?? 0),
-    size: String(params.size ?? 20),
-  });
-
-  const url = `${baseUrl()}/notifications?${searchParams.toString()}`;
-
-  let res: Response;
-  try {
-    res = await fetch(url, {
-      method: "GET",
-      headers: { Authorization: `Bearer ${accessToken}` },
-      cache: "no-store",
-    });
-  } catch {
-    throw new NotificationsError("network");
-  }
-
-  if (res.ok) {
-    try {
-      return (await res.json()) as PagedNotificationsResponse;
-    } catch {
-      throw new NotificationsError("server");
-    }
-  }
-
-  if (res.status === 401) throw new NotificationsError("unauthorized");
-  if (res.status === 400) throw new NotificationsError("validation");
-  throw new NotificationsError("server");
+  return http.get<PagedNotificationsResponse>(hubGatewayPath('/notifications'), {
+    token: accessToken,
+    params: {
+      status: params.status,
+      page: params.page ?? 0,
+      size: params.size ?? DEFAULT_PAGE_SIZE,
+    },
+  })
 }
 
-export async function markNotificationAsRead(
+/**
+ * Marca notificações como lidas em lote, pelo `notificationId` (não pelo `id` da
+ * entrega). O back resolve o destinatário pelo `Authorization`, então o escopo da
+ * leitura é sempre o usuário da sessão.
+ */
+export function markNotificationsAsRead(
   accessToken: string,
-  notificationId: string
+  notificationIds: string[],
 ): Promise<void> {
-  const url = `${baseUrl()}/notifications/${notificationId}/read`;
+  const body: MarkAsReadRequest = { notificationIds }
 
-  let res: Response;
-  try {
-    res = await fetch(url, {
-      method: "PATCH",
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-  } catch {
-    throw new NotificationsError("network");
-  }
-
-  if (res.ok) {
-    return;
-  }
-
-  if (res.status === 401) throw new NotificationsError("unauthorized");
-  if (res.status === 404) throw new NotificationsError("validation");
-  throw new NotificationsError("server");
+  return http.patch<void>(hubGatewayPath('/notifications/read'), {
+    token: accessToken,
+    body,
+  })
 }
