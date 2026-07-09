@@ -115,3 +115,18 @@ Consequências:
 - No código, `SearchBar` é uma `molecule` (`packages/ui/src/molecules/SearchBar/`) por compor uma lista própria. A lista interna (`SearchBarResults`) **não** tem story — espelha o `SelectList`, que também é interno à família.
 - A mecânica de combobox é compartilhada com o Select via o hook `packages/ui/src/hooks/useCombobox.ts` (não é um componente; sem story).
 - Não há mudança no `storySort`: o subgrupo aninha sob `Inputs`, cuja ordem já está fixada.
+
+## Adendo 2026-07-09
+
+O **FileUpload** (#250) entra no vocabulário fechado como leaf direta em `Componentes/Inputs/FileUpload` — mesmo critério dos controles simples (`Checkbox`, `Radio`, `Textarea`), sem subgrupo próprio, já que hoje não há variantes irmãs (diferente do `Select`/`SearchBar`).
+
+Estrutura:
+
+```
+Componentes/Inputs/FileUpload   → anexo de arquivo (só imagens por ora; accept/maxSize por prop)
+```
+
+Consequências:
+- No código, `FileUpload` é uma `molecule` (`packages/ui/src/molecules/FileUpload/`) por compor os átomos `Icon` e `Text`.
+- Promovido a partir do `ImageUploader` que existia em `packages/comunicados` (ciclo de promoção do AGENTS.md — nasce no domínio, migra pro DS); o consumidor (`AnnouncementContentStep`) passou a importar de `@portal/ui`.
+- Não há mudança no `storySort`: a leaf aninha sob `Inputs`, cuja ordem já está fixada.
