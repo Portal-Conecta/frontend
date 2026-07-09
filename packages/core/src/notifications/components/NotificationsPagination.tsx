@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import type { NotificationStatus } from "@portal/core/notifications/types";
+import type { NotificationStatus } from "../types";
 
 interface NotificationsPaginationProps {
   page: number;

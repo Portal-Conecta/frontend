@@ -1,4 +1,4 @@
-import type { Notification, NotificationType } from "@portal/core/notifications/types";
+import type { Notification, NotificationType } from "../types";
 
 const ICON_BY_TYPE: Record<NotificationType, string> = {
   CHECKLIST: "checklist",
