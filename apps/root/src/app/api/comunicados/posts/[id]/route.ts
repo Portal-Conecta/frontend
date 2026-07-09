@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 
 import { getSession } from '@portal/core/auth/session'
-import { deletePost, getPostDetail } from '@portal/comunicados/services/server/postsService'
+import { deletePost, } from '@portal/comunicados/services/server/postsService'
 
 import {
   getAnnouncement,

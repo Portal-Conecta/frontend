@@ -38,11 +38,15 @@ import {
   Mail,
   Map,
   Newspaper,
+  Pin,
+  PinOff,
   Plus,
   Search,
   Settings,
   Square,
   SquareCheck,
+  SquarePen,
+  Trash2,
   TriangleAlert,
   User,
   Users,
@@ -86,6 +90,10 @@ export const iconRegistry = {
   eye: Eye,
   'eye-closed': EyeClosed,
   'loading-circle': LoaderCircle,
+  pin: Pin,
+  'pin-off': PinOff,
+  'square-pen': SquarePen,
+  'trash-2': Trash2,
 } satisfies Record<string, LucideIcon>
 
 /** Nomes de ícone aprovados pelo DS. */
