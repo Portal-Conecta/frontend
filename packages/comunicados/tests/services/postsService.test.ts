@@ -1,10 +1,8 @@
 /**
- * Testes do postsService — lógica pura que fala com o back de comunicados via
- * `fetch`. Sem React nem `next/headers`, então rodam em ambiente `node`.
+ * Testes do postsService — lógica pura que fala com o API Gateway via `fetch`.
  *
  * Trocamos o `fetch` global por um dublê (`vi.stubGlobal`) para controlar status
- * HTTP e corpo sem servidor, e setamos `COMUNICADOS_API_URL` antes de cada teste
- * (limpando depois, para não vazar estado).
+ * HTTP e corpo sem servidor, e setamos `API_GATEWAY_URL` antes de cada teste.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -15,7 +13,7 @@ import type {
   ScheduleAnnouncementRequest,
 } from '../../src/types'
 
-const COMUNICADOS_API_URL = 'https://comunicados.test'
+const API_GATEWAY_URL = 'https://gateway.test'
 const TOKEN = 'jwt-token'
 
 function response(status: number, body: unknown): Response {
@@ -74,16 +72,16 @@ const announcement: AnnouncementResponse = {
 }
 
 beforeEach(() => {
-  process.env.COMUNICADOS_API_URL = COMUNICADOS_API_URL
+  process.env.API_GATEWAY_URL = API_GATEWAY_URL
 })
 
 afterEach(() => {
   vi.unstubAllGlobals()
-  delete process.env.COMUNICADOS_API_URL
+  delete process.env.API_GATEWAY_URL
 })
 
 describe('publishPost', () => {
-  it('retorna o comunicado e envia o body com Bearer para /api/posts/publish', async () => {
+  it('retorna o comunicado e envia o body com Bearer para /comunicados/api/posts/publish', async () => {
     const fetchMock = stubFetch()
     fetchMock.mockResolvedValue(response(201, announcement))
 
@@ -91,7 +89,7 @@ describe('publishPost', () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
     const [url, init] = fetchMock.mock.calls[0]!
-    expect(url).toBe(`${COMUNICADOS_API_URL}/api/posts/publish`)
+    expect(url).toBe(`${API_GATEWAY_URL}/comunicados/api/posts/publish`)
     expect(init?.method).toBe('POST')
     expect((init?.headers as Record<string, string>).Authorization).toBe(`Bearer ${TOKEN}`)
     expect(JSON.parse(init?.body as string)).toEqual(publishBody)
@@ -137,8 +135,8 @@ describe('publishPost', () => {
     await expect(publishPost(publishBody, TOKEN)).rejects.toMatchObject({ kind: 'server' })
   })
 
-  it('lança PostsError server quando COMUNICADOS_API_URL não está configurada', async () => {
-    delete process.env.COMUNICADOS_API_URL
+  it('lança PostsError server quando API_GATEWAY_URL não está configurada', async () => {
+    delete process.env.API_GATEWAY_URL
     const fetchMock = stubFetch()
     await expect(publishPost(publishBody, TOKEN)).rejects.toBeInstanceOf(PostsError)
     expect(fetchMock).not.toHaveBeenCalled()
@@ -146,14 +144,14 @@ describe('publishPost', () => {
 })
 
 describe('schedulePost', () => {
-  it('envia o body com scheduledFor para /api/posts/schedule', async () => {
+  it('envia o body com scheduledFor para /comunicados/api/posts/schedule', async () => {
     const fetchMock = stubFetch()
     fetchMock.mockResolvedValue(response(201, { ...announcement, status: 'SCHEDULED' }))
 
     await expect(schedulePost(scheduleBody, TOKEN)).resolves.toMatchObject({ status: 'SCHEDULED' })
 
     const [url, init] = fetchMock.mock.calls[0]!
-    expect(url).toBe(`${COMUNICADOS_API_URL}/api/posts/schedule`)
+    expect(url).toBe(`${API_GATEWAY_URL}/comunicados/api/posts/schedule`)
     expect(JSON.parse(init?.body as string)).toEqual(scheduleBody)
   })
 

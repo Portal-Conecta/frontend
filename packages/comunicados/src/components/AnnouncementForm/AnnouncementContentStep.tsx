@@ -6,6 +6,7 @@ import { Field, Input, Textarea } from '@portal/ui'
 
 import { ImageUploader } from './ImageUploader'
 import type { AnnouncementContentErrors, AnnouncementContentValue, ImageItem } from './types'
+import { ANNOUNCEMENT_TITLE_MAX_LENGTH } from '../../constants/announcementFieldLimits'
 
 export interface AnnouncementContentStepProps {
   /** Conteúdo da etapa 1 (controlado). */
@@ -61,6 +62,7 @@ export function AnnouncementContentStep({
           onChange={setTitle}
           placeholder="Digite o título do comunicado"
           disabled={disabled}
+          maxLength={ANNOUNCEMENT_TITLE_MAX_LENGTH}
           {...(errors?.title ? { error: errors.title } : {})}
         />
       </Field>
