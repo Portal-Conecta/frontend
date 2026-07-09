@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 
 import { HttpError } from '@portal/core/http/errors'
 
-import { listMyAnnouncementsClient } from '../services/client'
+import { listMyPostsClient } from '../services/client'
 import type { AnnouncementDetail } from '../types'
 
 /**
@@ -31,7 +31,7 @@ export function useMyAnnouncements() {
     setLoading(true)
     setError('')
     try {
-      const result = await listMyAnnouncementsClient()
+      const result = await listMyPostsClient()
       setItems(result.items)
     } catch (err) {
       setError(messageForError(err))

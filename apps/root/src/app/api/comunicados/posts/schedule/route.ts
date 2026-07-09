@@ -9,10 +9,8 @@ import {
 import type { ScheduleAnnouncementRequest } from '@portal/comunicados/types/announcement'
 
 /**
- * BFF de agendar comunicado. Igual ao publish, mas para `/api/posts/schedule`:
- * o comunicado nasce SCHEDULED e `scheduledFor` precisa ser futuro (o back
- * responde 400 caso contrário). Lê o JWT do cookie httpOnly e delega ao
- * postsService com `Authorization: Bearer`.
+ * BFF de agendar comunicado. Igual ao publish, mas para `/comunicados/api/posts/schedule`
+ * no gateway (encaminhado como `/api/posts/schedule` no serviço).
  */
 
 const STATUS_BY_KIND: Record<PostsErrorKind, number> = {
