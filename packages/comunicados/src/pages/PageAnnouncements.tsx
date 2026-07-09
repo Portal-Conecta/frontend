@@ -1,4 +1,4 @@
-import type { AnnouncementSummary } from '../types'
+import type { AnnouncementDetail } from '../types'
 
 import { AppShell } from '@portal/core'
 import { HttpError } from '@portal/core/http/errors'
@@ -6,7 +6,7 @@ import { Text } from '@portal/ui'
 import { redirect } from 'next/navigation'
 
 import { AnnouncementsBoard } from '../components/AnnouncementsBoard'
-import { listPosts } from '../services'
+import { listAnnouncements } from '../services'
 
 function resolveFetchError(error: unknown): string {
   if (error instanceof HttpError) {
@@ -25,11 +25,11 @@ function resolveFetchError(error: unknown): string {
 }
 
 export async function PageAnnouncements() {
-  let items: AnnouncementSummary[] = []
+  let items: AnnouncementDetail[] = []
   let errorMessage: string | undefined
 
   try {
-    const result = await listPosts({ page: 0, size: 20 })
+    const result = await listAnnouncements({ page: 0, size: 20 })
     items = result.items
   } catch (error) {
     if (error instanceof HttpError && error.kind === 'unauthorized') {

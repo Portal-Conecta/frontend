@@ -1,4 +1,4 @@
-import type { AnnouncementOrigin, AnnouncementSummary } from '../types'
+import type { AnnouncementOrigin, AnnouncementDetail } from '../../types'
 
 import { Tag, Text } from '@portal/ui'
 
@@ -14,7 +14,7 @@ function formatDate(iso: string | null): string | null {
 }
 
 export interface AnnouncementsBoardProps {
-  items: AnnouncementSummary[]
+  items: AnnouncementDetail[]
   errorMessage?: string
 }
 
@@ -38,18 +38,18 @@ export function AnnouncementsBoard({ items, errorMessage }: AnnouncementsBoardPr
   return (
     <ul className="mt-6 flex flex-col gap-4">
       {items.map((post) => {
-        const dateLabel = formatDate(post.publishedAt ?? post.scheduledFor)
+        const dateLabel = formatDate(post.announcement.publishedAt ?? post.announcement.scheduledFor)
 
         return (
           <li
-            key={post.id}
+            key={post.announcement.id}
             className="flex flex-col gap-2 rounded-md border-sm border-border-default bg-background-surface p-4"
           >
             <div className="flex flex-wrap items-center gap-3">
               <Tag tone="neutral" size="sm" radius="full">
-                {originLabel[post.origin]}
+                {originLabel[post.announcement.origin]}
               </Tag>
-              {post.pinned ? (
+              {post.announcement.pinned ? (
                 <Tag tone="info" size="sm" radius="full">
                   Fixado
                 </Tag>
@@ -61,10 +61,10 @@ export function AnnouncementsBoard({ items, errorMessage }: AnnouncementsBoardPr
               ) : null}
             </div>
             <Text as="h2" variant="label-md-emphasis" tone="primary">
-              {post.title}
+              {post.announcement.title}
             </Text>
             <Text as="p" variant="body-sm" tone="secondary">
-              {post.description}
+              {post.announcement.description}
             </Text>
           </li>
         )
