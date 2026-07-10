@@ -23,3 +23,4 @@ Ponto de entrada da documentação. Comece por aqui para saber onde achar cada c
 
 - [AGENTS.md](../AGENTS.md) - ponto de entrada para agentes e desenvolvedores.
 - [CONTRIBUTING.md](../CONTRIBUTING.md) - versionamento, branches e PRs.
+- [REVISION.md](../REVISION.md) - rubric completo de revisão de PR, para humanos, agentes e routines automatizadas.

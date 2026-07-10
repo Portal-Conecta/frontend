@@ -1,6 +1,8 @@
-import type { AnnouncementOrigin, AnnouncementDetail } from '../../types'
+import type { AnnouncementOrigin, AnnouncementSummary } from '../../types'
 
 import { Tag, Text } from '@portal/ui'
+
+import { PinnedPostsSection } from '../PinnedPostsSection'
 
 const originLabel: Record<AnnouncementOrigin, string> = {
   WEG: 'WEG',
@@ -14,7 +16,7 @@ function formatDate(iso: string | null): string | null {
 }
 
 export interface AnnouncementsBoardProps {
-  items: AnnouncementDetail[]
+  items: AnnouncementSummary[]
   errorMessage?: string
 }
 
@@ -35,40 +37,47 @@ export function AnnouncementsBoard({ items, errorMessage }: AnnouncementsBoardPr
     )
   }
 
-  return (
-    <ul className="mt-6 flex flex-col gap-4">
-      {items.map((post) => {
-        const dateLabel = formatDate(post.announcement.publishedAt ?? post.announcement.scheduledFor)
+  const pinnedPosts = items.filter((post) => post.pinned)
+  const regularPosts = items.filter((post) => !post.pinned)
 
-        return (
-          <li
-            key={post.announcement.id}
-            className="flex flex-col gap-2 rounded-md border-sm border-border-default bg-background-surface p-4"
-          >
-            <div className="flex flex-wrap items-center gap-3">
-              <Tag tone="neutral" size="sm" radius="full">
-                {originLabel[post.announcement.origin]}
-              </Tag>
-              {post.announcement.pinned ? (
-                <Tag tone="info" size="sm" radius="full">
-                  Fixado
-                </Tag>
-              ) : null}
-              {dateLabel ? (
-                <Text as="span" variant="label-xs" tone="secondary">
-                  {dateLabel}
+  return (
+    <div className="mt-6 flex flex-col gap-6">
+      <PinnedPostsSection posts={pinnedPosts} />
+
+      {regularPosts.length > 0 ? (
+        <ul className="flex flex-col gap-4">
+          {regularPosts.map((post) => {
+            const dateLabel = formatDate(post.publishedAt ?? post.scheduledFor)
+
+            return (
+              <li
+                key={post.id}
+                className="flex flex-col gap-2 rounded-md border-sm border-border-default bg-background-surface p-4"
+              >
+                <div className="flex flex-wrap items-center gap-3">
+                  <Tag tone="neutral" size="sm" radius="full">
+                    {originLabel[post.origin]}
+                  </Tag>
+
+                  {dateLabel ? (
+                    <Text as="span" variant="label-xs" tone="secondary">
+                      {dateLabel}
+                    </Text>
+                  ) : null}
+                </div>
+
+                <Text as="h2" variant="label-md-emphasis" tone="primary">
+                  {post.title}
                 </Text>
-              ) : null}
-            </div>
-            <Text as="h2" variant="label-md-emphasis" tone="primary">
-              {post.announcement.title}
-            </Text>
-            <Text as="p" variant="body-sm" tone="secondary">
-              {post.announcement.description}
-            </Text>
-          </li>
-        )
-      })}
-    </ul>
+
+                <Text as="p" variant="body-sm" tone="secondary">
+                  {post.description}
+                </Text>
+              </li>
+            )
+          })}
+        </ul>
+      ) : null}
+    </div>
   )
 }

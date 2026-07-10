@@ -4,6 +4,8 @@ import type {
   AnnouncementUpdatePayload,
   ListAnnouncementsResponse,
   ListPostsParams,
+  AnnouncementTag,
+  AnnouncementFile,
 } from '../../types'
 
 import { createHttpClient } from '@portal/core/http/httpClient'
@@ -86,4 +88,14 @@ export async function pinPost(
 /** Desafixa um post (`PATCH /api/posts/{id}/unpin`), retornando o estado atualizado. */
 export async function unpinPost(id: string): Promise<AnnouncementResponse> {
   return http.patch<AnnouncementResponse>(comunicadosGatewayPath(`/api/posts/${id}/unpin`))
+}
+
+/** Lista as tags de um comunicado (`GET /api/posts/{id}/tags`). */
+export async function getPostTags(id: string): Promise<AnnouncementTag[]> {
+  return http.get<AnnouncementTag[]>(comunicadosGatewayPath(`/api/posts/${id}/tags`))
+}
+
+/** Lista as imagens anexadas de um comunicado (`GET /api/posts/{id}/images`). */
+export async function getPostImages(id: string): Promise<AnnouncementFile[]> {
+  return http.get<AnnouncementFile[]>(comunicadosGatewayPath(`/api/posts/${id}/images`))
 }

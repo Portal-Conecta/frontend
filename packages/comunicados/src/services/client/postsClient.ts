@@ -1,6 +1,8 @@
 import type {
   AnnouncementDetail,
+  AnnouncementFile,
   AnnouncementResponse,
+  AnnouncementTag,
   AnnouncementUpdatePayload,
   ListAnnouncementsResponse,
   ListPostsParams,
@@ -80,4 +82,14 @@ export async function unpinPostClient(id: string): Promise<AnnouncementResponse>
   return bffFetch<AnnouncementResponse>(`/api/comunicados/posts/${id}/unpin`, {
     method: 'PATCH',
   })
+}
+
+/** Lista as tags via BFF (`GET /api/comunicados/posts/{id}/tags`). */
+export async function getPostTagsClient(id: string): Promise<AnnouncementTag[]> {
+  return bffFetch<AnnouncementTag[]>(`/api/comunicados/posts/${id}/tags`)
+}
+
+/** Lista as imagens via BFF (`GET /api/comunicados/posts/{id}/images`). */
+export async function getPostImagesClient(id: string): Promise<AnnouncementFile[]> {
+  return bffFetch<AnnouncementFile[]>(`/api/comunicados/posts/${id}/images`)
 }

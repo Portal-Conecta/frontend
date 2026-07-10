@@ -16,4 +16,6 @@ export {
   deletePostClient,
   pinPostClient,
   unpinPostClient,
+  getPostTagsClient,
+  getPostImagesClient,
 } from './postsClient'
