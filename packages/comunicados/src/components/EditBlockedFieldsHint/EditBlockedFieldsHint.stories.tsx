@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react'
 
-import { EditBlockedFieldsHint } from '../EditBlockedFieldsHint'
+import { EditBlockedFieldsHint } from '.'
 
 const meta: Meta<typeof EditBlockedFieldsHint> = {
   title: 'Comunicados/Molecules/EditBlockedFieldsHint',

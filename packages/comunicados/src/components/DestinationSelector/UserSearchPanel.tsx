@@ -98,7 +98,7 @@ export function UserSearchPanel({
         onChange={handleQuery}
         placeholder="Buscar usuário pelo nome"
         iconRight="search"
-        disabled={disabled || usersLoading}
+        disabled={disabled}
         aria-label="Buscar usuário pelo nome"
       />
 
