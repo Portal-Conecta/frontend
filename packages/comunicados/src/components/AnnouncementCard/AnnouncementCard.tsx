@@ -43,7 +43,8 @@ export function AnnouncementCard({
   const date = announcement.publishedAt ?? announcement.scheduledFor ?? announcement.createdAt
 
   const classes = [
-    'group relative aspect-video w-full overflow-hidden rounded-md bg-interactive-disabled shadow-sm',
+    // Figma "Card - fixado": 260x232 no mobile, 672x400 no desktop — proporções diferentes, não é o mesmo aspect-ratio escalado.
+    'group relative aspect-[260/232] w-full overflow-hidden rounded-md bg-interactive-disabled shadow-sm md:aspect-[672/400]',
     isHighlighted ? 'shadow-lg' : undefined,
     className,
   ]
@@ -59,7 +60,7 @@ export function AnnouncementCard({
         className="absolute inset-0 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
       />
 
-      <div className="pointer-events-none absolute inset-0 flex items-end px-4 pb-4 pt-10 transition-opacity group-hover:opacity-95">
+      <div className="pointer-events-none absolute inset-0 flex items-end p-3 transition-opacity group-hover:opacity-95 md:p-6">
         <div className="absolute inset-0 -z-10" style={{ backgroundImage: cardGradient }} aria-hidden="true" />
 
         <div className="relative flex w-full flex-col gap-2 overflow-hidden text-text-inverse">

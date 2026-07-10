@@ -12,7 +12,8 @@ export interface AnnouncementPinnedCardSkeletonProps {
  */
 export function AnnouncementPinnedCardSkeleton({ className }: AnnouncementPinnedCardSkeletonProps) {
   const classes = [
-    'relative flex aspect-video w-full items-end overflow-hidden rounded-md bg-interactive-disabled px-4 pb-4 pt-10',
+    // Figma "Card - fixado" (skeleton/skeleton mobile): 260x232 no mobile, 672x400 no desktop.
+    'relative flex aspect-[260/232] w-full items-end overflow-hidden rounded-md bg-interactive-disabled p-3 md:aspect-[672/400] md:p-6',
     className,
   ]
     .filter(Boolean)
