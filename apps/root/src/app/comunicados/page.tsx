@@ -1,3 +1,5 @@
-import PageAnnouncements from '@portal/comunicados/pages/PageAnnouncements'
+import { PageMural } from '@portal/comunicados'
 
-export default PageAnnouncements
+export default function ComunicadosPage() {
+  return <PageMural />
+}
