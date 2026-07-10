@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button, DateInput, Field, Select, Text, type SelectOption } from "@portal/ui";
+import { AnnouncementFiltersBarSkeleton } from "./AnnouncementFiltersBarSkeleton";
 
 export interface AnnouncementFilters {
   curso?: string;
@@ -13,8 +14,10 @@ export interface AnnouncementFilters {
   dataFim?: string;
 }
 
+export type TypeUser = 'STUDENT' | 'TEACHER' | 'ADMIN' | 'REPRESENTATIVE' | 'SENAI' | 'WEG';
+
 export interface AnnouncementFiltersBarProps {
-  userType?: "STUDENT" | "TEACHER" | "ADMIN" | string; // Adicionado para controlar a variante
+  userType: TypeUser;
   loading?: boolean;
   cursoOptions?: SelectOption[];
   tipoOptions?: SelectOption[];
@@ -50,6 +53,10 @@ export function AnnouncementFiltersBar({
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
 
+  if (loading) {
+    return <AnnouncementFiltersBarSkeleton userType={userType} />;
+  }
+
   const isStudent = userType === "STUDENT";
 
   function buildFilters(): AnnouncementFilters {
@@ -61,8 +68,6 @@ export function AnnouncementFiltersBar({
     const normalizedTurno = normalize(turno);
     const normalizedPeriodo = normalize(periodo);
 
-    // Se for estudante, não incluímos esses filtros no payload, 
-    // mesmo que existam resquícios no estado.
     if (!isStudent) {
       if (normalizedCurso) filters.curso = normalizedCurso;
       if (normalizedTipo) filters.tipo = normalizedTipo;
@@ -95,8 +100,6 @@ export function AnnouncementFiltersBar({
       </Text>
 
       <div className="mt-7 flex flex-col gap-4">
-        
-        {/* Renderização condicional baseada na regra de negócio */}
         {!isStudent && (
           <>
             <FilterSelect label="Curso" options={cursoOptions} value={curso} onChange={setCurso} disabled={loading} />

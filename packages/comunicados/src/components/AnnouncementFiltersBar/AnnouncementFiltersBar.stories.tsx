@@ -60,10 +60,30 @@ const meta: Meta<typeof AnnouncementFiltersBar> = {
 export default meta;
 type Story = StoryObj<typeof AnnouncementFiltersBar>;
 
-export const Default: Story = {};
+export const Default: Story = {
+  args: {
+    userType: "ADMIN",
+    loading: false,
+  },
+};
+
+export const VarianteAluno: Story = {
+  args: {
+    userType: "STUDENT",
+    loading: false,
+  },
+};
 
 export const Loading: Story = {
   args: {
+    userType: "ADMIN",
+    loading: true,
+  },
+};
+
+export const SkeletonAluno: Story = {
+  args: {
+    userType: "STUDENT",
     loading: true,
   },
 };
