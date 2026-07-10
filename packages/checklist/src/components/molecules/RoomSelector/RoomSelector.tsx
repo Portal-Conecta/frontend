@@ -28,6 +28,7 @@ export function RoomSelector({rooms, onSelect, className}: RoomSelectorProps) {
     return (
         
     <div 
+        // eslint-disable-next-line no-restricted-syntax -- gap fluido fora da escala (24px → 40px) intencional. Ver AGENTS.md Tokens, exceção pendente de aprovação do TL.
         style={{ gap: 'clamp(24px, 4vw, 40px)' }}
         className={[
             'flex min-h-screen flex-col items-center justify-center px-4 md:px-8',
@@ -36,6 +37,7 @@ export function RoomSelector({rooms, onSelect, className}: RoomSelectorProps) {
         .filter(Boolean)
         .join(' ')}
     >
+        {/* eslint-disable-next-line no-restricted-syntax -- font-size fluido fora da escala (24px → 36px) intencional. Ver AGENTS.md Tokens, exceção pendente de aprovação do TL. */}
         <Text variant="heading-h2" tone="brand" className="text-center font-bold text-[clamp(24px,4vw,36px)]"
         >
             Selecione a Sala para Preencher o Checklist
