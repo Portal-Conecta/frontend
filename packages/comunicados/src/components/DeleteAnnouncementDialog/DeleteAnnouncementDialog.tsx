@@ -2,7 +2,7 @@
 
 import { Button, Icon, Text } from '@portal/ui'
 import { useEffect } from 'react'
-import { DeleteAnnouncementDialogProps } from 'src/types/delete-announcement-dialog'
+import type { DeleteAnnouncementDialogProps } from 'src/types/delete-announcement-dialog'
 
 export function DeleteAnnouncementDialog({
   open = false,
