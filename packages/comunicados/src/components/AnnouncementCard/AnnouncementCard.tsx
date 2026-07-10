@@ -13,10 +13,14 @@ export interface AnnouncementCardProps {
 const originLabel: Record<AnnouncementSummary['origin'], string> = {
   WEG: 'WEG',
   SENAI: 'SENAI',
-  BOTH: 'WEG',
+  BOTH: 'WEG + SENAI',
 }
 
-const cardGradient = `linear-gradient(180deg, ${colors.background.surface} 0%, ${colors.text.secondary} 60%)`
+const cardGradient =
+  `linear-gradient(180deg, ${colors.background.surface}00 0%, ` +
+  `${colors.background.surface}00 42%, ` +
+  `${colors.interactive.pressed}40 74%, ` +
+  `${colors.interactive.pressed}99 100%)`
 
 function formatDate(value: string): string {
   const date = new Date(value)
@@ -25,18 +29,14 @@ function formatDate(value: string): string {
   return new Intl.DateTimeFormat('pt-BR').format(date)
 }
 
-export function AnnouncementCard({
-  announcement,
-  highlighted,
-  className,
-}: AnnouncementCardProps) {
+export function AnnouncementCard({ announcement, highlighted, className }: AnnouncementCardProps) {
   const href = `/comunicados/${announcement.id}`
   const isHighlighted = highlighted ?? announcement.pinned
   const date = announcement.publishedAt ?? announcement.scheduledFor ?? announcement.createdAt
 
   const classes = [
-    'group relative flex aspect-[665/374] w-full overflow-hidden rounded-md bg-interactive-disabled',
-    'items-end px-6 pb-6 pt-12 shadow-sm transition-opacity hover:opacity-95',
+    'group relative flex aspect-video w-full overflow-hidden rounded-md bg-interactive-disabled',
+    'items-end px-4 pb-4 pt-10 shadow-sm transition-opacity hover:opacity-95',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2',
     isHighlighted ? 'shadow-lg' : undefined,
     className,
@@ -46,25 +46,14 @@ export function AnnouncementCard({
 
   return (
     <Link href={href} className={classes} aria-label={`Abrir comunicado: ${announcement.title}`}>
-      <div
-        className="absolute inset-0"
-        style={{ backgroundImage: cardGradient }}
-        aria-hidden="true"
-      />
+      <div className="absolute inset-0" style={{ backgroundImage: cardGradient }} aria-hidden="true" />
 
-      <div className="relative flex w-full max-w-[340px] flex-col gap-3 overflow-hidden text-text-inverse">
-        <Text
-          as="h3"
-          variant="body-xl-emphasis"
-          tone="inverse"
-          className="truncate"
-          // Figma #38 usa 28px/30px; o DS salta de body-xl (24px) para label-xl (32px).
-          style={{ fontSize: '28px', lineHeight: '30px' }}
-        >
+      <div className="relative flex w-full flex-col gap-2 overflow-hidden text-text-inverse">
+        <Text as="h3" variant="body-xl-emphasis" tone="inverse" className="truncate">
           {announcement.title}
         </Text>
 
-        <Text as="p" variant="label-sm" tone="inverse" className="truncate">
+        <Text as="p" variant="label-xs" tone="inverse" className="truncate">
           {originLabel[announcement.origin]}
           <span className="px-2" aria-hidden="true">
             |
