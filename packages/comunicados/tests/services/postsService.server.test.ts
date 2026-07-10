@@ -36,6 +36,7 @@ function stubFetch() {
 }
 
 const listResponse = {
+  pinned: [],
   items: [],
   page: 0,
   size: 20,

@@ -1,39 +1,32 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import type { AnnouncementDetail, AnnouncementResponse } from '../../types/announcement'
+import type { AnnouncementSummary } from '../../types/announcement'
 
 import { AnnouncementFeedContent } from './AnnouncementFeed'
 
-function makeDetail(
-  announcement: Partial<AnnouncementResponse> & Pick<AnnouncementResponse, 'id' | 'title'>,
-): AnnouncementDetail {
+function makeSummary(
+  partial: Partial<AnnouncementSummary> & Pick<AnnouncementSummary, 'id' | 'title'>,
+): AnnouncementSummary {
   return {
-    announcement: {
-      description:
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer vestibulum elementum massa, in facilisis orci placerat sed.',
-      origin: 'SENAI',
-      status: 'PUBLISHED',
-      pinned: false,
-      pinnedOrder: null,
-      createdByUserId: 'u-1',
-      publishedByUserId: 'u-1',
-      scheduledFor: null,
-      publishedAt: '2026-06-02T12:00:00.000Z',
-      removedAt: null,
-      createdAt: '2026-06-02T12:00:00.000Z',
-      updatedAt: '2026-06-02T12:00:00.000Z',
-      ...announcement,
-    },
-    destinations: [],
-    files: [],
-    tags: [],
-    mentions: [],
+    description:
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer vestibulum elementum massa, in facilisis orci placerat sed.',
+    origin: 'SENAI',
+    status: 'PUBLISHED',
+    pinned: false,
+    pinnedOrder: null,
+    scheduledFor: null,
+    publishedAt: '2026-06-02T12:00:00.000Z',
+    createdAt: '2026-06-02T12:00:00.000Z',
+    ...partial,
   }
 }
 
-const items: AnnouncementDetail[] = [
-  makeDetail({ id: 'post-1', title: 'Título da publicação', pinned: true, pinnedOrder: 1 }),
-  makeDetail({ id: 'post-2', title: 'Título da publicação', origin: 'WEG' }),
-  makeDetail({ id: 'post-3', title: 'Título da publicação', origin: 'BOTH' }),
+const pinned: AnnouncementSummary[] = [
+  makeSummary({ id: 'post-1', title: 'Título da publicação', pinned: true, pinnedOrder: 1 }),
+]
+
+const items: AnnouncementSummary[] = [
+  makeSummary({ id: 'post-2', title: 'Título da publicação', origin: 'WEG' }),
+  makeSummary({ id: 'post-3', title: 'Título da publicação', origin: 'BOTH' }),
 ]
 
 const meta: Meta<typeof AnnouncementFeedContent> = {
@@ -49,6 +42,7 @@ const meta: Meta<typeof AnnouncementFeedContent> = {
   ],
   args: {
     items,
+    pinned,
   },
 }
 
@@ -67,6 +61,7 @@ export const WithLoadMore: Story = {
 export const Loading: Story = {
   args: {
     items: [],
+    pinned: [],
     loading: true,
   },
 }
@@ -74,6 +69,7 @@ export const Loading: Story = {
 export const Empty: Story = {
   args: {
     items: [],
+    pinned: [],
     canCreate: true,
   },
 }
@@ -81,6 +77,7 @@ export const Empty: Story = {
 export const Error: Story = {
   args: {
     items: [],
+    pinned: [],
     error: new globalThis.Error('posts_list_error'),
     onRetry: () => undefined,
   },

@@ -1,7 +1,7 @@
 'use client'
 
 import type { KeyboardEvent, MouseEvent, PointerEvent } from 'react'
-import type { AnnouncementDetail, AnnouncementSummary } from '../../types/announcement'
+import type { AnnouncementSummary } from '../../types/announcement'
 
 import { useRef, useState } from 'react'
 
@@ -10,7 +10,8 @@ import { Text } from '@portal/ui'
 import { AnnouncementCard } from '../AnnouncementCard'
 
 export interface PinnedPostsSectionProps {
-  posts: AnnouncementDetail[]
+  /** Resumos já filtrados pelo back (`ListAnnouncementsResponse.pinned`). */
+  posts: AnnouncementSummary[]
 }
 
 type DragState = {
@@ -22,41 +23,15 @@ type DragState = {
 
 const KEYBOARD_SCROLL_STEP = 320
 
-function getPinnedOrder(post: AnnouncementDetail): number {
-  return post.announcement.pinnedOrder ?? Number.MAX_SAFE_INTEGER
+function getPinnedOrder(post: AnnouncementSummary): number {
+  return post.pinnedOrder ?? Number.MAX_SAFE_INTEGER
 }
 
-function getPostTime(post: AnnouncementDetail): number {
-  const date =
-    post.announcement.publishedAt ??
-    post.announcement.scheduledFor ??
-    post.announcement.createdAt
+function getPostTime(post: AnnouncementSummary): number {
+  const date = post.publishedAt ?? post.scheduledFor ?? post.createdAt
   const timestamp = Date.parse(date)
 
   return Number.isNaN(timestamp) ? 0 : timestamp
-}
-
-function toAnnouncementSummary(post: AnnouncementDetail): AnnouncementSummary {
-  const tagNames = post.tags.map((tag) => tag.tagName)
-
-  const summary: AnnouncementSummary = {
-    id: post.announcement.id,
-    title: post.announcement.title,
-    description: post.announcement.description,
-    origin: post.announcement.origin,
-    status: post.announcement.status,
-    pinned: post.announcement.pinned,
-    pinnedOrder: post.announcement.pinnedOrder,
-    scheduledFor: post.announcement.scheduledFor,
-    publishedAt: post.announcement.publishedAt,
-    createdAt: post.announcement.createdAt,
-  }
-
-  if (tagNames.length > 0) {
-    summary.tags = tagNames
-  }
-
-  return summary
 }
 
 export function PinnedPostsSection({ posts }: PinnedPostsSectionProps) {
@@ -69,11 +44,9 @@ export function PinnedPostsSection({ posts }: PinnedPostsSectionProps) {
   })
   const [dragging, setDragging] = useState(false)
 
-  const pinnedPosts = posts
-    .filter((post) => post.announcement.pinned)
-    .sort(
-      (a, b) => getPinnedOrder(a) - getPinnedOrder(b) || getPostTime(b) - getPostTime(a),
-    )
+  const pinnedPosts = [...posts].sort(
+    (a, b) => getPinnedOrder(a) - getPinnedOrder(b) || getPostTime(b) - getPostTime(a),
+  )
 
   if (pinnedPosts.length === 0) return null
 
@@ -166,8 +139,8 @@ export function PinnedPostsSection({ posts }: PinnedPostsSectionProps) {
         onKeyDown={handleKeyDown}
       >
         {pinnedPosts.map((post) => (
-          <li key={post.announcement.id} className="w-96 shrink-0">
-            <AnnouncementCard announcement={toAnnouncementSummary(post)} highlighted />
+          <li key={post.id} className="w-96 shrink-0">
+            <AnnouncementCard announcement={post} highlighted />
           </li>
         ))}
       </ul>

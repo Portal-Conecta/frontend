@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { HttpError } from '@portal/core/http/errors'
 
 import { listMyPostsClient } from '../services/client'
-import type { AnnouncementDetail } from '../types'
+import type { AnnouncementSummary } from '../types'
 
 /**
  * useMyAnnouncements — carrega os comunicados do próprio autor via BFF e mantém
@@ -23,7 +23,7 @@ function messageForError(err: unknown): string {
 }
 
 export function useMyAnnouncements() {
-  const [items, setItems] = useState<AnnouncementDetail[]>([])
+  const [items, setItems] = useState<AnnouncementSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
