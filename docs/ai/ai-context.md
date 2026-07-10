@@ -37,7 +37,7 @@ Domínios **nunca** importam outros domínios (o ESLint quebra o CI). Lógica cr
 | Visão geral e regras de aprovação | [AGENTS.md](../../AGENTS.md) |
 | Critérios de merge verificáveis | [definition-of-done.md](definition-of-done.md) |
 | Quando usar chat vs agente | [como-usar-ia.md](como-usar-ia.md) |
-| Revisar um PR com IA | [code-review.md](code-review.md) |
+| Revisar um PR com IA (rubric completo, para routines) | [/REVISION.md](../../REVISION.md) |
 | Porquê das decisões | [ADRs](../adr/README.md) |
 | Como implementar (tokens, layout, código, a11y) | [conventions/](../conventions/) |
 | Versionamento, branches e PR | [CONTRIBUTING.md](../../CONTRIBUTING.md) |

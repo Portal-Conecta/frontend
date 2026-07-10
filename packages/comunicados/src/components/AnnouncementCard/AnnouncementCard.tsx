@@ -1,32 +1,16 @@
-import type { AnnouncementStatus, AnnouncementSummary } from '../../types/announcement'
-import type { IconName, TagTone } from '@portal/ui'
+import type { AnnouncementSummary } from '../../types/announcement'
+import type { ReactNode } from 'react'
 
 import Link from 'next/link'
 
-import { Icon, Tag, Text } from '@portal/ui'
+import { Text, colors } from '@portal/ui'
 
 export interface AnnouncementCardProps {
   announcement: AnnouncementSummary
   highlighted?: boolean
+  /** Ações (fixar/editar/excluir) sobrepostas ao gradiente — só quem gerencia o comunicado. */
+  actions?: ReactNode
   className?: string
-}
-
-const statusConfig: Record<AnnouncementStatus, { label: string; tone: TagTone; icon: IconName }> = {
-  PUBLISHED: {
-    label: 'Publicado',
-    tone: 'positive',
-    icon: 'check-check',
-  },
-  SCHEDULED: {
-    label: 'Agendado',
-    tone: 'warning',
-    icon: 'bell',
-  },
-  REMOVED: {
-    label: 'Removido',
-    tone: 'negative',
-    icon: 'x',
-  },
 }
 
 const originLabel: Record<AnnouncementSummary['origin'], string> = {
@@ -35,96 +19,67 @@ const originLabel: Record<AnnouncementSummary['origin'], string> = {
   BOTH: 'WEG + SENAI',
 }
 
+const cardGradient =
+  `linear-gradient(180deg, ${colors.background.surface}00 0%, ` +
+  `${colors.background.surface}00 42%, ` +
+  `${colors.interactive.pressed}40 74%, ` +
+  `${colors.interactive.pressed}99 100%)`
+
 function formatDate(value: string): string {
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return value
 
-  return new Intl.DateTimeFormat('pt-BR', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  }).format(date)
+  return new Intl.DateTimeFormat('pt-BR').format(date)
 }
 
 export function AnnouncementCard({
   announcement,
   highlighted,
+  actions,
   className,
 }: AnnouncementCardProps) {
-  const status = statusConfig[announcement.status]
   const href = `/comunicados/${announcement.id}`
   const isHighlighted = highlighted ?? announcement.pinned
   const date = announcement.publishedAt ?? announcement.scheduledFor ?? announcement.createdAt
 
   const classes = [
-    'group flex w-full flex-col gap-4 rounded-md border-sm bg-background-surface p-4',
-    'transition-colors hover:border-interactive-default hover:bg-background-default',
+    'group relative flex aspect-video w-full overflow-hidden rounded-md bg-interactive-disabled',
+    'items-end px-4 pb-4 pt-10 shadow-sm transition-opacity hover:opacity-95',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2',
-    isHighlighted
-      ? 'border-interactive-default shadow-lg'
-      : 'border-border-default shadow-sm',
+    isHighlighted ? 'shadow-lg' : undefined,
     className,
   ]
     .filter(Boolean)
     .join(' ')
 
   return (
-    <Link href={href} className={classes} aria-label={`Abrir comunicado: ${announcement.title}`}>
-      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-        <div className="flex min-w-0 flex-1 flex-col gap-2">
-          <div className="flex flex-row flex-wrap items-center gap-2">
-            {isHighlighted ? (
-              <Tag tone="info" size="sm" icon="bell">
-                Fixado
-              </Tag>
-            ) : null}
-            <Tag tone={status.tone} size="sm" icon={status.icon}>
-              {status.label}
-            </Tag>
-          </div>
+    <div className={classes}>
+      {/* Cobre o card inteiro — mantém o card inteiro clicável sem aninhar os botões de `actions` numa âncora. */}
+      <Link
+        href={href}
+        aria-label={`Abrir comunicado: ${announcement.title}`}
+        className="absolute inset-0 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
+      />
 
-          <Text
-            as="h3"
-            variant="label-md-emphasis"
-            tone="primary"
-            className="transition-colors group-hover:text-text-brand"
-          >
+      <div className="pointer-events-none absolute inset-0 flex items-end p-3 transition-opacity group-hover:opacity-95 md:p-6">
+        <div className="absolute inset-0 -z-10" style={{ backgroundImage: cardGradient }} aria-hidden="true" />
+
+        <div className="relative flex w-full flex-col gap-2 overflow-hidden text-text-inverse">
+          <Text as="h3" variant="body-xl-emphasis" tone="inverse" className="truncate">
             {announcement.title}
           </Text>
+
+          <Text as="p" variant="label-xs" tone="inverse" className="truncate">
+            {originLabel[announcement.origin]}
+            <span className="px-2" aria-hidden="true">
+              |
+            </span>
+            {formatDate(date)}
+          </Text>
+
+          {actions ? <div className="pointer-events-auto">{actions}</div> : null}
         </div>
-
-        <Icon
-          name="chevron-right"
-          size="sm"
-          tone="secondary"
-          decorative
-          className="hidden shrink-0 transition-transform group-hover:translate-x-1 md:block"
-        />
       </div>
-
-      <div className="flex flex-row flex-wrap items-center gap-2 text-text-secondary">
-        <Text as="span" variant="label-sm" className="whitespace-nowrap">
-          {originLabel[announcement.origin]}
-        </Text>
-        <span className="h-1 w-1 rounded-full bg-border-default" aria-hidden="true" />
-        <Text as="span" variant="label-sm" className="whitespace-nowrap">
-          {formatDate(date)}
-        </Text>
-      </div>
-
-      <Text as="p" variant="body-sm" tone="secondary" className="line-clamp-2">
-        {announcement.description}
-      </Text>
-
-      {announcement.tags?.length ? (
-        <div className="flex flex-row flex-wrap gap-2">
-          {announcement.tags.map((tag) => (
-            <Tag key={tag} tone="neutral" size="sm">
-              {tag}
-            </Tag>
-          ))}
-        </div>
-      ) : null}
-    </Link>
+    </div>
   )
 }

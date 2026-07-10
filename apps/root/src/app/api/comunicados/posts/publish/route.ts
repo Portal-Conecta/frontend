@@ -10,9 +10,8 @@ import type { PublishAnnouncementRequest } from '@portal/comunicados/types/annou
 
 /**
  * BFF de publicar comunicado. Recebe o body do client, lê o JWT do cookie
- * httpOnly (getSession) e delega ao postsService, que fala com o back de
- * comunicados via `Authorization: Bearer`. O token nunca trafega no JS do
- * browser — só no server.
+ * httpOnly (getSession) e delega ao postsService, que chama o API Gateway em
+ * `/comunicados/api/posts/publish` com `Authorization: Bearer`.
  *
  * Espelha o status do back (201 no sucesso) e repassa os `errors[]` de validação
  * (400) para o form mapear por campo.
