@@ -13,4 +13,6 @@ export {
   deletePost,
   pinPost,
   unpinPost,
+  getPostTags,
+  getPostImages,
 } from './postsService'

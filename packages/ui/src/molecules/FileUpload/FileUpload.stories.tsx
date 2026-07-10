@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { useState } from 'react'
 
-import { ImageUploader } from './ImageUploader'
-import type { ImageItem } from './types'
+import { FileUpload } from './FileUpload'
+import type { FileUploadItem } from './FileUpload'
 
 /** Swatch SVG como object-free preview (não depende de rede no Storybook). */
 function swatch(color: string): string {
@@ -10,15 +10,15 @@ function swatch(color: string): string {
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
 }
 
-const sampleImages: ImageItem[] = [
+const sampleFiles: FileUploadItem[] = [
   { id: 's1', previewUrl: swatch('#01258F'), name: 'capa.png' },
   { id: 's2', previewUrl: swatch('#3B82F6'), name: 'foto-1.png' },
   { id: 's3', previewUrl: swatch('#93C5FD'), name: 'foto-2.png' },
 ]
 
-const meta: Meta<typeof ImageUploader> = {
-  title: 'Comunicados/Organisms/ImageUploader',
-  component: ImageUploader,
+const meta: Meta<typeof FileUpload> = {
+  title: 'Componentes/Inputs/FileUpload',
+  component: FileUpload,
   parameters: { layout: 'padded' },
   decorators: [
     (Story) => (
@@ -30,27 +30,30 @@ const meta: Meta<typeof ImageUploader> = {
 }
 
 export default meta
-type Story = StoryObj<typeof ImageUploader>
+type Story = StoryObj<typeof FileUpload>
 
 function Demo({
   initial = [],
-  maxImages,
+  maxFiles,
+  maxSize,
   disabled,
   error,
 }: {
-  initial?: ImageItem[]
-  maxImages?: number
+  initial?: FileUploadItem[]
+  maxFiles?: number
+  maxSize?: number
   disabled?: boolean
   error?: string
 }) {
-  const [images, setImages] = useState<ImageItem[]>(initial)
+  const [files, setFiles] = useState<FileUploadItem[]>(initial)
 
   return (
-    <ImageUploader
-      value={images}
-      onChange={setImages}
+    <FileUpload
+      value={files}
+      onChange={setFiles}
       disabled={disabled ?? false}
-      {...(maxImages != null ? { maxImages } : {})}
+      {...(maxFiles != null ? { maxFiles } : {})}
+      {...(maxSize != null ? { maxSize } : {})}
       {...(error ? { error } : {})}
     />
   )
@@ -59,20 +62,20 @@ function Demo({
 /** Vazio — clique na área grande (ou arraste) para enviar. */
 export const Default: Story = { render: () => <Demo /> }
 
-/** Com imagens: principal + miniaturas, cada uma removível. */
-export const ComImagens: Story = { render: () => <Demo initial={sampleImages} /> }
+/** Com arquivos: principal + miniaturas, cada um removível. */
+export const ComArquivos: Story = { render: () => <Demo initial={sampleFiles} /> }
 
-/** Estado de erro (ex.: campo obrigatório). */
+/** Estado de erro (ex.: campo obrigatório ou rejeição de tipo/tamanho). */
 export const ComErro: Story = {
-  render: () => <Demo error="Adicione ao menos uma imagem" />,
+  render: () => <Demo error="Adicione ao menos um arquivo" />,
 }
 
 /** Desabilitado. */
 export const Desabilitado: Story = {
-  render: () => <Demo initial={sampleImages} disabled />,
+  render: () => <Demo initial={sampleFiles} disabled />,
 }
 
-/** Limite cheio — arrastar mais arquivos exibe mensagem de rejeição. */
+/** Limite cheio — anexar mais arquivos exibe mensagem de rejeição. */
 export const LimiteAtingido: Story = {
   render: () => (
     <Demo
@@ -83,7 +86,12 @@ export const LimiteAtingido: Story = {
         { id: '4', previewUrl: swatch('#60A5FA'), name: '4.png' },
         { id: '5', previewUrl: swatch('#2563EB'), name: '5.png' },
       ]}
-      maxImages={5}
+      maxFiles={5}
     />
   ),
+}
+
+/** Tamanho máximo por arquivo — rejeita arquivos acima de 1 KB nesta story de demonstração. */
+export const ComTamanhoMaximo: Story = {
+  render: () => <Demo maxSize={1024} />,
 }

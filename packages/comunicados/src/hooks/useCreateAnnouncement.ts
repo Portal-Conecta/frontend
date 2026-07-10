@@ -15,7 +15,7 @@ import {
 
 import type { ApiFieldError } from '@portal/shared'
 
-import type { ImageItem } from '../components/AnnouncementForm/types'
+import type { FileUploadItem } from '@portal/ui'
 
 import { uploadAnnouncementImagesClient } from '../services/client/announcementImagesClient'
 import {
@@ -55,7 +55,7 @@ export interface CreateAnnouncementFormValues {
 
 export interface SubmitAnnouncementOptions {
   /** Imagens locais a anexar após criar o comunicado (#198). */
-  images?: readonly ImageItem[]
+  images?: readonly FileUploadItem[]
 }
 
 export interface UseCreateAnnouncementOptions {
@@ -172,7 +172,7 @@ export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}
     return buildPublishBodyFrom(values)
   }, [values])
 
-  const uploadImages = useCallback(async (postId: string, images: readonly ImageItem[]) => {
+  const uploadImages = useCallback(async (postId: string, images: readonly FileUploadItem[]) => {
     const hasFiles = images.some((item) => Boolean(item.file))
     if (!hasFiles) return true
 
@@ -188,7 +188,7 @@ export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}
   const finishAfterImages = useCallback(
     async (
       post: AnnouncementResponse,
-      images: readonly ImageItem[],
+      images: readonly FileUploadItem[],
     ): Promise<AnnouncementResponse | null> => {
       const imagesOk = await uploadImages(post.id, images)
       if (!imagesOk) {
