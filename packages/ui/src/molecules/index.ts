@@ -1,4 +1,5 @@
 export * from "./Alert";
+export * from "./ClassCard";
 export * from "./ErrorPage";
 export * from "./Field";
 export * from "./FileUpload";
