@@ -13,7 +13,7 @@
  *    ícone enquanto não há URLs assinadas do S3 disponíveis.
  *  - Ações: Link "Voltar" (ghost/brand) e Link "Editar" (outlined/brand, condicional)
  */
-import type { AnnouncementDetail, AnnouncementStatus, AnnouncementTag, AnnouncementFile, AnnouncementFileType } from '../../../types'
+import type { AnnouncementDetail, AnnouncementStatus, AnnouncementTag, AnnouncementFile, AnnouncementFileType } from '../../types'
 import type { IconName, TagTone } from '@portal/ui'
 
 import Link from 'next/link'

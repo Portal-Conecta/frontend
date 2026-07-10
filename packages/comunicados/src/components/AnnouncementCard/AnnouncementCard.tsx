@@ -1,4 +1,5 @@
 import type { AnnouncementSummary } from '../../types/announcement'
+import type { ReactNode } from 'react'
 
 import Link from 'next/link'
 
@@ -7,6 +8,8 @@ import { Text, colors } from '@portal/ui'
 export interface AnnouncementCardProps {
   announcement: AnnouncementSummary
   highlighted?: boolean
+  /** Ações (fixar/editar/excluir) sobrepostas ao gradiente — só quem gerencia o comunicado. */
+  actions?: ReactNode
   className?: string
 }
 
@@ -29,7 +32,12 @@ function formatDate(value: string): string {
   return new Intl.DateTimeFormat('pt-BR').format(date)
 }
 
-export function AnnouncementCard({ announcement, highlighted, className }: AnnouncementCardProps) {
+export function AnnouncementCard({
+  announcement,
+  highlighted,
+  actions,
+  className,
+}: AnnouncementCardProps) {
   const href = `/comunicados/${announcement.id}`
   const isHighlighted = highlighted ?? announcement.pinned
   const date = announcement.publishedAt ?? announcement.scheduledFor ?? announcement.createdAt
@@ -45,22 +53,33 @@ export function AnnouncementCard({ announcement, highlighted, className }: Annou
     .join(' ')
 
   return (
-    <Link href={href} className={classes} aria-label={`Abrir comunicado: ${announcement.title}`}>
-      <div className="absolute inset-0" style={{ backgroundImage: cardGradient }} aria-hidden="true" />
+    <div className={classes}>
+      {/* Cobre o card inteiro — mantém o card inteiro clicável sem aninhar os botões de `actions` numa âncora. */}
+      <Link
+        href={href}
+        aria-label={`Abrir comunicado: ${announcement.title}`}
+        className="absolute inset-0 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
+      />
 
-      <div className="relative flex w-full flex-col gap-2 overflow-hidden text-text-inverse">
-        <Text as="h3" variant="body-xl-emphasis" tone="inverse" className="truncate">
-          {announcement.title}
-        </Text>
+      <div className="pointer-events-none absolute inset-0 flex items-end p-3 transition-opacity group-hover:opacity-95 md:p-6">
+        <div className="absolute inset-0 -z-10" style={{ backgroundImage: cardGradient }} aria-hidden="true" />
 
-        <Text as="p" variant="label-xs" tone="inverse" className="truncate">
-          {originLabel[announcement.origin]}
-          <span className="px-2" aria-hidden="true">
-            |
-          </span>
-          {formatDate(date)}
-        </Text>
+        <div className="relative flex w-full flex-col gap-2 overflow-hidden text-text-inverse">
+          <Text as="h3" variant="body-xl-emphasis" tone="inverse" className="truncate">
+            {announcement.title}
+          </Text>
+
+          <Text as="p" variant="label-xs" tone="inverse" className="truncate">
+            {originLabel[announcement.origin]}
+            <span className="px-2" aria-hidden="true">
+              |
+            </span>
+            {formatDate(date)}
+          </Text>
+
+          {actions ? <div className="pointer-events-auto">{actions}</div> : null}
+        </div>
       </div>
-    </Link>
+    </div>
   )
 }

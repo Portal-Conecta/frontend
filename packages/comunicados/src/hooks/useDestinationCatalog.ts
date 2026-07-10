@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import type { SelectOption } from '@portal/ui'
 
@@ -42,6 +42,8 @@ const USERS_PAGE_SIZE = 6
 // filtra no client — matches além desse teto nunca aparecem. Mover o termo de
 // busca para o back quando o BFF real de usuários/tags existir.
 const USERS_SEARCH_FETCH_SIZE = 100
+/** Espera após a última tecla antes de buscar usuários (mesmo default do SearchBarAsync). */
+const USERS_SEARCH_DEBOUNCE_MS = 300
 
 export function useDestinationCatalog(): UseDestinationCatalogResult {
   const [courses, setCourses] = useState<SelectOption[]>([])
@@ -55,11 +57,24 @@ export function useDestinationCatalog(): UseDestinationCatalogResult {
     totalElements: 0,
   })
   const [usersQuery, setUsersQueryState] = useState('')
+  const [debouncedUsersQuery, setDebouncedUsersQuery] = useState('')
   const [usersPageIndex, setUsersPageIndex] = useState(1)
+  const debouncedUsersQueryRef = useRef(debouncedUsersQuery)
 
   const [loading, setLoading] = useState(true)
   const [usersLoading, setUsersLoading] = useState(false)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (debouncedUsersQueryRef.current === usersQuery) return
+      debouncedUsersQueryRef.current = usersQuery
+      setDebouncedUsersQuery(usersQuery)
+      setUsersPageIndex(1)
+    }, USERS_SEARCH_DEBOUNCE_MS)
+
+    return () => clearTimeout(timer)
+  }, [usersQuery])
 
   useEffect(() => {
     let cancelled = false
@@ -129,12 +144,11 @@ export function useDestinationCatalog(): UseDestinationCatalogResult {
   }, [])
 
   useEffect(() => {
-    void loadUsers(usersPageIndex, usersQuery)
-  }, [loadUsers, usersPageIndex, usersQuery])
+    void loadUsers(usersPageIndex, debouncedUsersQuery)
+  }, [loadUsers, usersPageIndex, debouncedUsersQuery])
 
   function setUsersQuery(query: string) {
     setUsersQueryState(query)
-    setUsersPageIndex(1)
   }
 
   function setUsersPage(page: number) {

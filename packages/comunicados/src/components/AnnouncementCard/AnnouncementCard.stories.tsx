@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import type { AnnouncementSummary } from '../../types/announcement'
 
+import { AnnouncementActionsMenu } from '../AnnouncementActionsMenu'
 import { AnnouncementCard } from './AnnouncementCard'
 
 const announcement: AnnouncementSummary = {
@@ -73,4 +74,35 @@ export const ResponsiveList: Story = {
       <AnnouncementCard announcement={scheduledAnnouncement} />
     </div>
   ),
+}
+
+/** Com o menu de ações (Desafixar/Editar/Excluir) — quem gerencia o comunicado. */
+export const WithActions: Story = {
+  args: {
+    actions: (
+      <AnnouncementActionsMenu
+        variant="solid"
+        pinned
+        onPin={() => {}}
+        onEdit={() => {}}
+        onDelete={() => {}}
+      />
+    ),
+  },
+}
+
+/** Ações em modo compacto (só ícone) — mesmo card, menu reduzido. */
+export const WithActionsCompact: Story = {
+  args: {
+    actions: (
+      <AnnouncementActionsMenu
+        variant="solid"
+        compact
+        pinned
+        onPin={() => {}}
+        onEdit={() => {}}
+        onDelete={() => {}}
+      />
+    ),
+  },
 }
