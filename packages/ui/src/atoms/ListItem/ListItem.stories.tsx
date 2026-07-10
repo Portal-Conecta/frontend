@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { ListItem } from './ListItem'
 
 const meta = {
-  title: 'Componentes/Listas/ListItem',
+  title: 'Componentes/Data/ListItem',
   component: ListItem,
   parameters: { layout: 'padded' },
   argTypes: {
