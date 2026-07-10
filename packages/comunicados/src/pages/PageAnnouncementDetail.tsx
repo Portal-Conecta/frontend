@@ -6,7 +6,7 @@ import { Text } from '@portal/ui'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
-import { AnnouncementDetailView } from '../components/organisms/AnnouncementDetailView'
+import { AnnouncementDetailView } from '../components/AnnouncementDetailView'
 import { getAnnouncement } from '../services'
 
 interface PageAnnouncementDetailProps {

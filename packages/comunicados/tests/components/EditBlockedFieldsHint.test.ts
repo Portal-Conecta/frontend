@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   EDIT_BLOCKED_FIELDS_HINT_MESSAGE,
   shouldShowEditBlockedFieldsHint,
-} from '../../src/components/molecules/editBlockedFieldsHintMessage'
+} from '../../src/components/EditBlockedFieldsHint/editBlockedFieldsHintMessage'
 
 describe('EditBlockedFieldsHint', () => {
   it('não exibe aviso quando blocked é false', () => {
