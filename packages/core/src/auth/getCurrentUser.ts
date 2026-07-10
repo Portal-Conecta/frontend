@@ -6,7 +6,7 @@
  * barrel de `@portal/core` de propósito — como `session.ts` — para não entrar em
  * bundle client. Importe por subpath: `@portal/core/auth/getCurrentUser`.
  *
- * Perfil (nome/email) entra aqui depois, enriquecendo com `GET /users/{id}`.
+ * Perfil (nome/email/avatar) é carregado à parte pelo endpoint self-scoped `GET /me`.
  */
 import { parseUserFromToken, type CurrentUser } from '../rbac'
 import { getSession } from './session'
