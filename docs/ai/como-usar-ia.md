@@ -39,7 +39,7 @@ Antes de pedir implementação, dê ao agente o contexto certo:
 
 ## O que delegar (e o que não)
 
-- **Delegue:** boilerplate de componente, story, types, services, página de domínio seguindo o padrão, testes de lógica, e **code review de PR** (ver [code-review.md](code-review.md)).
+- **Delegue:** boilerplate de componente, story, types, services, página de domínio seguindo o padrão, testes de lógica, e **code review de PR** (rubric completo em [/REVISION.md](../../REVISION.md), fluxo de invocação em [code-review.md](code-review.md)).
 - **Revise sempre, nunca aceite no automático:** mudanças em `packages/ui` (design system), uso de tokens, `pnpm add` de dependência nova, qualquer import entre camadas. Essas exigem aprovação humana — ver [AGENTS.md](../../AGENTS.md).
 - **Não delegue decisão de arquitetura:** isso vira [ADR](../adr/README.md), discutida pelo squad.
 
