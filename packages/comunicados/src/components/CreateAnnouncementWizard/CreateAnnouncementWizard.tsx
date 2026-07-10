@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-import { Button, Icon, Text } from '@portal/ui'
+import { Button, ConfirmDialog, Icon, Text } from '@portal/ui'
 
 import { ANNOUNCEMENT_ORIGIN } from '../../types/announcement'
 import {
@@ -20,6 +20,7 @@ import {
 import { DestinationSelector } from '../DestinationSelector'
 import type { Recipient } from '../DestinationSelector/types'
 import { ScheduleDatePicker } from '../ScheduleDatePicker'
+import { BRASILIA_TIMEZONE } from '../ScheduleDatePicker/datetime'
 import { StepProgressBar } from '../StepProgressBar'
 import { useDestinationCatalog } from '../../hooks/useDestinationCatalog'
 import { mapRecipientsToPayload } from './mapRecipientsToPayload'
@@ -51,6 +52,35 @@ function buildFormValues(
   }
 }
 
+function formatScheduledForLabel(isoUtc: string): string {
+  const date = new Date(isoUtc)
+  if (Number.isNaN(date.getTime())) return isoUtc
+
+  return new Intl.DateTimeFormat('pt-BR', {
+    timeZone: BRASILIA_TIMEZONE,
+    dateStyle: 'short',
+    timeStyle: 'short',
+  }).format(date)
+}
+
+function getPublishConfirmCopy(scheduledFor: string | null) {
+  if (scheduledFor) {
+    return {
+      subTitle: 'Comunicados',
+      title: 'Confirmar agendamento?',
+      content: `O comunicado será publicado em ${formatScheduledForLabel(scheduledFor)} (horário de Brasília). Você pode editá-lo depois.`,
+      labelConfirm: 'Agendar publicação',
+    }
+  }
+
+  return {
+    subTitle: 'Comunicados',
+    title: 'Publicar comunicado?',
+    content: 'O comunicado ficará visível para todos os destinatários agora. Você pode editá-lo depois.',
+    labelConfirm: 'Publicar',
+  }
+}
+
 /**
  * Wizard de criação de comunicado (#199): conteúdo → destinatários → publicar/agendar.
  */
@@ -62,6 +92,7 @@ export function CreateAnnouncementWizard() {
   const [scheduledFor, setScheduledFor] = useState<string | null>(null)
   const [contentErrors, setContentErrors] = useState<Partial<Record<keyof AnnouncementContentValue, string>>>({})
   const [destinationsError, setDestinationsError] = useState<string | undefined>()
+  const [confirmOpen, setConfirmOpen] = useState(false)
 
   const { fieldErrors, formError, submitting, pendingImageUpload, publishFrom, scheduleFrom } =
     useCreateAnnouncement({
@@ -71,6 +102,7 @@ export function CreateAnnouncementWizard() {
   const catalog = useDestinationCatalog()
 
   const step = STEPS[stepIndex]!.key
+  const confirmCopy = getPublishConfirmCopy(scheduledFor)
 
   function handleNext() {
     if (step === 'content') {
@@ -97,7 +129,19 @@ export function CreateAnnouncementWizard() {
     setStepIndex((current) => Math.max(current - 1, 0))
   }
 
+  function handleOpenConfirm() {
+    if (submitting) return
+    setConfirmOpen(true)
+  }
+
+  function handleCloseConfirm() {
+    if (submitting) return
+    setConfirmOpen(false)
+  }
+
   async function handleSubmit() {
+    setConfirmOpen(false)
+
     const formValues = buildFormValues(content, recipients, scheduledFor)
 
     const submitOptions = { images: content.images }
@@ -219,7 +263,7 @@ export function CreateAnnouncementWizard() {
               Avançar
             </Button>
           ) : (
-            <Button onClick={handleSubmit} loading={submitting}>
+            <Button onClick={handleOpenConfirm} loading={submitting}>
               {pendingImageUpload
                 ? 'Tentar enviar imagens novamente'
                 : scheduledFor
@@ -234,6 +278,20 @@ export function CreateAnnouncementWizard() {
           labels={STEPS.map((item) => item.label)}
         />
       </div>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        onClose={handleCloseConfirm}
+        onConfirm={() => {
+          void handleSubmit()
+        }}
+        subTitle={confirmCopy.subTitle}
+        title={confirmCopy.title}
+        content={confirmCopy.content}
+        labelCancel="Cancelar"
+        labelConfirm={confirmCopy.labelConfirm}
+        confirmTone="brand"
+      />
     </div>
   )
 }

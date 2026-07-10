@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import type { AnnouncementDetail } from '../../../types/announcement'
+import type { AnnouncementDetail } from '../../types/announcement'
 
 import { AnnouncementDetailView } from './AnnouncementDetailView'
 
