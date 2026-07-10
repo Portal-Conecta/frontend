@@ -6,17 +6,15 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@portal/ui'
 
 import { usePostsList } from '../../hooks/usePostsList'
-import type { AnnouncementDetail, ListPostsParams } from '../../types/announcement'
+import type { AnnouncementSummary, ListPostsParams } from '../../types/announcement'
 import { AnnouncementCard } from '../AnnouncementCard'
 import { AnnouncementCardSkeleton } from '../AnnouncementCardSkeleton'
 import { ComunicadosEmptyState } from '../ComunicadosEmptyState'
 import { PinnedPostsSection } from '../PinnedPostsSection'
 import {
-  getRegularAnnouncementPosts,
   isAnnouncementFeedUnauthorizedError,
   mergeAnnouncementFeedItems,
   resolveAnnouncementFeedErrorMessage,
-  toAnnouncementSummary,
 } from './announcementFeedModel'
 
 export interface AnnouncementFeedProps {
@@ -25,7 +23,8 @@ export interface AnnouncementFeedProps {
 }
 
 export interface AnnouncementFeedContentProps {
-  items: AnnouncementDetail[]
+  items: AnnouncementSummary[]
+  pinned?: AnnouncementSummary[]
   loading?: boolean
   error?: Error | null
   canCreate?: boolean
@@ -41,11 +40,13 @@ export function AnnouncementFeed({
 }: AnnouncementFeedProps) {
   const router = useRouter()
   const { data, loading, error, page, setPage, refetch } = usePostsList(initialFilters)
-  const [items, setItems] = useState<AnnouncementDetail[]>([])
+  const [items, setItems] = useState<AnnouncementSummary[]>([])
+  const [pinned, setPinned] = useState<AnnouncementSummary[]>([])
 
   useEffect(() => {
     if (!data) return
 
+    setPinned(data.pinned ?? [])
     setItems((current) => {
       if (data.page === 0) return data.items
       return mergeAnnouncementFeedItems(current, data.items)
@@ -61,11 +62,12 @@ export function AnnouncementFeed({
   return (
     <AnnouncementFeedContent
       items={items}
-      loading={loading && items.length === 0}
+      pinned={pinned}
+      loading={loading && items.length === 0 && pinned.length === 0}
       error={error}
       canCreate={canCreate}
       canLoadMore={data ? data.page + 1 < data.totalPages : false}
-      loadingMore={loading && items.length > 0}
+      loadingMore={loading && (items.length > 0 || pinned.length > 0)}
       onRetry={() => void refetch()}
       onLoadMore={() => setPage((data?.page ?? page) + 1)}
     />
@@ -74,6 +76,7 @@ export function AnnouncementFeed({
 
 export function AnnouncementFeedContent({
   items,
+  pinned = [],
   loading = false,
   error = null,
   canCreate = false,
@@ -97,7 +100,7 @@ export function AnnouncementFeedContent({
     return null
   }
 
-  if (error && items.length === 0) {
+  if (error && items.length === 0 && pinned.length === 0) {
     return (
       <ComunicadosEmptyState
         title="Comunicados não carregados"
@@ -108,7 +111,7 @@ export function AnnouncementFeedContent({
     )
   }
 
-  if (items.length === 0) {
+  if (items.length === 0 && pinned.length === 0) {
     return (
       <ComunicadosEmptyState
         title="Nenhum comunicado encontrado"
@@ -123,17 +126,15 @@ export function AnnouncementFeedContent({
     )
   }
 
-  const regularPosts = getRegularAnnouncementPosts(items)
-
   return (
     <section aria-label="Mural de comunicados" className="mt-6 flex flex-col gap-6">
-      <PinnedPostsSection posts={items} />
+      <PinnedPostsSection posts={pinned} />
 
-      {regularPosts.length > 0 ? (
+      {items.length > 0 ? (
         <ul aria-label="Lista de comunicados" className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {regularPosts.map((post) => (
-            <li key={post.announcement.id}>
-              <AnnouncementCard announcement={toAnnouncementSummary(post)} />
+          {items.map((post) => (
+            <li key={post.id}>
+              <AnnouncementCard announcement={post} />
             </li>
           ))}
         </ul>

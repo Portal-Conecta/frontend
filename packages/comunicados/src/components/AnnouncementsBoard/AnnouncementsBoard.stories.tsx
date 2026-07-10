@@ -1,36 +1,27 @@
 import type { Meta, StoryObj } from '@storybook/react'
 
-import type { AnnouncementDetail, AnnouncementResponse } from '../../types/announcement'
+import type { AnnouncementSummary } from '../../types/announcement'
 
 import { AnnouncementsBoard } from './AnnouncementsBoard'
 
-/** Monta um `AnnouncementDetail` de exemplo — só o `announcement` importa pro board. */
-function makeDetail(announcement: Partial<AnnouncementResponse> & Pick<AnnouncementResponse, 'id' | 'title'>): AnnouncementDetail {
+function makeSummary(
+  partial: Partial<AnnouncementSummary> & Pick<AnnouncementSummary, 'id' | 'title'>,
+): AnnouncementSummary {
   return {
-    announcement: {
-      description: '',
-      origin: 'WEG',
-      status: 'PUBLISHED',
-      pinned: false,
-      pinnedOrder: null,
-      createdByUserId: 'u-1',
-      publishedByUserId: 'u-1',
-      scheduledFor: null,
-      publishedAt: '2026-07-03T10:00:00.000Z',
-      removedAt: null,
-      createdAt: '2026-07-03T09:30:00.000Z',
-      updatedAt: '2026-07-03T09:30:00.000Z',
-      ...announcement,
-    },
-    destinations: [],
-    files: [],
-    tags: [],
-    mentions: [],
+    description: '',
+    origin: 'WEG',
+    status: 'PUBLISHED',
+    pinned: false,
+    pinnedOrder: null,
+    scheduledFor: null,
+    publishedAt: '2026-07-03T10:00:00.000Z',
+    createdAt: '2026-07-03T09:30:00.000Z',
+    ...partial,
   }
 }
 
-const items: AnnouncementDetail[] = [
-  makeDetail({
+const items: AnnouncementSummary[] = [
+  makeSummary({
     id: 'seguranca-no-campus',
     title: 'Atualização das orientações de segurança no campus',
     origin: 'WEG',
@@ -39,14 +30,14 @@ const items: AnnouncementDetail[] = [
     description:
       'A partir desta semana, novas orientações de circulação e identificação estarão disponíveis para estudantes, docentes e colaboradores.',
   }),
-  makeDetail({
+  makeSummary({
     id: 'agenda-senai',
     title: 'Agenda de atividades SENAI para a próxima semana',
     origin: 'SENAI',
     description:
       'Confira as atividades previstas para os cursos técnicos, encontros de turma e ações de integração no mural do portal.',
   }),
-  makeDetail({
+  makeSummary({
     id: 'integracao-weg-senai',
     title: 'Programa de integração WEG + SENAI',
     origin: 'BOTH',

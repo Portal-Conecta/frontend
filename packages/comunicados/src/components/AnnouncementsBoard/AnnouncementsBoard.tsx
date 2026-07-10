@@ -1,4 +1,4 @@
-import type { AnnouncementOrigin, AnnouncementDetail } from '../../types'
+import type { AnnouncementOrigin, AnnouncementSummary } from '../../types'
 
 import { Tag, Text } from '@portal/ui'
 
@@ -16,7 +16,7 @@ function formatDate(iso: string | null): string | null {
 }
 
 export interface AnnouncementsBoardProps {
-  items: AnnouncementDetail[]
+  items: AnnouncementSummary[]
   errorMessage?: string
 }
 
@@ -37,27 +37,26 @@ export function AnnouncementsBoard({ items, errorMessage }: AnnouncementsBoardPr
     )
   }
 
-  const regularPosts = items.filter((post) => !post.announcement.pinned)
+  const pinnedPosts = items.filter((post) => post.pinned)
+  const regularPosts = items.filter((post) => !post.pinned)
 
   return (
     <div className="mt-6 flex flex-col gap-6">
-      <PinnedPostsSection posts={items} />
+      <PinnedPostsSection posts={pinnedPosts} />
 
       {regularPosts.length > 0 ? (
         <ul className="flex flex-col gap-4">
           {regularPosts.map((post) => {
-            const dateLabel = formatDate(
-              post.announcement.publishedAt ?? post.announcement.scheduledFor,
-            )
+            const dateLabel = formatDate(post.publishedAt ?? post.scheduledFor)
 
             return (
               <li
-                key={post.announcement.id}
+                key={post.id}
                 className="flex flex-col gap-2 rounded-md border-sm border-border-default bg-background-surface p-4"
               >
                 <div className="flex flex-wrap items-center gap-3">
                   <Tag tone="neutral" size="sm" radius="full">
-                    {originLabel[post.announcement.origin]}
+                    {originLabel[post.origin]}
                   </Tag>
 
                   {dateLabel ? (
@@ -68,11 +67,11 @@ export function AnnouncementsBoard({ items, errorMessage }: AnnouncementsBoardPr
                 </div>
 
                 <Text as="h2" variant="label-md-emphasis" tone="primary">
-                  {post.announcement.title}
+                  {post.title}
                 </Text>
 
                 <Text as="p" variant="body-sm" tone="secondary">
-                  {post.announcement.description}
+                  {post.description}
                 </Text>
               </li>
             )
