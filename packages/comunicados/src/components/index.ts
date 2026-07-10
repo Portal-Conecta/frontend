@@ -1,4 +1,3 @@
-
 export * from './AnnouncementCard'
 export * from './AnnouncementsBoard'
 export * from './AnnouncementAttachmentGallery'
@@ -14,3 +13,5 @@ export * from './PinnedPostsSection'
 export * from './AnnouncementCardSkeleton'
 export * from './AnnouncementDetailView'
 export * from './DeleteAnnouncementDialog'
+export * from './ComunicadosEmptyState'
+export * from './AnnouncementFeed'
