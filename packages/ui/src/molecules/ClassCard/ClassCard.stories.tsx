@@ -42,7 +42,7 @@ export const List: Story = {
   },
 }
 
-/** Curso mais longo que o exemplo do Figma — trunca em vez de quebrar linha. */
+/** Curso mais longo que o exemplo do Figma — quebra linha em vez de truncar. */
 export const LongCourseName: Story = {
   args: {
     variant: 'single',

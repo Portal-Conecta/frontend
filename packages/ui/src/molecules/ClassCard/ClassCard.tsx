@@ -5,9 +5,12 @@
  * cards sob o título "Turmas"). Presentational — recebe os dados já
  * resolvidos pela página, sem busca própria.
  *
- * Curso truncado por padrão (`truncate` + `flex-1`) para manter o card em uma
- * linha em telas estreitas — decisão em aberto na issue de origem, revisitar
- * se o squad decidir por quebra de linha em vez de truncamento.
+ * Código/curso/turno têm largura fixa (medida a partir do exemplo do Figma),
+ * não dinâmica — cada coluna ocupa sempre o mesmo espaço independente do
+ * tamanho do conteúdo, como colunas de tabela, então os divisores ficam
+ * alinhados entre linhas de uma lista mesmo com turmas de tamanhos
+ * diferentes. Conteúdo que ultrapassa a largura quebra linha (`break-words`)
+ * em vez de truncar.
  */
 import { useId } from 'react'
 
@@ -24,31 +27,29 @@ interface ClassCardRowProps extends ClassCardItem {
   className?: string | undefined
 }
 
-function ClassCardDivider() {
-  return <span className="h-4 w-px shrink-0 bg-border-default" aria-hidden="true" />
-}
-
 function ClassCardRow({ code, course, shift, className }: ClassCardRowProps) {
   return (
     <div
       className={[
-        'flex min-w-0 items-center gap-4 rounded-md bg-background-surface px-6 py-4 shadow-sm',
+        'flex min-w-0 items-center justify-center gap-6 rounded-md bg-background-surface px-3 py-6 shadow-sm',
         className,
       ]
         .filter(Boolean)
         .join(' ')}
     >
-      <Text variant="label-md-emphasis" tone="brand" className="shrink-0 whitespace-nowrap">
-        {code}
-      </Text>
-      <ClassCardDivider />
-      <Text variant="label-md-emphasis" tone="brand" className="min-w-0 flex-1 truncate text-center">
+      <div className="flex shrink-0 items-center self-stretch border-r border-border-focus pr-6">
+        <Text variant="label-sm" tone="brand" className="w-[68px] shrink-0 break-words text-center">
+          {code}
+        </Text>
+      </div>
+      <Text variant="label-sm" tone="brand" className="w-[200px] shrink-0 break-words text-center">
         {course}
       </Text>
-      <ClassCardDivider />
-      <Text variant="label-md-emphasis" tone="brand" className="shrink-0 whitespace-nowrap">
-        {shift}
-      </Text>
+      <div className="flex shrink-0 items-center self-stretch border-l border-border-focus pl-6">
+        <Text variant="label-sm" tone="brand" className="w-[80px] shrink-0 break-words text-center">
+          {shift}
+        </Text>
+      </div>
     </div>
   )
 }
