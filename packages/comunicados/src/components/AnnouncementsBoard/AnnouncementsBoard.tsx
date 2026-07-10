@@ -2,7 +2,7 @@ import type { AnnouncementOrigin, AnnouncementDetail } from '../../types'
 
 import { Tag, Text } from '@portal/ui'
 
-import { PinnedPostsSection } from '../organisms/PinnedPostsSection'
+import { PinnedPostsSection } from '../PinnedPostsSection'
 
 const originLabel: Record<AnnouncementOrigin, string> = {
   WEG: 'WEG',
