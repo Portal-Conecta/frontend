@@ -45,7 +45,6 @@ export function AnnouncementCard({
   return (
     <div className={classes}>
       {thumbnailUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element -- URL assinada do BFF/S3
         <img
           src={thumbnailUrl}
           alt=""

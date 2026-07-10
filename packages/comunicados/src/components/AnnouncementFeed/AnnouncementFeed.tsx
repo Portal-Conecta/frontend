@@ -47,7 +47,8 @@ export interface AnnouncementFeedContentProps {
 
 /** Chave dos filtros sem `page` — mudança aqui reinicia a listagem. */
 function filtersQueryKey(filters: ListPostsParams): string {
-  const { page: _page, ...query } = filters
+  const query = { ...filters }
+  delete query.page
   return JSON.stringify(query)
 }
 
@@ -242,7 +243,6 @@ function AnnouncementFeedItem({ post }: { post: AnnouncementSummary }) {
         </div>
 
         {thumbnailUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element -- URL assinada do BFF/S3
           <img
             src={thumbnailUrl}
             alt=""

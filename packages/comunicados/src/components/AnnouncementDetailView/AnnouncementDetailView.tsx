@@ -150,7 +150,6 @@ function GallerySlot({ files }: { files: AnnouncementFile[] }) {
 
           return (
             <li key={file.id} className="overflow-hidden rounded-md">
-              {/* eslint-disable-next-line @next/next/no-img-element -- URL assinada do BFF/S3 */}
               <img
                 src={url}
                 alt={file.originalName}

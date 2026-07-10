@@ -46,7 +46,6 @@ export function AnnouncementAttachmentGallery({ files, className }: Announcement
                 aria-label={`Abrir imagem: ${img.originalName}`}
                 className="overflow-hidden rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element -- URL assinada do BFF/S3 */}
                 <img
                   src={url}
                   alt={img.originalName}
@@ -63,7 +62,6 @@ export function AnnouncementAttachmentGallery({ files, className }: Announcement
               aria-label={`Abrir imagem: ${overflowImage.originalName}`}
               className="relative overflow-hidden rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
             >
-              {/* eslint-disable-next-line @next/next/no-img-element -- URL assinada do BFF/S3 */}
               <img
                 src={resolveAnnouncementFileUrl(overflowImage) ?? undefined}
                 alt={overflowImage.originalName}
