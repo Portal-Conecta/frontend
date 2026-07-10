@@ -11,9 +11,12 @@ import { Button, Text } from '@portal/ui'
 
 import { usePostsList } from '../../hooks/usePostsList'
 import { formatAnnouncementDate, getAnnouncementOriginLabel } from '../../utils/announcement'
-import { AnnouncementCardSkeleton } from '../AnnouncementCardSkeleton'
 import { ComunicadosEmptyState } from '../ComunicadosEmptyState'
 import { PinnedPostsSection } from '../PinnedPostsSection'
+import {
+  AnnouncementFeedItemSkeleton,
+  AnnouncementPinnedSkeleton,
+} from './AnnouncementFeedSkeletons'
 import {
   isAnnouncementFeedUnauthorizedError,
   mergeAnnouncementFeedItems,
@@ -70,7 +73,7 @@ export function AnnouncementFeed({
   }, [filters, queryKey, setFilters])
 
   useEffect(() => {
-    if (!data) return
+    if (!data || loading) return
 
     setPinnedItems(data.pinned)
 
@@ -78,7 +81,7 @@ export function AnnouncementFeed({
       if (data.page === 0) return data.items
       return mergeAnnouncementFeedItems(current, data.items)
     })
-  }, [data])
+  }, [data, loading])
 
   useEffect(() => {
     if (isAnnouncementFeedUnauthorizedError(error)) {
@@ -132,9 +135,7 @@ export function AnnouncementFeedContent({
         <div className="flex gap-4 overflow-hidden" role="status" aria-live="polite">
           <span className="sr-only">Carregando comunicados fixados...</span>
           {Array.from({ length: 2 }, (_, index) => (
-            <div key={index} className="w-96 shrink-0">
-              <AnnouncementCardSkeleton />
-            </div>
+            <AnnouncementPinnedSkeleton key={index} />
           ))}
         </div>
       ) : (
@@ -148,10 +149,10 @@ export function AnnouncementFeedContent({
           {toolbar ? <div>{toolbar}</div> : null}
 
           {loading ? (
-            <div className="mt-6 flex flex-col gap-4" role="status" aria-live="polite">
+            <div className="mt-6 flex flex-col" role="status" aria-live="polite">
               <span className="sr-only">Carregando comunicados...</span>
               {Array.from({ length: 4 }, (_, index) => (
-                <AnnouncementCardSkeleton key={index} />
+                <AnnouncementFeedItemSkeleton key={index} />
               ))}
             </div>
           ) : null}
