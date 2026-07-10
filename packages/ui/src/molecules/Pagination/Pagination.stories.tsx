@@ -80,3 +80,15 @@ export const Desabilitado: Story = {
     <ControlledPagination initialPage={3} pageSize={20} totalItems={85} disabled={args.disabled ?? false} />
   ),
 }
+
+/**
+ * Regressão: `currentPage` fora de [1, totalPages] (ex.: filtro reduziu o
+ * total, estado vindo de URL desatualizada). O componente clampa
+ * internamente, então o rótulo mostra a última página válida ("81-85 de 85"),
+ * nunca algo como "181-85 de 85".
+ */
+export const PaginaForaDoIntervalo: Story = {
+  render: (args) => (
+    <ControlledPagination initialPage={10} pageSize={20} totalItems={85} disabled={args.disabled ?? false} />
+  ),
+}
