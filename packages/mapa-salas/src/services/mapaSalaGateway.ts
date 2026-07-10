@@ -3,11 +3,8 @@
  *
  * O gateway publica `/mapa/**`, remove o prefixo e encaminha ao serviço
  * (ex.: `/mapa/api/mapas/salas/{salaId}/turmas/{turmaId}` → `/api/mapas/salas/{salaId}/turmas/{turmaId}`).
- *
- * @see api-gateway/README.md — mapa de rotas
  */
 
-/** Prefixo externo do módulo no gateway. */
 export const MAPA_SALA_GATEWAY_PREFIX = '/mapa'
 
 const API_GATEWAY_URL_ENV = 'API_GATEWAY_URL'
@@ -20,7 +17,6 @@ export function resolveApiGatewayUrl(): string {
   return url.replace(/\/$/, '')
 }
 
-/** Path público no gateway a partir do caminho interno do serviço de mapa de sala. */
 export function mapaSalaGatewayPath(servicePath: string): string {
   const normalized = servicePath.startsWith('/') ? servicePath : `/${servicePath}`
   return `${MAPA_SALA_GATEWAY_PREFIX}${normalized}`

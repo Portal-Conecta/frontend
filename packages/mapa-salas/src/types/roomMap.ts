@@ -49,21 +49,33 @@ export type RoomMapAllocation = {
   layoutPositionId: string
 }
 
-// ── View ────────────────────────────────────────────────────────────────────
-// Espelha RoomMapViewResponse.
-// Quando suggested=true, map é null. Quando suggested=false, map é obrigatório.
+// ── Wire de não-alocado ────────────────────────────────────────────────────
+/** Wire do back — mapear para `UnassignedStudent` (id/name) no service. */
+export type UnassignedStudentDto = {
+  studentId: string
+  studentName: string
+}
 
-export type RoomMapView = {
-  suggested: boolean
-  map: RoomMap | null
+// ── View (union discriminada) ──────────────────────────────────────────────
+// Espelha RoomMapViewResponse.
+// O back valida: suggested=true → map=null; suggested=false → map obrigatório.
+// A union garante isso em nível de tipo.
+
+type RoomMapViewBase = {
   grid: RoomMapGrid
   allocations: RoomMapAllocation[]
   /** Campo singular no back mas é uma lista. */
-  unassignedStudent: Array<{ studentId: string; studentName: string }>
+  unassignedStudent: UnassignedStudentDto[]
 }
+
+export type RoomMapView =
+  | (RoomMapViewBase & { suggested: true; map: null })
+  | (RoomMapViewBase & { suggested: false; map: RoomMap })
 
 // ── Summary ─────────────────────────────────────────────────────────────────
 // Espelha RoomMapSummaryResponse.
+// NOTA: O back usa `salaId` neste DTO, enquanto RoomMapResponse usa `roomId`.
+// Isso é divergência real do back — não é typo.
 
 export type RoomMapSummary = {
   id: string
