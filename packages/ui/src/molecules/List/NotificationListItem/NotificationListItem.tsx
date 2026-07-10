@@ -39,20 +39,22 @@ export function NotificationListItem({
       selected={false} 
       onClick={onClick}
     >
-      <div className="flex w-full items-start gap-4">
+      <div className="flex w-full items-center gap-3">
         
         <div className={`mt-0.5 flex-shrink-0 ${iconColorClass}`}>
           <Icon name={iconName} size="md" decorative={true} />
         </div>
 
-        <div className="flex flex-col gap-1">
-          <span className="text-body-md font-medium text-text-default">
+        <div className="flex flex-col">
+          
+          <span className="text-sm font-semibold text-text-default lg:text-base lg:font-semibold">
             {title}
           </span>
-          {/* Metadado exibindo apenas a data, sem o separador e sem o autor */}
-          <span className="text-caption-sm text-text-subtle">
+
+          <span className="text-xs text-text-subtle lg:text-sm text-text-secondary">
             {dateText}
           </span>
+
         </div>
         
       </div>
