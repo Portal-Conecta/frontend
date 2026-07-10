@@ -3,6 +3,8 @@
 import { useEffect } from "react";
 
 import { Button, ErrorPage } from "@portal/ui";
+import { ERROR_PRESENTATION } from "@portal/core/http/errorPresentation";
+import Image  from "next/image"
 
 /**
  * Error boundary raiz (App Router). Precisa ser client component. Em produção o
@@ -13,23 +15,29 @@ import { Button, ErrorPage } from "@portal/ui";
  */
 export default function Error({
   error,
-  reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+
+
   useEffect(() => {
     console.error(error);
   }, [error]);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-8">
-      <ErrorPage
-        code="500"
-        title="Erro interno do servidor"
-        description="Algo deu errado do nosso lado. Tente novamente em alguns instantes"
-      />
-      <Button variant="solid" tone="brand" onClick={reset}>
+    <main className="flex min-h-screen flex-col items-center justify-center gap-20">
+      <div className="flex flex-col gap-8 items-center">
+        <ErrorPage {...ERROR_PRESENTATION.server}/>
+        <Image
+          src="/illustration-error.png"
+          alt="Ilustração de erro"
+          width={600}
+          height={600}
+          className="h-auto w-[300px] md:w-[400px] lg:w-[500px]"
+        />
+      </div>
+      <Button variant="solid" tone="brand" onClick={() => window.location.reload()}>
         Tentar novamente
       </Button>
     </main>
