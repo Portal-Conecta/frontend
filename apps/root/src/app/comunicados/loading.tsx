@@ -1,6 +1,6 @@
-import { AppShell } from '@portal/core'
-import { AnnouncementCardSkeleton } from '@portal/comunicados'
-import { Skeleton, Text } from '@portal/ui'
+import { AppShell } from "@portal/core";
+import { AnnouncementCardSkeleton } from "@portal/comunicados";
+import { Skeleton, Text } from "@portal/ui";
 
 export default function LoadingComunicadosPage() {
   return (
@@ -17,7 +17,11 @@ export default function LoadingComunicadosPage() {
           <Skeleton variant="text" width={320} />
         </div>
 
-        <div className="mt-6 flex flex-col gap-4" role="status" aria-live="polite">
+        <div
+          className="mt-6 flex flex-col gap-4"
+          role="status"
+          aria-live="polite"
+        >
           <span className="sr-only">Carregando comunicados...</span>
           <AnnouncementCardSkeleton highlighted />
           <AnnouncementCardSkeleton />
@@ -25,5 +29,5 @@ export default function LoadingComunicadosPage() {
         </div>
       </div>
     </AppShell>
-  )
+  );
 }
