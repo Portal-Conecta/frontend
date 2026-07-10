@@ -87,6 +87,11 @@ export const WithIcon: Story = {
   args: { iconLeft: 'search', children: 'Buscar' },
 }
 
+/** `size="sm"`: label 12px regular (`label-xs`) — botões compactos dos menus de ação (Figma). */
+export const Small: Story = {
+  args: { size: 'sm', variant: 'outlined', iconLeft: 'pin', children: 'Fixar' },
+}
+
 /** Icon-only: sem `children`, com `icon` + `aria-label` obrigatório. */
 export const IconOnly: Story = {
   args: { icon: 'search', children: undefined, 'aria-label': 'Buscar' },

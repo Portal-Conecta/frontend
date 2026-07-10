@@ -16,6 +16,14 @@ import { Icon, type IconName } from '../Icon'
 
 export type ButtonVariant = 'solid' | 'outlined' | 'ghost' | 'link'
 export type ButtonTone = 'brand' | 'positive' | 'negative'
+export type ButtonSize = 'md' | 'sm'
+
+// Tipografia por tamanho. `sm` espelha os botões compactos do Figma (menus de
+// ação de comunicados): label 12px regular (`label-xs`), mesmo padding do `md`.
+const sizeClass: Record<ButtonSize, string> = {
+  md: 'text-label-md-emphasis',
+  sm: 'text-label-xs',
+}
 
 // Combinação (variant × tone) → classes literais. Tailwind v4 purga nomes
 // montados dinamicamente, então cada combinação fica escrita por extenso.
@@ -80,6 +88,8 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
   variant?: ButtonVariant
   /** Cor semântica, vinda de token. Default `brand`. */
   tone?: ButtonTone
+  /** Tamanho da tipografia do label. Default `md` (16px emphasis); `sm` = 12px regular. */
+  size?: ButtonSize
   /** Ícone do modo icon-only (sem `children`). Exige `aria-label`. */
   icon?: IconName
   /** Ícone à esquerda do label (do set aprovado do DS). */
@@ -95,13 +105,14 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
 }
 
 const base =
-  'inline-flex items-center justify-center gap-2 text-label-md-emphasis font-inter cursor-pointer transition-colors ' +
+  'inline-flex items-center justify-center gap-2 font-inter cursor-pointer transition-colors ' +
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ' +
   'disabled:cursor-not-allowed'
 
 export function Button({
   variant = 'solid',
   tone = 'brand',
+  size = 'md',
   icon,
   iconLeft,
   iconRight,
@@ -128,6 +139,7 @@ export function Button({
 
   const classes = [
     base,
+    sizeClass[size],
     shape,
     variantToneClass[variant][tone],
     focusRingClass[tone],
