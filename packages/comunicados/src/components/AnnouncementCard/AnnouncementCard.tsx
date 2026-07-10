@@ -5,6 +5,8 @@ import Link from 'next/link'
 
 import { Text, colors } from '@portal/ui'
 
+import { formatAnnouncementDate, getAnnouncementOriginLabel } from '../../utils/announcement'
+
 export interface AnnouncementCardProps {
   announcement: AnnouncementSummary
   highlighted?: boolean
@@ -13,24 +15,11 @@ export interface AnnouncementCardProps {
   className?: string
 }
 
-const originLabel: Record<AnnouncementSummary['origin'], string> = {
-  WEG: 'WEG',
-  SENAI: 'SENAI',
-  BOTH: 'WEG + SENAI',
-}
-
 const cardGradient =
   `linear-gradient(180deg, ${colors.background.surface}00 0%, ` +
   `${colors.background.surface}00 42%, ` +
   `${colors.interactive.pressed}40 74%, ` +
   `${colors.interactive.pressed}99 100%)`
-
-function formatDate(value: string): string {
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return value
-
-  return new Intl.DateTimeFormat('pt-BR').format(date)
-}
 
 export function AnnouncementCard({
   announcement,
@@ -70,11 +59,11 @@ export function AnnouncementCard({
           </Text>
 
           <Text as="p" variant="label-xs" tone="inverse" className="truncate">
-            {originLabel[announcement.origin]}
+            {getAnnouncementOriginLabel(announcement.origin)}
             <span className="px-2" aria-hidden="true">
               |
             </span>
-            {formatDate(date)}
+            {formatAnnouncementDate(date)}
           </Text>
 
           {actions ? <div className="pointer-events-auto">{actions}</div> : null}
