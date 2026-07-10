@@ -81,7 +81,6 @@ export function MapGridSkeleton({
   className,
 }: MapGridSkeletonProps) {
   const classes = ['grid', className].filter(Boolean).join(' ')
-  const cellCount = rows * columns
 
   const spacerKeys = new Set(spacerPositions?.map(({ x, y }) => `${x},${y}`))
 
