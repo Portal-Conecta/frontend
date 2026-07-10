@@ -103,6 +103,7 @@ export function LoginForm() {
 
 | Item | Localização | O que falta |
 |---|---|---|
+| Chromatic (visual regression) desativado temporariamente | `.github/workflows/chromatic.yml` | Incidente no Capture Cloud do Chromatic em 2026-07-10 (status.chromatic.com) deixou builds presos em "Running N tests" indefinidamente, travando a fila de Actions do repo. Trigger trocado de `push` para `workflow_dispatch` manual. **Reverter:** conferir status.chromatic.com voltou a "operational", restaurar o bloco `on: push` comentado no próprio arquivo (branches `feature/**` e `develop`), remover esta linha. |
 | `Button` sem `tone="overlay"` | `packages/ui/src/atoms/Button/Button.tsx` | Variante para fundo colorido — override pontual em `PageLogin` com `className` |
 | `body/sm-emphasis` font family | `scripts/sync-tokens.ts` | Correção hardcoded no script — depende de ajuste no Figma DS |
 | Focus-trap inline na `Sidebar` | `packages/ui/src/organisms/Sidebar/Sidebar.tsx` | Bug de re-render já corrigido (`onToggle` em ref, efeito só depende de `expanded`). Falta extrair `useDrawerFocusTrap(panelRef, { active, onClose })` — isola a11y do layout e abre para teste (DoD [#105](https://github.com/Portal-Conecta/frontend/issues/105)) |
