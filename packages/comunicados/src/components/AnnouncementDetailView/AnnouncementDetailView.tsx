@@ -9,8 +9,7 @@
  *  - Cabeçalho: tags de status/origem, badge "Fixado", data de publicação, título
  *  - Corpo: texto completo do comunicado
  *  - Tags: lista de AnnouncementTag via átomo Tag
- *  - Slot galeria: lista de AnnouncementFile (imagens). Exibe nomes de arquivo com
- *    ícone enquanto não há URLs assinadas do S3 disponíveis.
+ *  - Slot galeria: imagens via `displayUrl` (ou fallback S3) dos AnnouncementFile.
  *  - Ações: Link "Voltar" (ghost/brand) e Link "Editar" (outlined/brand, condicional)
  */
 import type { AnnouncementDetail, AnnouncementStatus, AnnouncementTag, AnnouncementFile, AnnouncementFileType } from '../../types'
@@ -19,6 +18,8 @@ import type { IconName, TagTone } from '@portal/ui'
 import Link from 'next/link'
 
 import { Icon, Tag, Text } from '@portal/ui'
+
+import { resolveAnnouncementFileUrl } from '../../utils/announcementFile'
 
 export interface AnnouncementDetailViewProps {
   detail: AnnouncementDetail
@@ -131,7 +132,9 @@ function TagsSection({ tags }: { tags: AnnouncementTag[] }) {
 const IMAGE_TYPE: AnnouncementFileType = 'IMAGE'
 
 function GallerySlot({ files }: { files: AnnouncementFile[] }) {
-  const imageFiles = files.filter((f: AnnouncementFile) => f.type === IMAGE_TYPE)
+  const imageFiles = files.filter(
+    (f: AnnouncementFile) => f.type === IMAGE_TYPE && resolveAnnouncementFileUrl(f),
+  )
 
   if (!imageFiles.length) return null
 
@@ -140,23 +143,22 @@ function GallerySlot({ files }: { files: AnnouncementFile[] }) {
       <Text as="p" variant="label-sm" tone="secondary">
         Galeria
       </Text>
-      {/*
-       * Slot de galeria: exibe nomes de arquivo com ícone enquanto não há URLs
-       * assinadas do S3. Substituir por <img> quando o BFF expor as URLs.
-       * Ícone `newspaper` é o mais próximo disponível no registry atual do DS.
-       */}
-      <ul className="flex flex-col gap-1">
-        {imageFiles.map((file: AnnouncementFile) => (
-          <li
-            key={file.id}
-            className="flex items-center gap-2 rounded-md border-sm border-border-default bg-background-surface px-3 py-2"
-          >
-            <Icon name="newspaper" size="sm" tone="secondary" decorative />
-            <Text as="span" variant="label-sm" tone="secondary" className="truncate">
-              {file.originalName}
-            </Text>
-          </li>
-        ))}
+      <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        {imageFiles.map((file: AnnouncementFile) => {
+          const url = resolveAnnouncementFileUrl(file)
+          if (!url) return null
+
+          return (
+            <li key={file.id} className="overflow-hidden rounded-md">
+              {/* eslint-disable-next-line @next/next/no-img-element -- URL assinada do BFF/S3 */}
+              <img
+                src={url}
+                alt={file.originalName}
+                className="aspect-video w-full object-cover"
+              />
+            </li>
+          )
+        })}
       </ul>
     </section>
   )
