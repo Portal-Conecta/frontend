@@ -1,4 +1,5 @@
-import type { ImageItem } from '../../components/AnnouncementForm/types'
+import type { FileUploadItem } from '@portal/ui'
+
 import type { PresignedImageUploadResult } from '../../types/presign'
 
 export class AnnouncementImagesClientError extends Error {
@@ -53,9 +54,9 @@ export async function uploadAnnouncementImageClient(
 /** Envia em sequência as imagens locais do wizard (#198). */
 export async function uploadAnnouncementImagesClient(
   postId: string,
-  images: readonly ImageItem[],
+  images: readonly FileUploadItem[],
 ): Promise<PresignedImageUploadResult[]> {
-  const pending = images.filter((item): item is ImageItem & { file: File } => Boolean(item.file))
+  const pending = images.filter((item): item is FileUploadItem & { file: File } => Boolean(item.file))
   const uploaded: PresignedImageUploadResult[] = []
 
   for (let index = 0; index < pending.length; index++) {

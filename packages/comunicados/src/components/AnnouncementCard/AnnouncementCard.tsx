@@ -43,8 +43,9 @@ export function AnnouncementCard({
   const date = announcement.publishedAt ?? announcement.scheduledFor ?? announcement.createdAt
 
   const classes = [
-    // Figma "Card - fixado": 260x232 no mobile, 672x400 no desktop — proporções diferentes, não é o mesmo aspect-ratio escalado.
-    'group relative aspect-[260/232] w-full overflow-hidden rounded-md bg-interactive-disabled shadow-sm md:aspect-[672/400]',
+    'group relative flex aspect-video w-full overflow-hidden rounded-md bg-interactive-disabled',
+    'items-end px-4 pb-4 pt-10 shadow-sm transition-opacity hover:opacity-95',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2',
     isHighlighted ? 'shadow-lg' : undefined,
     className,
   ]

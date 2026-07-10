@@ -1,5 +1,3 @@
-import { resolveApiGatewayUrl } from './comunicadosGateway'
-
 /**
  * Rotas do Hub (core) via API Gateway.
  *
@@ -10,8 +8,6 @@ import { resolveApiGatewayUrl } from './comunicadosGateway'
  */
 
 export const HUB_GATEWAY_PREFIX = '/hub'
-
-export { resolveApiGatewayUrl }
 
 /** Path público no gateway a partir do caminho interno do Hub. */
 export function hubGatewayPath(servicePath: string): string {
