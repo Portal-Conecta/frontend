@@ -1,35 +1,32 @@
-import type { AnnouncementOrigin, AnnouncementDetail } from "../../types";
+import type { AnnouncementOrigin, AnnouncementDetail } from '../../types'
 
-import { Tag, Text } from "@portal/ui";
+import { Tag, Text } from '@portal/ui'
 
-import { PinnedPostsSection } from "../PinnedPostsSection";
+import { PinnedPostsSection } from '../organisms/PinnedPostsSection'
 
 const originLabel: Record<AnnouncementOrigin, string> = {
-  WEG: "WEG",
-  SENAI: "SENAI",
-  BOTH: "WEG + SENAI",
-};
+  WEG: 'WEG',
+  SENAI: 'SENAI',
+  BOTH: 'WEG + SENAI',
+}
 
 function formatDate(iso: string | null): string | null {
-  if (!iso) return null;
-  return new Date(iso).toLocaleDateString("pt-BR");
+  if (!iso) return null
+  return new Date(iso).toLocaleDateString('pt-BR')
 }
 
 export interface AnnouncementsBoardProps {
-  items: AnnouncementDetail[];
-  errorMessage?: string;
+  items: AnnouncementDetail[]
+  errorMessage?: string
 }
 
-export function AnnouncementsBoard({
-  items,
-  errorMessage,
-}: AnnouncementsBoardProps) {
+export function AnnouncementsBoard({ items, errorMessage }: AnnouncementsBoardProps) {
   if (errorMessage) {
     return (
       <Text as="p" variant="body-md" tone="secondary" role="alert">
         {errorMessage}
       </Text>
-    );
+    )
   }
 
   if (items.length === 0) {
@@ -37,10 +34,10 @@ export function AnnouncementsBoard({
       <Text as="p" variant="body-md" tone="secondary">
         Nenhum comunicado publicado ainda.
       </Text>
-    );
+    )
   }
 
-  const regularPosts = items.filter((post) => !post.announcement.pinned);
+  const regularPosts = items.filter((post) => !post.announcement.pinned)
 
   return (
     <div className="mt-6 flex flex-col gap-6">
@@ -51,7 +48,7 @@ export function AnnouncementsBoard({
           {regularPosts.map((post) => {
             const dateLabel = formatDate(
               post.announcement.publishedAt ?? post.announcement.scheduledFor,
-            );
+            )
 
             return (
               <li
@@ -78,10 +75,10 @@ export function AnnouncementsBoard({
                   {post.announcement.description}
                 </Text>
               </li>
-            );
+            )
           })}
         </ul>
       ) : null}
     </div>
-  );
+  )
 }
