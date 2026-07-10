@@ -2,46 +2,65 @@
 
 import { useEffect, useId, useRef, useState, type ChangeEvent, type DragEvent } from 'react'
 
-import { Icon, Text } from '@portal/ui'
+import { Icon } from '../../atoms/Icon'
+import { Text } from '../../atoms/Text'
+import { formatRejectionMessage, processFiles, type FileRejection } from './fileValidation'
 
-import {
-  formatRejectionMessage,
-  processImageFiles,
-  type ImageFileRejection,
-} from './imageFiles'
-import type { ImageItem } from './types'
+export type { FileRejection, FileRejectionReason } from './fileValidation'
 
-export type { ImageFileRejection, ImageRejectionReason } from './imageFiles'
+/**
+ * Arquivo escolhido no `FileUpload`.
+ *
+ * Guarda o `File` local e uma `previewUrl` (object URL) para exibir a miniatura.
+ * Itens que já existem no servidor (edição) podem vir sem `file`, só com a URL.
+ */
+export interface FileUploadItem {
+  /** id local, estável para key/remoção. */
+  id: string
+  /** URL de preview — object URL (arquivo local) ou URL remota. */
+  previewUrl: string
+  /** Arquivo local a enviar. Ausente para itens já persistidos. */
+  file?: File
+  /** Nome do arquivo, usado no `alt` e no aria-label de remoção. */
+  name?: string
+}
 
-export interface ImageUploaderProps {
-  /** Imagens selecionadas (controlado). */
-  value: ImageItem[]
-  onChange: (images: ImageItem[]) => void
-  /** Máximo de imagens (1 principal + miniaturas). Default `5`. */
-  maxImages?: number
+export interface FileUploadProps {
+  /** Arquivos selecionados (controlado). */
+  value: FileUploadItem[]
+  onChange: (files: FileUploadItem[]) => void
+  /** Máximo de arquivos (1 principal + miniaturas). Default `5`. */
+  maxFiles?: number
+  /** Tipos aceitos, no formato do atributo HTML `accept`. Default `'image/*'`. */
+  accept?: string
+  /** Tamanho máximo por arquivo, em bytes. Sem limite quando ausente. */
+  maxSize?: number
   disabled?: boolean
-  /** Mensagem de erro (ex.: "Adicione ao menos uma imagem"). */
+  /** Mensagem de erro (ex.: "Adicione ao menos um arquivo"). */
   error?: string
-  /** Callback quando arquivos são rejeitados (não-imagem ou acima do limite). */
-  onRejected?: (rejections: ImageFileRejection[]) => void
+  /** Callback quando arquivos são rejeitados (tipo inválido, tamanho ou limite). */
+  onRejected?: (rejections: FileRejection[]) => void
 }
 
 /**
- * ImageUploader — seleção de imagens do comunicado.
+ * FileUpload — anexo de arquivos do Design System.
  *
  * Célula principal grande (clique ou arraste para enviar) + coluna de miniaturas.
- * Controlado: o dono guarda `ImageItem[]`. O componente cria as object URLs de
- * preview ao adicionar e as revoga ao remover/desmontar. Aceita só `image/*` e
- * respeita `maxImages`.
+ * Controlado: o dono guarda `FileUploadItem[]`. O componente cria as object URLs
+ * de preview ao adicionar e as revoga ao remover/desmontar. Por ora só imagens
+ * (`accept` default `'image/*'`) — o DS cresce para outros tipos de arquivo
+ * conforme a necessidade aparecer.
  */
-export function ImageUploader({
+export function FileUpload({
   value,
   onChange,
-  maxImages = 5,
+  maxFiles = 5,
+  accept = 'image/*',
+  maxSize,
   disabled = false,
   error,
   onRejected,
-}: ImageUploaderProps) {
+}: FileUploadProps) {
   const zoneId = useId()
   const errorId = `${zoneId}-error`
   const rejectionId = `${zoneId}-rejection`
@@ -61,7 +80,7 @@ export function ImageUploader({
     }
   }, [])
 
-  const remaining = maxImages - value.length
+  const remaining = maxFiles - value.length
   const canAcceptFiles = !disabled && remaining > 0
 
   const describedBy = [error ? errorId : undefined, rejectionMessage ? rejectionId : undefined]
@@ -76,10 +95,10 @@ export function ImageUploader({
   function addFiles(files: FileList | null) {
     if (disabled || !files || files.length === 0) return
 
-    const { accepted, rejected } = processImageFiles(files, remaining)
+    const { accepted, rejected } = processFiles(files, remaining, accept, maxSize)
 
     if (rejected.length > 0) {
-      const message = formatRejectionMessage(rejected, maxImages)
+      const message = formatRejectionMessage(rejected, maxFiles)
       setRejectionMessage(message)
       onRejected?.(rejected)
     } else {
@@ -88,7 +107,7 @@ export function ImageUploader({
 
     if (accepted.length === 0) return
 
-    const next = accepted.map<ImageItem>((file) => ({
+    const next = accepted.map<FileUploadItem>((file) => ({
       id: crypto.randomUUID(),
       file,
       name: file.name,
@@ -128,19 +147,19 @@ export function ImageUploader({
   }
 
   const primary = value[0]
-  const thumbSlots = Array.from({ length: Math.max(0, maxImages - 1) }, (_, index) => value[index + 1])
+  const thumbSlots = Array.from({ length: Math.max(0, maxFiles - 1) }, (_, index) => value[index + 1])
 
   return (
     <div className="w-full">
-      <div className="flex gap-4">
+      <div className="flex flex-col gap-4 md:flex-row">
         <div
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          className="h-[288px] flex-1"
+          className="h-[288px] w-full md:flex-1"
         >
           {primary ? (
-            <ImageCell item={primary} onRemove={() => removeItem(primary.id)} disabled={disabled} />
+            <FileCell item={primary} onRemove={() => removeItem(primary.id)} disabled={disabled} />
           ) : (
             <EmptyCell
               onClick={openPicker}
@@ -153,23 +172,23 @@ export function ImageUploader({
           )}
         </div>
 
-        {maxImages > 1 ? (
-          <div className="flex h-[288px] w-[128px] flex-col gap-4">
+        {maxFiles > 1 ? (
+          <div className="grid grid-cols-4 gap-4 md:flex md:h-[288px] md:w-[128px] md:flex-col">
             {thumbSlots.map((item, index) =>
               item ? (
-                <ImageCell
+                <FileCell
                   key={item.id}
                   item={item}
                   onRemove={() => removeItem(item.id)}
                   disabled={disabled}
-                  className="min-h-0 flex-1"
+                  className="aspect-[4/3] min-h-0 md:aspect-auto md:flex-1"
                 />
               ) : (
                 <EmptyCell
                   key={`empty-${index}`}
                   onClick={openPicker}
                   disabled={disabled}
-                  className="min-h-0 flex-1"
+                  className="aspect-[4/3] min-h-0 md:aspect-auto md:flex-1"
                 />
               ),
             )}
@@ -180,7 +199,7 @@ export function ImageUploader({
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept={accept}
         multiple
         disabled={disabled}
         onChange={handleInputChange}
@@ -231,7 +250,7 @@ function EmptyCell({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      aria-label="Adicionar imagem"
+      aria-label="Adicionar arquivo"
       aria-invalid={ariaInvalid}
       aria-describedby={ariaDescribedby}
       className={
@@ -254,13 +273,13 @@ function EmptyCell({
   )
 }
 
-function ImageCell({
+function FileCell({
   item,
   onRemove,
   disabled,
   className = '',
 }: {
-  item: ImageItem
+  item: FileUploadItem
   onRemove: () => void
   disabled: boolean
   className?: string
@@ -274,7 +293,7 @@ function ImageCell({
       {/* <img> nativo: o preview é object URL (blob), que o next/image não trata bem. */}
       <img
         src={item.previewUrl}
-        alt={item.name ?? 'Imagem do comunicado'}
+        alt={item.name ?? 'Arquivo anexado'}
         className="h-full w-full object-cover"
       />
 
@@ -282,7 +301,7 @@ function ImageCell({
         <button
           type="button"
           onClick={onRemove}
-          aria-label={item.name ? `Remover ${item.name}` : 'Remover imagem'}
+          aria-label={item.name ? `Remover ${item.name}` : 'Remover arquivo'}
           className={
             'absolute right-1 top-1 inline-flex items-center justify-center rounded-full ' +
             'bg-background-surface p-1 text-text-secondary shadow-sm transition-colors hover:text-text-primary ' +
