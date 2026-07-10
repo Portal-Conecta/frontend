@@ -2,10 +2,10 @@
 
 import { type ChangeEvent } from 'react'
 
-import { Field, Input, Textarea } from '@portal/ui'
+import { Field, FileUpload, Input, Textarea, type FileUploadItem } from '@portal/ui'
 
-import { ImageUploader } from './ImageUploader'
-import type { AnnouncementContentErrors, AnnouncementContentValue, ImageItem } from './types'
+import type { AnnouncementContentErrors, AnnouncementContentValue } from './types'
+import { ANNOUNCEMENT_TITLE_MAX_LENGTH } from '../../constants/announcementFieldLimits'
 
 export interface AnnouncementContentStepProps {
   /** Conteúdo da etapa 1 (controlado). */
@@ -14,15 +14,15 @@ export interface AnnouncementContentStepProps {
   /** Mensagens de erro por campo. */
   errors?: AnnouncementContentErrors
   disabled?: boolean
-  /** Máximo de imagens. Default do `ImageUploader` (5). */
+  /** Máximo de imagens. Default do `FileUpload` (5). */
   maxImages?: number
 }
 
 /**
  * Etapa 1 do wizard de criar comunicado: imagens + título + descrição.
  *
- * Reutiliza o `ImageUploader` (seleção de imagens), o átomo `Input` (título) e o
- * átomo `Textarea` (descrição), cada um dentro de um `Field` do DS para o rótulo
+ * Reutiliza o `FileUpload` do DS (seleção de imagens), o átomo `Input` (título) e
+ * o átomo `Textarea` (descrição), cada um dentro de um `Field` do DS para o rótulo
  * acessível. Componente controlado — o wizard (#197) guarda o estado e faz o
  * "Avançar" para a etapa de destinatários.
  */
@@ -33,7 +33,7 @@ export function AnnouncementContentStep({
   disabled = false,
   maxImages,
 }: AnnouncementContentStepProps) {
-  function setImages(images: ImageItem[]) {
+  function setImages(images: FileUploadItem[]) {
     onChange({ ...value, images })
   }
 
@@ -47,11 +47,11 @@ export function AnnouncementContentStep({
 
   return (
     <div className="flex flex-col gap-6">
-      <ImageUploader
+      <FileUpload
         value={value.images}
         onChange={setImages}
         disabled={disabled}
-        {...(maxImages != null ? { maxImages } : {})}
+        {...(maxImages != null ? { maxFiles: maxImages } : {})}
         {...(errors?.images ? { error: errors.images } : {})}
       />
 
@@ -61,6 +61,7 @@ export function AnnouncementContentStep({
           onChange={setTitle}
           placeholder="Digite o título do comunicado"
           disabled={disabled}
+          maxLength={ANNOUNCEMENT_TITLE_MAX_LENGTH}
           {...(errors?.title ? { error: errors.title } : {})}
         />
       </Field>
