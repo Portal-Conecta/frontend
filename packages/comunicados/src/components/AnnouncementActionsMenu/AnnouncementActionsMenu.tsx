@@ -53,6 +53,7 @@ export function AnnouncementActionsMenu({
       <Button
         variant={buttonVariant}
         tone={tone('pin')}
+        size="sm"
         loading={pending === 'pin'}
         disabled={pending != null && pending !== 'pin'}
         onClick={onPin}
@@ -61,6 +62,7 @@ export function AnnouncementActionsMenu({
       <Button
         variant={buttonVariant}
         tone={tone('edit')}
+        size="sm"
         loading={pending === 'edit'}
         disabled={pending != null && pending !== 'edit'}
         onClick={onEdit}
@@ -69,6 +71,7 @@ export function AnnouncementActionsMenu({
       <Button
         variant={buttonVariant}
         tone={tone('delete')}
+        size="sm"
         loading={pending === 'delete'}
         disabled={pending != null && pending !== 'delete'}
         onClick={onDelete}
