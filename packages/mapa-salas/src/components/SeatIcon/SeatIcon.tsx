@@ -5,6 +5,12 @@ export type SeatIconSize = 'sm' | 'md'
 export interface SeatIconProps extends SVGAttributes<SVGSVGElement> {
   /** sm = 48px de largura | md = 99px de largura (proporção original mantida) */
   size?: SeatIconSize
+  /**
+   * Espelha o ícone verticalmente (flip no eixo Y), sem duplicar o path.
+   * Usado pelo assento do professor, que fica de frente para a turma.
+   * Default `false`.
+   */
+  flipped?: boolean
   className?: string
 }
 
@@ -13,8 +19,12 @@ const sizeMap: Record<SeatIconSize, { width: number; height: number }> = {
   md: { width: 99, height: 58 },
 }
 
-export function SeatIcon({ size = 'md', className, ...rest }: SeatIconProps) {
+export function SeatIcon({ size = 'md', flipped = false, className, ...rest }: SeatIconProps) {
   const { width, height } = sizeMap[size]
+
+  // Espelhamento via utilitário nativo do Tailwind (-scale-y-100) — geometria,
+  // não cor/tipografia/spacing, então não é exceção de token.
+  const classes = [flipped ? '-scale-y-100' : '', className].filter(Boolean).join(' ')
 
   return (
     <svg
@@ -24,7 +34,7 @@ export function SeatIcon({ size = 'md', className, ...rest }: SeatIconProps) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
-      className={className}
+      className={classes || undefined}
       {...rest}
     >
       <path
