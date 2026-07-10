@@ -3,7 +3,7 @@ import { Skeleton } from "@portal/ui";
 export type TypeUser = 'STUDENT' | 'TEACHER' | 'ADMIN' | 'REPRESENTATIVE' | 'SENAI' | 'WEG';
 
 export interface AnnouncementFiltersBarSkeletonProps {
-  userType?: TypeUser;
+  userType?: TypeUser | undefined;
 }
 
 export function AnnouncementFiltersBarSkeleton({ userType }: AnnouncementFiltersBarSkeletonProps) {

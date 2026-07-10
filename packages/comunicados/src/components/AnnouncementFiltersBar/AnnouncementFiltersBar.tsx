@@ -17,7 +17,7 @@ export interface AnnouncementFilters {
 export type TypeUser = 'STUDENT' | 'TEACHER' | 'ADMIN' | 'REPRESENTATIVE' | 'SENAI' | 'WEG';
 
 export interface AnnouncementFiltersBarProps {
-  userType: TypeUser;
+  userType?: TypeUser | undefined;
   loading?: boolean;
   cursoOptions?: SelectOption[];
   tipoOptions?: SelectOption[];
