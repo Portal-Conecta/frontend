@@ -138,9 +138,14 @@ export interface AnnouncementUpdatePayload {
   scheduledFor?: string | null
 }
 
-/** Paginação de `GET /api/posts` (`ListAnnouncementsResponse`). */
+/**
+ * Listagem do mural (`GET /api/posts` — `ListAnnouncementsResponse`).
+ * O back devolve dois arrays de resumo: `pinned` (fixados, sem paginação) e
+ * `items` (não fixados, paginados). A paginação refere-se só a `items`.
+ */
 export interface ListAnnouncementsResponse {
-  items: AnnouncementDetail[]
+  pinned: AnnouncementSummary[]
+  items: AnnouncementSummary[]
   page: number
   size: number
   totalElements: number
@@ -163,5 +168,5 @@ export interface ListPostsParams {
 }
 
 export interface ListPinnedAnnouncementsResponse {
-  items: AnnouncementDetail[]
+  items: AnnouncementSummary[]
 }
