@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-
 import { Button, DateInput, Field, Select, Text, type SelectOption } from "@portal/ui";
 
 export interface AnnouncementFilters {
@@ -15,6 +14,7 @@ export interface AnnouncementFilters {
 }
 
 export interface AnnouncementFiltersBarProps {
+  userType?: "STUDENT" | "TEACHER" | "ADMIN" | string; // Adicionado para controlar a variante
   loading?: boolean;
   cursoOptions?: SelectOption[];
   tipoOptions?: SelectOption[];
@@ -32,6 +32,7 @@ function normalize(value: string | null): string | undefined {
 }
 
 export function AnnouncementFiltersBar({
+  userType,
   loading = false,
   cursoOptions = todosOption,
   tipoOptions = todosOption,
@@ -49,6 +50,8 @@ export function AnnouncementFiltersBar({
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
 
+  const isStudent = userType === "STUDENT";
+
   function buildFilters(): AnnouncementFilters {
     const filters: AnnouncementFilters = {};
 
@@ -58,10 +61,15 @@ export function AnnouncementFiltersBar({
     const normalizedTurno = normalize(turno);
     const normalizedPeriodo = normalize(periodo);
 
-    if (normalizedCurso) filters.curso = normalizedCurso;
-    if (normalizedTipo) filters.tipo = normalizedTipo;
-    if (normalizedTurma) filters.turma = normalizedTurma;
-    if (normalizedTurno) filters.turno = normalizedTurno;
+    // Se for estudante, não incluímos esses filtros no payload, 
+    // mesmo que existam resquícios no estado.
+    if (!isStudent) {
+      if (normalizedCurso) filters.curso = normalizedCurso;
+      if (normalizedTipo) filters.tipo = normalizedTipo;
+      if (normalizedTurma) filters.turma = normalizedTurma;
+      if (normalizedTurno) filters.turno = normalizedTurno;
+    }
+    
     if (normalizedPeriodo) filters.periodo = normalizedPeriodo;
     if (dataInicio) filters.dataInicio = dataInicio;
     if (dataFim) filters.dataFim = dataFim;
@@ -87,10 +95,17 @@ export function AnnouncementFiltersBar({
       </Text>
 
       <div className="mt-7 flex flex-col gap-4">
-        <FilterSelect label="Curso" options={cursoOptions} value={curso} onChange={setCurso} disabled={loading} />
-        <FilterSelect label="Tipo" options={tipoOptions} value={tipo} onChange={setTipo} disabled={loading} />
-        <FilterSelect label="Turma" options={turmaOptions} value={turma} onChange={setTurma} disabled={loading} />
-        <FilterSelect label="Turno" options={turnoOptions} value={turno} onChange={setTurno} disabled={loading} />
+        
+        {/* Renderização condicional baseada na regra de negócio */}
+        {!isStudent && (
+          <>
+            <FilterSelect label="Curso" options={cursoOptions} value={curso} onChange={setCurso} disabled={loading} />
+            <FilterSelect label="Tipo" options={tipoOptions} value={tipo} onChange={setTipo} disabled={loading} />
+            <FilterSelect label="Turma" options={turmaOptions} value={turma} onChange={setTurma} disabled={loading} />
+            <FilterSelect label="Turno" options={turnoOptions} value={turno} onChange={setTurno} disabled={loading} />
+          </>
+        )}
+
         <FilterSelect label="Período" options={periodoOptions} value={periodo} onChange={setPeriodo} disabled={loading} />
 
         <div className="flex items-center justify-between gap-3">
