@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import type { AnnouncementDetail, AnnouncementResponse } from '../../../types/announcement'
+import type { AnnouncementDetail, AnnouncementResponse } from '../../types/announcement'
 
 import { AnnouncementFeedContent } from './AnnouncementFeed'
 
@@ -81,7 +81,7 @@ export const Empty: Story = {
 export const Error: Story = {
   args: {
     items: [],
-    error: true,
+    error: new globalThis.Error('posts_list_error'),
     onRetry: () => undefined,
   },
 }

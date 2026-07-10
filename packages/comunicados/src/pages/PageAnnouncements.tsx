@@ -3,7 +3,7 @@ import { getCurrentUser } from '@portal/core/auth/getCurrentUser'
 import { Text } from '@portal/ui'
 
 import { canCreateAnnouncement } from '../auth/canCreateAnnouncement'
-import { AnnouncementFeed } from '../components/organisms/AnnouncementFeed'
+import { AnnouncementFeed } from '../components/AnnouncementFeed'
 
 export async function PageAnnouncements() {
   const user = await getCurrentUser()

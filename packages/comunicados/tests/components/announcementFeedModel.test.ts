@@ -1,11 +1,15 @@
 import { describe, expect, it } from 'vitest'
 
+import { HttpError } from '@portal/core/http/errors'
+
 import type { AnnouncementDetail, AnnouncementResponse } from '../../src/types/announcement'
 import {
   getRegularAnnouncementPosts,
+  isAnnouncementFeedUnauthorizedError,
   mergeAnnouncementFeedItems,
+  resolveAnnouncementFeedErrorMessage,
   toAnnouncementSummary,
-} from '../../src/components/organisms/AnnouncementFeed/announcementFeedModel'
+} from '../../src/components/AnnouncementFeed/announcementFeedModel'
 
 function makeDetail(
   announcement: Partial<AnnouncementResponse> & Pick<AnnouncementResponse, 'id' | 'title'>,
@@ -82,5 +86,26 @@ describe('announcementFeedModel', () => {
     expect(getRegularAnnouncementPosts(posts).map((post) => post.announcement.id)).toEqual([
       'regular',
     ])
+  })
+
+  it('identifica erro unauthorized para redirecionamento de sessão expirada', () => {
+    expect(isAnnouncementFeedUnauthorizedError(new HttpError('unauthorized'))).toBe(true)
+    expect(isAnnouncementFeedUnauthorizedError(new HttpError('forbidden'))).toBe(false)
+    expect(isAnnouncementFeedUnauthorizedError(new Error('posts_list_error'))).toBe(false)
+  })
+
+  it('resolve mensagens de erro por kind do HttpError', () => {
+    expect(resolveAnnouncementFeedErrorMessage(new HttpError('network'))).toBe(
+      'Não foi possível carregar os comunicados. Verifique sua conexão e tente novamente.',
+    )
+    expect(resolveAnnouncementFeedErrorMessage(new HttpError('forbidden'))).toBe(
+      'Você não tem permissão para ver estes comunicados.',
+    )
+    expect(resolveAnnouncementFeedErrorMessage(new HttpError('not_found'))).toBe(
+      'Não foi possível encontrar os comunicados solicitados.',
+    )
+    expect(resolveAnnouncementFeedErrorMessage(new Error('posts_list_error'))).toBe(
+      'Não foi possível carregar os comunicados. Tente novamente mais tarde.',
+    )
   })
 })
