@@ -1,14 +1,11 @@
+import type { HubShift } from '@portal/shared'
+
 /**
  * Contratos do Hub (core-backend) usados na seleção de destinatários.
  * Espelham `api-docs-core.json` — paths internos `/courses`, `/classes`, `/users`.
  */
 
-export const HUB_SHIFT = {
-  FULL_AM_PM: 'FULL_AM_PM',
-  FULL_PM_NT: 'FULL_PM_NT',
-} as const
-
-export type HubShift = (typeof HUB_SHIFT)[keyof typeof HUB_SHIFT]
+export type { HubShift } from '@portal/shared'
 
 export interface HubCourse {
   id: string
@@ -24,7 +21,7 @@ export interface HubClass {
   id: string
   name: string
   number: number
-  shift: string
+  shift: HubShift
   courseId: string
   active: boolean
 }
