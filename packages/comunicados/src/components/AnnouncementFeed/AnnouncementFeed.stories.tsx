@@ -1,9 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import type { AnnouncementSummary } from '../../types/announcement'
 
-import { Icon } from '@portal/ui'
-
 import { AnnouncementFiltersBar } from '../AnnouncementFiltersBar'
+import { AnnouncementSearchField } from '../AnnouncementSearchField'
 import { AnnouncementFeedContent } from './AnnouncementFeed'
 
 function makeSummary(
@@ -93,25 +92,9 @@ export const TelaInicialFigma: Story = {
     <div className="min-h-screen bg-background-default p-6 md:p-8">
       <AnnouncementFeedContent
         items={muralItems}
-        toolbar={<MuralSearchPreview />}
+        toolbar={<AnnouncementSearchField value="" onChange={() => undefined} readOnly />}
         sidebar={<AnnouncementFiltersBar />}
       />
     </div>
   ),
-}
-
-function MuralSearchPreview() {
-  return (
-    <label className="block">
-      <span className="sr-only">Buscar comunicados</span>
-      <span className="flex w-full items-center gap-2 rounded-md border-sm border-border-default bg-background-surface px-4 py-2 focus-within:border-border-focus focus-within:ring-2 focus-within:ring-border-focus">
-        <Icon name="search" size="sm" tone="primary" decorative />
-        <input
-          type="search"
-          readOnly
-          className="min-w-0 flex-1 border-0 bg-transparent p-0 font-inter text-body-md text-text-primary outline-none"
-        />
-      </span>
-    </label>
-  )
 }

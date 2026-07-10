@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react'
 import { Button, Text } from '@portal/ui'
 
 import { usePostsList } from '../../hooks/usePostsList'
+import { formatAnnouncementDate, getAnnouncementOriginLabel } from '../../utils/announcement'
 import { AnnouncementCardSkeleton } from '../AnnouncementCardSkeleton'
 import { ComunicadosEmptyState } from '../ComunicadosEmptyState'
 import { PinnedPostsSection } from '../PinnedPostsSection'
@@ -38,19 +39,6 @@ export interface AnnouncementFeedContentProps {
   onLoadMore?: () => void
   toolbar?: ReactNode
   sidebar?: ReactNode
-}
-
-const originLabel: Record<AnnouncementSummary['origin'], string> = {
-  WEG: 'WEG',
-  SENAI: 'SENAI',
-  BOTH: 'WEG + SENAI',
-}
-
-function formatDate(value: string): string {
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return value
-
-  return new Intl.DateTimeFormat('pt-BR').format(date)
 }
 
 export function AnnouncementFeed({
@@ -215,11 +203,11 @@ function AnnouncementFeedItem({ post }: { post: AnnouncementSummary }) {
           </Text>
 
           <Text as="p" variant="label-xs" tone="secondary" className="mt-6">
-            {originLabel[post.origin]}
+            {getAnnouncementOriginLabel(post.origin)}
             <span className="px-2" aria-hidden="true">
               |
             </span>
-            {formatDate(date)}
+            {formatAnnouncementDate(date)}
           </Text>
         </div>
 
