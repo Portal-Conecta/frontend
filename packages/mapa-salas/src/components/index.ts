@@ -1,5 +1,6 @@
 export * from './SeatCard'
 export * from './SeatIcon'
 export * from './StudentListItem'
+export * from './MapGrid'
 export * from './MapEmptyState'
 export * from './StudentSidebar'
