@@ -1,13 +1,13 @@
 'use client'
 
 import type { KeyboardEvent, MouseEvent, PointerEvent } from 'react'
-import type { AnnouncementDetail, AnnouncementSummary } from '../../../types/announcement'
+import type { AnnouncementDetail, AnnouncementSummary } from '../../types/announcement'
 
 import { useRef, useState } from 'react'
 
 import { Text } from '@portal/ui'
 
-import { AnnouncementCard } from '../../AnnouncementCard'
+import { AnnouncementCard } from '../AnnouncementCard'
 
 export interface PinnedPostsSectionProps {
   posts: AnnouncementDetail[]

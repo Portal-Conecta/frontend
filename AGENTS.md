@@ -4,9 +4,9 @@ Ponto de entrada para agentes e desenvolvedores. Leia antes de qualquer implemen
 
 **Stack:** Next.js 15 · React 19 · TypeScript estrito · Tailwind CSS v4 · pnpm workspaces
 
-→ [Índice de docs](docs/README.md) · [Índice de ADRs](docs/adr/README.md) · [Commits, branches e PR](CONTRIBUTING.md)
+→ [Índice de docs](docs/README.md) · [Índice de ADRs](docs/adr/README.md) · [Commits, branches e PR](CONTRIBUTING.md) · [Rubric de revisão de PR](REVISION.md)
 
-**Antes de delegar a um agente, leia os guardrails:** [Context pack](docs/ai/ai-context.md) · [Definition of Done](docs/ai/definition-of-done.md) · [Como usar IA](docs/ai/como-usar-ia.md) · [Code review por IA](docs/ai/code-review.md)
+**Antes de delegar a um agente, leia os guardrails:** [Context pack](docs/ai/ai-context.md) · [Definition of Done](docs/ai/definition-of-done.md) · [Como usar IA](docs/ai/como-usar-ia.md) · [Rubric de revisão de PR](REVISION.md)
 
 **AGENTS por domínio:** [checklist](packages/checklist/AGENTS.md) · [comunicados](packages/comunicados/AGENTS.md) · [mapa-salas](packages/mapa-salas/AGENTS.md)
 
