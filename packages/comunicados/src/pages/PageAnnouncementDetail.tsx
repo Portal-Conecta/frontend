@@ -65,7 +65,7 @@ export async function PageAnnouncementDetail({ id }: PageAnnouncementDetailProps
           ) : null}
 
           {detail ? (
-            <AnnouncementDetailView detail={detail} canEdit={false} backHref="/comunicados" />
+            <AnnouncementDetailView detail={detail} canEdit={false} />
           ) : null}
         </div>
       </div>

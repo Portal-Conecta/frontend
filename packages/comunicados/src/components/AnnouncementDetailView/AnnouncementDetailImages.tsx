@@ -71,7 +71,6 @@ export function AnnouncementDetailImages({ files }: AnnouncementDetailImagesProp
         aria-label={`Ampliar imagem: ${selected.originalName}`}
         className="block w-full max-w-3xl overflow-hidden rounded-md text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
       >
-        {/* eslint-disable-next-line @next/next/no-img-element -- URL do bucket processed */}
         <img
           src={heroUrl}
           alt={selected.originalName}
@@ -94,7 +93,6 @@ export function AnnouncementDetailImages({ files }: AnnouncementDetailImagesProp
                   aria-pressed={file.id === selected.id}
                   className="block overflow-hidden rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element -- URL do bucket processed */}
                   <img
                     src={url}
                     alt={file.originalName}

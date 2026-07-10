@@ -170,7 +170,6 @@ export function AnnouncementImageLightbox({
           onPointerUp={endDrag}
           onPointerCancel={endDrag}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element -- URL do bucket processed */}
           <img
             src={src}
             alt={alt}

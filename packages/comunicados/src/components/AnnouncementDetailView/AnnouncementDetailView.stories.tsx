@@ -125,7 +125,6 @@ const meta: Meta<typeof AnnouncementDetailView> = {
   args: {
     detail: defaultDetail,
     canEdit: false,
-    backHref: '/comunicados',
   },
   decorators: [
     (Story) => (

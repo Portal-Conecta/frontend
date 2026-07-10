@@ -2,8 +2,8 @@
  * AnnouncementDetailView — layout de leitura completa de um comunicado.
  *
  * Server Component: não usa `useState`, `useEffect` nem event handlers diretos.
- * Os botões de ação (Voltar / Editar) são `<Link>` estilizados com as classes do
- * átomo `Button`, mantendo SSR e navegação nativa.
+ * O botão "Editar" é um `<Link>` estilizado com as classes do átomo `Button`,
+ * mantendo SSR e navegação nativa.
  *
  * Seções:
  *  - Imagens: thumbnail grande + miniaturas (clique troca a principal)
@@ -12,7 +12,7 @@
  *  - Corpo: texto completo do comunicado
  *  - Tags: lista de AnnouncementTag via átomo Tag
  *  - Anexos: documentos/vídeos (imagens ficam no bloco do topo)
- *  - Ações: Link "Voltar" / "Editar"
+ *  - Ações: Link "Editar" (quando `canEdit`)
  */
 import type {
   AnnouncementDetail,
@@ -39,10 +39,6 @@ export interface AnnouncementDetailViewProps {
    * comunicados ser implementado.
    */
   canEdit?: boolean
-  /**
-   * href para o link "Voltar". Default: `/comunicados`.
-   */
-  backHref?: string
 }
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
@@ -183,13 +179,6 @@ function DocumentsGallery({ files }: { files: AnnouncementFile[] }) {
   )
 }
 
-const backLinkClass =
-  'inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 ' +
-  'text-label-md-emphasis font-inter cursor-pointer transition-colors ' +
-  'text-interactive-default hover:bg-interactive-subtle hover:text-interactive-hover ' +
-  'active:bg-interactive-subtle active:text-interactive-pressed ' +
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive-focus-ring focus-visible:ring-offset-2'
-
 const editLinkClass =
   'inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 ' +
   'text-label-md-emphasis font-inter cursor-pointer transition-colors ' +
@@ -201,19 +190,17 @@ const editLinkClass =
 function Actions({
   announcementId,
   canEdit,
-  backHref,
 }: {
   announcementId: string
   canEdit: boolean
-  backHref: string
 }) {
+  if (!canEdit) return null
+
   return (
-    <div className="flex flex-wrap items-center gap-3 ">
-      {canEdit ? (
-        <Link href={`/comunicados/${announcementId}/editar`} className={editLinkClass}>
-          Editar
-        </Link>
-      ) : null}
+    <div className="flex flex-wrap items-center gap-3">
+      <Link href={`/comunicados/${announcementId}/editar`} className={editLinkClass}>
+        Editar
+      </Link>
     </div>
   )
 }
@@ -223,11 +210,10 @@ function Actions({
 export function AnnouncementDetailView({
   detail,
   canEdit = false,
-  backHref = '/comunicados',
 }: AnnouncementDetailViewProps) {
   return (
     <article
-      className="flex flex-col gap-6 rounded-md border-none bg-background-surface "
+      className="flex flex-col gap-6 rounded-md border-none bg-background-surface"
       aria-label={`Comunicado: ${detail.announcement.title}`}
     >
       <AnnouncementDetailImages files={detail.files} />
@@ -235,11 +221,7 @@ export function AnnouncementDetailView({
       <Body description={detail.announcement.description} />
       <TagsSection tags={detail.tags} />
       <DocumentsGallery files={detail.files} />
-      <Actions
-        announcementId={detail.announcement.id}
-        canEdit={canEdit}
-        backHref={backHref}
-      />
+      <Actions announcementId={detail.announcement.id} canEdit={canEdit} />
     </article>
   )
 }
