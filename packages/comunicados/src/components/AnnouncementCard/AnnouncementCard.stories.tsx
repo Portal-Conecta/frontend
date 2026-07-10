@@ -1,20 +1,20 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import type { AnnouncementSummary } from '../../types/announcement'
 
+import { AnnouncementActionsMenu } from '../AnnouncementActionsMenu'
 import { AnnouncementCard } from './AnnouncementCard'
 
 const announcement: AnnouncementSummary = {
-  id: 'seguranca-no-campus',
-  title: 'Comunicado sobre atualização das orientações de segurança no campus',
+  id: 'titulo-da-publicacao',
+  title: 'Titulo da publicação',
   origin: 'WEG',
   status: 'PUBLISHED',
   pinned: false,
   pinnedOrder: null,
-  publishedAt: '2026-07-03T10:00:00.000Z',
+  publishedAt: '2026-06-02T12:00:00.000Z',
   scheduledFor: null,
-  createdAt: '2026-07-03T09:30:00.000Z',
-  description:
-    'A partir desta semana, novas orientações de circulação e identificação estarão disponíveis para estudantes, docentes e colaboradores.',
+  createdAt: '2026-06-02T12:00:00.000Z',
+  description: 'Preview do comunicado',
   tags: ['Institucional', 'Segurança'],
 }
 
@@ -43,7 +43,7 @@ const meta: Meta<typeof AnnouncementCard> = {
   },
   decorators: [
     (Story) => (
-      <div className="max-w-3xl bg-background-default p-4">
+      <div className="w-[665px] max-w-full bg-background-default p-4">
         <Story />
       </div>
     ),
@@ -74,4 +74,35 @@ export const ResponsiveList: Story = {
       <AnnouncementCard announcement={scheduledAnnouncement} />
     </div>
   ),
+}
+
+/** Com o menu de ações (Desafixar/Editar/Excluir) — quem gerencia o comunicado. */
+export const WithActions: Story = {
+  args: {
+    actions: (
+      <AnnouncementActionsMenu
+        variant="solid"
+        pinned
+        onPin={() => {}}
+        onEdit={() => {}}
+        onDelete={() => {}}
+      />
+    ),
+  },
+}
+
+/** Ações em modo compacto (só ícone) — mesmo card, menu reduzido. */
+export const WithActionsCompact: Story = {
+  args: {
+    actions: (
+      <AnnouncementActionsMenu
+        variant="solid"
+        compact
+        pinned
+        onPin={() => {}}
+        onEdit={() => {}}
+        onDelete={() => {}}
+      />
+    ),
+  },
 }

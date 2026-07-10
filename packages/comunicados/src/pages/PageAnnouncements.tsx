@@ -41,6 +41,8 @@ export async function PageAnnouncements() {
   return (
     <AppShell user={null} activeKey="comunicados">
       <div className="p-8">
+        {/* Keep this title in sync with `apps/root/src/app/comunicados/loading.tsx`
+            while the route still duplicates the shell/title during loading. */}
         <Text as="h1" variant="heading-h2" tone="primary">
           Mural de Comunicados
         </Text>
