@@ -11,6 +11,22 @@ export interface ListItemProps extends HTMLAttributes<HTMLElement> {
   disableHover?: boolean
 }
 
+// Base: fundo transparente, espaçamentos, text-left (para resetar alinhamento de button) e transição
+const baseClasses = 'bg-transparent p-4 w-full text-left transition-colors'
+
+function getBorderClasses(selected: boolean, disableHover: boolean) {
+  if (selected) return 'border border-interactive-pressed rounded-md' // Selecionado: borda completa
+  return `border-b border-border-default rounded-none ${
+    !disableHover ? 'hover:border-interactive-default' : ''
+  }` // Padrão: border-bottom.
+}
+
+function getInteractiveClasses(interactive: boolean) {
+  return interactive
+    ? 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-interactive-focus-ring'
+    : ''
+}
+
 export function ListItem({
   children,
   selectable = false,
@@ -20,38 +36,24 @@ export function ListItem({
   onClick,
   ...rest
 }: ListItemProps) {
-  // Base: fundo transparente, espaçamentos, text-left (para resetar alinhamento de button) e transição
-  const baseClasses = 'bg-transparent p-4 w-full text-left transition-colors'
+  const interactive = selectable || Boolean(onClick)
 
-  // Lógica de Bordas e Hover
-  const borderClasses = selected
-    ? 'border border-interactive-pressed rounded-md' // Selecionado: borda completa
-    : `border-b border-border-default rounded-none ${
-        !disableHover ? 'hover:border-interactive-default' : ''
-      }` // Padrão: border-bottom. Substitua 'border-border-default' pelo seu token real.
-
-  // Acessibilidade e Foco
-  const interactiveClasses = selectable || onClick
-    ? 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-interactive-focus-ring'
-    : ''
-
-  // Concatenação de classes
   const classes = [
     baseClasses,
-    borderClasses,
-    interactiveClasses,
-    className
+    getBorderClasses(selected, disableHover),
+    getInteractiveClasses(interactive),
+    className,
   ].filter(Boolean).join(' ')
 
   // Renderiza como button se for interativo para garantir acessibilidade (a11y) nativa
-  const Component = selectable || onClick ? 'button' : 'div'
+  const Component = interactive ? 'button' : 'div'
 
   return (
     <Component
       className={classes}
       onClick={onClick}
       // aria-pressed informa a leitores de tela o estado atual de seleção
-      aria-pressed={selectable || onClick ? selected : undefined}
+      aria-pressed={interactive ? selected : undefined}
       type={Component === 'button' ? 'button' : undefined}
       {...rest}
     >
