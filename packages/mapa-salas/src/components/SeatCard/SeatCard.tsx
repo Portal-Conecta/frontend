@@ -1,3 +1,5 @@
+'use client'
+
 import { Text } from '@portal/ui'
 
 import { SeatIcon } from '../SeatIcon'
