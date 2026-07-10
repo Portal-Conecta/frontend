@@ -6,19 +6,31 @@
  * átomo `Button`, mantendo SSR e navegação nativa.
  *
  * Seções:
- *  - Cabeçalho: tags de status/origem, badge "Fixado", data de publicação, título
+ *  - Imagens: thumbnail grande + miniaturas (clique troca a principal)
+ *    — client island `AnnouncementDetailImages`
+ *  - Cabeçalho: status/origem, badge "Fixado", data de publicação, título
  *  - Corpo: texto completo do comunicado
  *  - Tags: lista de AnnouncementTag via átomo Tag
- *  - Slot galeria: lista de AnnouncementFile (imagens). Exibe nomes de arquivo com
- *    ícone enquanto não há URLs assinadas do S3 disponíveis.
- *  - Ações: Link "Voltar" (ghost/brand) e Link "Editar" (outlined/brand, condicional)
+ *  - Anexos: documentos/vídeos (imagens ficam no bloco do topo)
+ *  - Ações: Link "Voltar" / "Editar"
  */
-import type { AnnouncementDetail, AnnouncementStatus, AnnouncementTag, AnnouncementFile, AnnouncementFileType } from '../../types'
+import type {
+  AnnouncementDetail,
+  AnnouncementStatus,
+  AnnouncementTag,
+  AnnouncementFile,
+} from '../../types'
 import type { IconName, TagTone } from '@portal/ui'
 
 import Link from 'next/link'
 
 import { Icon, Tag, Text } from '@portal/ui'
+
+import {
+  getAnnouncementDocuments,
+  resolveAnnouncementFileUrl,
+} from '../../utils/announcementFile'
+import { AnnouncementDetailImages } from './AnnouncementDetailImages'
 
 export interface AnnouncementDetailViewProps {
   detail: AnnouncementDetail
@@ -60,6 +72,17 @@ function formatDate(value: string | null): string | null {
   }).format(date)
 }
 
+function fileIconName(file: AnnouncementFile): 'image-up' | 'newspaper' | 'eye' {
+  switch (file.type) {
+    case 'IMAGE':
+      return 'image-up'
+    case 'VIDEO':
+      return 'eye'
+    default:
+      return 'newspaper'
+  }
+}
+
 // ─── sub-seções ───────────────────────────────────────────────────────────────
 
 function Header({ detail }: { detail: AnnouncementDetail }) {
@@ -69,7 +92,6 @@ function Header({ detail }: { detail: AnnouncementDetail }) {
 
   return (
     <header className="flex flex-col gap-3">
-      {/* Badges de meta */}
       <div className="flex flex-wrap items-center gap-2">
         {status ? (
           <Tag tone={status.tone} size="sm" icon={status.icon}>
@@ -91,7 +113,6 @@ function Header({ detail }: { detail: AnnouncementDetail }) {
         ) : null}
       </div>
 
-      {/* Título */}
       <Text as="h1" variant="heading-h2" tone="primary">
         {announcement.title}
       </Text>
@@ -128,42 +149,40 @@ function TagsSection({ tags }: { tags: AnnouncementTag[] }) {
   )
 }
 
-const IMAGE_TYPE: AnnouncementFileType = 'IMAGE'
-
-function GallerySlot({ files }: { files: AnnouncementFile[] }) {
-  const imageFiles = files.filter((f: AnnouncementFile) => f.type === IMAGE_TYPE)
-
-  if (!imageFiles.length) return null
+function DocumentsGallery({ files }: { files: AnnouncementFile[] }) {
+  const documents = getAnnouncementDocuments(files)
+  if (!documents.length) return null
 
   return (
-    <section aria-label="Galeria de imagens" className="flex flex-col gap-2">
+    <section aria-label="Anexos do comunicado" className="flex flex-col gap-2">
       <Text as="p" variant="label-sm" tone="secondary">
-        Galeria
+        Anexos
       </Text>
-      {/*
-       * Slot de galeria: exibe nomes de arquivo com ícone enquanto não há URLs
-       * assinadas do S3. Substituir por <img> quando o BFF expor as URLs.
-       * Ícone `newspaper` é o mais próximo disponível no registry atual do DS.
-       */}
-      <ul className="flex flex-col gap-1">
-        {imageFiles.map((file: AnnouncementFile) => (
-          <li
-            key={file.id}
-            className="flex items-center gap-2 rounded-md border-sm border-border-default bg-background-surface px-3 py-2"
-          >
-            <Icon name="newspaper" size="sm" tone="secondary" decorative />
-            <Text as="span" variant="label-sm" tone="secondary" className="truncate">
-              {file.originalName}
-            </Text>
-          </li>
-        ))}
+      <ul className="flex flex-col gap-2">
+        {documents.map((file) => {
+          const url = resolveAnnouncementFileUrl(file)
+
+          return (
+            <li key={file.id}>
+              <a
+                href={url ?? undefined}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-2 rounded-md border-sm border-border-default bg-background-surface px-3 py-2 transition-colors hover:bg-background-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
+              >
+                <Icon name={fileIconName(file)} size="sm" tone="secondary" decorative />
+                <Text as="span" variant="label-sm" tone="secondary" className="truncate">
+                  {file.originalName}
+                </Text>
+              </a>
+            </li>
+          )
+        })}
       </ul>
     </section>
   )
 }
 
-// Estilos mapeados dos átomos Button (ghost/brand e outlined/brand) para Links.
-// Tailwind v4 não permite montar nomes dinamicamente, então estão escritos por extenso.
 const backLinkClass =
   'inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 ' +
   'text-label-md-emphasis font-inter cursor-pointer transition-colors ' +
@@ -189,12 +208,7 @@ function Actions({
   backHref: string
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-3 border-t-sm border-border-default pt-4">
-      {/* chevrons-left é o ícone disponível no DS mais próximo de "voltar" */}
-      <Link href={backHref} className={backLinkClass}>
-        <Icon name="chevrons-left" size="sm" decorative />
-        Voltar
-      </Link>
+    <div className="flex flex-wrap items-center gap-3 ">
       {canEdit ? (
         <Link href={`/comunicados/${announcementId}/editar`} className={editLinkClass}>
           Editar
@@ -213,13 +227,14 @@ export function AnnouncementDetailView({
 }: AnnouncementDetailViewProps) {
   return (
     <article
-      className="flex flex-col gap-6 rounded-md border-sm border-border-default bg-background-surface p-6"
+      className="flex flex-col gap-6 rounded-md border-none bg-background-surface "
       aria-label={`Comunicado: ${detail.announcement.title}`}
     >
+      <AnnouncementDetailImages files={detail.files} />
       <Header detail={detail} />
       <Body description={detail.announcement.description} />
       <TagsSection tags={detail.tags} />
-      <GallerySlot files={detail.files} />
+      <DocumentsGallery files={detail.files} />
       <Actions
         announcementId={detail.announcement.id}
         canEdit={canEdit}
