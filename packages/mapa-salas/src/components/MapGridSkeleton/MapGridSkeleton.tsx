@@ -3,6 +3,12 @@ export type MapGridSkeletonProps = {
   rows?: number
   /** Colunas da grade genérica exibida durante o carregamento. Default 6. */
   columns?: number
+  /**
+   * Coordenadas (x, y) que devem renderizar como espaço vazio em vez de
+   * assento — simula o corredor/obstáculo do MapGrid real (isSpacerPosition),
+   * só pra a silhueta do skeleton bater com o layout esperado da sala.
+   */
+  spacerPositions?: Array<{ x: number; y: number }>
   className?: string
 }
 
@@ -55,6 +61,15 @@ function SeatSkeletonShape({ size = 'md' }: { size?: SeatSkeletonSize }) {
  * visual enquanto os dados carregam. Sem estado, sem handlers: Server
  * Component, igual ao MapGrid (PR #237).
  *
+ * Assim como o MapGrid, não define gap próprio — o espaçamento entre
+ * assentos vem de fora via `className` (mesma dívida documentada no TODO
+ * do MapGrid). PageMapaSalas deve passar a mesma className nos dois pra
+ * manter consistência visual entre skeleton e grade real.
+ *
+ * `spacerPositions` reproduz o mesmo papel do isSpacerPosition do MapGrid:
+ * marca coordenadas que renderizam vazias (corredor/obstáculo) em vez de
+ * assento, pra silhueta do skeleton já antecipar o formato da sala.
+ *
  * O ícone "Professor" do topo fica fora deste componente — é
  * renderizado uma vez por PageMapaSalas (#292), não faz parte da grade de
  * alunos que este skeleton substitui.
@@ -62,10 +77,32 @@ function SeatSkeletonShape({ size = 'md' }: { size?: SeatSkeletonSize }) {
 export function MapGridSkeleton({
   rows = DEFAULT_ROWS,
   columns = DEFAULT_COLUMNS,
+  spacerPositions,
   className,
 }: MapGridSkeletonProps) {
-  const classes = ['grid gap-2', className].filter(Boolean).join(' ')
+  const classes = ['grid', className].filter(Boolean).join(' ')
   const cellCount = rows * columns
+
+  const spacerKeys = new Set(spacerPositions?.map(({ x, y }) => `${x},${y}`))
+
+  const cells = []
+
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < columns; x++) {
+      const key = `${x},${y}`
+
+      if (spacerKeys.has(key)) {
+        cells.push(<div key={key} />)
+        continue
+      }
+
+      cells.push(
+        <div key={key} className="flex items-center justify-center">
+          <SeatSkeletonShape />
+        </div>,
+      )
+    }
+  }
 
   return (
     <div
@@ -76,11 +113,7 @@ export function MapGridSkeleton({
         gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
       }}
     >
-      {Array.from({ length: cellCount }, (_, i) => (
-        <div key={i} className="flex items-center justify-center">
-          <SeatSkeletonShape />
-        </div>
-      ))}
+      {cells}
     </div>
   )
 }
