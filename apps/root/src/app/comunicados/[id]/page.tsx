@@ -1,27 +1,26 @@
-import type { Metadata } from "next";
-
-import { PageAnnouncementDetail } from "@portal/comunicados/pages/PageAnnouncementDetail";
-import { getAnnouncement } from "@portal/comunicados/services";
+import type { Metadata } from 'next'
+import { PageAnnouncementDetail } from '@portal/comunicados/pages/PageAnnouncementDetail'
+import { getAnnouncement } from '@portal/comunicados/services/server'
 
 interface ComunicadoDetailPageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string }>
 }
 
 /**
- * Metadata dinâmica com o título do comunicado. Reaproveita `getAnnouncement`;
- * o Next.js faz memoization automática de `fetch` dentro do mesmo request, então
- * não gera uma segunda chamada de rede além da já feita por `PageAnnouncementDetail`.
+ * Metadata dinâmica com o título do comunicado. Reaproveita `getAnnouncement`.
+ * NOTA: O httpClient usa cache: 'no-store' por padrão. Validar via Network tab
+ * que o Next.js consegue aplicar o dedupe na request e não duplicar a chamada ao BFF.
  */
 export async function generateMetadata({
   params,
 }: ComunicadoDetailPageProps): Promise<Metadata> {
-  const { id } = await params;
+  const { id } = await params
 
   try {
-    const detail = await getAnnouncement(id);
-    return { title: detail.announcement.title };
+    const detail = await getAnnouncement(id)
+    return { title: detail.announcement.title }
   } catch {
-    return { title: "Comunicado" };
+    return { title: 'Comunicado' }
   }
 }
 
@@ -34,6 +33,6 @@ export async function generateMetadata({
 export default async function ComunicadoDetailPage({
   params,
 }: ComunicadoDetailPageProps) {
-  const { id } = await params;
-  return <PageAnnouncementDetail id={id} />;
+  const { id } = await params
+  return <PageAnnouncementDetail id={id} />
 }

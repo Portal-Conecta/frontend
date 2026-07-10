@@ -1,5 +1,5 @@
-import { AppShell } from "@portal/core";
-import { Skeleton } from "@portal/ui";
+import { AppShell } from '@portal/core'
+import { Skeleton } from '@portal/ui'
 
 /**
  * @description Componente de carregamento (skeleton) para a página de detalhe de um comunicado.
@@ -40,5 +40,5 @@ export default function LoadingComunicadoDetailPage() {
         </div>
       </div>
     </AppShell>
-  );
+  )
 }
