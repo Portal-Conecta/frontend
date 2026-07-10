@@ -15,6 +15,8 @@ packages/mapa-salas/src/pages/PageMapaSalas.tsx   ← componente de página (est
 apps/root/src/app/mapa-salas/page.tsx             ← rota que importa de @portal/mapa-salas
 ```
 
+Este pacote ainda é scaffolding (`src/pages/` vazio, sem rota em `apps/root`). O padrão de página + rota já foi fechado no piloto de `@portal/comunicados` (`PageAnnouncements` + `AppShell` de `@portal/core`) — espelhe esse pacote como referência ao implementar a primeira página aqui.
+
 ## Fronteiras
 
 - **Pode importar de:** `@portal/ui`, `@portal/core`, `@portal/shared` (camadas abaixo).

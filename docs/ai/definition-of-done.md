@@ -21,7 +21,7 @@ Os portões mecânicos do grupo #101 (#102 token, #103 story, #104 a11y, #105 te
 
 | Passo | Issue | O que falta |
 |---|---|---|
-| **Tornar o gate de a11y bloqueante** | [#104](https://github.com/Portal-Conecta/frontend/issues/104) | Hoje o job `a11y` roda `continue-on-error` (consultivo). Quando a dívida `critical`/`serious` pré-existente for zerada, remove-se o `continue-on-error` e ele passa a bloquear essas severidades (ver [ADR-0013](../adr/ADR-0013-baseline-de-acessibilidade.md)). |
+| **Tornar o gate de a11y bloqueante** | Sem issue aberta ainda | [#104](https://github.com/Portal-Conecta/frontend/issues/104) (fechada) entregou o gate consultivo — não a promoção. Hoje o job `a11y` roda `continue-on-error` (consultivo). Quando a dívida `critical`/`serious` pré-existente for zerada, remove-se o `continue-on-error` e ele passa a bloquear essas severidades (ver [ADR-0013](../adr/ADR-0013-baseline-de-acessibilidade.md)). Abrir issue de rastreio quando a dívida estiver perto de zerar. |
 
 ## Checklist antes do PR
 
