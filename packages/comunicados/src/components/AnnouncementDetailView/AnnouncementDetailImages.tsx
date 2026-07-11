@@ -4,11 +4,8 @@ import { useMemo, useState } from 'react'
 
 import type { AnnouncementFile } from '../../types/file'
 
-import {
-  getAnnouncementImages,
-  resolveAnnouncementFileUrl,
-} from '../../utils/announcementFile'
 import { AnnouncementImageLightbox } from './AnnouncementImageLightbox'
+import { listDisplayImages, resolveFileDisplayUrl } from './fileDisplay'
 
 export interface AnnouncementDetailImagesProps {
   files: AnnouncementFile[]
@@ -22,7 +19,7 @@ export interface AnnouncementDetailImagesProps {
  * por ambiente; o pacote de domínio não usa o plugin ESLint do Next.
  */
 export function AnnouncementDetailImages({ files }: AnnouncementDetailImagesProps) {
-  const images = useMemo(() => getAnnouncementImages(files), [files])
+  const images = useMemo(() => listDisplayImages(files), [files])
   const [selectedId, setSelectedId] = useState(() => images[0]?.id ?? '')
   const [lightboxOpen, setLightboxOpen] = useState(false)
 
@@ -31,7 +28,7 @@ export function AnnouncementDetailImages({ files }: AnnouncementDetailImagesProp
   const selected = images.find((file) => file.id === selectedId) ?? images[0]
   if (!selected) return null
 
-  const heroUrl = resolveAnnouncementFileUrl(selected)
+  const heroUrl = resolveFileDisplayUrl(selected)
   if (!heroUrl) return null
 
   const thumbnails = images.filter((file) => file.id !== selected.id)
@@ -51,7 +48,7 @@ export function AnnouncementDetailImages({ files }: AnnouncementDetailImagesProp
       {thumbnails.length > 0 ? (
         <ul className="flex flex-wrap gap-2">
           {thumbnails.map((file, index) => {
-            const url = resolveAnnouncementFileUrl(file)
+            const url = resolveFileDisplayUrl(file)
             if (!url) return null
 
             return (

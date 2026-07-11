@@ -5,10 +5,7 @@ import type { IconName } from '@portal/ui'
 
 import { Icon, Text } from '@portal/ui'
 
-import {
-  getAnnouncementDocuments,
-  resolveAnnouncementFileUrl,
-} from '../../utils/announcementFile'
+import { listDisplayDocuments, resolveFileDisplayUrl } from './fileDisplay'
 
 export interface AnnouncementDetailDocumentsProps {
   files: AnnouncementFile[]
@@ -26,12 +23,9 @@ function fileIconName(file: AnnouncementFile): IconName {
   }
 }
 
-/**
- * Anexos (documento/vídeo) do detalhe.
- * Client island: importa `announcementFile` sem cruzar o boundary do Server Component pai.
- */
+/** Anexos (documento/vídeo) do detalhe. */
 export function AnnouncementDetailDocuments({ files }: AnnouncementDetailDocumentsProps) {
-  const documents = getAnnouncementDocuments(files)
+  const documents = listDisplayDocuments(files)
   if (!documents.length) return null
 
   return (
@@ -41,7 +35,7 @@ export function AnnouncementDetailDocuments({ files }: AnnouncementDetailDocumen
       </Text>
       <ul className="flex flex-col gap-2">
         {documents.map((file) => {
-          const url = resolveAnnouncementFileUrl(file)
+          const url = resolveFileDisplayUrl(file)
 
           return (
             <li key={file.id}>

@@ -14,8 +14,9 @@
  *  - Anexos: documentos/vídeos — client island `AnnouncementDetailDocuments`
  *  - Ações: Link "Editar" (quando `canEdit`)
  *
- * Não importa `utils/announcementFile` aqui: o Webpack quebra named exports quando
- * o Server Component e o Client filho compartilham o mesmo módulo.
+ * Não importa `utils/announcementFile` aqui: o Webpack do Next entrega named
+ * exports como `undefined` nesse grafo (Server + Client). Helpers ficam em
+ * `./fileDisplay` nos client islands.
  */
 import type { AnnouncementDetail, AnnouncementStatus, AnnouncementTag } from '../../types'
 import type { IconName, TagTone } from '@portal/ui'
