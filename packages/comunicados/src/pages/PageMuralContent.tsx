@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react'
 
+import type { TypeUser } from '@portal/core'
+
 import { AnnouncementFeed } from '../components/AnnouncementFeed'
 import {
   AnnouncementFiltersBar,
@@ -95,9 +97,10 @@ function toListPostsParams(filters: AnnouncementFilters, searchQuery: string): L
 
 export interface PageMuralContentProps {
   canCreate: boolean
+  userType?: TypeUser | undefined
 }
 
-export function PageMuralContent({ canCreate }: PageMuralContentProps) {
+export function PageMuralContent({ canCreate, userType }: PageMuralContentProps) {
   const catalog = useMuralFilterCatalog()
   const [activeFilters, setActiveFilters] = useState<AnnouncementFilters>({})
   const [searchQuery, setSearchQuery] = useState('')
@@ -134,6 +137,7 @@ export function PageMuralContent({ canCreate }: PageMuralContentProps) {
       toolbar={<AnnouncementSearchField value={searchQuery} onChange={setSearchQuery} />}
       sidebar={
         <AnnouncementFiltersBar
+          userType={userType}
           loading={catalog.loading}
           cursoOptions={catalog.courses}
           turmaOptions={catalog.classes}
