@@ -1,14 +1,19 @@
 import { describe, expect, it } from 'vitest'
 
 import type { AnnouncementFile } from '../../src/types/file'
-import { pickThumbnailUrl, resolveAnnouncementFileUrl } from '../../src/utils/announcementFile'
+import {
+  getAnnouncementDocuments,
+  getAnnouncementImages,
+  resolveAnnouncementFileUrl,
+  toProcessedDisplayUrl,
+} from '../../src/utils/announcementFile'
 
 function makeFile(partial: Partial<AnnouncementFile> & Pick<AnnouncementFile, 'id'>): AnnouncementFile {
   return {
     announcementId: 'post-1',
     originalName: 'foto.jpg',
-    s3Key: 'uploads/foto.jpg',
-    s3Bucket: 'bucket',
+    s3Key: 'comunicados/post/raw/foto.jpg',
+    s3Bucket: 'comunicados-raw-sa',
     contentType: 'image/jpeg',
     type: 'IMAGE',
     sizeBytes: 10,
@@ -20,35 +25,57 @@ function makeFile(partial: Partial<AnnouncementFile> & Pick<AnnouncementFile, 'i
 }
 
 describe('announcementFile utils', () => {
-  it('prefere displayUrl ao montar URL do arquivo', () => {
+  it('reescreve URL raw para processed', () => {
+    expect(
+      toProcessedDisplayUrl(
+        'https://comunicados-raw-sa.s3.amazonaws.com/comunicados/a/raw/b.png',
+      ),
+    ).toBe('https://comunicados-processed-sa.s3.amazonaws.com/comunicados/a/processed/b.png')
+  })
+
+  it('converte displayUrl raw ao resolver', () => {
     expect(
       resolveAnnouncementFileUrl(
-        makeFile({ id: '1', displayUrl: 'https://cdn.example/signed.jpg' }),
+        makeFile({
+          id: '1',
+          displayUrl: 'https://comunicados-raw-sa.s3.amazonaws.com/comunicados/a/raw/b.png',
+        }),
       ),
-    ).toBe('https://cdn.example/signed.jpg')
+    ).toBe('https://comunicados-processed-sa.s3.amazonaws.com/comunicados/a/processed/b.png')
   })
 
-  it('faz fallback para bucket+key quando não há displayUrl', () => {
-    expect(resolveAnnouncementFileUrl(makeFile({ id: '1' }))).toBe(
-      'https://bucket.s3.amazonaws.com/uploads/foto.jpg',
-    )
+  it('usa processedS3Key quando não há displayUrl', () => {
+    expect(
+      resolveAnnouncementFileUrl(
+        makeFile({
+          id: '1',
+          processedS3Key: 'comunicados/a/processed/b.png',
+        }),
+      ),
+    ).toBe('https://comunicados-processed-sa.s3.amazonaws.com/comunicados/a/processed/b.png')
   })
 
-  it('escolhe a imagem marcada como thumbnail', () => {
+  it('não cai no raw quando não há processed', () => {
+    expect(resolveAnnouncementFileUrl(makeFile({ id: '1' }))).toBeNull()
+  })
+
+  it('separa imagens e documentos', () => {
     const files = [
-      makeFile({ id: 'a', displayUrl: 'https://cdn.example/a.jpg' }),
-      makeFile({ id: 'b', displayUrl: 'https://cdn.example/b.jpg', isThumbnail: true }),
+      makeFile({
+        id: 'img',
+        displayUrl: 'https://comunicados-processed-sa.s3.amazonaws.com/x.jpg',
+        isThumbnail: true,
+        fileStatus: 'READY',
+      }),
+      makeFile({
+        id: 'doc',
+        type: 'DOCUMENT',
+        originalName: 'a.pdf',
+        displayUrl: 'https://example.com/a.pdf',
+      }),
     ]
 
-    expect(pickThumbnailUrl(files)).toBe('https://cdn.example/b.jpg')
-  })
-
-  it('ignora imagens PENDING/FAILED', () => {
-    const files = [
-      makeFile({ id: 'pending', displayUrl: 'https://cdn.example/p.jpg', fileStatus: 'PENDING' }),
-      makeFile({ id: 'ready', displayUrl: 'https://cdn.example/r.jpg', fileStatus: 'READY' }),
-    ]
-
-    expect(pickThumbnailUrl(files)).toBe('https://cdn.example/r.jpg')
+    expect(getAnnouncementImages(files).map((f) => f.id)).toEqual(['img'])
+    expect(getAnnouncementDocuments(files).map((f) => f.id)).toEqual(['doc'])
   })
 })
