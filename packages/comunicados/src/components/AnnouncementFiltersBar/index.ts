@@ -1,2 +1,2 @@
-export * from './AnnouncementFiltersBar';
-export { AnnouncementFiltersBarSkeleton } from './AnnouncementFiltersBarSkeleton';
+export * from './AnnouncementFiltersBar'
+export * from './AnnouncementFiltersBarSkeleton'

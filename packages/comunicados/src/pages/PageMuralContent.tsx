@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from 'react'
 
+import type { TypeUser } from '@portal/core'
+
 import { AnnouncementFeed } from '../components/AnnouncementFeed'
 import { AnnouncementFiltersBar, type AnnouncementFilters } from '../components/AnnouncementFiltersBar'
 import { AnnouncementSearchField } from '../components/AnnouncementSearchField'
@@ -28,9 +30,10 @@ function toListPostsParams(filters: AnnouncementFilters, searchQuery: string): L
 
 export interface PageMuralContentProps {
   canCreate: boolean
+  userType?: TypeUser | undefined
 }
 
-export function PageMuralContent({ canCreate }: PageMuralContentProps) {
+export function PageMuralContent({ canCreate, userType }: PageMuralContentProps) {
   const [activeFilters, setActiveFilters] = useState<AnnouncementFilters>({})
   const [searchQuery, setSearchQuery] = useState('')
   const [feedFilters, setFeedFilters] = useState<ListPostsParams>(() => createDefaultFeedFilters())
@@ -58,7 +61,13 @@ export function PageMuralContent({ canCreate }: PageMuralContentProps) {
       canCreate={canCreate}
       initialFilters={feedFilters}
       toolbar={<AnnouncementSearchField value={searchQuery} onChange={handleSearchChange} />}
-      sidebar={<AnnouncementFiltersBar onApply={handleApply} onRestore={handleRestore} />}
+      sidebar={
+        <AnnouncementFiltersBar
+          userType={userType}
+          onApply={handleApply}
+          onRestore={handleRestore}
+        />
+      }
     />
   )
 }
