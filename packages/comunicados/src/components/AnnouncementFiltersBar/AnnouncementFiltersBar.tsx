@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import type { TypeUser } from '@portal/core'
 import { Button, DateInput, Field, Select, Text, type SelectOption } from '@portal/ui'
 
+import type { ClassFilterOption } from '../../services/destinationCatalogMappers'
 import { AnnouncementFiltersBarSkeleton } from './AnnouncementFiltersBarSkeleton'
 
 export interface AnnouncementFilters {
@@ -23,7 +24,7 @@ export interface AnnouncementFiltersBarProps {
   loading?: boolean
   cursoOptions?: SelectOption[]
   tipoOptions?: SelectOption[]
-  turmaOptions?: SelectOption[]
+  turmaOptions?: ClassFilterOption[]
   turnoOptions?: SelectOption[]
   periodoOptions?: SelectOption[]
   onApply?: (filters: AnnouncementFilters) => void
@@ -72,6 +73,8 @@ export function AnnouncementFiltersBar({
   const [dataInicio, setDataInicio] = useState('')
   const [dataFim, setDataFim] = useState('')
 
+  const isStudent = userType === 'STUDENT'
+
   const resolvedCursoOptions = useMemo(
     () => (cursoOptions.some((option) => option.value === 'todos') ? cursoOptions : withTodos(cursoOptions)),
     [cursoOptions],
@@ -93,6 +96,10 @@ export function AnnouncementFiltersBar({
 
     return withTodos(filtered)
   }, [curso, turno, turmaOptions])
+
+  if (loading) {
+    return <AnnouncementFiltersBarSkeleton userType={userType} />
+  }
 
   function handleCursoChange(value: string | null) {
     setCurso(value)
@@ -148,10 +155,25 @@ export function AnnouncementFiltersBar({
       <div className="mt-7 flex flex-col gap-4">
         {!isStudent ? (
           <>
-            <FilterSelect label="Curso" options={cursoOptions} value={curso} onChange={setCurso} />
+            <FilterSelect
+              label="Curso"
+              options={resolvedCursoOptions}
+              value={curso}
+              onChange={handleCursoChange}
+            />
             <FilterSelect label="Tipo" options={tipoOptions} value={tipo} onChange={setTipo} />
-            <FilterSelect label="Turma" options={turmaOptions} value={turma} onChange={setTurma} />
-            <FilterSelect label="Turno" options={turnoOptions} value={turno} onChange={setTurno} />
+            <FilterSelect
+              label="Turma"
+              options={filteredTurmaOptions}
+              value={turma}
+              onChange={setTurma}
+            />
+            <FilterSelect
+              label="Turno"
+              options={resolvedTurnoOptions}
+              value={turno}
+              onChange={handleTurnoChange}
+            />
           </>
         ) : null}
 

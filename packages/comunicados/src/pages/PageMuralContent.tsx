@@ -100,7 +100,7 @@ export interface PageMuralContentProps {
   userType?: TypeUser | undefined
 }
 
-export function PageMuralContent({ canCreate }: PageMuralContentProps) {
+export function PageMuralContent({ canCreate, userType }: PageMuralContentProps) {
   const catalog = useMuralFilterCatalog()
   const [activeFilters, setActiveFilters] = useState<AnnouncementFilters>({})
   const [searchQuery, setSearchQuery] = useState('')
@@ -137,6 +137,7 @@ export function PageMuralContent({ canCreate }: PageMuralContentProps) {
       toolbar={<AnnouncementSearchField value={searchQuery} onChange={setSearchQuery} />}
       sidebar={
         <AnnouncementFiltersBar
+          userType={userType}
           loading={catalog.loading}
           cursoOptions={catalog.courses}
           turmaOptions={catalog.classes}
