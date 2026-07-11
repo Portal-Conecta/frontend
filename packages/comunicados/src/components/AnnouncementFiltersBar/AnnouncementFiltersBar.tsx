@@ -2,9 +2,11 @@
 
 import { useMemo, useState } from 'react'
 
+import type { TypeUser } from '@portal/core'
 import { Button, DateInput, Field, Select, Text, type SelectOption } from '@portal/ui'
 
 import type { ClassFilterOption } from '../../services/destinationCatalogMappers'
+import { AnnouncementFiltersBarSkeleton } from './AnnouncementFiltersBarSkeleton'
 
 export interface AnnouncementFilters {
   curso?: string
@@ -17,6 +19,8 @@ export interface AnnouncementFilters {
 }
 
 export interface AnnouncementFiltersBarProps {
+  /** Papel do usuário autenticado — deriva a variante reduzida para `STUDENT`. */
+  userType?: TypeUser | undefined
   loading?: boolean
   cursoOptions?: SelectOption[]
   tipoOptions?: SelectOption[]
@@ -51,6 +55,7 @@ function normalize(value: string | null): string | undefined {
 }
 
 export function AnnouncementFiltersBar({
+  userType,
   loading = false,
   cursoOptions = [todosOption],
   tipoOptions = MURAL_TIPO_OPTIONS,
@@ -67,6 +72,8 @@ export function AnnouncementFiltersBar({
   const [periodo, setPeriodo] = useState<string | null>('todos')
   const [dataInicio, setDataInicio] = useState('')
   const [dataFim, setDataFim] = useState('')
+
+  const isStudent = userType === 'STUDENT'
 
   const resolvedCursoOptions = useMemo(
     () => (cursoOptions.some((option) => option.value === 'todos') ? cursoOptions : withTodos(cursoOptions)),
@@ -90,6 +97,10 @@ export function AnnouncementFiltersBar({
     return withTodos(filtered)
   }, [curso, turno, turmaOptions])
 
+  if (loading) {
+    return <AnnouncementFiltersBarSkeleton userType={userType} />
+  }
+
   function handleCursoChange(value: string | null) {
     setCurso(value)
     setTurma('todos')
@@ -109,10 +120,14 @@ export function AnnouncementFiltersBar({
     const normalizedTurno = normalize(turno)
     const normalizedPeriodo = normalize(periodo)
 
-    if (normalizedCurso) filters.curso = normalizedCurso
-    if (normalizedTipo) filters.tipo = normalizedTipo
-    if (normalizedTurma) filters.turma = normalizedTurma
-    if (normalizedTurno) filters.turno = normalizedTurno
+    // UX: aluno não envia curso/tipo/turma/turno — autorização real continua no BFF/backend.
+    if (!isStudent) {
+      if (normalizedCurso) filters.curso = normalizedCurso
+      if (normalizedTipo) filters.tipo = normalizedTipo
+      if (normalizedTurma) filters.turma = normalizedTurma
+      if (normalizedTurno) filters.turno = normalizedTurno
+    }
+
     if (normalizedPeriodo) filters.periodo = normalizedPeriodo
     if (dataInicio) filters.dataInicio = dataInicio
     if (dataFim) filters.dataFim = dataFim
@@ -138,41 +153,36 @@ export function AnnouncementFiltersBar({
       </Text>
 
       <div className="mt-7 flex flex-col gap-4">
-        <FilterSelect
-          label="Curso"
-          options={resolvedCursoOptions}
-          value={curso}
-          onChange={handleCursoChange}
-          disabled={loading}
-        />
-        <FilterSelect label="Tipo" options={tipoOptions} value={tipo} onChange={setTipo} disabled={loading} />
-        <FilterSelect
-          label="Turma"
-          options={filteredTurmaOptions}
-          value={turma}
-          onChange={setTurma}
-          disabled={loading}
-        />
-        <FilterSelect
-          label="Turno"
-          options={resolvedTurnoOptions}
-          value={turno}
-          onChange={handleTurnoChange}
-          disabled={loading}
-        />
-        <FilterSelect
-          label="Período"
-          options={periodoOptions}
-          value={periodo}
-          onChange={setPeriodo}
-          disabled={loading}
-        />
+        {!isStudent ? (
+          <>
+            <FilterSelect
+              label="Curso"
+              options={resolvedCursoOptions}
+              value={curso}
+              onChange={handleCursoChange}
+            />
+            <FilterSelect label="Tipo" options={tipoOptions} value={tipo} onChange={setTipo} />
+            <FilterSelect
+              label="Turma"
+              options={filteredTurmaOptions}
+              value={turma}
+              onChange={setTurma}
+            />
+            <FilterSelect
+              label="Turno"
+              options={resolvedTurnoOptions}
+              value={turno}
+              onChange={handleTurnoChange}
+            />
+          </>
+        ) : null}
+
+        <FilterSelect label="Período" options={periodoOptions} value={periodo} onChange={setPeriodo} />
 
         <div className="flex items-center justify-between gap-3">
           <DateInput
             value={dataInicio}
             onChange={setDataInicio}
-            disabled={loading}
             aria-label="Data inicial"
             {...(dataFim ? { max: dataFim } : {})}
           />
@@ -184,18 +194,17 @@ export function AnnouncementFiltersBar({
           <DateInput
             value={dataFim}
             onChange={setDataFim}
-            disabled={loading}
             aria-label="Data final"
             {...(dataInicio ? { min: dataInicio } : {})}
           />
         </div>
 
         <div className="grid grid-cols-2 gap-6 pt-4">
-          <Button variant="outlined" fullWidth onClick={handleRestore} disabled={loading}>
+          <Button variant="outlined" fullWidth onClick={handleRestore}>
             Restaurar
           </Button>
 
-          <Button fullWidth onClick={() => onApply?.(buildFilters())} loading={loading}>
+          <Button fullWidth onClick={() => onApply?.(buildFilters())}>
             Aplicar
           </Button>
         </div>
@@ -209,17 +218,15 @@ function FilterSelect({
   options,
   value,
   onChange,
-  disabled,
 }: {
   label: string
   options: SelectOption[]
   value: string | null
   onChange: (value: string | null) => void
-  disabled: boolean
 }) {
   return (
     <Field label={label}>
-      <Select options={options} value={value} onChange={onChange} placeholder="Todos" size="sm" disabled={disabled} />
+      <Select options={options} value={value} onChange={onChange} placeholder="Todos" size="sm" />
     </Field>
   )
 }
