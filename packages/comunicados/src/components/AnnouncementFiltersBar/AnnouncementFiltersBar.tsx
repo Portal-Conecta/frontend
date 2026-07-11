@@ -30,7 +30,24 @@ export interface AnnouncementFiltersBarProps {
   onRestore?: () => void
 }
 
-const todosOption: SelectOption[] = [{ value: 'todos', label: 'Todos' }]
+const todosOption: SelectOption = { value: 'todos', label: 'Todos' }
+
+export const MURAL_TIPO_OPTIONS: SelectOption[] = [
+  todosOption,
+  { value: 'aviso', label: 'Aviso' },
+  { value: 'evento', label: 'Evento' },
+]
+
+export const MURAL_PERIODO_OPTIONS: SelectOption[] = [
+  todosOption,
+  { value: 'hoje', label: 'Hoje' },
+  { value: 'semana', label: 'Esta semana' },
+  { value: 'mes', label: 'Este mês' },
+]
+
+function withTodos(options: SelectOption[]): SelectOption[] {
+  return [todosOption, ...options]
+}
 
 function normalize(value: string | null): string | undefined {
   return value && value !== 'todos' ? value : undefined
@@ -39,11 +56,11 @@ function normalize(value: string | null): string | undefined {
 export function AnnouncementFiltersBar({
   userType,
   loading = false,
-  cursoOptions = todosOption,
-  tipoOptions = todosOption,
-  turmaOptions = todosOption,
-  turnoOptions = todosOption,
-  periodoOptions = todosOption,
+  cursoOptions = [todosOption],
+  tipoOptions = MURAL_TIPO_OPTIONS,
+  turmaOptions = [],
+  turnoOptions = [todosOption],
+  periodoOptions = MURAL_PERIODO_OPTIONS,
   onApply,
   onRestore,
 }: AnnouncementFiltersBarProps) {
@@ -55,11 +72,37 @@ export function AnnouncementFiltersBar({
   const [dataInicio, setDataInicio] = useState('')
   const [dataFim, setDataFim] = useState('')
 
-  if (loading) {
-    return <AnnouncementFiltersBarSkeleton userType={userType} />
+  const resolvedCursoOptions = useMemo(
+    () => (cursoOptions.some((option) => option.value === 'todos') ? cursoOptions : withTodos(cursoOptions)),
+    [cursoOptions],
+  )
+  const resolvedTurnoOptions = useMemo(
+    () => (turnoOptions.some((option) => option.value === 'todos') ? turnoOptions : withTodos(turnoOptions)),
+    [turnoOptions],
+  )
+
+  const filteredTurmaOptions = useMemo(() => {
+    const selectedCurso = normalize(curso)
+    const selectedTurno = normalize(turno)
+
+    const filtered = turmaOptions.filter((option) => {
+      if (selectedCurso && option.courseId !== selectedCurso) return false
+      if (selectedTurno && option.shift !== selectedTurno) return false
+      return true
+    })
+
+    return withTodos(filtered)
+  }, [curso, turno, turmaOptions])
+
+  function handleCursoChange(value: string | null) {
+    setCurso(value)
+    setTurma('todos')
   }
 
-  const isStudent = userType === 'STUDENT'
+  function handleTurnoChange(value: string | null) {
+    setTurno(value)
+    setTurma('todos')
+  }
 
   function buildFilters(): AnnouncementFilters {
     const filters: AnnouncementFilters = {}

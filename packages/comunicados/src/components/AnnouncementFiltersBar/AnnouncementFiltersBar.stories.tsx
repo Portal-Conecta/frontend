@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react'
 
+<<<<<<< feature/#272-filtros-variante-alunos-skeleton
 import { AnnouncementFiltersBar } from './AnnouncementFiltersBar'
 
 const cursoOptions = [
@@ -35,6 +36,21 @@ const periodoOptions = [
   { value: 'hoje', label: 'Hoje' },
   { value: 'semana', label: 'Esta semana' },
   { value: 'mes', label: 'Este mês' },
+=======
+import { AnnouncementFiltersBar, MURAL_PERIODO_OPTIONS, MURAL_TIPO_OPTIONS } from './AnnouncementFiltersBar'
+import type { ClassFilterOption } from '../../services/destinationCatalogMappers'
+import { HUB_SHIFT_OPTIONS } from '../../constants/hubShifts'
+
+const cursoOptions = [
+  { value: 'course-ds', label: 'Desenvolvimento de Sistemas' },
+  { value: 'course-em', label: 'Eletromecânica' },
+]
+
+const turmaOptions: ClassFilterOption[] = [
+  { value: 'class-ds-2026', label: 'DS 2026', courseId: 'course-ds', shift: 'FULL_AM_PM' },
+  { value: 'class-ds-2027', label: 'DS 2027', courseId: 'course-ds', shift: 'FULL_PM_NT' },
+  { value: 'class-em-2026', label: 'EM 2026', courseId: 'course-em', shift: 'FULL_AM_PM' },
+>>>>>>> develop
 ]
 
 const meta: Meta<typeof AnnouncementFiltersBar> = {
@@ -43,10 +59,10 @@ const meta: Meta<typeof AnnouncementFiltersBar> = {
   parameters: { layout: 'padded' },
   args: {
     cursoOptions,
-    tipoOptions,
+    tipoOptions: MURAL_TIPO_OPTIONS,
     turmaOptions,
-    turnoOptions,
-    periodoOptions,
+    turnoOptions: HUB_SHIFT_OPTIONS,
+    periodoOptions: MURAL_PERIODO_OPTIONS,
   },
   decorators: [
     (Story) => (
@@ -60,6 +76,7 @@ const meta: Meta<typeof AnnouncementFiltersBar> = {
 export default meta
 type Story = StoryObj<typeof AnnouncementFiltersBar>
 
+<<<<<<< feature/#272-filtros-variante-alunos-skeleton
 export const Default: Story = {
   args: {
     userType: 'ADMIN',
@@ -73,6 +90,9 @@ export const VarianteAluno: Story = {
     loading: false,
   },
 }
+=======
+export const Default: Story = {}
+>>>>>>> develop
 
 export const Loading: Story = {
   args: {

@@ -12,7 +12,7 @@ export interface AnnouncementFile {
   s3Key: string
   s3Bucket: string
   processedS3Key?: string | null
-  /** URL de exibição — deve apontar ao bucket/path processed. */
+  /** URL assinada/pública para exibição — preferir este campo no UI. */
   displayUrl?: string | null
   contentType: string
   type: AnnouncementFileType
