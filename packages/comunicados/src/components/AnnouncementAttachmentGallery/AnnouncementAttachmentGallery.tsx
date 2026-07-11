@@ -26,7 +26,7 @@ export function AnnouncementAttachmentGallery({ files, className }: Announcement
   }
 
   const images = files.filter((f) => f.type === 'IMAGE' && resolveAnnouncementFileUrl(f))
-  const others = files.filter((f) => f.type !== 'IMAGE')
+  const others = files.filter((f) => f.type !== 'IMAGE' && resolveAnnouncementFileUrl(f))
   const overflowImage = images[4]
 
   return (
@@ -81,11 +81,12 @@ export function AnnouncementAttachmentGallery({ files, className }: Announcement
         <div className="flex flex-col gap-2">
           {others.map((file) => {
             const url = resolveAnnouncementFileUrl(file)
+            if (!url) return null
 
             return (
               <a
                 key={file.id}
-                href={url ?? undefined}
+                href={url}
                 target="_blank"
                 rel="noreferrer"
                 className="flex items-center gap-2 rounded-md border-sm bg-background-surface p-2 transition-colors hover:bg-background-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
