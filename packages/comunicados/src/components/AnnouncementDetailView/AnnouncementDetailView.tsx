@@ -11,25 +11,20 @@
  *  - Cabeçalho: status/origem, badge "Fixado", data de publicação, título
  *  - Corpo: texto completo do comunicado
  *  - Tags: lista de AnnouncementTag via átomo Tag
- *  - Anexos: documentos/vídeos (imagens ficam no bloco do topo)
+ *  - Anexos: documentos/vídeos — client island `AnnouncementDetailDocuments`
  *  - Ações: Link "Editar" (quando `canEdit`)
+ *
+ * Não importa `utils/announcementFile` aqui: o Webpack quebra named exports quando
+ * o Server Component e o Client filho compartilham o mesmo módulo.
  */
-import type {
-  AnnouncementDetail,
-  AnnouncementStatus,
-  AnnouncementTag,
-  AnnouncementFile,
-} from '../../types'
+import type { AnnouncementDetail, AnnouncementStatus, AnnouncementTag } from '../../types'
 import type { IconName, TagTone } from '@portal/ui'
 
 import Link from 'next/link'
 
-import { Icon, Tag, Text } from '@portal/ui'
+import { Tag, Text } from '@portal/ui'
 
-import {
-  getAnnouncementDocuments,
-  resolveAnnouncementFileUrl,
-} from '../../utils/announcementFile'
+import { AnnouncementDetailDocuments } from './AnnouncementDetailDocuments'
 import { AnnouncementDetailImages } from './AnnouncementDetailImages'
 
 export interface AnnouncementDetailViewProps {
@@ -66,17 +61,6 @@ function formatDate(value: string | null): string | null {
     hour: '2-digit',
     minute: '2-digit',
   }).format(date)
-}
-
-function fileIconName(file: AnnouncementFile): 'image-up' | 'newspaper' | 'eye' {
-  switch (file.type) {
-    case 'IMAGE':
-      return 'image-up'
-    case 'VIDEO':
-      return 'eye'
-    default:
-      return 'newspaper'
-  }
 }
 
 // ─── sub-seções ───────────────────────────────────────────────────────────────
@@ -145,40 +129,6 @@ function TagsSection({ tags }: { tags: AnnouncementTag[] }) {
   )
 }
 
-function DocumentsGallery({ files }: { files: AnnouncementFile[] }) {
-  const documents = getAnnouncementDocuments(files)
-  if (!documents.length) return null
-
-  return (
-    <section aria-label="Anexos do comunicado" className="flex flex-col gap-2">
-      <Text as="p" variant="label-sm" tone="secondary">
-        Anexos
-      </Text>
-      <ul className="flex flex-col gap-2">
-        {documents.map((file) => {
-          const url = resolveAnnouncementFileUrl(file)
-
-          return (
-            <li key={file.id}>
-              <a
-                href={url ?? undefined}
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center gap-2 rounded-md border-sm border-border-default bg-background-surface px-3 py-2 transition-colors hover:bg-background-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
-              >
-                <Icon name={fileIconName(file)} size="sm" tone="secondary" decorative />
-                <Text as="span" variant="label-sm" tone="secondary" className="truncate">
-                  {file.originalName}
-                </Text>
-              </a>
-            </li>
-          )
-        })}
-      </ul>
-    </section>
-  )
-}
-
 const editLinkClass =
   'inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 ' +
   'text-label-md-emphasis font-inter cursor-pointer transition-colors ' +
@@ -197,7 +147,7 @@ function Actions({
   if (!canEdit) return null
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
+    <div className="flex flex-wrap items-center gap-3 border-t-sm border-border-default pt-4">
       <Link href={`/comunicados/${announcementId}/editar`} className={editLinkClass}>
         Editar
       </Link>
@@ -220,7 +170,7 @@ export function AnnouncementDetailView({
       <Header detail={detail} />
       <Body description={detail.announcement.description} />
       <TagsSection tags={detail.tags} />
-      <DocumentsGallery files={detail.files} />
+      <AnnouncementDetailDocuments files={detail.files} />
       <Actions announcementId={detail.announcement.id} canEdit={canEdit} />
     </article>
   )

@@ -150,9 +150,9 @@ export function AnnouncementImageLightbox({
       tabIndex={-1}
       className="fixed inset-0 z-50 outline-none"
     >
-      {/* Scrim mais escuro que o overlay padrão — lightbox precisa de contraste forte. */}
+      {/* Contraste forte do lightbox: token de scrim com opacidade maior que o overlay padrão. */}
       <div
-        className="absolute inset-0 bg-black/85"
+        className="absolute inset-0 bg-background-overlay/85"
         aria-hidden="true"
         onClick={onClose}
       />
@@ -170,6 +170,7 @@ export function AnnouncementImageLightbox({
           onPointerUp={endDrag}
           onPointerCancel={endDrag}
         >
+          {/* URL do bucket processed — ver AnnouncementDetailImages. */}
           <img
             src={src}
             alt={alt}
