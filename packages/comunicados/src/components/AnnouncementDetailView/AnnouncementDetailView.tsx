@@ -11,6 +11,8 @@
  *  - Cabeçalho: status/origem, badge "Fixado", data de publicação, título
  *  - Corpo: texto completo do comunicado
  *  - Tags: lista de AnnouncementTag via átomo Tag
+ *  - Slot galeria: imagens via `displayUrl` (ou fallback S3) dos AnnouncementFile.
+ *  - Ações: Link "Voltar" (ghost/brand) e Link "Editar" (outlined/brand, condicional)
  *  - Anexos: documentos/vídeos — client island `AnnouncementDetailDocuments`
  *  - Ações: Link "Editar" (quando `canEdit`)
  *
@@ -27,6 +29,8 @@ import { Tag, Text } from '@portal/ui'
 
 import { AnnouncementDetailDocuments } from './AnnouncementDetailDocuments'
 import { AnnouncementDetailImages } from './AnnouncementDetailImages'
+
+import { resolveAnnouncementFileUrl } from '../../utils/announcementFile'
 
 export interface AnnouncementDetailViewProps {
   detail: AnnouncementDetail
@@ -129,6 +133,49 @@ function TagsSection({ tags }: { tags: AnnouncementTag[] }) {
     </section>
   )
 }
+
+const IMAGE_TYPE: AnnouncementFileType = 'IMAGE'
+
+function GallerySlot({ files }: { files: AnnouncementFile[] }) {
+  const imageFiles = files.filter(
+    (f: AnnouncementFile) => f.type === IMAGE_TYPE && resolveAnnouncementFileUrl(f),
+  )
+
+  if (!imageFiles.length) return null
+
+  return (
+    <section aria-label="Galeria de imagens" className="flex flex-col gap-2">
+      <Text as="p" variant="label-sm" tone="secondary">
+        Galeria
+      </Text>
+      <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        {imageFiles.map((file: AnnouncementFile) => {
+          const url = resolveAnnouncementFileUrl(file)
+          if (!url) return null
+
+          return (
+            <li key={file.id} className="overflow-hidden rounded-md">
+              <img
+                src={url}
+                alt={file.originalName}
+                className="aspect-video w-full object-cover"
+              />
+            </li>
+          )
+        })}
+      </ul>
+    </section>
+  )
+}
+
+// Estilos mapeados dos átomos Button (ghost/brand e outlined/brand) para Links.
+// Tailwind v4 não permite montar nomes dinamicamente, então estão escritos por extenso.
+const backLinkClass =
+  'inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 ' +
+  'text-label-md-emphasis font-inter cursor-pointer transition-colors ' +
+  'text-interactive-default hover:bg-interactive-subtle hover:text-interactive-hover ' +
+  'active:bg-interactive-subtle active:text-interactive-pressed ' +
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive-focus-ring focus-visible:ring-offset-2'
 
 const editLinkClass =
   'inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 ' +

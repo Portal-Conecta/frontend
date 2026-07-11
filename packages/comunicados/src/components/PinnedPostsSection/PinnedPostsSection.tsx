@@ -48,7 +48,21 @@ export function PinnedPostsSection({ posts }: PinnedPostsSectionProps) {
     (a, b) => getPinnedOrder(a) - getPinnedOrder(b) || getPostTime(b) - getPostTime(a),
   )
 
-  if (pinnedPosts.length === 0) return null
+  if (pinnedPosts.length === 0) {
+    return (
+      <section aria-labelledby="pinned-posts-title" className="w-full">
+        <Text id="pinned-posts-title" as="h2" variant="body-xl-emphasis" tone="brand">
+          Fixados
+        </Text>
+
+        <div className="mt-4 flex min-h-32 items-center justify-center px-4">
+          <Text as="p" variant="body-md" tone="secondary" className="text-center">
+            Não há comunicados fixados no momento
+          </Text>
+        </div>
+      </section>
+    )
+  }
 
   function handlePointerDown(event: PointerEvent<HTMLUListElement>) {
     const scroller = scrollerRef.current
