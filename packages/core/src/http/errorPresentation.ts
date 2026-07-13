@@ -11,6 +11,12 @@ import { mapStatusToKind, type HttpErrorKind } from './errors'
  */
 
 export interface ErrorPresentation {
+  /**
+   * Número exibido pelo `ErrorPage` — copy, não o status da resposta. `kind`
+   * agrupa faixas inteiras (`server` cobre 500/502/503/504), então o code é um
+   * rótulo fixo do grupo. O status real vive em `HttpError.status`; o status que
+   * a nossa camada devolve vem de `httpErrorStatus`.
+   */
   code: string
   title: string
   description: string
@@ -38,8 +44,8 @@ export const ERROR_PRESENTATION: Record<HttpErrorKind, ErrorPresentation> = {
     description: 'Verifique os dados informados e tente novamente',
   },
   server: {
-    code: '503',
-    title: 'Serviço Indisponível',
+    code: '500',
+    title: 'Erro interno do servidor',
     description: 'Algo deu errado do nosso lado. Tente novamente em alguns instantes',
   },
   network: {

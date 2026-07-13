@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { startTransition, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 import { Button, ErrorPage } from "@portal/ui";
 import { ERROR_PRESENTATION } from "@portal/core/http/errorPresentation";
@@ -15,15 +16,26 @@ import Image  from "next/image"
  */
 export default function Error({
   error,
+  reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-
+  const router = useRouter();
 
   useEffect(() => {
     console.error(error);
   }, [error]);
+
+  // `reset` sozinho só re-renderiza o boundary: o payload do servidor continua
+  // sendo o que falhou, então o erro estoura de novo e o botão parece morto.
+  // O `router.refresh()` refaz o render server-side antes do boundary tentar.
+  function handleRetry() {
+    startTransition(() => {
+      router.refresh();
+      reset();
+    });
+  }
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-20">
@@ -31,13 +43,13 @@ export default function Error({
         <ErrorPage {...ERROR_PRESENTATION.server}/>
         <Image
           src="/illustration-error.png"
-          alt="Ilustração de erro"
+          alt=""
           width={600}
           height={600}
-          className="h-auto w-[300px] md:w-[400px] lg:w-[500px]"
+          className="h-auto w-full max-w-[300px] md:max-w-md lg:max-w-lg"
         />
       </div>
-      <Button variant="solid" tone="brand" onClick={() => window.location.reload()}>
+      <Button variant="solid" tone="brand" onClick={handleRetry}>
         Tentar novamente
       </Button>
     </main>

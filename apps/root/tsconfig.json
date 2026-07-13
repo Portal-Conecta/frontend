@@ -26,10 +26,10 @@
     "noEmit": true,
     "isolatedModules": true
   },
-  "include": ["src", "next-env.d.ts", ".next/types/**/*.ts", "../../packages/ui/src/hooks/useOnlineStatus.ts"],
+  "include": ["src", "next-env.d.ts", ".next/types/**/*.ts"],
   "exclude": ["node_modules"],
   "references": [
-    { "path": "../../packages/shared" },
+    { "path": "../../packages/shared" },  
     { "path": "../../packages/ui" },
     { "path": "../../packages/core" },
     { "path": "../../packages/comunicados" },
