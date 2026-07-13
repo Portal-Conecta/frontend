@@ -23,6 +23,11 @@ const meta = {
       options: tones,
       description: 'Cor semântica, vinda de token. Default `brand`.',
     },
+    size: {
+      control: 'inline-radio',
+      options: ['md', 'sm', 'xs'],
+      description: 'Tamanho do botão. Default `md` (16px emphasis); `sm` = 12px; `xs` = 12px + caixa reduzida.',
+    },
     icon: {
       control: 'select',
       options: iconOptions,
@@ -90,6 +95,15 @@ export const WithIcon: Story = {
 /** `size="sm"`: label 12px regular (`label-xs`) — botões compactos dos menus de ação (Figma). */
 export const Small: Story = {
   args: { size: 'sm', variant: 'outlined', iconLeft: 'pin', children: 'Fixar' },
+}
+
+/**
+ * `size="xs"`: caixa reduzida (padding `p-2` + glifo 16px). Modo icon-only
+ * compacto das ações de comunicados no mobile, onde ~44px não cabe na linha.
+ * Aprovado pela squad de Front-End como tamanho do DS.
+ */
+export const ExtraSmall: Story = {
+  args: { size: 'xs', variant: 'outlined', icon: 'pin', children: undefined, 'aria-label': 'Fixar' },
 }
 
 /** Icon-only: sem `children`, com `icon` + `aria-label` obrigatório. */
