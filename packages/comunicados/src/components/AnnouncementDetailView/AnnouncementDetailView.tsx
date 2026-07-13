@@ -2,23 +2,30 @@
  * AnnouncementDetailView — layout de leitura completa de um comunicado.
  *
  * Server Component: não usa `useState`, `useEffect` nem event handlers diretos.
- * Os botões de ação (Voltar / Editar) são `<Link>` estilizados com as classes do
- * átomo `Button`, mantendo SSR e navegação nativa.
+ * O botão "Editar" é um `<Link>` estilizado com as classes do átomo `Button`,
+ * mantendo SSR e navegação nativa.
  *
  * Seções:
- *  - Cabeçalho: tags de status/origem, badge "Fixado", data de publicação, título
+ *  - Imagens: thumbnail grande + miniaturas — client island `AnnouncementDetailImages`
+ *  - Cabeçalho: status/origem, badge "Fixado", criador, data de publicação, título
  *  - Corpo: texto completo do comunicado
  *  - Tags: lista de AnnouncementTag via átomo Tag
- *  - Slot galeria: lista de AnnouncementFile (imagens). Exibe nomes de arquivo com
- *    ícone enquanto não há URLs assinadas do S3 disponíveis.
- *  - Ações: Link "Voltar" (ghost/brand) e Link "Editar" (outlined/brand, condicional)
+ *  - Anexos: documentos/vídeos — client island `AnnouncementDetailDocuments`
+ *  - Ações: Link "Editar" (quando `canEdit`)
+ *
+ * Não importa `utils/announcementFile` aqui: o Webpack do Next entrega named
+ * exports como `undefined` nesse grafo (Server + Client). Helpers ficam em
+ * `./fileDisplay` nos client islands.
  */
-import type { AnnouncementDetail, AnnouncementStatus, AnnouncementTag, AnnouncementFile, AnnouncementFileType } from '../../types'
+import type { AnnouncementDetail, AnnouncementStatus, AnnouncementTag } from '../../types'
 import type { IconName, TagTone } from '@portal/ui'
 
 import Link from 'next/link'
 
-import { Icon, Tag, Text } from '@portal/ui'
+import { Tag, Text } from '@portal/ui'
+
+import { AnnouncementDetailDocuments } from './AnnouncementDetailDocuments'
+import { AnnouncementDetailImages } from './AnnouncementDetailImages'
 
 export interface AnnouncementDetailViewProps {
   detail: AnnouncementDetail
@@ -27,10 +34,8 @@ export interface AnnouncementDetailViewProps {
    * comunicados ser implementado.
    */
   canEdit?: boolean
-  /**
-   * href para o link "Voltar". Default: `/comunicados`.
-   */
-  backHref?: string
+  /** Nome do usuário criador (resolvido via Hub a partir de `createdByUserId`). */
+  creatorName?: string
 }
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
@@ -62,14 +67,19 @@ function formatDate(value: string | null): string | null {
 
 // ─── sub-seções ───────────────────────────────────────────────────────────────
 
-function Header({ detail }: { detail: AnnouncementDetail }) {
+function Header({
+  detail,
+  creatorName,
+}: {
+  detail: AnnouncementDetail
+  creatorName?: string
+}) {
   const { announcement } = detail
   const status = statusConfig[announcement.status]
   const dateLabel = formatDate(announcement.publishedAt ?? announcement.scheduledFor)
 
   return (
     <header className="flex flex-col gap-3">
-      {/* Badges de meta */}
       <div className="flex flex-wrap items-center gap-2">
         {status ? (
           <Tag tone={status.tone} size="sm" icon={status.icon}>
@@ -84,6 +94,11 @@ function Header({ detail }: { detail: AnnouncementDetail }) {
             Fixado
           </Tag>
         ) : null}
+        {creatorName ? (
+          <Tag tone="neutral" size="sm" icon="user">
+            {creatorName}
+          </Tag>
+        ) : null}
         {dateLabel ? (
           <Text as="span" variant="label-xs" tone="secondary" className="whitespace-nowrap">
             {dateLabel}
@@ -91,7 +106,6 @@ function Header({ detail }: { detail: AnnouncementDetail }) {
         ) : null}
       </div>
 
-      {/* Título */}
       <Text as="h1" variant="heading-h2" tone="primary">
         {announcement.title}
       </Text>
@@ -128,49 +142,6 @@ function TagsSection({ tags }: { tags: AnnouncementTag[] }) {
   )
 }
 
-const IMAGE_TYPE: AnnouncementFileType = 'IMAGE'
-
-function GallerySlot({ files }: { files: AnnouncementFile[] }) {
-  const imageFiles = files.filter((f: AnnouncementFile) => f.type === IMAGE_TYPE)
-
-  if (!imageFiles.length) return null
-
-  return (
-    <section aria-label="Galeria de imagens" className="flex flex-col gap-2">
-      <Text as="p" variant="label-sm" tone="secondary">
-        Galeria
-      </Text>
-      {/*
-       * Slot de galeria: exibe nomes de arquivo com ícone enquanto não há URLs
-       * assinadas do S3. Substituir por <img> quando o BFF expor as URLs.
-       * Ícone `newspaper` é o mais próximo disponível no registry atual do DS.
-       */}
-      <ul className="flex flex-col gap-1">
-        {imageFiles.map((file: AnnouncementFile) => (
-          <li
-            key={file.id}
-            className="flex items-center gap-2 rounded-md border-sm border-border-default bg-background-surface px-3 py-2"
-          >
-            <Icon name="newspaper" size="sm" tone="secondary" decorative />
-            <Text as="span" variant="label-sm" tone="secondary" className="truncate">
-              {file.originalName}
-            </Text>
-          </li>
-        ))}
-      </ul>
-    </section>
-  )
-}
-
-// Estilos mapeados dos átomos Button (ghost/brand e outlined/brand) para Links.
-// Tailwind v4 não permite montar nomes dinamicamente, então estão escritos por extenso.
-const backLinkClass =
-  'inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 ' +
-  'text-label-md-emphasis font-inter cursor-pointer transition-colors ' +
-  'text-interactive-default hover:bg-interactive-subtle hover:text-interactive-hover ' +
-  'active:bg-interactive-subtle active:text-interactive-pressed ' +
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive-focus-ring focus-visible:ring-offset-2'
-
 const editLinkClass =
   'inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 ' +
   'text-label-md-emphasis font-inter cursor-pointer transition-colors ' +
@@ -182,24 +153,17 @@ const editLinkClass =
 function Actions({
   announcementId,
   canEdit,
-  backHref,
 }: {
   announcementId: string
   canEdit: boolean
-  backHref: string
 }) {
+  if (!canEdit) return null
+
   return (
     <div className="flex flex-wrap items-center gap-3 border-t-sm border-border-default pt-4">
-      {/* chevrons-left é o ícone disponível no DS mais próximo de "voltar" */}
-      <Link href={backHref} className={backLinkClass}>
-        <Icon name="chevrons-left" size="sm" decorative />
-        Voltar
+      <Link href={`/comunicados/${announcementId}/editar`} className={editLinkClass}>
+        Editar
       </Link>
-      {canEdit ? (
-        <Link href={`/comunicados/${announcementId}/editar`} className={editLinkClass}>
-          Editar
-        </Link>
-      ) : null}
     </div>
   )
 }
@@ -209,22 +173,19 @@ function Actions({
 export function AnnouncementDetailView({
   detail,
   canEdit = false,
-  backHref = '/comunicados',
+  creatorName,
 }: AnnouncementDetailViewProps) {
   return (
     <article
-      className="flex flex-col gap-6 rounded-md border-sm border-border-default bg-background-surface p-6"
+      className="flex flex-col gap-6 rounded-md border-none bg-background-surface"
       aria-label={`Comunicado: ${detail.announcement.title}`}
     >
-      <Header detail={detail} />
+      <AnnouncementDetailImages files={detail.files} />
+      <Header detail={detail} {...(creatorName ? { creatorName } : {})} />
       <Body description={detail.announcement.description} />
       <TagsSection tags={detail.tags} />
-      <GallerySlot files={detail.files} />
-      <Actions
-        announcementId={detail.announcement.id}
-        canEdit={canEdit}
-        backHref={backHref}
-      />
+      <AnnouncementDetailDocuments files={detail.files} />
+      <Actions announcementId={detail.announcement.id} canEdit={canEdit} />
     </article>
   )
 }

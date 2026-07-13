@@ -17,7 +17,7 @@ export async function PageMural() {
           Mural de Comunicados
         </Text>
 
-        <PageMuralContent canCreate={canCreate} />
+        <PageMuralContent canCreate={canCreate} userType={user?.userType} />
       </div>
     </AppShell>
   )
