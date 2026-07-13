@@ -16,6 +16,38 @@ import { Icon, type IconName } from '../Icon'
 
 export type ButtonVariant = 'solid' | 'outlined' | 'ghost' | 'link'
 export type ButtonTone = 'brand' | 'positive' | 'negative'
+export type ButtonSize = 'md' | 'sm' | 'xs'
+
+// Tipografia por tamanho. `sm` espelha os botões compactos do Figma (menus de
+// ação de comunicados): label 12px regular (`label-xs`), mesmo padding do `md`.
+// `xs` reduz também a caixa (padding + glifo) — usado no modo icon-only compacto,
+// onde ~44px não cabe em larguras estreitas.
+const sizeClass: Record<ButtonSize, string> = {
+  md: 'text-label-md-emphasis',
+  sm: 'text-label-xs',
+  xs: 'text-label-xs',
+}
+
+// Padding por tamanho, separado por modo (icon-only vs rotulado). Todos os
+// valores caem na escala de spacing do DS (2 = 8px, 3 = 12px, 4 = 16px).
+const iconOnlyPadClass: Record<ButtonSize, string> = {
+  md: 'p-2.5',
+  sm: 'p-2.5',
+  xs: 'p-2',
+}
+const labeledPadClass: Record<ButtonSize, string> = {
+  md: 'px-4 py-2',
+  sm: 'px-4 py-2',
+  xs: 'px-3 py-2',
+}
+
+// Glifo do modo icon-only por tamanho: `xs` desce pra 16px (sm) pra fechar a
+// caixa de ~32px.
+const iconOnlyGlyph: Record<ButtonSize, 'md' | 'sm'> = {
+  md: 'md',
+  sm: 'md',
+  xs: 'sm',
+}
 
 // Combinação (variant × tone) → classes literais. Tailwind v4 purga nomes
 // montados dinamicamente, então cada combinação fica escrita por extenso.
@@ -80,6 +112,8 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
   variant?: ButtonVariant
   /** Cor semântica, vinda de token. Default `brand`. */
   tone?: ButtonTone
+  /** Tamanho do botão. Default `md` (16px emphasis); `sm` = 12px regular; `xs` = 12px + caixa reduzida. */
+  size?: ButtonSize
   /** Ícone do modo icon-only (sem `children`). Exige `aria-label`. */
   icon?: IconName
   /** Ícone à esquerda do label (do set aprovado do DS). */
@@ -95,13 +129,14 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
 }
 
 const base =
-  'inline-flex items-center justify-center gap-2 text-label-md-emphasis font-inter cursor-pointer transition-colors ' +
+  'inline-flex items-center justify-center gap-2 font-inter cursor-pointer transition-colors ' +
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ' +
   'disabled:cursor-not-allowed'
 
 export function Button({
   variant = 'solid',
   tone = 'brand',
+  size = 'md',
   icon,
   iconLeft,
   iconRight,
@@ -124,10 +159,13 @@ export function Button({
   // Forma da caixa: `link` é texto puro; os demais têm raio + padding (quadrado
   // no icon-only para preservar o alvo de toque).
   const shape =
-    variant === 'link' ? 'rounded-sm' : `rounded-md ${isIconOnly ? 'p-2.5' : 'px-4 py-2'}`
+    variant === 'link'
+      ? 'rounded-sm'
+      : `rounded-md ${isIconOnly ? iconOnlyPadClass[size] : labeledPadClass[size]}`
 
   const classes = [
     base,
+    sizeClass[size],
     shape,
     variantToneClass[variant][tone],
     focusRingClass[tone],
@@ -147,7 +185,7 @@ export function Button({
       {...rest}
     >
       {isIconOnly ? (
-        <Icon name={loading ? 'loading-circle' : icon!} size="md" decorative />
+        <Icon name={loading ? 'loading-circle' : icon!} size={iconOnlyGlyph[size]} decorative />
       ) : (
         <>
           {loading ? (
