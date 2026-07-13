@@ -22,7 +22,7 @@ const http = createHttpClient('API_GATEWAY_URL')
 
 /** Lista o mural de comunicados (`GET /api/posts`), paginado. */
 export async function listPosts(
-  params: ListPostsParams = {},
+  params: ListPostsParams | QueryParams = {},
 ): Promise<ListAnnouncementsResponse> {
   return http.get<ListAnnouncementsResponse>(comunicadosGatewayPath('/api/posts'), {
     params: params as QueryParams,

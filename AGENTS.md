@@ -4,9 +4,9 @@ Ponto de entrada para agentes e desenvolvedores. Leia antes de qualquer implemen
 
 **Stack:** Next.js 15 · React 19 · TypeScript estrito · Tailwind CSS v4 · pnpm workspaces
 
-→ [Índice de docs](docs/README.md) · [Índice de ADRs](docs/adr/README.md) · [Commits, branches e PR](CONTRIBUTING.md)
+→ [Índice de docs](docs/README.md) · [Índice de ADRs](docs/adr/README.md) · [Commits, branches e PR](CONTRIBUTING.md) · [Rubric de revisão de PR](REVISION.md)
 
-**Antes de delegar a um agente, leia os guardrails:** [Context pack](docs/ai/ai-context.md) · [Definition of Done](docs/ai/definition-of-done.md) · [Como usar IA](docs/ai/como-usar-ia.md) · [Code review por IA](docs/ai/code-review.md)
+**Antes de delegar a um agente, leia os guardrails:** [Context pack](docs/ai/ai-context.md) · [Definition of Done](docs/ai/definition-of-done.md) · [Como usar IA](docs/ai/como-usar-ia.md) · [Rubric de revisão de PR](REVISION.md)
 
 **AGENTS por domínio:** [checklist](packages/checklist/AGENTS.md) · [comunicados](packages/comunicados/AGENTS.md) · [mapa-salas](packages/mapa-salas/AGENTS.md)
 
@@ -103,6 +103,7 @@ export function LoginForm() {
 
 | Item | Localização | O que falta |
 |---|---|---|
+| Chromatic (visual regression) desativado temporariamente | `.github/workflows/chromatic.yml` · proteção da branch `develop` | Incidente no Capture Cloud do Chromatic em 2026-07-10 (status.chromatic.com) deixou builds presos em "Running N tests" indefinidamente, travando a fila de Actions do repo. Trigger trocado de `push` para `workflow_dispatch` manual **e** `Visual Regression` removido dos status checks obrigatórios da `develop` (senão toda PR fica travada esperando um check que nunca roda) — checks obrigatórios hoje: `Lint`, `Type Check`, `Build`. **Reverter (os dois juntos):** conferir que status.chromatic.com voltou a "operational"; restaurar o bloco `on: push` comentado no próprio arquivo (branches `feature/**` e `develop`); devolver `Visual Regression` aos required status checks da `develop` (Settings → Branches → develop, ou `gh api repos/Portal-Conecta/frontend/branches/develop/protection/required_status_checks -X PATCH -f contexts[]='Lint' -f contexts[]='Type Check' -f contexts[]='Build' -f contexts[]='Visual Regression'`); remover esta linha. |
 | `Button` sem `tone="overlay"` | `packages/ui/src/atoms/Button/Button.tsx` | Variante para fundo colorido — override pontual em `PageLogin` com `className` |
 | `body/sm-emphasis` font family | `scripts/sync-tokens.ts` | Correção hardcoded no script — depende de ajuste no Figma DS |
 | Focus-trap inline na `Sidebar` | `packages/ui/src/organisms/Sidebar/Sidebar.tsx` | Bug de re-render já corrigido (`onToggle` em ref, efeito só depende de `expanded`). Falta extrair `useDrawerFocusTrap(panelRef, { active, onClose })` — isola a11y do layout e abre para teste (DoD [#105](https://github.com/Portal-Conecta/frontend/issues/105)) |

@@ -1,4 +1,3 @@
-
 export * from './AnnouncementCard'
 export * from './AnnouncementsBoard'
 export * from './AnnouncementAttachmentGallery'
@@ -13,3 +12,6 @@ export * from './EditBlockedFieldsHint'
 export * from './PinnedPostsSection'
 export * from './AnnouncementCardSkeleton'
 export * from './AnnouncementDetailView'
+export * from './ComunicadosEmptyState'
+export * from './AnnouncementFeed'
+export * from './AnnouncementSearchField'

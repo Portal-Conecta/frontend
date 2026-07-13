@@ -1,44 +1,35 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import type { AnnouncementDetail, AnnouncementResponse } from '../../types/announcement'
+import type { AnnouncementSummary } from '../../types/announcement'
 
 import { PinnedPostsSection } from './PinnedPostsSection'
 
-function makeDetail(
-  announcement: Partial<AnnouncementResponse> & Pick<AnnouncementResponse, 'id' | 'title'>,
-): AnnouncementDetail {
+function makeSummary(
+  partial: Partial<AnnouncementSummary> & Pick<AnnouncementSummary, 'id' | 'title'>,
+): AnnouncementSummary {
   return {
-    announcement: {
-      description: 'Comunicado fixado exibido no topo do mural.',
-      origin: 'SENAI',
-      status: 'PUBLISHED',
-      pinned: true,
-      pinnedOrder: null,
-      createdByUserId: 'u-1',
-      publishedByUserId: 'u-1',
-      scheduledFor: null,
-      publishedAt: '2026-06-02T12:00:00.000Z',
-      removedAt: null,
-      createdAt: '2026-06-02T12:00:00.000Z',
-      updatedAt: '2026-06-02T12:00:00.000Z',
-      ...announcement,
-    },
-    destinations: [],
-    files: [],
-    tags: [],
-    mentions: [],
+    description: 'Comunicado fixado exibido no topo do mural.',
+    origin: 'SENAI',
+    status: 'PUBLISHED',
+    pinned: true,
+    pinnedOrder: null,
+    scheduledFor: null,
+    publishedAt: '2026-06-02T12:00:00.000Z',
+    createdAt: '2026-06-02T12:00:00.000Z',
+    thumbnailUrl: null,
+    ...partial,
   }
 }
 
-const posts: AnnouncementDetail[] = [
-  makeDetail({ id: 'fixado-1', title: 'Título da publicação', pinnedOrder: 1 }),
-  makeDetail({
+const posts: AnnouncementSummary[] = [
+  makeSummary({ id: 'fixado-1', title: 'Título da publicação', pinnedOrder: 1 }),
+  makeSummary({
     id: 'fixado-2',
     title: 'Título da publicação',
     pinnedOrder: 2,
     origin: 'WEG',
   }),
-  makeDetail({ id: 'fixado-3', title: 'Título da publicação', pinnedOrder: 3 }),
-  makeDetail({
+  makeSummary({ id: 'fixado-3', title: 'Título da publicação', pinnedOrder: 3 }),
+  makeSummary({
     id: 'fixado-4',
     title: 'Título da publicação',
     pinnedOrder: 4,

@@ -1,3 +1,4 @@
 export * from './components'
 export * from './types'
-export * from './auth/canViewRoomMap'
+export * from './services/mapaSalaGateway'
+export * from './auth/canEditRoomMap'

@@ -1,73 +1,116 @@
-import type { UnassignedStudent } from './student'
+// ── Enum runtime (espelha LayoutPositionType do back) ──────────────────────
 
-/**
- * DÍVIDA DE CONTRATO: `RoomMapGrid`/`RoomMapAllocation` são provisórios. O
- * `mapa-sala-backend` não está disponível neste ambiente para confirmar os
- * campos exatos contra o Swagger — confirmar com o Tech Lead de Mapa de Sala
- * antes de consumir em produção (ver tabela de dívidas técnicas no AGENTS.md).
- */
-export interface RoomMapGrid {
+export const LAYOUT_POSITION_TYPE = {
+  STUDENT: 'STUDENT',
+  TEACHER: 'TEACHER',
+  EQUIPMENT: 'EQUIPMENT',
+  OBSTACLE: 'OBSTACLE',
+} as const
+
+export type LayoutPositionType = (typeof LAYOUT_POSITION_TYPE)[keyof typeof LAYOUT_POSITION_TYPE]
+
+// ── Grid (base do PR #237, sem alteração no tipo) ──────────────────────────
+
+export type RoomMapGridPosition = {
+  layoutPositionId: string
+  /** null para qualquer type que não seja STUDENT */
+  seatNumber: number | null
+  positionX: number
+  positionY: number
+  type: LayoutPositionType
+}
+
+export type RoomMapGrid = {
   rows: number
   columns: number
+  totalSeats: number
+  positions: RoomMapGridPosition[]
 }
 
-/** Vínculo de um aluno a um assento do grid. Provisório — ver nota acima. */
-export interface RoomMapAllocation {
-  seatId: string
+// ── Mapa ────────────────────────────────────────────────────────────────────
+// Espelha RoomMapResponse do back (id, classId, roomId, layoutTemplateId).
+
+export type RoomMap = {
+  id: string
+  classId: string
+  roomId: string
+  layoutTemplateId: string
+}
+
+// ── Alocação ────────────────────────────────────────────────────────────────
+// Espelha RoomMapAllocationResponse.
+// NOTA: campos seguem o nome do back (studentId/studentName).
+// O mapeamento para UnassignedStudent (id/name) fica no service/hook.
+
+export type RoomMapAllocation = {
   studentId: string
+  studentName: string
+  seatNumber: number
+  layoutPositionId: string
 }
 
-/** Mapa salvo de uma sala/turma: grid de assentos + alocações. */
-export interface RoomMap {
+// ── Wire de não-alocado ────────────────────────────────────────────────────
+/** Wire do back — mapear para `UnassignedStudent` (id/name) no service. */
+export type UnassignedStudentDto = {
+  studentId: string
+  studentName: string
+}
+
+// ── View (union discriminada) ──────────────────────────────────────────────
+// Espelha RoomMapViewResponse.
+// O back valida: suggested=true → map=null; suggested=false → map obrigatório.
+// A union garante isso em nível de tipo.
+
+type RoomMapViewBase = {
   grid: RoomMapGrid
   allocations: RoomMapAllocation[]
+  /** Campo singular no back mas é uma lista. */
+  unassignedStudent: UnassignedStudentDto[]
 }
 
-interface RoomMapViewBase {
-  unassignedStudent: UnassignedStudent[]
-}
+export type RoomMapView =
+  | (RoomMapViewBase & { suggested: true; map: null })
+  | (RoomMapViewBase & { suggested: false; map: RoomMap })
 
-/** Turma sem mapa salvo — back não retorna `map`; a tela sugere alfabeticamente. */
-export interface RoomMapViewSuggested extends RoomMapViewBase {
-  suggested: true
-}
+// ── Summary ─────────────────────────────────────────────────────────────────
+// Espelha RoomMapSummaryResponse.
+// NOTA: O back usa `salaId` neste DTO, enquanto RoomMapResponse usa `roomId`.
+// Isso é divergência real do back — não é typo.
 
-/** Turma com mapa salvo — back retorna `map` preenchido. */
-export interface RoomMapViewSaved extends RoomMapViewBase {
-  suggested: false
-  map: RoomMap
-}
-
-/**
- * Resposta de `GET /api/mapas/salas/{salaId}/turmas/{turmaId}`. União
- * discriminada em `suggested`: só o branch `false` tem `map`, refletindo o
- * contrato do back ("suggested=true vem sem map").
- */
-export type RoomMapViewResponse = RoomMapViewSuggested | RoomMapViewSaved
-
-/**
- * Item da listagem paginada de mapas. Campos alinhados ao path
- * `salas/{salaId}/turmas/{turmaId}` usado no restante da API — os demais
- * campos (nome da sala, atualizado em, etc.) são dívida de contrato, ver nota
- * de `RoomMapGrid` acima.
- */
-export interface RoomMapSummary {
+export type RoomMapSummary = {
   id: string
+  classId: string
   salaId: string
-  turmaId: string
+  createdAt: string
+  updatedAt: string
 }
 
-/** Paginação de `GET /api/mapas`. */
-export interface ListRoomMapsResponse {
-  items: RoomMapSummary[]
+// ── Histórico ───────────────────────────────────────────────────────────────
+// Espelha RoomMapHistoryResponse.
+
+export type RoomMapHistory = {
+  id: string
+  roomMapId: string
+  userId: string
+  action: string
+  details: string
+  createdAt: string
+}
+
+// ── Paginação (seguindo padrão ListAnnouncementsResponse do comunicados) ────
+
+export type RoomMapPageResponse = {
+  content: RoomMapSummary[]
   page: number
   size: number
   totalElements: number
   totalPages: number
 }
 
-/** Query de `GET /api/mapas` — `page` é zero-based no back. */
-export interface ListRoomMapsParams {
-  page?: number
-  size?: number
+export type RoomMapHistoryPageResponse = {
+  content: RoomMapHistory[]
+  page: number
+  size: number
+  totalElements: number
+  totalPages: number
 }
