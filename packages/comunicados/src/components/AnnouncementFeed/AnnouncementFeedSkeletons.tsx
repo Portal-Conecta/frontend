@@ -4,22 +4,22 @@ import { Skeleton } from '@portal/ui'
 export function AnnouncementFeedItemSkeleton() {
   return (
     <div
-      className="flex items-center gap-4 border-b border-border-default py-4 md:grid md:grid-cols-2 md:gap-4 md:py-6"
+      className="flex w-full items-center gap-6 border-b border-border-default px-3 py-6 md:grid md:grid-cols-2 md:gap-4 md:px-0"
       aria-hidden="true"
     >
       <div className="min-w-0 flex-1">
-        <Skeleton variant="text" width="70%" height={24} />
+        <Skeleton variant="text" width="70%" height={20} />
         <div className="mt-4 hidden md:block">
           <Skeleton variant="text" count={2} />
         </div>
-        <div className="mt-2 md:mt-6">
+        <div className="mt-3 md:mt-6">
           <Skeleton variant="text" width={140} height={14} />
         </div>
       </div>
 
       <Skeleton
         variant="rect"
-        className="h-24 w-24 shrink-0 rounded-md md:aspect-video md:h-auto md:w-full"
+        className="h-28 w-32 shrink-0 rounded-md md:aspect-video md:h-auto md:w-full"
       />
     </div>
   )
