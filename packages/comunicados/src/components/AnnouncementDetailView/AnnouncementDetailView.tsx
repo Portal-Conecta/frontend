@@ -6,9 +6,8 @@
  * mantendo SSR e navegação nativa.
  *
  * Seções:
- *  - Imagens: thumbnail grande + miniaturas (clique troca a principal)
- *    — client island `AnnouncementDetailImages`
- *  - Cabeçalho: status/origem, badge "Fixado", data de publicação, título
+ *  - Imagens: thumbnail grande + miniaturas — client island `AnnouncementDetailImages`
+ *  - Cabeçalho: status/origem, badge "Fixado", criador, data de publicação, título
  *  - Corpo: texto completo do comunicado
  *  - Tags: lista de AnnouncementTag via átomo Tag
  *  - Anexos: documentos/vídeos — client island `AnnouncementDetailDocuments`
@@ -35,6 +34,8 @@ export interface AnnouncementDetailViewProps {
    * comunicados ser implementado.
    */
   canEdit?: boolean
+  /** Nome do usuário criador (resolvido via Hub a partir de `createdByUserId`). */
+  creatorName?: string
 }
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
@@ -66,7 +67,13 @@ function formatDate(value: string | null): string | null {
 
 // ─── sub-seções ───────────────────────────────────────────────────────────────
 
-function Header({ detail }: { detail: AnnouncementDetail }) {
+function Header({
+  detail,
+  creatorName,
+}: {
+  detail: AnnouncementDetail
+  creatorName?: string
+}) {
   const { announcement } = detail
   const status = statusConfig[announcement.status]
   const dateLabel = formatDate(announcement.publishedAt ?? announcement.scheduledFor)
@@ -85,6 +92,11 @@ function Header({ detail }: { detail: AnnouncementDetail }) {
         {announcement.pinned ? (
           <Tag tone="info" size="sm" icon="bell">
             Fixado
+          </Tag>
+        ) : null}
+        {creatorName ? (
+          <Tag tone="neutral" size="sm" icon="user">
+            {creatorName}
           </Tag>
         ) : null}
         {dateLabel ? (
@@ -161,6 +173,7 @@ function Actions({
 export function AnnouncementDetailView({
   detail,
   canEdit = false,
+  creatorName,
 }: AnnouncementDetailViewProps) {
   return (
     <article
@@ -168,7 +181,7 @@ export function AnnouncementDetailView({
       aria-label={`Comunicado: ${detail.announcement.title}`}
     >
       <AnnouncementDetailImages files={detail.files} />
-      <Header detail={detail} />
+      <Header detail={detail} {...(creatorName ? { creatorName } : {})} />
       <Body description={detail.announcement.description} />
       <TagsSection tags={detail.tags} />
       <AnnouncementDetailDocuments files={detail.files} />

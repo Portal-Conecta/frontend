@@ -42,6 +42,13 @@ function isUsableImage(file: AnnouncementFile): boolean {
   return Boolean(resolveAnnouncementFileUrl(file))
 }
 
+/** Miniatura do mural: `isThumbnail`, senão a primeira imagem utilizável. */
+export function pickThumbnailUrl(files: readonly AnnouncementFile[]): string | null {
+  const images = files.filter(isUsableImage)
+  const thumbnail = images.find((file) => file.isThumbnail) ?? images[0]
+  return thumbnail ? resolveAnnouncementFileUrl(thumbnail) : null
+}
+
 /** Imagens exibíveis, thumbnail primeiro. */
 export function getAnnouncementImages(files: readonly AnnouncementFile[]): AnnouncementFile[] {
   const images = files.filter(isUsableImage)

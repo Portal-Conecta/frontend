@@ -1,7 +1,14 @@
-import { AnnouncementCardSkeleton, AnnouncementPinnedCardSkeleton } from '@portal/comunicados'
+import {
+  AnnouncementFeedItemSkeleton,
+  AnnouncementPinnedSkeleton,
+} from '@portal/comunicados'
 import { AppShell } from '@portal/core'
 import { Skeleton, Text } from '@portal/ui'
 
+/**
+ * Loading de navegação (Suspense) — espelha o layout de skeleton do AnnouncementFeed
+ * (fixados em faixa horizontal + lista com thumbnail).
+ */
 export default function LoadingComunicadosPage() {
   return (
     <AppShell user={null} activeKey="comunicados">
@@ -11,16 +18,10 @@ export default function LoadingComunicadosPage() {
         </Text>
 
         <div className="flex flex-col gap-6">
-          <div>
-            <Text as="h2" variant="body-xl-emphasis" tone="brand">
-              Fixados
-            </Text>
-
-            <div className="mt-4 grid gap-4 md:grid-cols-3">
-              <AnnouncementPinnedCardSkeleton />
-              <AnnouncementPinnedCardSkeleton />
-              <AnnouncementPinnedCardSkeleton />
-            </div>
+          <div className="flex gap-4 overflow-hidden" role="status" aria-live="polite">
+            <span className="sr-only">Carregando comunicados fixados...</span>
+            <AnnouncementPinnedSkeleton />
+            <AnnouncementPinnedSkeleton />
           </div>
 
           <div className="grid gap-6 xl:grid-cols-3 xl:items-start">
@@ -42,14 +43,13 @@ export default function LoadingComunicadosPage() {
               </div>
             </aside>
 
-            <div className="min-w-0 xl:order-1 xl:col-span-2" role="status" aria-live="polite">
-              <span className="sr-only">Carregando mural de comunicados...</span>
-
+            <div className="min-w-0 xl:order-1 xl:col-span-2">
               <Skeleton variant="rect" height={40} />
 
-              <div className="mt-6 grid gap-4">
-                {Array.from({ length: 3 }, (_, index) => (
-                  <AnnouncementCardSkeleton key={index} />
+              <div className="mt-6 flex flex-col" role="status" aria-live="polite">
+                <span className="sr-only">Carregando mural de comunicados...</span>
+                {Array.from({ length: 4 }, (_, index) => (
+                  <AnnouncementFeedItemSkeleton key={index} />
                 ))}
               </div>
             </div>

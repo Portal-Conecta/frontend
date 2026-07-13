@@ -30,6 +30,7 @@ export function AnnouncementCard({
   const href = `/comunicados/${announcement.id}`
   const isHighlighted = highlighted ?? announcement.pinned
   const date = announcement.publishedAt ?? announcement.scheduledFor ?? announcement.createdAt
+  const thumbnailUrl = announcement.thumbnailUrl
 
   const classes = [
     'group relative flex aspect-video w-full overflow-hidden rounded-md bg-interactive-disabled',
@@ -43,6 +44,15 @@ export function AnnouncementCard({
 
   return (
     <div className={classes}>
+      {thumbnailUrl ? (
+        <img
+          src={thumbnailUrl}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+          aria-hidden="true"
+        />
+      ) : null}
+
       {/* Cobre o card inteiro — mantém o card inteiro clicável sem aninhar os botões de `actions` numa âncora. */}
       <Link
         href={href}

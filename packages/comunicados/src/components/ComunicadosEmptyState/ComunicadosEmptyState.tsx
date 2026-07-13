@@ -4,6 +4,8 @@ import Link from 'next/link'
 
 import { Button, Text } from '@portal/ui'
 
+import { Illustration } from './Illustration'
+
 export interface ComunicadosEmptyStateProps {
   title: string
   description: string
@@ -21,19 +23,7 @@ export function ComunicadosEmptyState({
 }: ComunicadosEmptyStateProps) {
   return (
     <div className="flex min-h-96 flex-col items-center justify-center text-center">
-      <div className="relative h-44 w-44" aria-hidden="true">
-        <div className="absolute left-8 top-2 flex h-32 w-24 items-center justify-center rounded-md border-sm border-border-default bg-interactive-disabled shadow-sm">
-          <Text as="span" variant="heading-h2" tone="primary">
-            :(
-          </Text>
-        </div>
-
-        <div className="absolute bottom-4 right-4 flex h-16 w-16 items-center justify-center rounded-sm bg-feedback-info text-text-inverse">
-          <Text as="span" variant="heading-h2" tone="inverse">
-            !
-          </Text>
-        </div>
-      </div>
+      <Illustration className="h-60 w-60" aria-hidden="true" />
 
       <Text as="h2" variant="label-md-emphasis" tone="brand">
         {title}
