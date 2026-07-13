@@ -155,7 +155,7 @@ export function AnnouncementFiltersBar({
 
   const shellClass = isSheet
     ? 'flex w-full flex-col gap-3 bg-background-default px-6 py-6'
-    : 'w-full max-w-lg bg-background-surface px-8 py-6'
+    : 'w-full max-w-lg bg-background-surface px-8 pb-6'
 
   const fieldsClass = isSheet ? 'flex flex-col gap-3' : 'mt-7 flex flex-col gap-4'
 
