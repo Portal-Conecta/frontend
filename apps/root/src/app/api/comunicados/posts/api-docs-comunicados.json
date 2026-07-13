@@ -1928,6 +1928,11 @@
                     "createdAt": {
                         "type": "string",
                         "format": "date-time"
+                    },
+                    "thumbnailUrl": {
+                        "type": "string",
+                        "description": "URL da miniatura do comunicado; null quando não há imagem",
+                        "nullable": true
                     }
                 }
             },
