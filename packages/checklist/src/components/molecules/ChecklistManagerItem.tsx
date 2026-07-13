@@ -25,14 +25,12 @@ export function ChecklistManagerItem({
         .filter(Boolean)
         .join(' ')}
     >
-      <div className="flex w-full min-w-0 flex-col gap-2 sm:max-w-[768px]">
-        {/* eslint-disable-next-line no-restricted-syntax -- font-size fluido fora da escala (14px → 16px), clamp responsivo intencional. Ver AGENTS.md §Tokens, exceção pendente de aprovação do TL. */}
-        <Text variant="label-md" tone="brand" className="text-[clamp(14px,2vw,16px)]">
+      <div className="flex w-full min-w-0 flex-col gap-2 sm:max-w-3xl">
+        <Text variant="label-sm" tone="brand" className="md:text-label-md">
           {title}
         </Text>
         {description && (
-          // eslint-disable-next-line no-restricted-syntax -- font-size fluido fora da escala (12px → 14px), clamp responsivo intencional. Ver AGENTS.md §Tokens, exceção pendente de aprovação do TL.
-          <Text variant="label-sm" tone="secondary" className="break-words text-[clamp(12px,2vw,14px)]">
+          <Text variant="label-xs" tone="secondary" className="break-words md:text-label-sm">
             {description}
           </Text>
         )}
@@ -44,9 +42,7 @@ export function ChecklistManagerItem({
           tone="brand"
           iconLeft="square-pen"
           onClick={onEdit}
-          aria-label="Editar"
-          // eslint-disable-next-line no-restricted-syntax -- tipografia fora da escala do Button (12px / weight 400) por spec de Design. Ver AGENTS.md §Tokens, exceção pendente de aprovação do TL.
-          className="text-[12px] font-normal"
+          aria-label="Editar item"
         >
           <span className="hidden sm:inline">Editar</span>
         </Button>
@@ -56,9 +52,7 @@ export function ChecklistManagerItem({
           tone="negative"
           iconLeft="trash-2"
           onClick={onDelete}
-          aria-label="Excluir Item"
-          // eslint-disable-next-line no-restricted-syntax -- tipografia fora da escala do Button (12px / weight 400) por spec de Design. Ver AGENTS.md §Tokens, exceção pendente de aprovação do TL.
-          className="text-[12px] font-normal"
+          aria-label="Excluir item"
         >
           <span className="hidden sm:inline">Excluir Item</span>
         </Button>
