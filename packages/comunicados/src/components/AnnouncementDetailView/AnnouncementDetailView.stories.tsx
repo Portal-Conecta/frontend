@@ -125,6 +125,7 @@ const meta: Meta<typeof AnnouncementDetailView> = {
   args: {
     detail: defaultDetail,
     canEdit: false,
+    creatorName: 'Ana Souza',
   },
   decorators: [
     (Story) => (

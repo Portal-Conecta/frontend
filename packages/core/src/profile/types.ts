@@ -10,6 +10,16 @@ export interface MyProfile {
   avatarUrl?: string | null
 }
 
+/** Resposta de `GET /users/{userId}` (Hub via gateway). */
+export interface UserById {
+  id: string
+  name: string
+  email: string
+  typeUser: TypeUser
+  active: boolean
+  createdAt: string
+}
+
 export interface MyClass {
   id: string
   name: string
