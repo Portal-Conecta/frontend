@@ -2,6 +2,7 @@ import type { AnnouncementDetail } from '../types'
 
 import { AppShell } from '@portal/core'
 import { HttpError } from '@portal/core/http/errors'
+import { getUserById } from '@portal/core/profile/profileService'
 import { Text } from '@portal/ui'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
@@ -29,12 +30,24 @@ function resolveFetchError(error: unknown): string {
   return 'Não foi possível carregar o comunicado. Tente novamente mais tarde.'
 }
 
+async function resolveCreatorName(userId: string): Promise<string | undefined> {
+  try {
+    const user = await getUserById(userId)
+    return user.name
+  } catch {
+    // 404 (inativo) ou falha de rede não bloqueiam a leitura do comunicado.
+    return undefined
+  }
+}
+
 export async function PageAnnouncementDetail({ id }: PageAnnouncementDetailProps) {
   let detail: AnnouncementDetail | undefined
+  let creatorName: string | undefined
   let errorMessage: string | undefined
 
   try {
     detail = await getAnnouncement(id)
+    creatorName = await resolveCreatorName(detail.announcement.createdByUserId)
   } catch (error) {
     if (error instanceof HttpError && error.kind === 'unauthorized') {
       redirect('/login')
@@ -65,7 +78,11 @@ export async function PageAnnouncementDetail({ id }: PageAnnouncementDetailProps
           ) : null}
 
           {detail ? (
-            <AnnouncementDetailView detail={detail} canEdit={false} />
+            <AnnouncementDetailView
+              detail={detail}
+              canEdit={false}
+              {...(creatorName ? { creatorName } : {})}
+            />
           ) : null}
         </div>
       </div>
