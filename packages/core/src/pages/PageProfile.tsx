@@ -49,13 +49,13 @@ export async function PageProfile() {
   }
 
   return (
-    <AppShell user={user} activeKey="perfil">
+    <AppShell user={user} activeKey="">
       <div className="flex flex-col gap-6 p-6 md:p-8">
         {/* Escala responsiva (h3 mobile → h2 tablet/desktop): fora do variant fixo do
         Text, mesmo padrão de token empilhado por breakpoint do ErrorPage (display-*). */}
         <h1 className="text-heading-h3 font-inter text-text-brand md:text-heading-h2">Meu Perfil</h1>
 
-        <div className="mx-auto flex w-full max-w-[600px] flex-col items-center gap-6 md:items-start">
+        <div className="mx-auto flex w-full max-w-xl flex-col items-center gap-6 md:items-start">
           <div className="flex flex-col items-center gap-6 text-center md:flex-row md:text-left">
             <Avatar />
             <div className="flex flex-col items-center gap-2 md:items-start">
@@ -83,7 +83,7 @@ export async function PageProfile() {
 
           <Banner variant="info" className="w-full">
             Sua conta é gerenciada por um administrador. Caso precise alterar algum dado, procure alguém com este
-            acesso
+            acesso.
           </Banner>
         </div>
       </div>
