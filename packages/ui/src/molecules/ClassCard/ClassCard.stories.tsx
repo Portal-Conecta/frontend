@@ -11,7 +11,7 @@ const sampleItem: ClassCardItem = {
 const sampleItems: ClassCardItem[] = Array.from({ length: 7 }, () => sampleItem)
 
 const meta: Meta<typeof ClassCard> = {
-  title: 'Componentes/Dados/ClassCard',
+  title: 'Componentes/Conteúdo/ClassCard',
   component: ClassCard,
   parameters: { layout: 'padded' },
   decorators: [

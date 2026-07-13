@@ -1,3 +1,5 @@
+'use client'
+
 /**
  * ClassCard — card com os dados básicos de uma turma: código, curso e turno,
  * separados por divisor vertical (Figma node 2511-20637). Duas variantes:
@@ -5,12 +7,12 @@
  * cards sob o título "Turmas"). Presentational — recebe os dados já
  * resolvidos pela página, sem busca própria.
  *
- * Código/curso/turno têm largura fixa (medida a partir do exemplo do Figma),
- * não dinâmica — cada coluna ocupa sempre o mesmo espaço independente do
- * tamanho do conteúdo, como colunas de tabela, então os divisores ficam
- * alinhados entre linhas de uma lista mesmo com turmas de tamanhos
- * diferentes. Conteúdo que ultrapassa a largura quebra linha (`break-words`)
- * em vez de truncar.
+ * Código/curso/turno usam CSS Grid com colunas compartilhadas no container
+ * (`subgrid` em cada card, trilhas definidas no wrapper), não largura fixa em
+ * px por célula — code/shift dimensionam pelo conteúdo, como colunas de
+ * tabela, então os divisores ficam alinhados entre linhas de uma lista mesmo
+ * com turmas de tamanhos diferentes. O curso ocupa o espaço restante
+ * (`minmax(0,1fr)`) e quebra linha (`break-words`) em vez de truncar.
  */
 import { useId } from 'react'
 
@@ -31,22 +33,22 @@ function ClassCardRow({ code, course, shift, className }: ClassCardRowProps) {
   return (
     <div
       className={[
-        'flex min-w-0 items-center justify-center gap-6 rounded-md bg-background-surface px-3 py-6 shadow-sm',
+        'col-span-3 grid min-w-0 grid-cols-subgrid items-center gap-x-6 rounded-md bg-background-surface px-3 py-6 shadow-sm',
         className,
       ]
         .filter(Boolean)
         .join(' ')}
     >
-      <div className="flex shrink-0 items-center self-stretch border-r border-border-focus pr-6">
-        <Text variant="label-sm" tone="brand" className="w-[68px] shrink-0 break-words text-center">
+      <div className="flex items-center self-stretch border-r border-border-default pr-6">
+        <Text variant="label-sm" tone="brand" className="break-words text-center">
           {code}
         </Text>
       </div>
-      <Text variant="label-sm" tone="brand" className="w-[200px] shrink-0 break-words text-center">
+      <Text variant="label-sm" tone="brand" className="min-w-0 break-words text-center">
         {course}
       </Text>
-      <div className="flex shrink-0 items-center self-stretch border-l border-border-focus pl-6">
-        <Text variant="label-sm" tone="brand" className="w-[80px] shrink-0 break-words text-center">
+      <div className="flex items-center self-stretch border-l border-border-default pl-6">
+        <Text variant="label-sm" tone="brand" className="break-words text-center">
           {shift}
         </Text>
       </div>
@@ -84,9 +86,9 @@ export function ClassCard(props: ClassCardProps) {
         <Text id={titleId} as="h2" variant="label-md-emphasis" tone="brand">
           {title}
         </Text>
-        <ul className="mt-4 flex flex-col gap-3">
+        <ul className="mt-4 grid grid-cols-[auto_minmax(0,1fr)_auto] gap-x-6 gap-y-3">
           {items.map((item, index) => (
-            <li key={`${item.code}-${index}`}>
+            <li key={`${item.code}-${index}`} className="contents">
               <ClassCardRow {...item} />
             </li>
           ))}
@@ -96,5 +98,9 @@ export function ClassCard(props: ClassCardProps) {
   }
 
   const { item, className } = props
-  return <ClassCardRow {...item} className={className} />
+  return (
+    <div className="grid grid-cols-[auto_auto_auto] justify-center gap-x-6">
+      <ClassCardRow {...item} className={className} />
+    </div>
+  )
 }
