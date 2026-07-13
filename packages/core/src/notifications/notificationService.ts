@@ -12,6 +12,7 @@ import type {
   GetNotificationsParams,
   MarkAsReadRequest,
   PagedNotificationsResponse,
+  UnreadCountResponse,
 } from './types'
 
 const http = createHttpClient('API_GATEWAY_URL')
@@ -50,5 +51,12 @@ export function markNotificationsAsRead(
   return http.patch<void>(hubGatewayPath('/notifications/read'), {
     token: accessToken,
     body,
+  })
+}
+
+/** Conta notificações não lidas do usuário da sessão — alimenta o dot do sino no header. */
+export function getUnreadNotificationsCount(accessToken: string): Promise<UnreadCountResponse> {
+  return http.get<UnreadCountResponse>(hubGatewayPath('/notifications/unread-count'), {
+    token: accessToken,
   })
 }

@@ -52,3 +52,7 @@ export interface GetNotificationsParams {
 export interface MarkAsReadRequest {
   notificationIds: string[]
 }
+
+export interface UnreadCountResponse {
+  unreadCount: number
+}
