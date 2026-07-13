@@ -1,3 +1,5 @@
+import { seatIconSizeMap, type SeatIconSize } from '../SeatIcon'
+
 export type MapGridSkeletonProps = {
   /** Linhas da grade genérica exibida durante o carregamento. Default 4. */
   rows?: number
@@ -15,22 +17,16 @@ export type MapGridSkeletonProps = {
 const DEFAULT_ROWS = 4
 const DEFAULT_COLUMNS = 6
 
-// Mesma proporção/escala de tamanho do SeatIcon (packages/ui) — reaproveita
-// o padrão sizeMap em vez de números soltos, ainda que aqui só usemos 'md'.
-type SeatSkeletonSize = 'sm' | 'md'
-
-const seatSizeMap: Record<SeatSkeletonSize, { width: number; height: number }> = {
-  sm: { width: 48, height: 28 },
-  md: { width: 98, height: 57 },
-}
-
 /**
  * Silhueta exata do ícone de assento fornecido pelo design (Aluno-icon.svg
  * do Figma) — corpo + encosto, sem os recortes internos do SeatIcon "real".
  * Cor vem do token do DS via `currentColor`; animação de pulse por cima.
+ * Reusa `seatIconSizeMap` do SeatIcon (mesmo pacote @portal/mapa-salas) em
+ * vez de duplicar números — se o SeatIcon mudar de tamanho, este skeleton
+ * acompanha automaticamente.
  */
-function SeatSkeletonShape({ size = 'md' }: { size?: SeatSkeletonSize }) {
-  const { width, height } = seatSizeMap[size]
+function SeatSkeletonShape({ size = 'md' }: { size?: SeatIconSize }) {
+  const { width, height } = seatIconSizeMap[size]
 
   return (
     <svg
