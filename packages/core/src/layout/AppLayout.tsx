@@ -41,6 +41,8 @@ export interface AppLayoutProps {
   onProfileClick?: () => void
   /** Clique nas notificações (header). */
   onNotificationsClick?: () => void
+  /** Há notificação não lida — sobrepõe um dot vermelho no sino do header. */
+  hasUnreadNotifications?: boolean
   /** Clique em "mais opções" (header). */
   onMoreOptionsClick?: () => void
 }
@@ -53,6 +55,7 @@ export function AppLayout({
   onLogoClick,
   onProfileClick,
   onNotificationsClick,
+  hasUnreadNotifications = false,
   onMoreOptionsClick,
 }: AppLayoutProps) {
   const [expanded, setExpanded] = useState(defaultExpanded)
@@ -71,7 +74,11 @@ export function AppLayout({
 
   return (
     <div className="flex h-screen flex-col bg-background-surface lg:bg-background-default">
-      <AppHeader sidebarExpanded={expanded} {...headerActions} />
+      <AppHeader
+        sidebarExpanded={expanded}
+        hasUnreadNotifications={hasUnreadNotifications}
+        {...headerActions}
+      />
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <Sidebar

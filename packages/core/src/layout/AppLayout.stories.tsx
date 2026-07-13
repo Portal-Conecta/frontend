@@ -40,6 +40,10 @@ const meta: Meta<typeof AppLayout> = {
     onLogoClick: { control: false, description: 'Clique na logo do header.' },
     onProfileClick: { control: false, description: 'Clique no perfil (header).' },
     onNotificationsClick: { control: false, description: 'Clique nas notificações (header).' },
+    hasUnreadNotifications: {
+      control: 'boolean',
+      description: 'Há notificação não lida — sobrepõe um dot vermelho no sino do header.',
+    },
     onMoreOptionsClick: { control: false, description: 'Clique em "mais opções" (header).' },
   },
   args: {
