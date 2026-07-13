@@ -25,6 +25,8 @@ export function usePostsList(initialFilters: ListPostsParams = {}): UsePostsList
   const page = Number(filters.page ?? 0)
 
   const refetch = useCallback(async () => {
+    setLoading(true)
+    setError(null)
     setReloadKey((value) => value + 1)
   }, [])
 
@@ -53,10 +55,13 @@ export function usePostsList(initialFilters: ListPostsParams = {}): UsePostsList
   }, [filters, reloadKey])
 
   const setPage = useCallback((nextPage: number) => {
+    setLoading(true)
     setFiltersState((current) => ({ ...current, page: nextPage }))
   }, [])
 
   const setFilters = useCallback((nextFilters: ListPostsParams | ((current: ListPostsParams) => ListPostsParams)) => {
+    setLoading(true)
+    setError(null)
     setFiltersState((current) => {
       const resolved = typeof nextFilters === 'function' ? nextFilters(current) : nextFilters
       return { ...resolved, page: resolved.page ?? 0 }

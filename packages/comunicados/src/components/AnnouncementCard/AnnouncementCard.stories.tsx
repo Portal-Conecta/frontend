@@ -15,6 +15,7 @@ const announcement: AnnouncementSummary = {
   scheduledFor: null,
   createdAt: '2026-06-02T12:00:00.000Z',
   description: 'Preview do comunicado',
+  thumbnailUrl: null,
   tags: ['Institucional', 'Segurança'],
 }
 
@@ -30,6 +31,7 @@ const scheduledAnnouncement: AnnouncementSummary = {
   createdAt: '2026-07-03T09:30:00.000Z',
   description:
     'Confira as atividades previstas para os cursos técnicos, encontros de turma e ações de integração no mural do portal.',
+  thumbnailUrl: null,
   tags: ['Cursos', 'Agenda'],
 }
 
