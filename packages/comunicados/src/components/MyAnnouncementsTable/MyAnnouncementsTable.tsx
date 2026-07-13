@@ -3,9 +3,9 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-import { ConfirmDialog, Skeleton, Text } from '@portal/ui'
+import { ConfirmDialog, Skeleton, Text, useToast } from '@portal/ui'
 
-import { useAnnouncementActions } from '../../hooks/useAnnouncementActions'
+import { ACTION_ERROR, useAnnouncementActions } from '../../hooks/useAnnouncementActions'
 import { useMyAnnouncements } from '../../hooks/useMyAnnouncements'
 import type { AnnouncementSummary } from '../../types/announcement'
 import type { AnnouncementActionsMenuAction } from '../AnnouncementActionsMenu'
@@ -56,7 +56,7 @@ export function MyAnnouncementsTableContent({
         {Array.from({ length: 3 }, (_, index) => (
           <li
             key={index}
-            className="flex items-center gap-4 border-b border-sm border-border-default px-3 py-6 sm:gap-8 sm:p-6 lg:gap-18"
+            className="flex items-center gap-4 border-b border-border-default px-3 py-6 sm:gap-8 sm:p-6 lg:gap-18"
           >
             <div className="flex min-w-0 flex-1 flex-col gap-4">
               <Skeleton variant="text" width="40%" height={28} />
@@ -104,7 +104,7 @@ export function MyAnnouncementsTableContent({
           return (
             <li
               key={id}
-              className="flex items-center gap-4 border-b border-sm border-border-default px-3 py-6 sm:gap-8 sm:p-6 lg:gap-18"
+              className="flex items-center gap-4 border-b border-border-default px-3 py-6 sm:gap-8 sm:p-6 lg:gap-18"
             >
               <div className="flex min-w-0 flex-1 flex-col gap-4 sm:gap-8">
                 <div className="flex flex-col gap-2 sm:gap-4">
@@ -179,6 +179,7 @@ export function MyAnnouncementsTableContent({
 /** Wrapper com estado: busca via `useMyAnnouncements` e recarrega após ações. */
 export function MyAnnouncementsTable() {
   const router = useRouter()
+  const { toast } = useToast()
   const { items, loading, error, reload } = useMyAnnouncements()
   const { remove, pin, unpin } = useAnnouncementActions({ onChanged: reload })
 
@@ -188,16 +189,18 @@ export function MyAnnouncementsTable() {
   async function handlePin(post: AnnouncementSummary) {
     const { id, pinned } = post
     setPendingAction({ id, action: 'pin' })
-    await (pinned ? unpin(id) : pin(id))
+    const ok = await (pinned ? unpin(id) : pin(id))
     setPendingAction(null)
+    if (!ok) toast.error(ACTION_ERROR)
   }
 
   async function handleConfirmDelete() {
     if (!deleteTargetId) return
     setPendingAction({ id: deleteTargetId, action: 'delete' })
-    await remove(deleteTargetId)
+    const ok = await remove(deleteTargetId)
     setPendingAction(null)
     setDeleteTargetId(null)
+    if (!ok) toast.error(ACTION_ERROR)
   }
 
   return (
