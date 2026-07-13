@@ -1,21 +1,21 @@
-"use client";
+'use client'
 
-import { Text, Textarea } from "@portal/ui";
-import { useState } from "react";
+import { Text, Textarea } from '@portal/ui'
+import { useState } from 'react'
 
-import { StatusToggle } from "../../atoms/StatusToggle/StatusToggle";
-import type { StatusValue } from "../../atoms/StatusToggle/StatusToggle";
+import { StatusToggle } from '../../atoms/StatusToggle/StatusToggle'
+import type { StatusValue } from '../../atoms/StatusToggle/StatusToggle'
 
 export interface ChecklistItemProps {
-  title: string;
-  description?: string;
-  value?: StatusValue | null;
-  defaultValue?: StatusValue | null;
-  onChange?: (value: StatusValue | null) => void;
-  justification?: string;
-  onJustificationChange?: (text: string) => void;
-  disabled?: boolean;
-  className?: string;
+  title: string
+  description?: string
+  value?: StatusValue | null
+  defaultValue?: StatusValue | null
+  onChange?: (value: StatusValue | null) => void
+  justification?: string
+  onJustificationChange?: (text: string) => void
+  disabled?: boolean
+  className?: string
 }
 
 export function ChecklistItem({
@@ -29,51 +29,35 @@ export function ChecklistItem({
   disabled = false,
   className,
 }: ChecklistItemProps) {
-  const isControlled = value !== undefined;
-  const [internalStatus, setInternalStatus] = useState<StatusValue | null>(
-    defaultValue ?? null,
-  );
-  const selected = isControlled ? value : internalStatus;
+  const isControlled = value !== undefined
+  const [internalStatus, setInternalStatus] = useState<StatusValue | null>(defaultValue ?? null)
+  const selected = isControlled ? value : internalStatus
 
-  const isJustificationControlled = justification !== undefined;
-  const [internalJustification, setInternalJustification] = useState("");
-  const justificationValue = isJustificationControlled
-    ? justification
-    : internalJustification;
+  const isJustificationControlled = justification !== undefined
+  const [internalJustification, setInternalJustification] = useState('')
+  const justificationValue = isJustificationControlled ? justification : internalJustification
 
   const handleStatusChange = (next: StatusValue | null) => {
-    if (!isControlled) setInternalStatus(next);
-    onChange?.(next);
-  };
+    if (!isControlled) setInternalStatus(next)
+    onChange?.(next)
+  }
 
   const handleJustificationChange = (text: string) => {
-    if (!isJustificationControlled) setInternalJustification(text);
-    onJustificationChange?.(text);
-  };
+    if (!isJustificationControlled) setInternalJustification(text)
+    onJustificationChange?.(text)
+  }
 
-  const showJustification = selected === "nao-conforme";
+  const showJustification = selected === 'nao-conforme'
 
   return (
-    <div
-      className={["border-t border-border-default py-3", className]
-        .filter(Boolean)
-        .join(" ")}
-    >
+    <div className={['border-t border-border-default py-3', className].filter(Boolean).join(' ')}>
       <div className="flex items-center justify-between gap-4">
         <div className="flex min-w-0 flex-col gap-2">
-          <Text
-            variant="label-md"
-            tone="brand"
-            className="text-sm md:text-base"
-          >
+          <Text variant="label-md" tone="brand" className="text-sm md:text-base">
             {title}
           </Text>
           {description && (
-            <Text
-              variant="body-sm"
-              tone="secondary"
-              className="hidden break-words md:block"
-            >
+            <Text variant="label-sm" tone="secondary" className="break-words">
               {description}
             </Text>
           )}
@@ -93,11 +77,9 @@ export function ChecklistItem({
       <div
         aria-hidden={!showJustification}
         className={[
-          "grid transition-[grid-template-rows,opacity] duration-500 ease-in-out",
-          showJustification
-            ? "grid-rows-[1fr] opacity-100"
-            : "grid-rows-[0fr] opacity-0",
-        ].join(" ")}
+          'grid transition-[grid-template-rows,opacity] duration-500 ease-in-out',
+          showJustification ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
+        ].join(' ')}
       >
         <div className="overflow-hidden">
           <div className="mt-3">
@@ -113,5 +95,5 @@ export function ChecklistItem({
         </div>
       </div>
     </div>
-  );
+  )
 }
