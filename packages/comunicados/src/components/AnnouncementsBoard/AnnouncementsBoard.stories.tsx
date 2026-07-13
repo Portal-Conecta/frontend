@@ -16,6 +16,7 @@ function makeSummary(
     scheduledFor: null,
     publishedAt: '2026-07-03T10:00:00.000Z',
     createdAt: '2026-07-03T09:30:00.000Z',
+    thumbnailUrl: null,
     ...partial,
   }
 }
