@@ -1,4 +1,4 @@
-import { Button, type ButtonTone, type ButtonVariant, type IconName } from '@portal/ui'
+import { Button, type ButtonSize, type ButtonTone, type ButtonVariant, type IconName } from '@portal/ui'
 
 export type AnnouncementActionsMenuVariant = 'outlined' | 'solid'
 export type AnnouncementActionsMenuAction = 'pin' | 'edit' | 'delete'
@@ -43,6 +43,8 @@ export function AnnouncementActionsMenu({
   className,
 }: AnnouncementActionsMenuProps) {
   const buttonVariant: ButtonVariant = variant === 'solid' ? 'solid' : 'outlined'
+  // Compact (icon-only) usa `xs` pra caber em larguras estreitas; rotulado fica em `sm`.
+  const buttonSize: ButtonSize = compact ? 'xs' : 'sm'
   const tone = (action: AnnouncementActionsMenuAction): ButtonTone =>
     variant === 'solid' ? 'brand' : outlinedTone[action]
 
@@ -53,7 +55,7 @@ export function AnnouncementActionsMenu({
       <Button
         variant={buttonVariant}
         tone={tone('pin')}
-        size="sm"
+        size={buttonSize}
         loading={pending === 'pin'}
         disabled={pending != null && pending !== 'pin'}
         onClick={onPin}
@@ -62,7 +64,7 @@ export function AnnouncementActionsMenu({
       <Button
         variant={buttonVariant}
         tone={tone('edit')}
-        size="sm"
+        size={buttonSize}
         loading={pending === 'edit'}
         disabled={pending != null && pending !== 'edit'}
         onClick={onEdit}
@@ -71,7 +73,7 @@ export function AnnouncementActionsMenu({
       <Button
         variant={buttonVariant}
         tone={tone('delete')}
-        size="sm"
+        size={buttonSize}
         loading={pending === 'delete'}
         disabled={pending != null && pending !== 'delete'}
         onClick={onDelete}

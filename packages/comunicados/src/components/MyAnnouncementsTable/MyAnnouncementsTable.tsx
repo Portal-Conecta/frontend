@@ -7,11 +7,11 @@ import { ConfirmDialog, Skeleton, Text } from '@portal/ui'
 
 import { useAnnouncementActions } from '../../hooks/useAnnouncementActions'
 import { useMyAnnouncements } from '../../hooks/useMyAnnouncements'
-import type { AnnouncementDetail } from '../../types/announcement'
+import type { AnnouncementSummary } from '../../types/announcement'
 import type { AnnouncementActionsMenuAction } from '../AnnouncementActionsMenu'
 import { AnnouncementActionsMenu } from '../AnnouncementActionsMenu'
 import { ComunicadosEmptyState } from '../ComunicadosEmptyState'
-import { formatMyAnnouncementDate, getMyRegularPosts, originLabel } from './myAnnouncementsTableModel'
+import { formatMyAnnouncementDate, originLabel } from './myAnnouncementsTableModel'
 
 interface PendingAction {
   id: string
@@ -19,13 +19,13 @@ interface PendingAction {
 }
 
 export interface MyAnnouncementsTableContentProps {
-  items: AnnouncementDetail[]
+  items: AnnouncementSummary[]
   loading?: boolean
   error?: string
   pendingAction?: PendingAction | null
   deleteTargetId?: string | null
   onRetry?: () => void
-  onPin?: (post: AnnouncementDetail) => void
+  onPin?: (post: AnnouncementSummary) => void
   onEdit?: (id: string) => void
   onDeleteRequest?: (id: string) => void
   onConfirmDelete?: () => void
@@ -34,8 +34,8 @@ export interface MyAnnouncementsTableContentProps {
 
 /**
  * MyAnnouncementsTable — lista "meus comunicados" com ações (Figma "Painel de
- * gestão de comunicados", `CardComunicado`). Fixados não aparecem aqui — já
- * exibidos na seção de fixados (#189).
+ * gestão de comunicados", `CardComunicado`). `items` já vem sem os fixados —
+ * o back separa `pinned`/`items` na resposta (exibidos em outra seção, #189).
  */
 export function MyAnnouncementsTableContent({
   items,
@@ -54,13 +54,19 @@ export function MyAnnouncementsTableContent({
     return (
       <ul className="flex flex-col bg-background-surface" aria-label="Carregando meus comunicados">
         {Array.from({ length: 3 }, (_, index) => (
-          <li key={index} className="flex items-center gap-18 border-b border-sm border-border-default p-6">
+          <li
+            key={index}
+            className="flex items-center gap-4 border-b border-sm border-border-default px-3 py-6 sm:gap-8 sm:p-6 lg:gap-18"
+          >
             <div className="flex min-w-0 flex-1 flex-col gap-4">
               <Skeleton variant="text" width="40%" height={28} />
-              <Skeleton variant="text" width="90%" height={56} />
+              <Skeleton variant="text" width="90%" height={56} className="hidden sm:block" />
               <Skeleton variant="text" width="30%" height={16} />
             </div>
-            <Skeleton variant="rect" className="aspect-[485/273] w-full max-w-[485px] shrink-0" />
+            <Skeleton
+              variant="rect"
+              className="aspect-[132/116] w-[38%] shrink-0 sm:aspect-[485/273] sm:w-[45%] sm:max-w-[485px]"
+            />
           </li>
         ))}
       </ul>
@@ -78,9 +84,7 @@ export function MyAnnouncementsTableContent({
     )
   }
 
-  const regularPosts = getMyRegularPosts(items)
-
-  if (regularPosts.length === 0) {
+  if (items.length === 0) {
     return (
       <ComunicadosEmptyState
         title="Nenhum comunicado encontrado"
@@ -92,23 +96,25 @@ export function MyAnnouncementsTableContent({
   return (
     <>
       <ul aria-label="Meus comunicados" className="flex flex-col bg-background-surface">
-        {regularPosts.map((post) => {
-          const { id, title, description, origin, pinned } = post.announcement
-          const dateLabel = formatMyAnnouncementDate(
-            post.announcement.publishedAt ?? post.announcement.scheduledFor,
-          )
+        {items.map((post) => {
+          const { id, title, description, origin, pinned } = post
+          const dateLabel = formatMyAnnouncementDate(post.publishedAt ?? post.scheduledFor)
           const rowPending = pendingAction?.id === id ? pendingAction.action : null
 
           return (
-            <li key={id} className="flex items-center gap-18 border-b border-sm border-border-default p-6">
-              <div className="flex min-w-0 flex-1 flex-col gap-8">
-                <div className="flex flex-col gap-4">
+            <li
+              key={id}
+              className="flex items-center gap-4 border-b border-sm border-border-default px-3 py-6 sm:gap-8 sm:p-6 lg:gap-18"
+            >
+              <div className="flex min-w-0 flex-1 flex-col gap-4 sm:gap-8">
+                <div className="flex flex-col gap-2 sm:gap-4">
                   {/* Figma: título e descrição usam blue/900 (#011142), quase preto — sem token de texto pra esse tom, `primary` é o mais próximo (não `brand`, que é azul vivo). */}
                   <Text as="h3" variant="body-xl-emphasis" tone="primary" className="truncate">
                     {title}
                   </Text>
 
-                  <Text as="p" variant="label-xs" tone="primary" className="line-clamp-3">
+                  {/* Figma mobile ("comunicado-mobile-edição"): sem descrição, só título/meta/ações. */}
+                  <Text as="p" variant="label-xs" tone="primary" className="hidden line-clamp-3 sm:block">
                     {description}
                   </Text>
 
@@ -125,19 +131,30 @@ export function MyAnnouncementsTableContent({
                   </Text>
                 </div>
 
+                {/* Figma mobile: ações icon-only (compact); desktop: ícone + rótulo. */}
                 <AnnouncementActionsMenu
                   pinned={pinned}
                   onPin={() => onPin?.(post)}
                   onEdit={() => onEdit?.(id)}
                   onDelete={() => onDeleteRequest?.(id)}
                   pending={rowPending}
+                  compact
+                  className="sm:hidden"
+                />
+                <AnnouncementActionsMenu
+                  pinned={pinned}
+                  onPin={() => onPin?.(post)}
+                  onEdit={() => onEdit?.(id)}
+                  onDelete={() => onDeleteRequest?.(id)}
+                  pending={rowPending}
+                  className="hidden sm:flex"
                 />
               </div>
 
-              {/* Figma "CardComunicado": thumbnail 485x273, sem imagem real ainda — mesmo placeholder do AnnouncementCard. */}
+              {/* Figma "CardComunicado": thumbnail fluida — proporção 132/116 no mobile, 485/273 no desktop. Escala com a linha pra não deixar vão morto nas larguras intermediárias. Sem imagem real ainda, mesmo placeholder do AnnouncementCard. */}
               <div
                 aria-hidden="true"
-                className="aspect-[485/273] w-full max-w-[485px] shrink-0 rounded-md bg-interactive-disabled"
+                className="aspect-[132/116] w-[38%] shrink-0 rounded-md bg-interactive-disabled sm:aspect-[485/273] sm:w-[45%] sm:max-w-[485px]"
               />
             </li>
           )
@@ -168,8 +185,8 @@ export function MyAnnouncementsTable() {
   const [pendingAction, setPendingAction] = useState<PendingAction | null>(null)
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
 
-  async function handlePin(post: AnnouncementDetail) {
-    const { id, pinned } = post.announcement
+  async function handlePin(post: AnnouncementSummary) {
+    const { id, pinned } = post
     setPendingAction({ id, action: 'pin' })
     await (pinned ? unpin(id) : pin(id))
     setPendingAction(null)

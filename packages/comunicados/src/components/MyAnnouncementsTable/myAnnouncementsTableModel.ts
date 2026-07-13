@@ -1,14 +1,9 @@
-import type { AnnouncementDetail, AnnouncementOrigin } from '../../types/announcement'
+import type { AnnouncementOrigin } from '../../types/announcement'
 
 export const originLabel: Record<AnnouncementOrigin, string> = {
   WEG: 'WEG',
   SENAI: 'SENAI',
   BOTH: 'WEG + SENAI',
-}
-
-/** Exclui os fixados — já exibidos separadamente na seção de fixados (#189). */
-export function getMyRegularPosts(posts: AnnouncementDetail[]): AnnouncementDetail[] {
-  return posts.filter((post) => !post.announcement.pinned)
 }
 
 export function formatMyAnnouncementDate(iso: string | null): string | null {
