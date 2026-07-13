@@ -94,6 +94,8 @@ export interface AnnouncementSummary {
   scheduledFor: string | null
   publishedAt: string | null
   createdAt: string
+  /** URL da miniatura na listagem (`GET /api/posts`). `null` quando não há imagem. */
+  thumbnailUrl: string | null
   tags?: readonly string[]
 }
 

@@ -24,12 +24,31 @@ export function mapCoursesToSelectOptions(
     }))
 }
 
+export interface ClassFilterOption extends SelectOption {
+  courseId: string
+  shift: string
+}
+
 export function mapClassesToSelectOptions(
   classes: readonly { id: string; name: string }[],
 ): SelectOption[] {
   return [...classes]
     .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'))
     .map((item) => ({ value: item.id, label: item.name }))
+}
+
+/** Opções de turma com metadados para cascata curso/turno no mural. */
+export function mapClassesToFilterOptions(
+  classes: readonly { id: string; name: string; courseId: string; shift: string }[],
+): ClassFilterOption[] {
+  return [...classes]
+    .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'))
+    .map((item) => ({
+      value: item.id,
+      label: item.name,
+      courseId: item.courseId,
+      shift: item.shift,
+    }))
 }
 
 export function mapUsersToSummaries(

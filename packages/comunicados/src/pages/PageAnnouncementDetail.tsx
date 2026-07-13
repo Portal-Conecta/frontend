@@ -45,27 +45,29 @@ export async function PageAnnouncementDetail({ id }: PageAnnouncementDetailProps
   return (
     <AppShell user={null} activeKey="comunicados">
       <div className="p-8">
-        <nav className="mb-6" aria-label="Trilha de navegação">
-          <Text as="span" variant="label-sm" tone="secondary">
-            <Link href="/comunicados" className="hover:text-text-brand transition-colors">
-              Mural de Comunicados
-            </Link>
-            {' / '}
-            <Text as="span" variant="label-sm" tone="primary">
-              {detail?.announcement.title ?? 'Detalhe'}
+        <div className="mx-auto w-full max-w-3xl">
+          <nav className="mb-6" aria-label="Trilha de navegação">
+            <Text as="span" variant="label-sm" tone="secondary">
+              <Link href="/comunicados" className="hover:text-text-brand transition-colors">
+                Mural de Comunicados
+              </Link>
+              {' / '}
+              <Text as="span" variant="label-sm" tone="primary">
+                {detail?.announcement.title ?? 'Detalhe'}
+              </Text>
             </Text>
-          </Text>
-        </nav>
+          </nav>
 
-        {errorMessage ? (
-          <Text as="p" variant="body-md" tone="secondary" role="alert">
-            {errorMessage}
-          </Text>
-        ) : null}
+          {errorMessage ? (
+            <Text as="p" variant="body-md" tone="secondary" role="alert">
+              {errorMessage}
+            </Text>
+          ) : null}
 
-        {detail ? (
-          <AnnouncementDetailView detail={detail} canEdit={false} backHref="/comunicados" />
-        ) : null}
+          {detail ? (
+            <AnnouncementDetailView detail={detail} canEdit={false} />
+          ) : null}
+        </div>
       </div>
     </AppShell>
   )
