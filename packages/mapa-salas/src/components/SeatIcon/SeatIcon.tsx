@@ -14,13 +14,13 @@ export interface SeatIconProps extends SVGAttributes<SVGSVGElement> {
   className?: string
 }
 
-const sizeMap: Record<SeatIconSize, { width: number; height: number }> = {
+export const seatIconSizeMap: Record<SeatIconSize, { width: number; height: number }> = {
   sm: { width: 48, height: 28 },
   md: { width: 99, height: 58 },
 }
 
 export function SeatIcon({ size = 'md', flipped = false, className, ...rest }: SeatIconProps) {
-  const { width, height } = sizeMap[size]
+  const { width, height } = seatIconSizeMap[size]
 
   // Espelhamento via utilitário nativo do Tailwind (-scale-y-100) — geometria,
   // não cor/tipografia/spacing, então não é exceção de token.
