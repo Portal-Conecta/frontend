@@ -115,7 +115,7 @@ export function AppHeader({
           type="button"
           onClick={onLogoClick}
           aria-label="Página inicial"
-          className={`rounded-md lg:hidden ${focusRing}`}
+          className={`cursor-pointer rounded-md lg:hidden ${focusRing}`}
         >
           <Logo variant="mark" tone="brand" size={32} decorative className="md:hidden" />
           <Logo variant="mark" tone="brand" size={44} decorative className="hidden md:block" />
@@ -129,7 +129,7 @@ export function AppHeader({
               type="button"
               onClick={onClick}
               aria-label={label}
-              className={`rounded-md ${focusRing}`}
+              className={`cursor-pointer rounded-md ${focusRing}`}
             >
               <span className="relative inline-flex">
                 <ActionIcon name={icon} />
