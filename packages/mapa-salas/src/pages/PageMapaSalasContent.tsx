@@ -11,8 +11,9 @@
  * - Gerência (SENAI/WEG/ADMIN…): seleciona sala e turma, view read-only
  *   (`selectedStudentId = null`), sem rodapé.
  *
- * A `RoomFilterBar` do squad ainda não existe — integrada aqui atrás de
- * `RoomFilterBarMock` com dados fictícios (ver TODO abaixo).
+ * A `RoomFilterBar` do squad ainda não existe — integrada aqui atrás do
+ * `RoomFilterBarMock` com dados fictícios (ver TODO abaixo). Aluno e gerência
+ * usam o mesmo seletor; muda só a etapa de turma (`showTurma`).
  */
 import { useState } from 'react'
 
@@ -73,7 +74,7 @@ export function PageMapaSalasContent({ user }: PageMapaSalasContentProps) {
         <Text as="h1" variant="heading-h1" tone="brand" className="max-w-3xl text-center">
           {heading}
         </Text>
-        <div className="w-full max-w-xl">
+        <div className="w-full max-w-3xl">
           <RoomFilterBarMock
             rooms={MOCK_ROOMS}
             selectedRoomId={selectedRoomId}
