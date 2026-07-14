@@ -34,6 +34,10 @@ import {
   Funnel,
   ImageUp,
   GraduationCap,
+  Italic,
+  Link2,
+  List,
+  ListOrdered,
   LoaderCircle,
   Lock,
   LogOut,
@@ -50,6 +54,7 @@ import {
   SquarePen,
   Trash2,
   TriangleAlert,
+  Underline,
   User,
   Users,
   X,
@@ -98,6 +103,11 @@ export const iconRegistry = {
   'pin-off': PinOff,
   'square-pen': SquarePen,
   'trash-2': Trash2,
+  list: List,
+  'list-ordered': ListOrdered,
+  'link-2': Link2,
+  italic: Italic,
+  underline: Underline,
 } satisfies Record<string, LucideIcon>
 
 /** Nomes de ícone aprovados pelo DS. */

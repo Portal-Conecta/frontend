@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { HttpError } from '@portal/core/http/errors'
-import { getMyCourses, getMyProfile } from '@portal/core/profile/profileService'
-import type { MyListCourseResponse, MyProfile } from '@portal/core/profile/types'
+import { getMyCourses, getMyProfile, getUserById } from '@portal/core/profile/profileService'
+import type { MyListCourseResponse, MyProfile, UserById } from '@portal/core/profile/types'
 
 const API_GATEWAY_URL = 'https://gateway.test'
 const TOKEN = 'jwt-token'
@@ -140,5 +140,45 @@ describe('getMyCourses', () => {
     const error = await getMyCourses(TOKEN).catch((e) => e)
     expect(error).toBeInstanceOf(HttpError)
     expect(error).toMatchObject({ kind: 'network' })
+  })
+})
+
+const userByIdResponse: UserById = {
+  id: '550e8400-e29b-41d4-a716-446655440000',
+  name: 'Carlos Lima',
+  email: 'carlos.lima@example.com',
+  typeUser: 'TEACHER',
+  active: true,
+  createdAt: '2026-01-10T12:00:00.000Z',
+}
+
+describe('getUserById', () => {
+  it('busca o usuario pelo gateway sob /hub/users/{userId}', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(response(200, userByIdResponse))
+
+    await expect(getUserById(userByIdResponse.id, TOKEN)).resolves.toEqual(userByIdResponse)
+
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe(`${API_GATEWAY_URL}/hub/users/${userByIdResponse.id}`)
+    expect(init?.method).toBe('GET')
+    expect(init?.headers).toMatchObject({ Authorization: `Bearer ${TOKEN}` })
+    expect(init?.cache).toBe('no-store')
+  })
+
+  it('mapeia 404 para HttpError not_found', async () => {
+    stubFetch().mockResolvedValue(response(404, {}))
+
+    await expect(getUserById(userByIdResponse.id, TOKEN)).rejects.toMatchObject({
+      kind: 'not_found',
+    })
+  })
+
+  it('mapeia 401 para HttpError unauthorized', async () => {
+    stubFetch().mockResolvedValue(response(401, {}))
+
+    await expect(getUserById(userByIdResponse.id, TOKEN)).rejects.toMatchObject({
+      kind: 'unauthorized',
+    })
   })
 })

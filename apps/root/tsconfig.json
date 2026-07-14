@@ -29,7 +29,7 @@
   "include": ["src", "next-env.d.ts", ".next/types/**/*.ts"],
   "exclude": ["node_modules"],
   "references": [
-    { "path": "../../packages/shared" },
+    { "path": "../../packages/shared" },  
     { "path": "../../packages/ui" },
     { "path": "../../packages/core" },
     { "path": "../../packages/comunicados" },
