@@ -103,7 +103,7 @@ export function AppHeader({
           type="button"
           onClick={onLogoClick}
           aria-label="Página inicial"
-          className={`rounded-md ${focusRing}`}
+          className={`cursor-pointer rounded-md ${focusRing}`}
         >
           <Logo variant={sidebarExpanded ? 'full' : 'mark'} tone="brand" size={54} decorative />
         </button>
