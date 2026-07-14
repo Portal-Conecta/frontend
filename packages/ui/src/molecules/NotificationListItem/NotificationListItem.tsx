@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { ListItem } from '../../atoms/ListItem'
 import { Icon, type IconName } from '../../atoms/Icon'
-import { NotificationModal } from '../../organisms/NotificationModal/NotificationModal'
+import { DefaultModal } from '../../organisms/DefaultModal/DefaultModal'
 
 export type NotificationType = 'CHECKLIST' | 'MAPA' | 'COMUNICADO' | 'OUTRO'
 
@@ -75,7 +75,7 @@ export function NotificationListItem({
       </ListItem>
 
       {/* Renderiza o componente isolado */}
-      <NotificationModal
+      <DefaultModal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         title={title}

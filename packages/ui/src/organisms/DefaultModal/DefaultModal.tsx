@@ -5,14 +5,14 @@ import { createPortal } from 'react-dom'
 import { Icon } from '../../atoms/Icon'
 import { useFocusTrap } from '../../hooks/useFocusTrap'
 
-export interface NotificationModalProps {
+export interface DefaultModalProps {
   isOpen: boolean
   onClose: () => void
   title: string
   body: string
 }
 
-export function NotificationModal({ isOpen, onClose, title, body }: NotificationModalProps) {
+export function DefaultModal({ isOpen, onClose, title, body }: DefaultModalProps) {
   const modalRef = useRef<HTMLDivElement>(null)
   const [mounted, setMounted] = useState(false)
 
@@ -37,10 +37,12 @@ export function NotificationModal({ isOpen, onClose, title, body }: Notification
       >
         <div className="flex w-full justify-end border-b border-border-default rounded-t-md px-4 py-3">
             <button
+                type="button"
                 onClick={onClose}
                 aria-label="Fechar modal"
+                className="rounded-sm p-1 text-text-secondary transition-colors hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
             >
-                <Icon name="x" size="md" tone="secondary" />
+                <Icon name="x" size="md" decorative />
             </button>
         </div>
 

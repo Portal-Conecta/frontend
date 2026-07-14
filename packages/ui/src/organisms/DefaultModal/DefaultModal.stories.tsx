@@ -1,22 +1,22 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { useState } from 'react'
 import { Button } from '../../atoms/Button'
-import { NotificationModal } from './NotificationModal'
+import { DefaultModal } from './DefaultModal'
 
 /**
- * Modal de detalhe de notificação: acionado via Portal do React, exibe título
+ * Modal genérico de detalhe: acionado via Portal do React, exibe título
  * e corpo completos. Controlado (`isOpen`/`onClose`) — o gatilho e o estado
  * ficam com quem consome (aqui, o `NotificationListItem`). Nas stories, um
  * wrapper com `useState` provê o gatilho e o estado.
  */
-const meta: Meta<typeof NotificationModal> = {
-  title: 'Componentes/Sobreposição/NotificationModal',
-  component: NotificationModal,
+const meta: Meta<typeof DefaultModal> = {
+  title: 'Componentes/Sobreposição/DefaultModal',
+  component: DefaultModal,
   parameters: { layout: 'padded' },
 }
 
 export default meta
-type Story = StoryObj<typeof NotificationModal>
+type Story = StoryObj<typeof DefaultModal>
 
 function Demo({ title, body }: { title: string; body: string }) {
   const [isOpen, setIsOpen] = useState(false)
@@ -24,7 +24,7 @@ function Demo({ title, body }: { title: string; body: string }) {
   return (
     <>
       <Button onClick={() => setIsOpen(true)}>Abrir notificação</Button>
-      <NotificationModal
+      <DefaultModal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         title={title}
