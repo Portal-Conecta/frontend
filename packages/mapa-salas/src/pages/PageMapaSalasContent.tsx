@@ -11,9 +11,13 @@
  * - Gerência (SENAI/WEG/ADMIN…): seleciona sala e turma, view read-only
  *   (`selectedStudentId = null`), sem rodapé.
  *
- * A `RoomFilterBar` do squad ainda não existe — integrada aqui atrás do
- * `RoomFilterBarMock` com dados fictícios (ver TODO abaixo). Aluno e gerência
- * usam o mesmo seletor; muda só a etapa de turma (`showTurma`).
+ * A `RoomFilterBar` final do squad Front-End (Figma 197-3019) ainda não tem PR
+ * aberto — a etapa/stepper daqui é montada com os controles reais do DS
+ * (`SearchBar`/`Select`, ver `RoomFilterBar.tsx`). `rooms`/`turmas` chegam via
+ * prop, já resolvidos no servidor por `PageMapaSalas.tsx` (`hubOptionsService`,
+ * TEMP até existir um endpoint dedicado — troque quando o squad entregar o
+ * componente oficial). Aluno e gerência usam o mesmo seletor; muda só a etapa
+ * de turma (`showTurma`).
  */
 import { useState } from 'react'
 
@@ -21,27 +25,17 @@ import type { CurrentUser } from '@portal/core'
 import { Text } from '@portal/ui'
 
 import { canEditRoomMap } from '../auth/canEditRoomMap'
-import { RoomFilterBarMock, type RoomFilterOption } from './RoomFilterBarMock'
+import type { RoomFilterOption } from '../types/hub'
+import { RoomFilterBar } from './RoomFilterBar'
 import { RoomMapSection } from './RoomMapSection'
-
-// TODO(mapa-salas): trocar por dados reais quando existir o endpoint de
-// salas/turmas e a RoomFilterBar do squad (Figma 197-3019). Ids fictícios — a
-// chamada do view só resolve com ids reais do backend.
-const MOCK_ROOMS: RoomFilterOption[] = [
-  { id: 'sala-204-lab', code: '204', label: 'Laboratório de informática' },
-  { id: 'sala-204-aula', code: '204', label: 'Sala de aula' },
-  { id: 'sala-113', code: '113', label: 'Sala de aula' },
-]
-const MOCK_TURMAS: RoomFilterOption[] = [
-  { id: 'turma-mids-78', code: 'MIDS-78', label: 'Manhã' },
-  { id: 'turma-mids-79', code: 'MIDS-79', label: 'Tarde' },
-]
 
 export interface PageMapaSalasContentProps {
   user: CurrentUser | null
+  rooms: RoomFilterOption[]
+  turmas: RoomFilterOption[]
 }
 
-export function PageMapaSalasContent({ user }: PageMapaSalasContentProps) {
+export function PageMapaSalasContent({ user, rooms, turmas }: PageMapaSalasContentProps) {
   const isStudent = user?.userType === 'STUDENT'
   // Aluno: turma fixa (primeira matrícula). Gerência: escolhida na barra.
   const studentTurmaId = user?.classes[0]?.classId ?? null
@@ -75,12 +69,12 @@ export function PageMapaSalasContent({ user }: PageMapaSalasContentProps) {
           {heading}
         </Text>
         <div className="w-full max-w-3xl">
-          <RoomFilterBarMock
-            rooms={MOCK_ROOMS}
+          <RoomFilterBar
+            rooms={rooms}
             selectedRoomId={selectedRoomId}
             onSelectRoom={setSelectedRoomId}
             showTurma={!isStudent}
-            turmas={MOCK_TURMAS}
+            turmas={turmas}
             selectedTurmaId={selectedTurmaId}
             onSelectTurma={setSelectedTurmaId}
           />
@@ -89,8 +83,8 @@ export function PageMapaSalasContent({ user }: PageMapaSalasContentProps) {
     )
   }
 
-  const selectedRoom = MOCK_ROOMS.find((room) => room.id === selectedRoomId)
-  const selectedTurma = MOCK_TURMAS.find((turma) => turma.id === selectedTurmaId)
+  const selectedRoom = rooms.find((room) => room.id === selectedRoomId)
+  const selectedTurma = turmas.find((turma) => turma.id === selectedTurmaId)
 
   return (
     <div className="flex flex-col gap-10 p-6 md:p-8">

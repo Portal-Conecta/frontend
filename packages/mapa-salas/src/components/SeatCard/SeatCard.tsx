@@ -33,10 +33,11 @@ const defaultLabel: Partial<Record<SeatCardState, string>> = {
 
 const colorClassByState: Record<SeatCardState, string> = {
   available: 'text-text-secondary',
-  occupied: 'text-interactive-default',
-  // "Selecionado" reusa interactive-pressed, mesmo padrão do estado ativo do
-  // SidebarNavItem — não há token dedicado a seleção no DS.
-  selected: 'text-interactive-pressed',
+  // "Ocupado" precisa ficar visualmente neutro — só o assento do próprio
+  // usuário (`selected`) pode usar azul, senão o "ponto azul" do rodapé
+  // (RoomMapSection) deixa de ser único e vira ambíguo com colegas alocados.
+  occupied: 'text-text-primary',
+  selected: 'text-interactive-default',
   teacher: 'text-interactive-default',
 }
 

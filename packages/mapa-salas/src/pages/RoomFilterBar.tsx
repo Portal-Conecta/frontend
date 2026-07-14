@@ -1,12 +1,16 @@
 'use client'
 
 /**
- * RoomFilterBarMock — stand-in temporário da `RoomFilterBar` do squad Front-End
- * (Figma 197-3019), que ainda não tem PR aberto. Espelha o frame de seleção do
- * Figma (aluno: node 2004:785 · gerência: node 2004:930): uma barra de progresso
- * com a(s) etapa(s), um campo de busca e a **lista inline** de opções (não um
- * dropdown). Aluno e gerência usam o MESMO componente — muda só a quantidade de
- * etapas.
+ * RoomFilterBar — seleção de sala (e, na gerência, turma) para o Mapa de Sala.
+ * Monta a barra de progresso do fluxo por cima dos controles reais do DS:
+ * `SearchBar` (etapa "Selecionar Sala") e `Select` (etapa "Selecionar Turma").
+ * Substitui o antigo `RoomFilterBarMock`, que reimplementava campo de busca +
+ * lista na mão — agora é só a etapa/estado local, a UI vem de `@portal/ui`.
+ *
+ * Ainda não é a `RoomFilterBar` final do squad Front-End (Figma 197-3019): o
+ * layout de duas etapas (barra de progresso + campo) é o mesmo, mas a
+ * composição exata do frame pode divergir. Quando o componente oficial existir,
+ * troque o import no `PageMapaSalasContent` e apague este arquivo.
  *
  * Um fluxo, dois modos via `showTurma`:
  * - Aluno (`false`): só a etapa "Selecionar Sala". A turma é fixa (matrícula),
@@ -14,15 +18,10 @@
  * - Gerência (`true`): stepper "Selecionar Sala" → "Selecionar Turma". Ao escolher
  *   a sala, avança para a turma; as etapas são clicáveis para voltar; a de turma
  *   só habilita após a sala escolhida.
- *
- * Proposital: NÃO é exportado do barrel — a `RoomFilterBar` real vai dona desse
- * nome/caminho. Quando ela existir, troque o import no `PageMapaSalasContent` e
- * apague este arquivo. A interface de props aqui é o contrato mínimo que a página
- * precisa; alinhar com o squad ao integrar.
  */
 import { useState } from 'react'
 
-import { Input, ListItem, Text } from '@portal/ui'
+import { SearchBar, Select, Text, type SearchBarItem, type SelectOption } from '@portal/ui'
 
 export interface RoomFilterOption {
   /** Id real (backend) da sala/turma — vai na chamada do view. */
@@ -35,7 +34,7 @@ export interface RoomFilterOption {
 
 type Step = 'sala' | 'turma'
 
-export interface RoomFilterBarMockProps {
+export interface RoomFilterBarProps {
   rooms: RoomFilterOption[]
   selectedRoomId: string | null
   onSelectRoom: (roomId: string) => void
@@ -44,6 +43,14 @@ export interface RoomFilterBarMockProps {
   turmas?: RoomFilterOption[]
   selectedTurmaId?: string | null
   onSelectTurma?: (turmaId: string) => void
+}
+
+function toSearchBarItem(option: RoomFilterOption): SearchBarItem {
+  return { value: option.id, label: option.label, meta: option.code }
+}
+
+function toSelectOption(option: RoomFilterOption): SelectOption {
+  return { value: option.id, label: `${option.code} — ${option.label}` }
 }
 
 function matchesQuery(option: RoomFilterOption, query: string): boolean {
@@ -81,7 +88,7 @@ function StepTab({ label, active, disabled = false, onClick }: StepTabProps) {
   )
 }
 
-export function RoomFilterBarMock({
+export function RoomFilterBar({
   rooms,
   selectedRoomId,
   onSelectRoom,
@@ -89,36 +96,37 @@ export function RoomFilterBarMock({
   turmas = [],
   selectedTurmaId = null,
   onSelectTurma,
-}: RoomFilterBarMockProps) {
+}: RoomFilterBarProps) {
   const [step, setStep] = useState<Step>('sala')
-  const [query, setQuery] = useState('')
+  // Filtro da etapa "sala": a `SearchBar` base é controlada (não busca sozinha),
+  // então o filtro por texto sobre a lista já carregada continua aqui.
+  const [roomQuery, setRoomQuery] = useState('')
 
   const canSelectTurma = Boolean(selectedRoomId)
   const onTurmaStep = showTurma && step === 'turma'
-  const options = onTurmaStep ? turmas : rooms
-  const selectedId = onTurmaStep ? selectedTurmaId : selectedRoomId
-  const visibleOptions = options.filter((option) => matchesQuery(option, query))
 
   function goToStep(next: Step) {
     if (next === 'turma' && (!showTurma || !canSelectTurma)) return
     setStep(next)
-    setQuery('')
+    setRoomQuery('')
   }
 
-  function handleSelect(optionId: string) {
-    if (!onTurmaStep) {
-      onSelectRoom(optionId)
-      // Gerência: avança para a turma. Aluno: turma fixa, a seleção já resolve.
-      if (showTurma) {
-        setStep('turma')
-        setQuery('')
-      }
-      return
+  function handleSelectRoom(item: SearchBarItem) {
+    onSelectRoom(item.value)
+    // Gerência: avança para a turma. Aluno: turma fixa, a seleção já resolve.
+    if (showTurma) {
+      setStep('turma')
+      setRoomQuery('')
     }
-    onSelectTurma?.(optionId)
   }
 
-  const searchLabel = onTurmaStep ? 'Buscar turma' : 'Buscar sala'
+  function handleSelectTurma(value: string | null) {
+    if (value) onSelectTurma?.(value)
+  }
+
+  const selectedRoom = rooms.find((room) => room.id === selectedRoomId) ?? null
+  const visibleRoomItems = rooms.filter((room) => matchesQuery(room, roomQuery)).map(toSearchBarItem)
+  const turmaOptions = turmas.map(toSelectOption)
 
   return (
     <div className="flex flex-col gap-6">
@@ -135,41 +143,28 @@ export function RoomFilterBarMock({
         ) : null}
       </div>
 
-      <div className="flex flex-col gap-2">
-        <Input
-          type="search"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder={searchLabel}
-          aria-label={searchLabel}
+      {onTurmaStep ? (
+        <Select
+          options={turmaOptions}
+          value={selectedTurmaId}
+          onChange={handleSelectTurma}
+          placeholder="Buscar turma"
+          aria-label="Buscar turma"
+          emptyMessage="Nenhum resultado encontrado."
+          clearable
         />
-
-        <div>
-          {visibleOptions.map((option) => (
-            <ListItem
-              key={option.id}
-              selectable
-              selected={option.id === selectedId}
-              onClick={() => handleSelect(option.id)}
-            >
-              <span className="flex items-center gap-3">
-                <Text as="span" variant="label-sm" tone="secondary">
-                  {option.code}
-                </Text>
-                <Text as="span" variant="label-sm" tone="secondary">
-                  {option.label}
-                </Text>
-              </span>
-            </ListItem>
-          ))}
-
-          {visibleOptions.length === 0 ? (
-            <Text as="p" variant="label-sm" tone="secondary" className="p-4 text-center">
-              Nenhum resultado encontrado.
-            </Text>
-          ) : null}
-        </div>
-      </div>
+      ) : (
+        <SearchBar
+          items={visibleRoomItems}
+          selectedItem={selectedRoom ? toSearchBarItem(selectedRoom) : null}
+          onSelect={handleSelectRoom}
+          onQueryChange={setRoomQuery}
+          clearOnSelect={false}
+          placeholder="Buscar sala"
+          aria-label="Buscar sala"
+          emptyMessage="Nenhum resultado encontrado."
+        />
+      )}
     </div>
   )
 }
