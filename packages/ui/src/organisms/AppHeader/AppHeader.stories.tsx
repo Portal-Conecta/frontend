@@ -20,6 +20,10 @@ const meta: Meta<typeof AppHeader> = {
       description: 'Há notificação não lida — sobrepõe um dot vermelho no sino.',
     },
     onProfileClick: { control: false, description: 'Clique no ícone de perfil (circle-user).' },
+    profileMenuOpen: {
+      control: 'boolean',
+      description: 'Menu de perfil aberto — vira aria-expanded no botão (circle-user).',
+    },
   },
   args: {
     sidebarExpanded: false,

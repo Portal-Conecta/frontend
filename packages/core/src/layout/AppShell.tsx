@@ -68,6 +68,7 @@ export function AppShell({
         activeKey={activeKey}
         onLogoClick={() => router.push('/comunicados')}
         onProfileClick={() => setMenuOpen((value) => !value)}
+        profileMenuOpen={menuOpen}
         onNotificationsClick={() => router.push('/notifications')}
         hasUnreadNotifications={hasUnreadNotifications}
       >

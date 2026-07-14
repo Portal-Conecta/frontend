@@ -88,6 +88,7 @@ export function ProfileMenu({ open, onClose, onNavigateProfile, onLogout }: Prof
   return (
     <div
       ref={panelRef}
+      id="profile-menu"
       role="menu"
       aria-label="Menu de perfil"
       tabIndex={-1}

@@ -30,6 +30,8 @@ export interface AppHeaderProps {
   hasUnreadNotifications?: boolean
   /** Clique no ícone de perfil (circle-user). */
   onProfileClick?: () => void
+  /** Menu de perfil aberto — vira aria-expanded no botão (circle-user). */
+  profileMenuOpen?: boolean
   className?: string
 }
 
@@ -44,6 +46,12 @@ interface ActionItem {
   /** Sobrepõe um dot vermelho (notificação não lida) no canto do ícone. */
   showDot?: boolean
 }
+
+// O item `circle-user` é o único gatilho do ProfileMenu (@portal/core): o
+// `data-profile-trigger` e o ARIA de disclosure abaixo são fiados nesse ícone
+// específico. Trocar o ícone deste item sem atualizar as duas referências
+// quebra o clique-fora do menu e o aria-expanded/aria-controls.
+const PROFILE_TRIGGER_ICON: IconName = 'circle-user'
 
 // Ícone de ação por breakpoint: 24px (md) abaixo de lg, 32px (lg) no desktop,
 // espelhando o Figma. O `size` do átomo Icon é fixo, então o tamanho responsivo
@@ -65,6 +73,7 @@ export function AppHeader({
   onNotificationsClick,
   hasUnreadNotifications = false,
   onProfileClick,
+  profileMenuOpen = false,
   className,
 }: AppHeaderProps) {
   const sidebarWidth = sidebarExpanded ? SIDEBAR_WIDTH_EXPANDED : SIDEBAR_WIDTH_COLLAPSED
@@ -80,7 +89,7 @@ export function AppHeader({
       onClick: onNotificationsClick,
       showDot: hasUnreadNotifications,
     },
-    { icon: 'circle-user', label: 'Perfil', onClick: onProfileClick },
+    { icon: PROFILE_TRIGGER_ICON, label: 'Perfil', onClick: onProfileClick },
   ]
 
   // Mobile/tablet: a sidebar é separada (drawer/FAB), então o header é branco.
@@ -134,7 +143,14 @@ export function AppHeader({
               // próprio gatilho: sem isso, o listener de "clique fora" que fecha o
               // menu dispara no `pointerdown` do mesmo clique que o reabre — o
               // toggle nunca fecha (issue #328).
-              {...(icon === 'circle-user' ? { 'data-profile-trigger': true } : {})}
+              {...(icon === PROFILE_TRIGGER_ICON
+                ? {
+                    'data-profile-trigger': true,
+                    'aria-haspopup': 'menu' as const,
+                    'aria-expanded': profileMenuOpen,
+                    'aria-controls': 'profile-menu',
+                  }
+                : {})}
             >
               <span className="relative inline-flex">
                 <ActionIcon name={icon} />
