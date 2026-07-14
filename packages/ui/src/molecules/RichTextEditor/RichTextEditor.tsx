@@ -25,6 +25,11 @@ export interface RichTextEditorProps {
   /** Altura mínima da área editável (px). Default 160. */
   minHeight?: number
   'aria-label'?: string
+  /**
+   * Id do label externo (ex.: injetado pelo `Field`). Necessário porque o
+   * contenteditable do TipTap não é elemento "labelable" via `htmlFor`.
+   */
+  'aria-labelledby'?: string
 }
 
 const editorSurfaceClass = [
@@ -85,6 +90,7 @@ export function RichTextEditor({
   className,
   minHeight = 160,
   'aria-label': ariaLabel,
+  'aria-labelledby': ariaLabelledby,
 }: RichTextEditorProps) {
   const generatedId = useId()
   const editorId = id ?? generatedId
@@ -99,6 +105,7 @@ export function RichTextEditor({
       attributes: {
         id: editorId,
         class: editorSurfaceClass,
+        ...(ariaLabelledby ? { 'aria-labelledby': ariaLabelledby } : {}),
         ...(ariaLabel ? { 'aria-label': ariaLabel } : {}),
         ...(error ? { 'aria-invalid': 'true', 'aria-describedby': errorId } : {}),
       },
@@ -120,6 +127,34 @@ export function RichTextEditor({
       editor.commands.setContent(value || '', { emitUpdate: false })
     }
   }, [editor, value])
+
+  // TipTap só aplica `editorProps.attributes` na criação — sincroniza a11y quando
+  // o `Field` (ou o pai) injeta/atualiza id e aria-labelledby após o mount.
+  useEffect(() => {
+    if (!editor) return
+    const dom = editor.view.dom
+    dom.id = editorId
+
+    if (ariaLabelledby) {
+      dom.setAttribute('aria-labelledby', ariaLabelledby)
+    } else {
+      dom.removeAttribute('aria-labelledby')
+    }
+
+    if (ariaLabel) {
+      dom.setAttribute('aria-label', ariaLabel)
+    } else {
+      dom.removeAttribute('aria-label')
+    }
+
+    if (error) {
+      dom.setAttribute('aria-invalid', 'true')
+      dom.setAttribute('aria-describedby', errorId)
+    } else {
+      dom.removeAttribute('aria-invalid')
+      dom.removeAttribute('aria-describedby')
+    }
+  }, [editor, editorId, ariaLabelledby, ariaLabel, error, errorId])
 
   const boxClasses = [
     'flex flex-col rounded-md border-sm transition-colors overflow-hidden',
