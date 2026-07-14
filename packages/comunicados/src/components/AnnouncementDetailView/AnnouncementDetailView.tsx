@@ -73,7 +73,7 @@ function Header({
   return (
     <header className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2">
-        <Tag tone="info" size="sm">
+        <Tag tone="neutral" size="sm">
           {originLabel[announcement.origin] ?? announcement.origin}
         </Tag>
         {announcement.pinned ? (

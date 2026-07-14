@@ -1,4 +1,4 @@
-import type { Tag, TagEntityType } from '../types'
+import type { Tag, TagEntityType } from '../../types'
 
 import { createHttpClient } from '@portal/core/http/httpClient'
 import type { QueryParams } from '@portal/core/http/query'

@@ -1,5 +1,9 @@
 import type { AnnouncementFilters } from '../components/AnnouncementFiltersBar'
-import type { AnnouncementSummary, ListPostsParams } from '../types/announcement'
+import type {
+  AnnouncementOrigin,
+  AnnouncementSummary,
+  ListPostsParams,
+} from '../types/announcement'
 import type { Tag, TagEntityType } from '../types/tag'
 
 const PAGE_SIZE = 6
@@ -94,12 +98,14 @@ export function announcementMatchesMuralFilters(
   const postTags = post.tags ?? []
 
   if (filters.curso) {
-    const ok = postTags.some((tag) => tagMatchesHubEntity(tag, 'COURSE', filters.curso!))
+    const curso = filters.curso
+    const ok = postTags.some((tag) => tagMatchesHubEntity(tag, 'COURSE', curso))
     if (!ok) return false
   }
 
   if (filters.turno) {
-    const ok = postTags.some((tag) => tagMatchesHubEntity(tag, 'SHIFT', filters.turno!))
+    const turno = filters.turno
+    const ok = postTags.some((tag) => tagMatchesHubEntity(tag, 'SHIFT', turno))
     if (!ok) return false
   }
 
@@ -124,7 +130,7 @@ export function toListPostsParams(
   const requiredTagIds = resolveRequiredTagIds(filters, tags)
 
   if (search) params.search = search
-  if (filters.origem) params.origin = filters.origem as ListPostsParams['origin']
+  if (filters.origem) params.origin = filters.origem as AnnouncementOrigin
   if (filters.turma) params.classId = filters.turma
 
   if (requiredTagIds.length === 1) {
