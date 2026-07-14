@@ -15,6 +15,10 @@ const meta: Meta<typeof AppHeader> = {
     onLogoClick: { control: false, description: 'Clique na logo — navegação para a home.' },
     onMoreOptionsClick: { control: false, description: 'Clique no ícone "mais opções" (ellipsis).' },
     onNotificationsClick: { control: false, description: 'Clique no ícone de notificações (bell).' },
+    hasUnreadNotifications: {
+      control: 'boolean',
+      description: 'Há notificação não lida — sobrepõe um dot vermelho no sino.',
+    },
     onProfileClick: { control: false, description: 'Clique no ícone de perfil (circle-user).' },
   },
   args: {
@@ -43,4 +47,9 @@ export const DesktopColapsada: Story = {
 /** Desktop com a sidebar expandida: logo-full sobre o rail de 254px, ações soltas. */
 export const DesktopExpandida: Story = {
   args: { sidebarExpanded: true },
+}
+
+/** Desktop com notificação não lida: sino azul com um dot vermelho sobreposto. */
+export const ComNotificacaoNaoLida: Story = {
+  args: { sidebarExpanded: true, hasUnreadNotifications: true },
 }

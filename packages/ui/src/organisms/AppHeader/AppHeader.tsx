@@ -26,6 +26,8 @@ export interface AppHeaderProps {
   onMoreOptionsClick?: () => void
   /** Clique no ícone de notificações (bell). */
   onNotificationsClick?: () => void
+  /** Há notificação não lida — sobrepõe um dot vermelho no sino. */
+  hasUnreadNotifications?: boolean
   /** Clique no ícone de perfil (circle-user). */
   onProfileClick?: () => void
   className?: string
@@ -39,6 +41,8 @@ interface ActionItem {
   icon: IconName
   label: string
   onClick: (() => void) | undefined
+  /** Sobrepõe um dot vermelho (notificação não lida) no canto do ícone. */
+  showDot?: boolean
 }
 
 // Ícone de ação por breakpoint: 24px (md) abaixo de lg, 32px (lg) no desktop,
@@ -59,6 +63,7 @@ export function AppHeader({
   onLogoClick,
   onMoreOptionsClick,
   onNotificationsClick,
+  hasUnreadNotifications = false,
   onProfileClick,
   className,
 }: AppHeaderProps) {
@@ -68,7 +73,13 @@ export function AppHeader({
 
   const actions: ActionItem[] = [
     { icon: 'ellipsis', label: 'Mais opções', onClick: onMoreOptionsClick },
-    { icon: 'bell', label: 'Notificações', onClick: onNotificationsClick },
+    {
+      icon: 'bell',
+      // Comunica ao leitor de tela o mesmo que o dot vermelho comunica visualmente.
+      label: hasUnreadNotifications ? 'Notificações (novas)' : 'Notificações',
+      onClick: onNotificationsClick,
+      showDot: hasUnreadNotifications,
+    },
     { icon: 'circle-user', label: 'Perfil', onClick: onProfileClick },
   ]
 
@@ -92,7 +103,7 @@ export function AppHeader({
           type="button"
           onClick={onLogoClick}
           aria-label="Página inicial"
-          className={`rounded-md ${focusRing}`}
+          className={`cursor-pointer rounded-md ${focusRing}`}
         >
           <Logo variant={sidebarExpanded ? 'full' : 'mark'} tone="brand" size={54} decorative />
         </button>
@@ -104,7 +115,7 @@ export function AppHeader({
           type="button"
           onClick={onLogoClick}
           aria-label="Página inicial"
-          className={`rounded-md lg:hidden ${focusRing}`}
+          className={`cursor-pointer rounded-md lg:hidden ${focusRing}`}
         >
           <Logo variant="mark" tone="brand" size={32} decorative className="md:hidden" />
           <Logo variant="mark" tone="brand" size={44} decorative className="hidden md:block" />
@@ -112,20 +123,36 @@ export function AppHeader({
 
         {/* Pílula (background/default) no mobile/tablet; sem container no desktop. Cada botão tem rótulo próprio. */}
         <div className="ml-auto flex items-center gap-4 rounded-full border-sm border-border-default bg-background-default px-6 py-1.5 lg:gap-6 lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0">
-          {actions.map(({ icon, label, onClick }) => (
+          {actions.map(({ icon, label, onClick, showDot }) => (
             <button
               key={icon}
               type="button"
               onClick={onClick}
               aria-label={label}
-              className={`rounded-md ${focusRing}`}
+              className={`cursor-pointer rounded-md ${focusRing}`}
               // Deixa o `ProfileMenu` (@portal/core) reconhecer este botão como o
               // próprio gatilho: sem isso, o listener de "clique fora" que fecha o
               // menu dispara no `pointerdown` do mesmo clique que o reabre — o
               // toggle nunca fecha (issue #328).
               {...(icon === 'circle-user' ? { 'data-profile-trigger': true } : {})}
             >
-              <ActionIcon name={icon} />
+              <span className="relative inline-flex">
+                <ActionIcon name={icon} />
+                {/* Dot de notificação: sino azul (tone primary), só o dot é vermelho.
+                    Posicionado no ombro do sino como o `bell-dot` do DS (Lucide: centro
+                    ~75%/33% da caixa). O anel na cor do fundo recria o notch que separa
+                    o dot do traço do sino.
+                    Os valores arbitrários de posição (top-[28%] e os -translate-*) não
+                    têm token equivalente — não existe token de posicionamento de badge no
+                    DS, então é exceção consciente (como rounded-[20px] em outros pontos por
+                    falta de token de radius). Dívida conhecida a registrar com o squad. */}
+                {showDot ? (
+                  <span
+                    aria-hidden
+                    className="absolute left-3/4 top-[28%] h-2 w-2 -translate-x-[50%] -translate-y-[50%] rounded-full bg-feedback-error ring-2 ring-background-default lg:h-2.5 lg:w-2.5"
+                  />
+                ) : null}
+              </span>
             </button>
           ))}
         </div>

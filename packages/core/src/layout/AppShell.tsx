@@ -9,7 +9,9 @@
  * Dono do estado do `ProfileMenu` (issue #328): o ícone de perfil do
  * `AppHeader` só expõe `onProfileClick`, então o toggle mora aqui, e o painel
  * é renderizado como irmão do `AppLayout` (posição `fixed`, não precisa de
- * portal — sem ancestral com transform entre aqui e o body).
+ * portal — sem ancestral com transform entre aqui e o body). Também dono da
+ * contagem de notificações não lidas (issue #324, `useUnreadNotificationsCount`),
+ * repassada ao `AppHeader` via `hasUnreadNotifications`.
  *
  * Provisório: o padrão final de página/rota (Route Group consumindo a page do
  * domínio) fecha com o piloto de Comunicados — ver docs/conventions/layout-e-paginas.md.
@@ -20,6 +22,7 @@ import { useRouter } from 'next/navigation'
 import { AppLayout, PermissionsProvider, type CurrentUser } from '@portal/core'
 import type { SidebarItem } from '@portal/ui'
 
+import { useUnreadNotificationsCount } from '../notifications/useUnreadNotificationsCount'
 import { visibleNavFor } from './navRegistry'
 import { clearProfileMenuCache, ProfileMenu } from './ProfileMenu'
 
@@ -34,6 +37,7 @@ export function AppShell({
 }) {
   const router = useRouter()
   const [menuOpen, setMenuOpen] = useState(false)
+  const hasUnreadNotifications = useUnreadNotificationsCount()
 
   const items: SidebarItem[] = visibleNavFor(user).map(
     ({ key, icon, label, href }) => ({
@@ -64,6 +68,8 @@ export function AppShell({
         activeKey={activeKey}
         onLogoClick={() => router.push('/comunicados')}
         onProfileClick={() => setMenuOpen((value) => !value)}
+        onNotificationsClick={() => router.push('/notifications')}
+        hasUnreadNotifications={hasUnreadNotifications}
       >
         {children}
       </AppLayout>
