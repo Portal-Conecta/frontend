@@ -1,1 +1,1 @@
-export * from './StatusToggle'
+export * from "./StatusToggle";
