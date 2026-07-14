@@ -119,6 +119,11 @@ export function AppHeader({
               onClick={onClick}
               aria-label={label}
               className={`rounded-md ${focusRing}`}
+              // Deixa o `ProfileMenu` (@portal/core) reconhecer este botão como o
+              // próprio gatilho: sem isso, o listener de "clique fora" que fecha o
+              // menu dispara no `pointerdown` do mesmo clique que o reabre — o
+              // toggle nunca fecha (issue #328).
+              {...(icon === 'circle-user' ? { 'data-profile-trigger': true } : {})}
             >
               <ActionIcon name={icon} />
             </button>
