@@ -32,14 +32,14 @@ export const typography = {
     'display-lg': ['10rem', { lineHeight: '1' }], // 160px
     'display-xl': ['15rem', { lineHeight: '1' }], // 240px
 
-    // Headings — Inter SemiBold (peso embutido: headings são sempre 600 no DS)
-    'heading-h1': ['3rem',    { lineHeight: '1.2',  fontWeight: '600' }], // 48px / 120% SemiBold
-    'heading-h2': ['2.25rem', { lineHeight: '1.25', fontWeight: '600' }], // 36px / 125% SemiBold
-    // heading-h3: promovido no código (aprovação TL, issue #304) sem fonte ainda
-    // na coleção Typography do Figma DS — mesmo padrão do display-*. lineHeight
-    // extrapolado a partir da progressão h1(1.2)/h2(1.25); confirmar com design
-    // no próximo sync (ver AGENTS.md § Dívidas técnicas).
-    'heading-h3': ['1.5rem',  { lineHeight: '1.3',  fontWeight: '600' }], // 24px / 130% SemiBold
+    // Headings — Inter SemiBold (peso embutido: headings são sempre 600 no DS).
+    // Tamanho e lineHeight seguem a escala Headline do Material Design 3
+    // (Large/Medium/Small) — promovido no código (aprovação TL, issue #328),
+    // ainda não refletido na coleção Typography do Figma DS (ver AGENTS.md §
+    // Dívidas técnicas).
+    'heading-h1': ['2rem',    { lineHeight: '1.25', fontWeight: '600' }], // 32px / 125% SemiBold (MD3 Headline Large)
+    'heading-h2': ['1.75rem', { lineHeight: '1.29', fontWeight: '600' }], // 28px / 129% SemiBold (MD3 Headline Medium)
+    'heading-h3': ['1.5rem',  { lineHeight: '1.33', fontWeight: '600' }], // 24px / 133% SemiBold (MD3 Headline Small)
 
     // Body — Afacad
     'body-xl':          ['1.5rem',  { lineHeight: '1.5' }],                    // 24px / 150% Regular

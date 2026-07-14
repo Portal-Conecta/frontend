@@ -11,6 +11,7 @@ import { Button, Text } from '@portal/ui'
 
 import { usePostsList } from '../../hooks/usePostsList'
 import { formatAnnouncementDate, getAnnouncementOriginLabel } from '../../utils/announcement'
+import { getAnnouncementPlainDescription } from '../../utils/announcementDescription'
 import { ComunicadosEmptyState } from '../ComunicadosEmptyState'
 import { PinnedPostsSection } from '../PinnedPostsSection'
 import {
@@ -241,8 +242,8 @@ function AnnouncementFeedItem({ post }: { post: AnnouncementSummary }) {
             {post.title}
           </Text>
 
-          <Text as="p" variant="body-sm" tone="primary" className="mt-4 hidden line-clamp-3 md:block">
-            {post.description}
+          <Text as="p" variant="body-sm" tone="primary" className="mt-4 hidden truncate md:block">
+            {getAnnouncementPlainDescription(post)}
           </Text>
 
           <Text as="p" variant="label-xs" tone="secondary" className="mt-3 md:mt-6">
