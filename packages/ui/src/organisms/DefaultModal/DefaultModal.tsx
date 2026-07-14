@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useId, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { Icon } from '../../atoms/Icon'
 import { useFocusTrap } from '../../hooks/useFocusTrap'
@@ -14,6 +14,7 @@ export interface DefaultModalProps {
 
 export function DefaultModal({ isOpen, onClose, title, body }: DefaultModalProps) {
   const modalRef = useRef<HTMLDivElement>(null)
+  const titleId = useId()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -33,7 +34,7 @@ export function DefaultModal({ isOpen, onClose, title, body }: DefaultModalProps
         className="relative w-full max-w-lg z-10 rounded-md border border-border-default bg-background-default shadow-lg focus:outline-none flex flex-col"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="modal-title"
+        aria-labelledby={titleId}
       >
         <div className="flex w-full justify-end border-b border-border-default rounded-t-md px-4 py-3">
             <button
@@ -47,7 +48,7 @@ export function DefaultModal({ isOpen, onClose, title, body }: DefaultModalProps
         </div>
 
         <div className="flex flex-col gap-3 p-6">
-            <div className="text-body-md-emphasis text-text-brand leading-relaxed whitespace-pre-wrap">
+            <div id={titleId} className="text-body-md-emphasis text-text-brand leading-relaxed whitespace-pre-wrap">
                 {title}
             </div>
 
