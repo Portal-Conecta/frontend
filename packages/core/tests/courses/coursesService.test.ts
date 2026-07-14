@@ -97,6 +97,12 @@ describe('listCourses', () => {
     })
   })
 
+  it('ignora turma inativa no turno pedido (curso não entra no filtro)', async () => {
+    routeFetch([makeClass('t1', 'c2', { shift: 'FULL_PM_NT', active: false })])
+
+    await expect(listCourses(TOKEN, { shift: 'FULL_PM_NT' })).resolves.toEqual({ courses: [] })
+  })
+
   it('mapeia 401 para HttpError unauthorized', async () => {
     stubFetch().mockResolvedValue(response(401, {}))
     await expect(listCourses(TOKEN)).rejects.toMatchObject({ kind: 'unauthorized' })

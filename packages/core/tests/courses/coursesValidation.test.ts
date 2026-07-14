@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  MAX_CODE_LENGTH,
+  MAX_CREATE_BATCH,
+  MAX_NAME_LENGTH,
   parseCreateCourse,
   parseCreateCourseBatch,
   parseUpdateCourse,
@@ -32,6 +35,24 @@ describe('parseCreateCourse', () => {
   it('rejeita tipos não-string', () => {
     const result = parseCreateCourse({ code: 42, name: null })
     expect(result.ok).toBe(false)
+  })
+
+  it('rejeita código acima do teto de tamanho', () => {
+    const result = parseCreateCourse({ code: 'C'.repeat(MAX_CODE_LENGTH + 1), name: 'Curso' })
+    expect(result.ok).toBe(false)
+    if (result.ok) throw new Error('esperava falha')
+    expect(result.errors).toEqual([
+      { field: 'code', message: `Código deve ter no máximo ${MAX_CODE_LENGTH} caracteres.` },
+    ])
+  })
+
+  it('rejeita nome acima do teto de tamanho', () => {
+    const result = parseCreateCourse({ code: 'C', name: 'N'.repeat(MAX_NAME_LENGTH + 1) })
+    expect(result.ok).toBe(false)
+    if (result.ok) throw new Error('esperava falha')
+    expect(result.errors).toEqual([
+      { field: 'name', message: `Nome deve ter no máximo ${MAX_NAME_LENGTH} caracteres.` },
+    ])
   })
 })
 
@@ -73,6 +94,26 @@ describe('parseCreateCourseBatch', () => {
     const result = parseCreateCourseBatch([])
     expect(result.ok).toBe(false)
   })
+
+  it(`aceita exatamente ${MAX_CREATE_BATCH} itens`, () => {
+    const items = Array.from({ length: MAX_CREATE_BATCH }, (_, i) => ({
+      code: `C${i}`,
+      name: `Curso ${i}`,
+    }))
+    expect(parseCreateCourseBatch(items).ok).toBe(true)
+  })
+
+  it(`rejeita lote acima de ${MAX_CREATE_BATCH} itens`, () => {
+    const items = Array.from({ length: MAX_CREATE_BATCH + 1 }, (_, i) => ({
+      code: `C${i}`,
+      name: `Curso ${i}`,
+    }))
+    const result = parseCreateCourseBatch(items)
+    expect(result.ok).toBe(false)
+    if (result.ok) throw new Error('esperava falha')
+    expect(result.errors[0]!.index).toBe(-1)
+    expect(result.errors[0]!.errors[0]!.message).toContain(String(MAX_CREATE_BATCH))
+  })
 })
 
 describe('parseUpdateCourse', () => {
@@ -98,5 +139,14 @@ describe('parseUpdateCourse', () => {
     expect(result.ok).toBe(false)
     if (result.ok) throw new Error('esperava falha')
     expect(result.errors).toEqual([{ field: 'name', message: 'Nome não pode ser vazio.' }])
+  })
+
+  it('rejeita campo presente acima do teto de tamanho', () => {
+    const result = parseUpdateCourse({ code: 'C'.repeat(MAX_CODE_LENGTH + 1) })
+    expect(result.ok).toBe(false)
+    if (result.ok) throw new Error('esperava falha')
+    expect(result.errors).toEqual([
+      { field: 'code', message: `Código deve ter no máximo ${MAX_CODE_LENGTH} caracteres.` },
+    ])
   })
 })
