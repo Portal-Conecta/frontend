@@ -18,6 +18,12 @@ apps/*/dist/
 # TypeScript
 *.tsbuildinfo
 
+# Accidental tsc emit next to app sources (must never ship in src/)
+apps/**/src/**/*.js
+apps/**/src/**/*.js.map
+apps/**/src/**/*.d.ts
+apps/**/src/**/*.d.ts.map
+
 # Storybook
 storybook-static/
 .storybook/tailwind.generated.css
