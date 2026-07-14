@@ -11,10 +11,6 @@ import { bffErrorResponse } from './_lib/bffError'
 
 const SHIFTS = Object.values(HUB_SHIFT) as string[]
 
-function parseShift(raw: string | null): HubShift | undefined {
-  return raw && SHIFTS.includes(raw) ? (raw as HubShift) : undefined
-}
-
 /** BFF — lista cursos com busca (nome/código) e filtro por turno. */
 export async function GET(req: Request) {
   const token = await getSession()
@@ -24,11 +20,20 @@ export async function GET(req: Request) {
 
   const { searchParams } = new URL(req.url)
   const search = searchParams.get('search')
-  const shift = parseShift(searchParams.get('shift'))
+  const rawShift = searchParams.get('shift')
+
+  // Turno desconhecido é erro explícito — senão `?shift=FOO` viraria "sem filtro"
+  // e devolveria a lista cheia, escondendo o engano do chamador.
+  if (rawShift && !SHIFTS.includes(rawShift)) {
+    return NextResponse.json(
+      { code: 'validation', message: `shift deve ser um de: ${SHIFTS.join(', ')}.` },
+      { status: 400 },
+    )
+  }
 
   const params: CoursesListParams = {}
   if (search) params.search = search
-  if (shift) params.shift = shift
+  if (rawShift) params.shift = rawShift as HubShift
 
   try {
     const data = await listCourses(token, params)
