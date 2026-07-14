@@ -33,22 +33,22 @@ export function RoomSelector({
   return (
     <div
       className={[
-        "flex w-full flex-col items-center gap-8 px-4 md:px-8",
+        "flex min-h-screen flex-col items-center justify-center gap-6 px-4 md:gap-10 md:px-8",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
       <Text variant="heading-h2" tone="brand" className="text-center">
-        Selecione a sala para preencher a checklist
+        Selecione a Sala para Preencher o Checklist
       </Text>
 
-      <div className="w-full max-w-4xl">
+      <div className="w-full max-w-[974px]">
         <Input
           iconRight="search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          aria-label="Buscar sala"
+          aria-label="Buscar Sala"
         />
 
         {filtered.length > 0 ? (
