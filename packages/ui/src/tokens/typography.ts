@@ -35,6 +35,11 @@ export const typography = {
     // Headings — Inter SemiBold (peso embutido: headings são sempre 600 no DS)
     'heading-h1': ['3rem',    { lineHeight: '1.2',  fontWeight: '600' }], // 48px / 120% SemiBold
     'heading-h2': ['2.25rem', { lineHeight: '1.25', fontWeight: '600' }], // 36px / 125% SemiBold
+    // heading-h3: promovido no código (aprovação TL, issue #304) sem fonte ainda
+    // na coleção Typography do Figma DS — mesmo padrão do display-*. lineHeight
+    // extrapolado a partir da progressão h1(1.2)/h2(1.25); confirmar com design
+    // no próximo sync (ver AGENTS.md § Dívidas técnicas).
+    'heading-h3': ['1.5rem',  { lineHeight: '1.3',  fontWeight: '600' }], // 24px / 130% SemiBold
 
     // Body — Afacad
     'body-xl':          ['1.5rem',  { lineHeight: '1.5' }],                    // 24px / 150% Regular

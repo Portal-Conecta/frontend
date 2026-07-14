@@ -9,6 +9,7 @@
  */
 
 import type { AnnouncementFile } from './file'
+import type { Tag } from './tag'
 
 export const ANNOUNCEMENT_ORIGIN = {
   WEG: 'WEG',
@@ -68,7 +69,10 @@ export interface ScheduleAnnouncementRequest extends PublishAnnouncementRequest 
 export interface AnnouncementResponse {
   id: string
   title: string
+  /** Conteúdo HTML sanitizado (TipTap). */
   description: string
+  /** Versão plain-text gerada no servidor. */
+  descriptionPlain?: string
   origin: AnnouncementOrigin
   status: AnnouncementStatus
   pinned: boolean
@@ -86,7 +90,13 @@ export interface AnnouncementResponse {
 export interface AnnouncementSummary {
   id: string
   title: string
+  /**
+   * Prévia plain-text na listagem (compatível com `descriptionPlain`).
+   * Preferir `descriptionPlain` quando disponível.
+   */
   description: string
+  /** Versão plain-text recomendada para mural/cards. */
+  descriptionPlain?: string
   origin: AnnouncementOrigin
   status: AnnouncementStatus
   pinned: boolean
@@ -96,7 +106,8 @@ export interface AnnouncementSummary {
   createdAt: string
   /** URL da miniatura na listagem (`GET /api/posts`). `null` quando não há imagem. */
   thumbnailUrl: string | null
-  tags?: readonly string[]
+  /** Tags vinculadas ao comunicado (`TagResponse` — curso, turma, turno, etc.). */
+  tags?: readonly Tag[]
 }
 
 export interface AnnouncementDestination {
@@ -161,7 +172,6 @@ export interface ListPostsParams {
   search?: string
   status?: AnnouncementStatus
   origin?: AnnouncementOrigin
-  filterType?: string
   classId?: string
   publishedFrom?: string
   publishedTo?: string
