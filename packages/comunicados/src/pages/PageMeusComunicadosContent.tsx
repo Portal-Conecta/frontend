@@ -1,0 +1,188 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+
+import type { TypeUser } from '@portal/core'
+import { Button, ConfirmDialog, Text, useToast } from '@portal/ui'
+
+import { AnnouncementActionsMenu } from '../components/AnnouncementActionsMenu'
+import type { AnnouncementActionsMenuAction } from '../components/AnnouncementActionsMenu'
+import {
+  AnnouncementFiltersBar,
+  MURAL_PERIODO_OPTIONS,
+  MURAL_TIPO_OPTIONS,
+  announcementFiltersToParams,
+  createDefaultListParams,
+  type AnnouncementFilters,
+} from '../components/AnnouncementFiltersBar'
+import { AnnouncementSearchField } from '../components/AnnouncementSearchField'
+import { MyAnnouncementsTableContent } from '../components/MyAnnouncementsTable'
+import { PinnedPostsSection } from '../components/PinnedPostsSection'
+import { ACTION_ERROR, useAnnouncementActions } from '../hooks/useAnnouncementActions'
+import { useMuralFilterCatalog } from '../hooks/useMuralFilterCatalog'
+import { useMyAnnouncements } from '../hooks/useMyAnnouncements'
+import type { AnnouncementSummary, ListPostsParams } from '../types/announcement'
+
+/** Espera após a última tecla antes de buscar no painel. */
+const SEARCH_DEBOUNCE_MS = 300
+
+interface PendingAction {
+  id: string
+  action: AnnouncementActionsMenuAction
+}
+
+export interface PageMeusComunicadosContentProps {
+  /** Habilita o CTA "Publicar novo comunicado" (gate de UX; 403 do BFF é a verdade). */
+  canCreate: boolean
+  /** Papel do usuário — deriva a variante reduzida dos filtros para `STUDENT`. */
+  userType?: TypeUser | undefined
+}
+
+/**
+ * PageMeusComunicadosContent — painel de gestão dos comunicados do próprio autor
+ * (Figma "Painel de gestão de comunicados", #216). Reúne busca + filtros (mesma
+ * montagem do mural), a faixa de fixados com ações e a lista de gestão
+ * (`MyAnnouncementsTable`, #215), orquestrando fixar/editar/excluir num só lugar.
+ */
+export function PageMeusComunicadosContent({ canCreate, userType }: PageMeusComunicadosContentProps) {
+  const router = useRouter()
+  const { toast } = useToast()
+  const catalog = useMuralFilterCatalog()
+
+  const [activeFilters, setActiveFilters] = useState<AnnouncementFilters>({})
+  const [searchQuery, setSearchQuery] = useState('')
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('')
+  const [listParams, setListParams] = useState<ListPostsParams>(() => createDefaultListParams())
+
+  const { items, pinned, loading, error, reload } = useMyAnnouncements(listParams)
+  const { remove, pin, unpin } = useAnnouncementActions({ onChanged: reload })
+
+  const [pendingAction, setPendingAction] = useState<PendingAction | null>(null)
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearchQuery(searchQuery), SEARCH_DEBOUNCE_MS)
+    return () => clearTimeout(timer)
+  }, [searchQuery])
+
+  useEffect(() => {
+    setListParams(announcementFiltersToParams(activeFilters, debouncedSearchQuery))
+  }, [activeFilters, debouncedSearchQuery])
+
+  async function handlePin(post: AnnouncementSummary) {
+    setPendingAction({ id: post.id, action: 'pin' })
+    const ok = await (post.pinned ? unpin(post.id) : pin(post.id))
+    setPendingAction(null)
+    if (!ok) toast.error(ACTION_ERROR)
+  }
+
+  async function handleConfirmDelete() {
+    if (!deleteTargetId) return
+    setPendingAction({ id: deleteTargetId, action: 'delete' })
+    const ok = await remove(deleteTargetId)
+    setPendingAction(null)
+    setDeleteTargetId(null)
+    if (!ok) toast.error(ACTION_ERROR)
+  }
+
+  function handleRestore() {
+    setActiveFilters({})
+    setSearchQuery('')
+    setDebouncedSearchQuery('')
+    setListParams(createDefaultListParams())
+  }
+
+  const pendingFor = (id: string): AnnouncementActionsMenuAction | null =>
+    pendingAction?.id === id ? pendingAction.action : null
+
+  const goToEdit = (id: string) => router.push(`/comunicados/${id}/editar`)
+
+  return (
+    <div className="flex flex-col gap-6">
+      <header className="flex flex-col gap-4 border-b border-border-default pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            icon="chevron-left"
+            aria-label="Voltar ao mural"
+            onClick={() => router.push('/comunicados')}
+          />
+          <Text as="h1" variant="heading-h2" tone="brand">
+            Painel de gestão de comunicados
+          </Text>
+        </div>
+
+        {canCreate ? (
+          <Button iconLeft="plus" onClick={() => router.push('/comunicados/criar')}>
+            Publicar novo comunicado
+          </Button>
+        ) : null}
+      </header>
+
+      {pinned.length > 0 ? (
+        <PinnedPostsSection
+          posts={pinned}
+          renderActions={(post) => (
+            <AnnouncementActionsMenu
+              variant="solid"
+              pinned={post.pinned}
+              onPin={() => void handlePin(post)}
+              onEdit={() => goToEdit(post.id)}
+              onDelete={() => setDeleteTargetId(post.id)}
+              pending={pendingFor(post.id)}
+            />
+          )}
+        />
+      ) : null}
+
+      <div className="grid gap-6 xl:grid-cols-3 xl:items-start">
+        <div className="xl:order-2 xl:col-span-1">
+          <AnnouncementFiltersBar
+            userType={userType}
+            loading={catalog.loading}
+            cursoOptions={catalog.courses}
+            turmaOptions={catalog.classes}
+            turnoOptions={catalog.shifts}
+            tipoOptions={MURAL_TIPO_OPTIONS}
+            periodoOptions={MURAL_PERIODO_OPTIONS}
+            onApply={setActiveFilters}
+            onRestore={handleRestore}
+          />
+        </div>
+
+        <div className="min-w-0 xl:order-1 xl:col-span-2">
+          <AnnouncementSearchField value={searchQuery} onChange={setSearchQuery} />
+
+          <div className="mt-6">
+            <MyAnnouncementsTableContent
+              items={items}
+              loading={loading}
+              error={error}
+              pendingAction={pendingAction}
+              deleteTargetId={null}
+              onRetry={() => void reload()}
+              onPin={(post) => void handlePin(post)}
+              onEdit={goToEdit}
+              onDeleteRequest={setDeleteTargetId}
+            />
+          </div>
+        </div>
+      </div>
+
+      <ConfirmDialog
+        open={deleteTargetId != null}
+        onClose={() => setDeleteTargetId(null)}
+        onConfirm={() => void handleConfirmDelete()}
+        subTitle="Comunicados"
+        title="Excluir comunicado?"
+        content="Esta ação não pode ser desfeita. O comunicado será removido permanentemente."
+        labelCancel="Cancelar"
+        labelConfirm="Excluir"
+        confirmTone="negative"
+      />
+    </div>
+  )
+}
+
+export default PageMeusComunicadosContent
