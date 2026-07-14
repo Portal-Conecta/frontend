@@ -48,51 +48,59 @@ export function ChecklistNonConformityCard({
         .join(" ")}
     >
       <div className="flex flex-col gap-4 p-4 pb-6 lg:flex-row lg:items-center lg:justify-between">
+        {/* Mobile: dados agrupados */}
         <div className="flex flex-col lg:hidden">
           <Text
-            variant="label-sm"
-            tone="brand"
-            className="mb-4 md:text-label-md"
+            variant="label-sm-emphasis"
+            className="mb-4 text-interactive-hover"
           >
             {category}
           </Text>
 
           <div className="flex flex-col gap-1">
-            <Text variant="label-sm" tone="brand" className="md:text-label-md">
+            <Text
+              variant="label-sm-emphasis"
+              className="text-interactive-hover"
+            >
               {room} - {checklistType}
             </Text>
 
-            <Text
-              variant="label-xs"
-              tone="secondary"
-              className="md:text-label-sm"
-            >
+            <Text variant="label-xs" className="text-interactive-hover">
               envio: {submittedDate} às {submittedTime}
             </Text>
 
-            <Text
-              variant="label-xs"
-              tone="secondary"
-              className="md:text-label-sm"
-            >
+            <Text variant="label-xs" className="text-interactive-hover">
               Preenchido por: {filledBy} | {group}
             </Text>
           </div>
         </div>
 
-        <Text variant="label-md" tone="brand" className="hidden lg:block">
+        {/* Desktop: dados em colunas */}
+        <Text
+          variant="label-md"
+          className="hidden text-interactive-hover lg:block"
+        >
           {room}
         </Text>
 
-        <Text variant="label-md" tone="brand" className="hidden lg:block">
+        <Text
+          variant="label-md"
+          className="hidden text-interactive-hover lg:block"
+        >
           {category}
         </Text>
 
-        <Text variant="label-md" tone="brand" className="hidden lg:block">
+        <Text
+          variant="label-md"
+          className="hidden text-interactive-hover lg:block"
+        >
           {checklistType} | enviado às {submittedTime}
         </Text>
 
-        <Text variant="label-md" tone="brand" className="hidden lg:block">
+        <Text
+          variant="label-md"
+          className="hidden text-interactive-hover lg:block"
+        >
           Preenchido por: {filledBy} | {group}
         </Text>
 
@@ -121,7 +129,7 @@ export function ChecklistNonConformityCard({
               aria-label={`Não conformidade — ${room}`}
               className="rounded-md border-sm border-border-default bg-background-default p-3"
             >
-              <Text variant="label-sm" tone="brand">
+              <Text variant="label-sm" className="text-interactive-hover">
                 {nonConformity}
               </Text>
             </div>
