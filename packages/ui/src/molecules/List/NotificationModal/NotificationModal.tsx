@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { Icon } from '../../../atoms/Icon'
 
-// Mova a interface do useFocusTrap para cá ou importe de um arquivo de hooks utilitários
 interface UseFocusTrapOptions {
   active: boolean
   onClose: () => void
@@ -77,7 +76,6 @@ export function NotificationModal({ isOpen, onClose, title, body }: Notification
   const modalRef = useRef<HTMLDivElement>(null)
   const [mounted, setMounted] = useState(false)
 
-  // Evita problemas de hidratação no Next.js ao usar Portais do lado do cliente
   useEffect(() => {
     setMounted(true)
     return () => setMounted(false)
@@ -97,7 +95,7 @@ export function NotificationModal({ isOpen, onClose, title, body }: Notification
         aria-modal="true"
         aria-labelledby="modal-title"
       >
-        <div className="flex w-full justify-end bg-red-100 border-b border-border-default px-4 py-3">
+        <div className="flex w-full justify-end border-b border-border-default rounded-t-md px-4 py-3">
             <button
                 onClick={onClose}
                 aria-label="Fechar modal"
