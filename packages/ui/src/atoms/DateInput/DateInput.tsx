@@ -15,10 +15,20 @@ import { useId, useRef } from 'react'
 
 import { Icon } from '../Icon'
 
+const DEFAULT_MIN = '2000-01-01'
+const DEFAULT_MAX = '2600-12-31'
+
 export interface DateInputProps {
   /** Valor no formato nativo `yyyy-mm-dd`. `''` = vazio. */
   value: string
   onChange: (value: string) => void
+  /**
+   * Disparado ao sair do campo. O input nativo emite `onChange` a cada dígito —
+   * inclusive datas completas intermediárias enquanto o ano é digitado (o ano 2
+   * antes do 2026). Correção/validação de intervalo pertence aqui, senão ela
+   * sobrescreve o campo no meio da digitação.
+   */
+  onBlur?: () => void
   disabled?: boolean
   /** Mensagem de erro. Presença ativa o estado de erro (barra + mensagem) e `aria-invalid`. */
   error?: string
@@ -40,11 +50,12 @@ export interface DateInputProps {
 export function DateInput({
   value,
   onChange,
+  onBlur,
   disabled = false,
   error,
   invalid,
-  min,
-  max,
+  min = DEFAULT_MIN,
+  max = DEFAULT_MAX,
   id,
   'aria-label': ariaLabel,
   'aria-labelledby': ariaLabelledby,
@@ -115,6 +126,7 @@ export function DateInput({
           aria-invalid={isInvalid || undefined}
           aria-describedby={describedBy}
           onChange={(event) => onChange(event.target.value)}
+          onBlur={onBlur}
           className={inputClasses}
         />
       </div>
