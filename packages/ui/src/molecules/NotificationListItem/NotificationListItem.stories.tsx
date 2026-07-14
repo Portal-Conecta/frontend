@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { NotificationListItem } from './NotificationListItem'
 
 const meta = {
-  title: 'Componentes/Listas/NotificationListItem',
+  title: 'Componentes/Data/NotificationListItem',
   component: NotificationListItem,
   parameters: { 
     // Layout padded para dar espaço ao redor do item na pré-visualização
