@@ -1,1 +1,1 @@
-export * from './ChecklistSubmissionCard'
+export * from "./ChecklistSubmissionCard";
