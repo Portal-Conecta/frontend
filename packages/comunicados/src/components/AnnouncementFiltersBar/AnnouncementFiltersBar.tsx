@@ -162,6 +162,17 @@ export function AnnouncementFiltersBar({
     return filters
   }
 
+  function handleApply() {
+    // "Aplicar" pode ser acionado sem o campo perder o foco (o clamp roda no
+    // blur). Sincroniza o estado do campo final para o usuário não continuar
+    // vendo um intervalo invertido nos inputs depois de aplicar. Ancorado só na
+    // data inicial (mesma escolha do `buildFilters`); clampar a inicial também
+    // trocaria as datas de lugar em vez de colapsar o intervalo.
+    const fim = clampDataFim(dataFim, dataInicio)
+    if (fim !== dataFim) setDataFim(fim)
+    onApply?.(buildFilters())
+  }
+
   function handleRestore() {
     setCurso('todos')
     setOrigem('todos')
@@ -257,7 +268,7 @@ export function AnnouncementFiltersBar({
             Restaurar
           </Button>
 
-          <Button fullWidth onClick={() => onApply?.(buildFilters())}>
+          <Button fullWidth onClick={handleApply}>
             Aplicar
           </Button>
         </div>

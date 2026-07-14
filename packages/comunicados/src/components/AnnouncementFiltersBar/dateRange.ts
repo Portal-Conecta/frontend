@@ -8,9 +8,11 @@
  * Intervalo invertido (final antes da inicial) não retorna nada do backend. Em
  * vez de recusar a entrada ou deixar o filtro sair quebrado, o campo que o
  * usuário acabou de mexer é puxado até o outro — as duas datas se igualam e o
- * intervalo vira um único dia. O `min`/`max` do input já barra isso pelo
- * calendário; estas funções cobrem a digitação, que o browser aceita e apenas
- * marca como fora de faixa.
+ * intervalo vira um único dia. Os dois campos do filtro não cruzam `min`/`max`
+ * entre si (isso travaria o spinner do ano antes de o campo emitir a data menor
+ * que o clamp precisa ver); quem garante o intervalo é este clamp, enquanto a
+ * faixa de anos fica por conta da rede do próprio `DateInput`
+ * (`DEFAULT_MIN`/`DEFAULT_MAX`).
  *
  * Campo vazio é entrada legítima (intervalo em aberto) e passa intacto.
  */

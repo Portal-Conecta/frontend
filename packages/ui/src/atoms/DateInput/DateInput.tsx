@@ -10,6 +10,9 @@
  * `text-label-md`). O indicador nativo é escondido: o seletor abre **apenas**
  * pelo botão do ícone à esquerda (`showPicker()`), focável por teclado. Estado
  * de erro (barra + mensagem) espelha o átomo `Input`; a borda permanece neutra.
+ *
+ * Faixa padrão `2000-01-01`…`2600-12-31` (`min`/`max` omitidos): o teto barra
+ * anos com mais de quatro dígitos que o input nativo aceitaria na digitação.
  */
 import { useId, useRef } from 'react'
 
@@ -34,9 +37,13 @@ export interface DateInputProps {
   error?: string
   /** Marca `aria-invalid` sem renderizar mensagem (a mensagem vem do container, ex.: molecule). */
   invalid?: boolean
-  /** Limite inferior (`yyyy-mm-dd`). */
+  /** Limite inferior (`yyyy-mm-dd`). Default `2000-01-01` — omitir não deixa o campo ilimitado. */
   min?: string
-  /** Limite superior (`yyyy-mm-dd`). */
+  /**
+   * Limite superior (`yyyy-mm-dd`). Default `2600-12-31` — a rede que barra o
+   * ano com mais de quatro dígitos na digitação (o input nativo não impõe teto
+   * de dígitos sozinho). Omitir não deixa o campo ilimitado.
+   */
   max?: string
   id?: string
   'aria-label'?: string
