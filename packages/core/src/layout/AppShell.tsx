@@ -47,9 +47,14 @@ export function AppShell({
   async function handleLogout() {
     setMenuOpen(false)
     clearProfileMenuCache()
-    await fetch('/api/auth/logout', { method: 'POST' })
-    router.replace('/login')
-    router.refresh()
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' })
+    } catch (err) {
+      console.error('Falha ao chamar /api/auth/logout:', err)
+    } finally {
+      router.replace('/login')
+      router.refresh()
+    }
   }
 
   return (
