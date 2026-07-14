@@ -1105,11 +1105,11 @@
                     {
                         "name": "search",
                         "in": "query",
-                        "description": "Termo de busca textual (título, descrição, nome de tag ou destinatário)",
+                        "description": "Termo de busca textual (título, descriptionPlain, nome de tag ou destinatário)",
                         "required": false,
                         "schema": {
                             "type": "string",
-                            "description": "Termo de busca textual (título, descrição, nome de tag ou destinatário)",
+                            "description": "Termo de busca textual (título, descriptionPlain, nome de tag ou destinatário)",
                             "example": "retirada"
                         },
                         "example": "retirada"
@@ -1498,7 +1498,7 @@
                     },
                     "description": {
                         "type": "string",
-                        "description": "Conteúdo do comunicado em texto livre, sem limite de tamanho."
+                        "description": "Conteúdo do comunicado em HTML sanitizado (allowlist TipTap). O servidor deriva descriptionPlain automaticamente; não enviar plain no request."
                     },
                     "origin": {
                         "type": "string",
@@ -1550,7 +1550,11 @@
                     },
                     "description": {
                         "type": "string",
-                        "description": "Conteúdo do comunicado em texto livre, sem limite de tamanho."
+                        "description": "Conteúdo do comunicado em HTML sanitizado (TipTap)."
+                    },
+                    "descriptionPlain": {
+                        "type": "string",
+                        "description": "Versão plain-text da descrição, sem HTML — gerada no servidor."
                     },
                     "origin": {
                         "type": "string",
@@ -1790,7 +1794,7 @@
                     },
                     "description": {
                         "type": "string",
-                        "description": "Conteúdo do comunicado em texto livre, sem limite de tamanho.",
+                        "description": "Conteúdo do comunicado em HTML sanitizado (allowlist TipTap: p, br, strong/b, em/i, u, ul/ol/li, a[href]). O servidor strip tags perigosas e deriva descriptionPlain automaticamente.",
                         "minLength": 1
                     },
                     "origin": {
@@ -1858,7 +1862,7 @@
                     },
                     "description": {
                         "type": "string",
-                        "description": "Conteúdo do comunicado em texto livre, sem limite de tamanho.",
+                        "description": "Conteúdo do comunicado em HTML sanitizado (allowlist TipTap: p, br, strong/b, em/i, u, ul/ol/li, a[href]). O servidor strip tags perigosas e deriva descriptionPlain automaticamente.",
                         "minLength": 1
                     },
                     "origin": {
@@ -1944,7 +1948,11 @@
                     },
                     "description": {
                         "type": "string",
-                        "description": "Conteúdo do comunicado em texto livre, sem limite de tamanho."
+                        "description": "Prévia plain-text da descrição (sem HTML) para mural/cards. Compatível: mesmo valor de descriptionPlain."
+                    },
+                    "descriptionPlain": {
+                        "type": "string",
+                        "description": "Versão plain-text da descrição, sem HTML — uso recomendado no mural."
                     },
                     "origin": {
                         "type": "string",
