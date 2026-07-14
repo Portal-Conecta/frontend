@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 
 import { getSession } from '@portal/core/auth/session'
-import { httpErrorStatus } from '@portal/core/http/errors'
+import { bffErrorResponse } from '@portal/core/http/bffError'
 import { getMyProfile } from '@portal/core/profile/profileService'
 
 /**
@@ -18,6 +18,6 @@ export async function GET() {
     const profile = await getMyProfile(token)
     return NextResponse.json(profile)
   } catch (err) {
-    return NextResponse.json({ code: 'server' }, { status: httpErrorStatus(err) })
+    return bffErrorResponse(err)
   }
 }
