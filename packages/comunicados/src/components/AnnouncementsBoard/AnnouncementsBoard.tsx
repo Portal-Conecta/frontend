@@ -3,6 +3,7 @@ import type { AnnouncementOrigin, AnnouncementSummary } from '../../types'
 import { Tag, Text } from '@portal/ui'
 
 import { PinnedPostsSection } from '../PinnedPostsSection'
+import { getAnnouncementPlainDescription } from '../../utils/announcementDescription'
 
 const originLabel: Record<AnnouncementOrigin, string> = {
   WEG: 'WEG',
@@ -70,8 +71,8 @@ export function AnnouncementsBoard({ items, errorMessage }: AnnouncementsBoardPr
                   {post.title}
                 </Text>
 
-                <Text as="p" variant="body-sm" tone="secondary">
-                  {post.description}
+                <Text as="p" variant="body-sm" tone="secondary" className="truncate">
+                  {getAnnouncementPlainDescription(post)}
                 </Text>
               </li>
             )
