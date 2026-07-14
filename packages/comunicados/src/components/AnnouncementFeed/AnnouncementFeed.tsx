@@ -22,11 +22,18 @@ import {
   mergeAnnouncementFeedItems,
   resolveAnnouncementFeedErrorMessage,
 } from './announcementFeedModel'
+import { announcementMatchesMuralFilters } from '../../utils/muralFilters'
+import type { AnnouncementFilters } from '../AnnouncementFiltersBar'
 
 export interface AnnouncementFeedProps {
   canCreate?: boolean
   /** Filtros controlados pelo mural (busca/filtros). Paginação fica interna. */
   filters?: ListPostsParams
+  /**
+   * Filtros de UI aplicados (curso/turno/origem…). Usados no AND client-side
+   * contra `post.tags` — o back só faz OR em `tagIds`.
+   */
+  activeFilters?: AnnouncementFilters
   toolbar?: ReactNode
   sidebar?: ReactNode
 }
@@ -55,6 +62,7 @@ function filtersQueryKey(filters: ListPostsParams): string {
 export function AnnouncementFeed({
   canCreate = false,
   filters = { page: 0, size: 6 },
+  activeFilters = {},
   toolbar,
   sidebar,
 }: AnnouncementFeedProps) {
@@ -62,7 +70,10 @@ export function AnnouncementFeed({
   const { data, loading, error, page, setPage, setFilters, refetch } = usePostsList(filters)
   const [items, setItems] = useState<AnnouncementSummary[]>([])
   const [pinnedItems, setPinnedItems] = useState<AnnouncementSummary[]>([])
-  const queryKey = useMemo(() => filtersQueryKey(filters), [filters])
+  const queryKey = useMemo(
+    () => `${filtersQueryKey(filters)}|ui:${JSON.stringify(activeFilters)}`,
+    [filters, activeFilters],
+  )
   const previousQueryKey = useRef(queryKey)
 
   useEffect(() => {
@@ -76,13 +87,14 @@ export function AnnouncementFeed({
   useEffect(() => {
     if (!data || loading) return
 
-    setPinnedItems(data.pinned)
+    setPinnedItems(data.pinned.filter((post) => announcementMatchesMuralFilters(post, activeFilters)))
 
     setItems((current) => {
-      if (data.page === 0) return data.items
-      return mergeAnnouncementFeedItems(current, data.items)
+      const nextPage = data.items.filter((post) => announcementMatchesMuralFilters(post, activeFilters))
+      if (data.page === 0) return nextPage
+      return mergeAnnouncementFeedItems(current, nextPage)
     })
-  }, [data, loading])
+  }, [data, loading, activeFilters])
 
   useEffect(() => {
     if (isAnnouncementFeedUnauthorizedError(error)) {

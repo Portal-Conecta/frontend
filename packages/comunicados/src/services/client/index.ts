@@ -19,3 +19,4 @@ export {
   getPostTagsClient,
   getPostImagesClient,
 } from './postsClient'
+export { listTagsClient } from './tagsClient'
