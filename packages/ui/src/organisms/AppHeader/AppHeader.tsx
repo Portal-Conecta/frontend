@@ -53,7 +53,7 @@ function ActionIcon({ name }: { name: IconName }) {
   return (
     <>
       <Icon name={name} size="md" tone="primary" decorative className="lg:hidden" />
-      <Icon name={name} size="lg" tone="primary" decorative className="hidden lg:block" />
+      <Icon name={name} size="lg" tone="primary" decorative className="hidden lg:block lg:w-7 lg:h-7" />
     </>
   )
 }

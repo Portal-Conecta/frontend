@@ -9,6 +9,7 @@
  */
 
 import type { AnnouncementFile } from './file'
+import type { Tag } from './tag'
 
 export const ANNOUNCEMENT_ORIGIN = {
   WEG: 'WEG',
@@ -96,7 +97,8 @@ export interface AnnouncementSummary {
   createdAt: string
   /** URL da miniatura na listagem (`GET /api/posts`). `null` quando não há imagem. */
   thumbnailUrl: string | null
-  tags?: readonly string[]
+  /** Tags vinculadas ao comunicado (`TagResponse` — curso, turma, turno, etc.). */
+  tags?: readonly Tag[]
 }
 
 export interface AnnouncementDestination {
@@ -161,7 +163,6 @@ export interface ListPostsParams {
   search?: string
   status?: AnnouncementStatus
   origin?: AnnouncementOrigin
-  filterType?: string
   classId?: string
   publishedFrom?: string
   publishedTo?: string
