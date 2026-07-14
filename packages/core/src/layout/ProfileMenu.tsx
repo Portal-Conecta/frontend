@@ -113,7 +113,7 @@ export function ProfileMenu({ open, onClose, onNavigateProfile, onLogout }: Prof
         onClick={onNavigateProfile}
         className="flex items-center gap-3 border-t border-border-default px-4 py-3 text-left text-text-secondary hover:bg-background-default hover:text-interactive-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
       >
-        <Icon name="circle-user" size="sm" decorative />
+        <Icon name="id-card" size="sm" decorative />
         <Text variant="label-sm" as="span">
           Meu perfil
         </Text>
