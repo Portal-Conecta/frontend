@@ -88,6 +88,8 @@ export interface AnnouncementSummary {
   id: string
   title: string
   description: string
+  /** Versão plain-text recomendada para preview (mural/cards/tabela). Preferir a `description` quando ausente. */
+  descriptionPlain?: string
   origin: AnnouncementOrigin
   status: AnnouncementStatus
   pinned: boolean

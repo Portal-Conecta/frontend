@@ -72,7 +72,7 @@ export function PageMeusComunicadosContent({ canCreate, userType }: PageMeusComu
   }
 
   async function handleConfirmDelete() {
-    if (!deleteTargetId) return
+    if (!deleteTargetId || pendingAction?.action === 'delete') return
     setPendingAction({ id: deleteTargetId, action: 'delete' })
     const ok = await remove(deleteTargetId)
     setPendingAction(null)

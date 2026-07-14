@@ -11,6 +11,7 @@ import type { AnnouncementSummary } from '../../types/announcement'
 import type { PendingAnnouncementAction } from '../AnnouncementActionsMenu'
 import { AnnouncementActionsMenu } from '../AnnouncementActionsMenu'
 import { ComunicadosEmptyState } from '../ComunicadosEmptyState'
+import { getAnnouncementPlainDescription } from '../../utils/announcementDescription'
 import { formatMyAnnouncementDate, originLabel } from './myAnnouncementsTableModel'
 
 export interface MyAnnouncementsTableContentProps {
@@ -99,7 +100,8 @@ export function MyAnnouncementsTableContent({
     <>
       <ul aria-label="Meus comunicados" className="flex flex-col bg-background-surface">
         {items.map((post) => {
-          const { id, title, description, origin, pinned } = post
+          const { id, title, origin, pinned } = post
+          const description = getAnnouncementPlainDescription(post)
           const dateLabel = formatMyAnnouncementDate(post.publishedAt ?? post.scheduledFor)
           const rowPending = pendingAction?.id === id ? pendingAction.action : null
 
@@ -199,7 +201,7 @@ export function MyAnnouncementsTable() {
   }
 
   async function handleConfirmDelete() {
-    if (!deleteTargetId) return
+    if (!deleteTargetId || pendingAction?.action === 'delete') return
     setPendingAction({ id: deleteTargetId, action: 'delete' })
     const ok = await remove(deleteTargetId)
     setPendingAction(null)
