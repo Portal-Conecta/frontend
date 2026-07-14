@@ -40,6 +40,7 @@ export function ChecklistManagerItem({
         <Button
           variant="outlined"
           tone="brand"
+          size="sm"
           iconLeft="square-pen"
           onClick={onEdit}
           aria-label="Editar item"
@@ -50,6 +51,7 @@ export function ChecklistManagerItem({
         <Button
           variant="outlined"
           tone="negative"
+          size="sm"
           iconLeft="trash-2"
           onClick={onDelete}
           aria-label="Excluir item"
