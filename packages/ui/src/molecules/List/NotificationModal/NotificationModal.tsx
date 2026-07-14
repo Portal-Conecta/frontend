@@ -109,7 +109,7 @@ export function NotificationModal({ isOpen, onClose, title, body }: Notification
                 {title}
             </div>
 
-            <div className="text-body-sm text-text-subtle leading-relaxed whitespace-pre-wrap mt-2 mb-2">
+            <div className="text-label-sm leading-relaxed whitespace-pre-wrap mt-2 mb-2">
                 {body}
             </div>
         </div>
