@@ -59,7 +59,7 @@ export function NotificationListItem({
         onClick={handleOpenNotification}
       >
         <div className="flex w-full items-center gap-4">
-          <div className={`mt-0.5 flex-shrink-0 ${iconColorClass}`}>
+          <div className={`mt-1 flex-shrink-0 ${iconColorClass}`}>
             <Icon name={iconName} size="md" decorative={true} />
           </div>
 
