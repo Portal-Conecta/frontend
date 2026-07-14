@@ -1,1 +1,1 @@
-export * from './ChecklistNonConformityCard'
+export * from "./ChecklistNonConformityCard";

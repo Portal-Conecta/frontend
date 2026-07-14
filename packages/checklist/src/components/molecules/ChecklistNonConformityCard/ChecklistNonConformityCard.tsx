@@ -1,20 +1,20 @@
-'use client'
+"use client";
 
-import { Button, Icon, Text } from '@portal/ui'
-import { useId, useState } from 'react'
+import { Button, Text } from "@portal/ui";
+import { useId, useState } from "react";
 
 export interface ChecklistNonConformityCardProps {
-  room: string
-  category: string
-  checklistType: string
-  submittedDate: string
-  submittedTime: string
-  filledBy: string
-  group: string
-  nonConformity: string
-  defaultOpen?: boolean
-  onToggle?: (open: boolean) => void
-  className?: string
+  room: string;
+  category: string;
+  checklistType: string;
+  submittedDate: string;
+  submittedTime: string;
+  filledBy: string;
+  group: string;
+  nonConformity: string;
+  defaultOpen?: boolean;
+  onToggle?: (open: boolean) => void;
+  className?: string;
 }
 
 export function ChecklistNonConformityCard({
@@ -30,22 +30,30 @@ export function ChecklistNonConformityCard({
   onToggle,
   className,
 }: ChecklistNonConformityCardProps) {
-  const [open, setOpen] = useState(defaultOpen)
-  const panelId = useId()
+  const [open, setOpen] = useState(defaultOpen);
+  const panelId = useId();
 
   const toggle = () => {
     setOpen((prev) => {
-      const next = !prev
-      onToggle?.(next)
-      return next
-    })
-  }
+      const next = !prev;
+      onToggle?.(next);
+      return next;
+    });
+  };
 
   return (
-    <div className={['border-b border-border-default', className].filter(Boolean).join(' ')}>
+    <div
+      className={["border-b border-border-default", className]
+        .filter(Boolean)
+        .join(" ")}
+    >
       <div className="flex flex-col gap-4 p-4 pb-6 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-col lg:hidden">
-          <Text variant="label-sm" tone="brand" className="mb-4 md:text-label-md">
+          <Text
+            variant="label-sm"
+            tone="brand"
+            className="mb-4 md:text-label-md"
+          >
             {category}
           </Text>
 
@@ -54,11 +62,19 @@ export function ChecklistNonConformityCard({
               {room} - {checklistType}
             </Text>
 
-            <Text variant="label-xs" tone="secondary" className="md:text-label-sm">
+            <Text
+              variant="label-xs"
+              tone="secondary"
+              className="md:text-label-sm"
+            >
               envio: {submittedDate} às {submittedTime}
             </Text>
 
-            <Text variant="label-xs" tone="secondary" className="md:text-label-sm">
+            <Text
+              variant="label-xs"
+              tone="secondary"
+              className="md:text-label-sm"
+            >
               Preenchido por: {filledBy} | {group}
             </Text>
           </div>
@@ -83,26 +99,26 @@ export function ChecklistNonConformityCard({
         <Button
           variant="outlined"
           size="sm"
-          iconLeft={open ? 'chevron-up' : 'chevron-down'}
+          iconLeft={open ? "chevron-up" : "chevron-down"}
           onClick={toggle}
           aria-expanded={open}
           aria-controls={panelId}
-          className="w-full lg:w-56 lg:shrink-0"
+          className="w-full whitespace-nowrap lg:w-auto lg:shrink-0"
         >
-          ver não conformidade
+          Ver Não Conformidade
         </Button>
       </div>
 
       <div
         className="grid overflow-hidden transition-[grid-template-rows] duration-300 ease-in-out motion-reduce:transition-none"
-        style={{ gridTemplateRows: open ? '1fr' : '0fr' }}
+        style={{ gridTemplateRows: open ? "1fr" : "0fr" }}
       >
         <div className="min-h-0 overflow-hidden">
           <div className="px-4 pb-4">
             <div
               id={panelId}
               role="region"
-              aria-label="Não conformidade"
+              aria-label={`Não conformidade — ${room}`}
               className="rounded-md border-sm border-border-default bg-background-default p-3"
             >
               <Text variant="label-sm" tone="brand">
@@ -113,5 +129,5 @@ export function ChecklistNonConformityCard({
         </div>
       </div>
     </div>
-  )
+  );
 }
