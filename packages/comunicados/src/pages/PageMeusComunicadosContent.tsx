@@ -7,7 +7,7 @@ import type { TypeUser } from '@portal/core'
 import { Button, ConfirmDialog, Text, useToast } from '@portal/ui'
 
 import { AnnouncementActionsMenu } from '../components/AnnouncementActionsMenu'
-import type { AnnouncementActionsMenuAction } from '../components/AnnouncementActionsMenu'
+import type { PendingAnnouncementAction } from '../components/AnnouncementActionsMenu'
 import {
   AnnouncementFiltersBar,
   MURAL_ORIGEM_OPTIONS,
@@ -25,11 +25,6 @@ import { createDefaultFeedFilters, toListPostsParams } from '../utils/muralFilte
 
 /** Espera após a última tecla antes de buscar no painel. */
 const SEARCH_DEBOUNCE_MS = 300
-
-interface PendingAction {
-  id: string
-  action: AnnouncementActionsMenuAction
-}
 
 export interface PageMeusComunicadosContentProps {
   /** Habilita o CTA "Publicar novo comunicado" (gate de UX; 403 do BFF é a verdade). */
@@ -57,7 +52,7 @@ export function PageMeusComunicadosContent({ canCreate, userType }: PageMeusComu
   const { items, pinned, loading, error, reload } = useMyAnnouncements(listParams)
   const { remove, pin, unpin } = useAnnouncementActions({ onChanged: reload })
 
-  const [pendingAction, setPendingAction] = useState<PendingAction | null>(null)
+  const [pendingAction, setPendingAction] = useState<PendingAnnouncementAction | null>(null)
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
 
   useEffect(() => {
@@ -92,7 +87,7 @@ export function PageMeusComunicadosContent({ canCreate, userType }: PageMeusComu
     setListParams(createDefaultFeedFilters())
   }
 
-  const pendingFor = (id: string): AnnouncementActionsMenuAction | null =>
+  const pendingFor = (id: string): PendingAnnouncementAction['action'] | null =>
     pendingAction?.id === id ? pendingAction.action : null
 
   const goToEdit = (id: string) => router.push(`/comunicados/${id}/editar`)
@@ -159,7 +154,7 @@ export function PageMeusComunicadosContent({ canCreate, userType }: PageMeusComu
               loading={loading}
               error={error}
               pendingAction={pendingAction}
-              deleteTargetId={null}
+              showConfirmDialog={false}
               onRetry={() => void reload()}
               onPin={(post) => void handlePin(post)}
               onEdit={goToEdit}

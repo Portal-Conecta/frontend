@@ -8,22 +8,23 @@ import { ConfirmDialog, Skeleton, Text, useToast } from '@portal/ui'
 import { ACTION_ERROR, useAnnouncementActions } from '../../hooks/useAnnouncementActions'
 import { useMyAnnouncements } from '../../hooks/useMyAnnouncements'
 import type { AnnouncementSummary } from '../../types/announcement'
-import type { AnnouncementActionsMenuAction } from '../AnnouncementActionsMenu'
+import type { PendingAnnouncementAction } from '../AnnouncementActionsMenu'
 import { AnnouncementActionsMenu } from '../AnnouncementActionsMenu'
 import { ComunicadosEmptyState } from '../ComunicadosEmptyState'
 import { formatMyAnnouncementDate, originLabel } from './myAnnouncementsTableModel'
-
-interface PendingAction {
-  id: string
-  action: AnnouncementActionsMenuAction
-}
 
 export interface MyAnnouncementsTableContentProps {
   items: AnnouncementSummary[]
   loading?: boolean
   error?: string
-  pendingAction?: PendingAction | null
+  pendingAction?: PendingAnnouncementAction | null
   deleteTargetId?: string | null
+  /**
+   * Renderiza o `ConfirmDialog` de exclusão embutido. `false` quando o chamador
+   * já tem seu próprio diálogo de confirmação (painel de gestão, #216) — evita
+   * dois diálogos com o mesmo conteúdo disputando o mesmo `deleteTargetId`.
+   */
+  showConfirmDialog?: boolean
   onRetry?: () => void
   onPin?: (post: AnnouncementSummary) => void
   onEdit?: (id: string) => void
@@ -43,6 +44,7 @@ export function MyAnnouncementsTableContent({
   error = '',
   pendingAction = null,
   deleteTargetId = null,
+  showConfirmDialog = true,
   onRetry,
   onPin,
   onEdit,
@@ -161,17 +163,19 @@ export function MyAnnouncementsTableContent({
         })}
       </ul>
 
-      <ConfirmDialog
-        open={deleteTargetId != null}
-        onClose={() => onCancelDelete?.()}
-        onConfirm={() => onConfirmDelete?.()}
-        subTitle="Comunicados"
-        title="Excluir comunicado?"
-        content="Esta ação não pode ser desfeita. O comunicado será removido permanentemente."
-        labelCancel="Cancelar"
-        labelConfirm="Excluir"
-        confirmTone="negative"
-      />
+      {showConfirmDialog ? (
+        <ConfirmDialog
+          open={deleteTargetId != null}
+          onClose={() => onCancelDelete?.()}
+          onConfirm={() => onConfirmDelete?.()}
+          subTitle="Comunicados"
+          title="Excluir comunicado?"
+          content="Esta ação não pode ser desfeita. O comunicado será removido permanentemente."
+          labelCancel="Cancelar"
+          labelConfirm="Excluir"
+          confirmTone="negative"
+        />
+      ) : null}
     </>
   )
 }
@@ -183,7 +187,7 @@ export function MyAnnouncementsTable() {
   const { items, loading, error, reload } = useMyAnnouncements()
   const { remove, pin, unpin } = useAnnouncementActions({ onChanged: reload })
 
-  const [pendingAction, setPendingAction] = useState<PendingAction | null>(null)
+  const [pendingAction, setPendingAction] = useState<PendingAnnouncementAction | null>(null)
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
 
   async function handlePin(post: AnnouncementSummary) {

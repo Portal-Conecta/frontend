@@ -3,6 +3,12 @@ import { Button, type ButtonSize, type ButtonTone, type ButtonVariant, type Icon
 export type AnnouncementActionsMenuVariant = 'outlined' | 'solid'
 export type AnnouncementActionsMenuAction = 'pin' | 'edit' | 'delete'
 
+/** Ação em andamento por comunicado — painel de gestão e tabela de "meus comunicados". */
+export interface PendingAnnouncementAction {
+  id: string
+  action: AnnouncementActionsMenuAction
+}
+
 export interface AnnouncementActionsMenuProps {
   /** O comunicado já está fixado? Troca o primeiro botão entre Fixar/Desafixar. */
   pinned: boolean
