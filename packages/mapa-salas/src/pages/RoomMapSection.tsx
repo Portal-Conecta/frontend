@@ -95,7 +95,9 @@ export function RoomMapSection({
       {showFooter ? (
         <Text as="p" variant="body-xl" tone="secondary" className="text-center">
           Seu lugar está localizado no{' '}
-          <Text as="span" variant="body-xl" tone="brand">
+          {/* Mesmo azul do assento `selected` no SeatCard (interactive-focus-ring
+              = blue/300) — "ponto azul" precisa apontar pra cor real na grade. */}
+          <Text as="span" variant="body-xl" className="text-interactive-focus-ring">
             ponto azul
           </Text>
         </Text>
