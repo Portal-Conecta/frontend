@@ -7,7 +7,7 @@
  *
  * Seções:
  *  - Imagens: thumbnail grande + miniaturas — client island `AnnouncementDetailImages`
- *  - Cabeçalho: status/origem, badge "Fixado", data de publicação, título
+ *  - Cabeçalho: origem, badge "Fixado", criador, data de publicação, título
  *  - Corpo: texto completo do comunicado
  *  - Tags: lista de AnnouncementTag via átomo Tag
  *  - Anexos: documentos/vídeos — client island `AnnouncementDetailDocuments`
@@ -17,8 +17,7 @@
  * exports como `undefined` nesse grafo (Server + Client). Helpers ficam em
  * `./fileDisplay` nos client islands.
  */
-import type { AnnouncementDetail, AnnouncementStatus, AnnouncementTag } from '../../types'
-import type { IconName, TagTone } from '@portal/ui'
+import type { AnnouncementDetail, AnnouncementTag } from '../../types'
 
 import Link from 'next/link'
 
@@ -34,15 +33,11 @@ export interface AnnouncementDetailViewProps {
    * comunicados ser implementado.
    */
   canEdit?: boolean
+  /** Nome do usuário criador (resolvido via Hub a partir de `createdByUserId`). */
+  creatorName?: string
 }
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
-
-const statusConfig: Partial<Record<AnnouncementStatus, { label: string; tone: TagTone; icon: IconName }>> = {
-  PUBLISHED: { label: 'Publicado', tone: 'positive', icon: 'check-check' },
-  SCHEDULED: { label: 'Agendado', tone: 'warning', icon: 'bell' },
-  REMOVED: { label: 'Removido', tone: 'negative', icon: 'x' },
-}
 
 const originLabel: Record<string, string> = {
   WEG: 'WEG',
@@ -65,25 +60,30 @@ function formatDate(value: string | null): string | null {
 
 // ─── sub-seções ───────────────────────────────────────────────────────────────
 
-function Header({ detail }: { detail: AnnouncementDetail }) {
+function Header({
+  detail,
+  creatorName,
+}: {
+  detail: AnnouncementDetail
+  creatorName?: string
+}) {
   const { announcement } = detail
-  const status = statusConfig[announcement.status]
   const dateLabel = formatDate(announcement.publishedAt ?? announcement.scheduledFor)
 
   return (
     <header className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2">
-        {status ? (
-          <Tag tone={status.tone} size="sm" icon={status.icon}>
-            {status.label}
-          </Tag>
-        ) : null}
         <Tag tone="neutral" size="sm">
           {originLabel[announcement.origin] ?? announcement.origin}
         </Tag>
         {announcement.pinned ? (
           <Tag tone="info" size="sm" icon="bell">
             Fixado
+          </Tag>
+        ) : null}
+        {creatorName ? (
+          <Tag tone="neutral" size="sm" icon="user">
+            {creatorName}
           </Tag>
         ) : null}
         {dateLabel ? (
@@ -160,6 +160,7 @@ function Actions({
 export function AnnouncementDetailView({
   detail,
   canEdit = false,
+  creatorName,
 }: AnnouncementDetailViewProps) {
   return (
     <article
@@ -167,7 +168,7 @@ export function AnnouncementDetailView({
       aria-label={`Comunicado: ${detail.announcement.title}`}
     >
       <AnnouncementDetailImages files={detail.files} />
-      <Header detail={detail} />
+      <Header detail={detail} {...(creatorName ? { creatorName } : {})} />
       <Body description={detail.announcement.description} />
       <TagsSection tags={detail.tags} />
       <AnnouncementDetailDocuments files={detail.files} />

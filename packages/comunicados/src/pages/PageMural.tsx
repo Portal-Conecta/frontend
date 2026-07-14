@@ -6,6 +6,7 @@ import { canCreateAnnouncement } from '../auth/canCreateAnnouncement'
 import { PageMuralContent } from './PageMuralContent'
 
 export async function PageMural() {
+
   const user = await getCurrentUser()
   const canCreate = canCreateAnnouncement(user)
 

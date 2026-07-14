@@ -10,7 +10,8 @@ import { AnnouncementFiltersBarSkeleton } from './AnnouncementFiltersBarSkeleton
 
 export interface AnnouncementFilters {
   curso?: string
-  tipo?: string
+  /** Origem do comunicado (`WEG` / `SENAI` / `BOTH`). */
+  origem?: string
   turma?: string
   turno?: string
   periodo?: string
@@ -23,20 +24,25 @@ export interface AnnouncementFiltersBarProps {
   userType?: TypeUser | undefined
   loading?: boolean
   cursoOptions?: SelectOption[]
-  tipoOptions?: SelectOption[]
+  origemOptions?: SelectOption[]
   turmaOptions?: ClassFilterOption[]
   turnoOptions?: SelectOption[]
   periodoOptions?: SelectOption[]
   onApply?: (filters: AnnouncementFilters) => void
   onRestore?: () => void
+  /** `sidebar` = painel desktop; `sheet` = conteúdo do modal mobile. */
+  variant?: 'sidebar' | 'sheet'
+  /** id do título para `aria-labelledby` no sheet. */
+  titleId?: string
 }
 
 const todosOption: SelectOption = { value: 'todos', label: 'Todos' }
 
-export const MURAL_TIPO_OPTIONS: SelectOption[] = [
+export const MURAL_ORIGEM_OPTIONS: SelectOption[] = [
   todosOption,
-  { value: 'aviso', label: 'Aviso' },
-  { value: 'evento', label: 'Evento' },
+  { value: 'WEG', label: 'WEG' },
+  { value: 'SENAI', label: 'SENAI' },
+  { value: 'BOTH', label: 'WEG + SENAI' },
 ]
 
 export const MURAL_PERIODO_OPTIONS: SelectOption[] = [
@@ -58,15 +64,17 @@ export function AnnouncementFiltersBar({
   userType,
   loading = false,
   cursoOptions = [todosOption],
-  tipoOptions = MURAL_TIPO_OPTIONS,
+  origemOptions = MURAL_ORIGEM_OPTIONS,
   turmaOptions = [],
   turnoOptions = [todosOption],
   periodoOptions = MURAL_PERIODO_OPTIONS,
   onApply,
   onRestore,
+  variant = 'sidebar',
+  titleId,
 }: AnnouncementFiltersBarProps) {
   const [curso, setCurso] = useState<string | null>('todos')
-  const [tipo, setTipo] = useState<string | null>('todos')
+  const [origem, setOrigem] = useState<string | null>('todos')
   const [turma, setTurma] = useState<string | null>('todos')
   const [turno, setTurno] = useState<string | null>('todos')
   const [periodo, setPeriodo] = useState<string | null>('todos')
@@ -74,6 +82,7 @@ export function AnnouncementFiltersBar({
   const [dataFim, setDataFim] = useState('')
 
   const isStudent = userType === 'STUDENT'
+  const isSheet = variant === 'sheet'
 
   const resolvedCursoOptions = useMemo(
     () => (cursoOptions.some((option) => option.value === 'todos') ? cursoOptions : withTodos(cursoOptions)),
@@ -98,7 +107,7 @@ export function AnnouncementFiltersBar({
   }, [curso, turno, turmaOptions])
 
   if (loading) {
-    return <AnnouncementFiltersBarSkeleton userType={userType} />
+    return <AnnouncementFiltersBarSkeleton userType={userType} variant={variant} />
   }
 
   function handleCursoChange(value: string | null) {
@@ -115,15 +124,15 @@ export function AnnouncementFiltersBar({
     const filters: AnnouncementFilters = {}
 
     const normalizedCurso = normalize(curso)
-    const normalizedTipo = normalize(tipo)
+    const normalizedOrigem = normalize(origem)
     const normalizedTurma = normalize(turma)
     const normalizedTurno = normalize(turno)
     const normalizedPeriodo = normalize(periodo)
 
-    // UX: aluno não envia curso/tipo/turma/turno — autorização real continua no BFF/backend.
+    // UX: aluno não envia curso/origem/turma/turno — autorização real continua no BFF/backend.
     if (!isStudent) {
       if (normalizedCurso) filters.curso = normalizedCurso
-      if (normalizedTipo) filters.tipo = normalizedTipo
+      if (normalizedOrigem) filters.origem = normalizedOrigem
       if (normalizedTurma) filters.turma = normalizedTurma
       if (normalizedTurno) filters.turno = normalizedTurno
     }
@@ -137,7 +146,7 @@ export function AnnouncementFiltersBar({
 
   function handleRestore() {
     setCurso('todos')
-    setTipo('todos')
+    setOrigem('todos')
     setTurma('todos')
     setTurno('todos')
     setPeriodo('todos')
@@ -146,13 +155,24 @@ export function AnnouncementFiltersBar({
     onRestore?.()
   }
 
+  const shellClass = isSheet
+    ? 'flex w-full flex-col gap-3 bg-background-default px-6 py-6'
+    : 'w-full max-w-lg bg-background-surface px-8 pb-6'
+
+  const fieldsClass = isSheet ? 'flex flex-col gap-3' : 'mt-7 flex flex-col gap-4'
+
   return (
-    <aside className="w-full max-w-lg bg-background-surface px-8 py-6">
-      <Text as="h2" variant="body-xl-emphasis" tone="brand">
+    <aside className={shellClass}>
+      <Text
+        as="h2"
+        id={titleId}
+        variant={isSheet ? 'body-md-emphasis' : 'body-xl-emphasis'}
+        tone="brand"
+      >
         Filtros
       </Text>
 
-      <div className="mt-7 flex flex-col gap-4">
+      <div className={fieldsClass}>
         {!isStudent ? (
           <>
             <FilterSelect
@@ -161,7 +181,10 @@ export function AnnouncementFiltersBar({
               value={curso}
               onChange={handleCursoChange}
             />
-            <FilterSelect label="Tipo" options={tipoOptions} value={tipo} onChange={setTipo} />
+            {/* Origem fica no painel desktop; o modal mobile do Figma não inclui esse campo. */}
+            {!isSheet ? (
+              <FilterSelect label="Origem" options={origemOptions} value={origem} onChange={setOrigem} />
+            ) : null}
             <FilterSelect
               label="Turma"
               options={filteredTurmaOptions}
@@ -184,22 +207,26 @@ export function AnnouncementFiltersBar({
             value={dataInicio}
             onChange={setDataInicio}
             aria-label="Data inicial"
+            {...(isSheet ? { className: 'min-w-0 flex-1' } : {})}
             {...(dataFim ? { max: dataFim } : {})}
           />
 
-          <Text as="span" variant="label-xl-emphasis" tone="brand" aria-hidden="true">
-            →
-          </Text>
+          {!isSheet ? (
+            <Text as="span" variant="label-xl-emphasis" tone="brand" aria-hidden="true">
+              →
+            </Text>
+          ) : null}
 
           <DateInput
             value={dataFim}
             onChange={setDataFim}
             aria-label="Data final"
+            {...(isSheet ? { className: 'min-w-0 flex-1' } : {})}
             {...(dataInicio ? { min: dataInicio } : {})}
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-6 pt-4">
+        <div className={isSheet ? 'flex gap-3 pt-1' : 'grid grid-cols-2 gap-6 pt-4'}>
           <Button variant="outlined" fullWidth onClick={handleRestore}>
             Restaurar
           </Button>

@@ -37,3 +37,9 @@ export type CreateRoomLayoutRequest = {
   roomId: string
   layoutTemplateId: string
 }
+
+/** Query de listagem de mapas (`GET /api/mapas`) — `page` é zero-based no back. */
+export type ListRoomMapsParams = {
+  page?: number
+  size?: number
+}

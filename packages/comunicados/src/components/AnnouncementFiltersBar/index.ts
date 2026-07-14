@@ -1,3 +1,3 @@
 export * from './AnnouncementFiltersBar'
 export * from './AnnouncementFiltersBarSkeleton'
-export * from './announcementFiltersToParams'
+export * from './AnnouncementFiltersSheet'

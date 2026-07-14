@@ -22,11 +22,18 @@ import {
   mergeAnnouncementFeedItems,
   resolveAnnouncementFeedErrorMessage,
 } from './announcementFeedModel'
+import { announcementMatchesMuralFilters } from '../../utils/muralFilters'
+import type { AnnouncementFilters } from '../AnnouncementFiltersBar'
 
 export interface AnnouncementFeedProps {
   canCreate?: boolean
   /** Filtros controlados pelo mural (busca/filtros). Paginação fica interna. */
   filters?: ListPostsParams
+  /**
+   * Filtros de UI aplicados (curso/turno/origem…). Usados no AND client-side
+   * contra `post.tags` — o back só faz OR em `tagIds`.
+   */
+  activeFilters?: AnnouncementFilters
   toolbar?: ReactNode
   sidebar?: ReactNode
 }
@@ -55,6 +62,7 @@ function filtersQueryKey(filters: ListPostsParams): string {
 export function AnnouncementFeed({
   canCreate = false,
   filters = { page: 0, size: 6 },
+  activeFilters = {},
   toolbar,
   sidebar,
 }: AnnouncementFeedProps) {
@@ -62,7 +70,10 @@ export function AnnouncementFeed({
   const { data, loading, error, page, setPage, setFilters, refetch } = usePostsList(filters)
   const [items, setItems] = useState<AnnouncementSummary[]>([])
   const [pinnedItems, setPinnedItems] = useState<AnnouncementSummary[]>([])
-  const queryKey = useMemo(() => filtersQueryKey(filters), [filters])
+  const queryKey = useMemo(
+    () => `${filtersQueryKey(filters)}|ui:${JSON.stringify(activeFilters)}`,
+    [filters, activeFilters],
+  )
   const previousQueryKey = useRef(queryKey)
 
   useEffect(() => {
@@ -76,13 +87,14 @@ export function AnnouncementFeed({
   useEffect(() => {
     if (!data || loading) return
 
-    setPinnedItems(data.pinned)
+    setPinnedItems(data.pinned.filter((post) => announcementMatchesMuralFilters(post, activeFilters)))
 
     setItems((current) => {
-      if (data.page === 0) return data.items
-      return mergeAnnouncementFeedItems(current, data.items)
+      const nextPage = data.items.filter((post) => announcementMatchesMuralFilters(post, activeFilters))
+      if (data.page === 0) return nextPage
+      return mergeAnnouncementFeedItems(current, nextPage)
     })
-  }, [data, loading])
+  }, [data, loading, activeFilters])
 
   useEffect(() => {
     if (isAnnouncementFeedUnauthorizedError(error)) {
@@ -144,10 +156,10 @@ export function AnnouncementFeedContent({
       )}
 
       <div className="grid gap-6 xl:grid-cols-3 xl:items-start">
-        {sidebar ? <div className="xl:order-2 xl:col-span-1">{sidebar}</div> : null}
+        {sidebar ? <div className="hidden xl:order-2 xl:col-span-1 xl:block">{sidebar}</div> : null}
 
         <div className={sidebar ? 'min-w-0 xl:order-1 xl:col-span-2' : 'min-w-0 xl:col-span-3'}>
-          {toolbar ? <div>{toolbar}</div> : null}
+          {toolbar ? <div className="w-full">{toolbar}</div> : null}
 
           {loading ? (
             <div className="mt-6 flex flex-col" role="status" aria-live="polite">
@@ -219,13 +231,13 @@ function AnnouncementFeedItem({ post }: { post: AnnouncementSummary }) {
       <Link
         href={`/comunicados/${post.id}`}
         className={[
-          'flex items-center gap-4 py-4 transition-opacity hover:opacity-90',
+          'flex w-full items-center gap-6 py-6 transition-opacity hover:opacity-90',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2',
-          'md:grid md:grid-cols-2 md:items-center md:gap-4 md:py-6',
+          'md:grid md:grid-cols-2 md:items-center md:gap-4 md:px-0 md:py-6',
         ].join(' ')}
       >
         <div className="min-w-0 flex-1">
-          <Text as="h2" variant="body-xl-emphasis" tone="brand" className="line-clamp-2 md:line-clamp-none">
+          <Text as="h2" variant="body-md-emphasis" tone="brand" className="line-clamp-2 md:line-clamp-none md:text-body-xl-emphasis">
             {post.title}
           </Text>
 
@@ -233,7 +245,7 @@ function AnnouncementFeedItem({ post }: { post: AnnouncementSummary }) {
             {post.description}
           </Text>
 
-          <Text as="p" variant="label-xs" tone="secondary" className="mt-2 md:mt-6">
+          <Text as="p" variant="label-xs" tone="secondary" className="mt-3 md:mt-6">
             {getAnnouncementOriginLabel(post.origin)}
             <span className="px-2" aria-hidden="true">
               |
@@ -246,12 +258,12 @@ function AnnouncementFeedItem({ post }: { post: AnnouncementSummary }) {
           <img
             src={thumbnailUrl}
             alt=""
-            className="h-24 w-24 shrink-0 rounded-md object-cover md:aspect-video md:h-auto md:w-full"
+            className="h-28 w-32 shrink-0 rounded-md object-cover md:aspect-video md:h-auto md:w-full"
             aria-hidden="true"
           />
         ) : (
           <div
-            className="h-24 w-24 shrink-0 rounded-md bg-interactive-disabled md:aspect-video md:h-auto md:w-full"
+            className="h-28 w-32 shrink-0 rounded-md bg-interactive-disabled md:aspect-video md:h-auto md:w-full"
             aria-hidden="true"
           />
         )}

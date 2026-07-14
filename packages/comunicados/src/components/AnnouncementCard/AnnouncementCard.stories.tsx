@@ -16,7 +16,22 @@ const announcement: AnnouncementSummary = {
   createdAt: '2026-06-02T12:00:00.000Z',
   description: 'Preview do comunicado',
   thumbnailUrl: null,
-  tags: ['Institucional', 'Segurança'],
+  tags: [
+    {
+      id: 'tag-1',
+      name: 'Institucional',
+      entityType: 'GENERAL',
+      active: true,
+      createdAt: '2026-01-01T00:00:00.000Z',
+    },
+    {
+      id: 'tag-2',
+      name: 'Segurança',
+      entityType: 'GENERAL',
+      active: true,
+      createdAt: '2026-01-01T00:00:00.000Z',
+    },
+  ],
 }
 
 const scheduledAnnouncement: AnnouncementSummary = {
@@ -32,7 +47,22 @@ const scheduledAnnouncement: AnnouncementSummary = {
   description:
     'Confira as atividades previstas para os cursos técnicos, encontros de turma e ações de integração no mural do portal.',
   thumbnailUrl: null,
-  tags: ['Cursos', 'Agenda'],
+  tags: [
+    {
+      id: 'tag-3',
+      name: 'Cursos',
+      entityType: 'GENERAL',
+      active: true,
+      createdAt: '2026-01-01T00:00:00.000Z',
+    },
+    {
+      id: 'tag-4',
+      name: 'Agenda',
+      entityType: 'GENERAL',
+      active: true,
+      createdAt: '2026-01-01T00:00:00.000Z',
+    },
+  ],
 }
 
 const meta: Meta<typeof AnnouncementCard> = {

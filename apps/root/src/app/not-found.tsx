@@ -1,6 +1,7 @@
 import { getCurrentUser } from "@portal/core/auth/getCurrentUser";
 import { AppShell } from "@portal/core";
 import { ErrorPage } from "@portal/ui";
+import { ERROR_PRESENTATION } from "@portal/core/http/errorPresentation";
 
 /**
  * Página 404 (App Router). Server component: resolve o usuário para o AppShell
@@ -12,11 +13,7 @@ export default async function NotFound() {
 
   return (
     <AppShell user={user} activeKey="">
-      <ErrorPage
-        code="404"
-        title="Página não encontrada"
-        description="Desculpe, a página que você está procurando não existe ou foi removida"
-      />
+      <ErrorPage {...ERROR_PRESENTATION.not_found}/>
     </AppShell>
   );
 }
