@@ -4,7 +4,6 @@ export * from "./Banner";
 export * from "./ErrorPage";
 export * from "./Field";
 export * from "./FileUpload";
-export * from "./RichTextEditor";
 export * from "./SearchBar";
 export * from "./Section";
 export * from "./Select";

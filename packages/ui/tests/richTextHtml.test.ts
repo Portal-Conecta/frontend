@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { richTextHtmlToPlain, sanitizeRichTextHtml } from '../src/molecules/RichTextEditor/sanitizeRichTextHtml'
+import { richTextHtmlToPlain, sanitizeRichTextHtml } from '../src/organisms/RichTextEditor/sanitizeRichTextHtml'
 
 describe('sanitizeRichTextHtml', () => {
   it('remove script e handlers', () => {

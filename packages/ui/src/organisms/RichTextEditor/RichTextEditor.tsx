@@ -3,12 +3,14 @@
 /**
  * RichTextEditor — TipTap com toolbar (formatação + undo/redo).
  * Allowlist alinhada ao back de Comunicados: p, br, strong/b, em/i, u, ul/ol/li, a[href].
+ * Link abre `ConfirmDialog` na variante `prompt` (sem `window.prompt`).
  */
-import { useEffect, useId } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { EditorContent, useEditor, type Editor } from '@tiptap/react'
 
 import { Button } from '../../atoms/Button'
 import type { IconName } from '../../atoms/Icon'
+import { ConfirmDialog } from '../ConfirmDialog'
 
 import { richTextExtensions } from './richTextExtensions'
 
@@ -58,15 +60,20 @@ function ToolbarButton({
   icon?: IconName
   children?: string
 }) {
+  // `border-sm` permanente (transparente inativo / marca ativo) evita o salto de
+  // layout ao alternar ghost → outlined (borda entra/sai e empurra a área abaixo).
   const common = {
     type: 'button' as const,
-    variant: (active ? 'outlined' : 'ghost') as 'outlined' | 'ghost',
+    variant: 'ghost' as const,
     size: 'xs' as const,
     'aria-label': label,
     'aria-pressed': active,
     disabled: disabled || !editor,
     onClick,
-    className: 'min-w-8',
+    className: [
+      'min-w-8 box-border border-sm',
+      active ? 'border-interactive-default text-interactive-default bg-interactive-subtle' : 'border-transparent',
+    ].join(' '),
   }
 
   if (icon) {
@@ -95,6 +102,9 @@ export function RichTextEditor({
   const generatedId = useId()
   const editorId = id ?? generatedId
   const errorId = `${editorId}-error`
+
+  const [linkDialogOpen, setLinkDialogOpen] = useState(false)
+  const [linkUrl, setLinkUrl] = useState('')
 
   const editor = useEditor({
     extensions: richTextExtensions,
@@ -128,8 +138,6 @@ export function RichTextEditor({
     }
   }, [editor, value])
 
-  // TipTap só aplica `editorProps.attributes` na criação — sincroniza a11y quando
-  // o `Field` (ou o pai) injeta/atualiza id e aria-labelledby após o mount.
   useEffect(() => {
     if (!editor) return
     const dom = editor.view.dom
@@ -157,23 +165,33 @@ export function RichTextEditor({
   }, [editor, editorId, ariaLabelledby, ariaLabel, error, errorId])
 
   const boxClasses = [
-    'flex flex-col rounded-md border-sm transition-colors overflow-hidden',
+    'flex flex-col rounded-md border-sm transition-colors',
     disabled
       ? 'bg-background-default border-border-disabled'
       : 'bg-background-surface border-border-default focus-within:border-border-focus',
   ].join(' ')
 
-  function setLink() {
+  function openLinkDialog() {
     if (!editor) return
     const previous = editor.getAttributes('link').href as string | undefined
-    const url = window.prompt('URL do link', previous ?? 'https://')
-    if (url === null) return
-    const trimmed = url.trim()
-    if (trimmed === '') {
+    setLinkUrl(previous ?? 'https://')
+    setLinkDialogOpen(true)
+  }
+
+  function confirmLink() {
+    if (!editor) return
+    const trimmed = linkUrl.trim()
+    if (!trimmed || trimmed === 'https://') {
       editor.chain().focus().extendMarkRange('link').unsetLink().run()
-      return
+    } else {
+      editor.chain().focus().extendMarkRange('link').setLink({ href: trimmed }).run()
     }
-    editor.chain().focus().extendMarkRange('link').setLink({ href: trimmed }).run()
+    setLinkDialogOpen(false)
+  }
+
+  function closeLinkDialog() {
+    setLinkDialogOpen(false)
+    editor?.chain().focus().run()
   }
 
   return (
@@ -181,7 +199,7 @@ export function RichTextEditor({
       <div className={boxClasses}>
         <div
           className={[
-            'flex flex-wrap items-center gap-1 border-b border-border-default px-2 py-1.5',
+            'flex min-h-10 flex-wrap items-center gap-1 border-b border-border-default px-2 py-1.5',
             disabled ? 'opacity-50' : undefined,
           ]
             .filter(Boolean)
@@ -269,7 +287,7 @@ export function RichTextEditor({
             icon="link-2"
             active={editor?.isActive('link') ?? false}
             disabled={disabled}
-            onClick={setLink}
+            onClick={openLinkDialog}
           />
         </div>
 
@@ -292,6 +310,22 @@ export function RichTextEditor({
           <span className="text-label-xs font-inter text-feedback-error">{error}</span>
         </div>
       ) : null}
+
+      <ConfirmDialog
+        variant="prompt"
+        open={linkDialogOpen}
+        onClose={closeLinkDialog}
+        onConfirm={confirmLink}
+        subTitle="Formatação"
+        title="Inserir link"
+        content="Informe a URL. Deixe em branco para remover o link da seleção."
+        inputValue={linkUrl}
+        onInputChange={setLinkUrl}
+        inputPlaceholder="https://"
+        inputLabel="URL do link"
+        labelCancel="Cancelar"
+        labelConfirm="Aplicar"
+      />
     </div>
   )
 }
