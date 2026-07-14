@@ -64,7 +64,7 @@ export function NotificationListItem({
           </div>
 
           <div className="flex flex-col gap-1">
-            <span className="text-body-sm font-medium text-text-default leading-tight">
+            <span className="text-body-sm font-medium text-text-primary leading-tight">
               {title}
             </span>
             <span className="text-label-xs text-text-secondary">
