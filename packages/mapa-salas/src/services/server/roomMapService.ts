@@ -1,8 +1,10 @@
 import type {
   CreateRoomMapRequest,
   ListRoomMapsParams,
+  MoveStudentRequest,
   RoomMapPageResponse,
   RoomMapView,
+  UpdateRoomMapAllocationsRequest,
 } from '../../types'
 
 import { createHttpClient } from '@portal/core/http/httpClient'
@@ -47,4 +49,39 @@ export async function createRoomMap(request: CreateRoomMapRequest): Promise<Room
   return http.post<RoomMapView>(mapaSalaGatewayPath('/api/mapas'), {
     body: request,
   })
+}
+
+/**
+ * Salva o conjunto de alocações de um mapa existente
+ * (`PUT /api/mapas/{id}/allocations`). O back rejeita lista vazia
+ * (`@NotEmpty`) — "limpar mapa" não é suportado por este endpoint
+ * (ver #296, seção "O que NÃO fazer"). Substitui atomicamente todo o
+ * conjunto de alocações e retorna o view atualizado (200).
+ */
+export async function updateAllocations(
+  id: string,
+  request: UpdateRoomMapAllocationsRequest,
+): Promise<RoomMapView> {
+  return http.put<RoomMapView>(mapaSalaGatewayPath(`/api/mapas/${id}/allocations`), {
+    body: request,
+  })
+}
+
+/**
+ * Move um aluno para outra posição (`PATCH /api/mapas/{id}/locations/move`).
+ * 204 sem corpo. `onConflict` resolve colisão de assento — padrão do back é
+ * `DISPLACE` quando omitido.
+ */
+export async function moveStudent(id: string, request: MoveStudentRequest): Promise<void> {
+  await http.patch<void>(mapaSalaGatewayPath(`/api/mapas/${id}/locations/move`), {
+    body: request,
+  })
+}
+
+/**
+ * Arquiva o mapa (`PATCH /api/mapas/{id}/arquivar`). Soft delete — 204 sem
+ * corpo. Professor só pode arquivar mapas da própria turma; ADMIN, qualquer.
+ */
+export async function archiveRoomMap(id: string): Promise<void> {
+  await http.patch<void>(mapaSalaGatewayPath(`/api/mapas/${id}/arquivar`))
 }

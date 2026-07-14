@@ -2,8 +2,10 @@ import type {
   CreateRoomMapRequest,
   LayoutTemplateWithPositions,
   ListRoomMapsParams,
+  MoveStudentRequest,
   RoomMapPageResponse,
   RoomMapView,
+  UpdateRoomMapAllocationsRequest,
 } from '../../types'
 
 import { bffFetch } from '@portal/core/http/bffClient'
@@ -51,4 +53,37 @@ export async function createRoomMapClient(request: CreateRoomMapRequest): Promis
  */
 export async function getRoomLayoutClient(salaId: string): Promise<LayoutTemplateWithPositions> {
   return bffFetch<LayoutTemplateWithPositions>(`/api/mapa-salas/layouts/salas/${salaId}`)
+}
+
+/**
+ * Salva as alocações via BFF (`PUT /api/mapa-salas/mapas/{id}/allocations`).
+ * Retorna o view atualizado.
+ */
+export async function updateAllocationsClient(
+  id: string,
+  request: UpdateRoomMapAllocationsRequest,
+): Promise<RoomMapView> {
+  return bffFetch<RoomMapView>(`/api/mapa-salas/mapas/${id}/allocations`, {
+    method: 'PUT',
+    body: JSON.stringify(request),
+  })
+}
+
+/**
+ * Move um aluno de assento via BFF (`PATCH /api/mapa-salas/mapas/{id}/locations/move`).
+ * 204 sem corpo.
+ */
+export async function moveStudentClient(id: string, request: MoveStudentRequest): Promise<void> {
+  await bffFetch<void>(`/api/mapa-salas/mapas/${id}/locations/move`, {
+    method: 'PATCH',
+    body: JSON.stringify(request),
+  })
+}
+
+/**
+ * Arquiva o mapa via BFF (`PATCH /api/mapa-salas/mapas/{id}/arquivar`).
+ * 204 sem corpo.
+ */
+export async function archiveRoomMapClient(id: string): Promise<void> {
+  await bffFetch<void>(`/api/mapa-salas/mapas/${id}/arquivar`, { method: 'PATCH' })
 }

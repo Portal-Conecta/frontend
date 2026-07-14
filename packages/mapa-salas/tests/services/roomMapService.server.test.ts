@@ -7,7 +7,14 @@ vi.mock('@portal/core/auth/session', () => ({
   getSession: () => Promise.resolve('jwt-token'),
 }))
 
-import { createRoomMap, getRoomMapView, listRoomMaps } from '../../src/services/server/roomMapService'
+import {
+  archiveRoomMap,
+  createRoomMap,
+  getRoomMapView,
+  listRoomMaps,
+  moveStudent,
+  updateAllocations,
+} from '../../src/services/server/roomMapService'
 import type {
   CreateRoomMapRequest,
   RoomMapGrid,
@@ -16,12 +23,24 @@ import type {
 } from '../../src/types'
 
 const API_GATEWAY_URL = 'https://gateway.test'
+const MAP_ID = 'm1'
 
 function response(status: number, body: unknown): Response {
   return {
     ok: status >= 200 && status < 300,
     status,
     json: async () => body,
+  } as unknown as Response
+}
+
+/** Resposta 204 — sem corpo; `json()` não deveria ser chamado por quem consome. */
+function emptyResponse(status = 204): Response {
+  return {
+    ok: status >= 200 && status < 300,
+    status,
+    json: async () => {
+      throw new Error('204 não tem corpo — json() não deveria ser chamado')
+    },
   } as unknown as Response
 }
 
@@ -60,6 +79,17 @@ const suggestedView: RoomMapView = {
     { studentId: 's2', studentName: 'Bruno Lima', seatNumber: 2, layoutPositionId: 'p2' },
   ],
   unassignedStudent: [{ studentId: 's3', studentName: 'Carla Dias' }],
+}
+
+const updatedView: RoomMapView = {
+  suggested: false,
+  map: { id: MAP_ID, classId: 'turma-1', roomId: 'sala-1', layoutTemplateId: 'lt1' },
+  grid,
+  allocations: [
+    { studentId: 's1', studentName: 'Ana Souza', seatNumber: 1, layoutPositionId: 'p1' },
+    { studentId: 's2', studentName: 'Bruno Lima', seatNumber: 2, layoutPositionId: 'p2' },
+  ],
+  unassignedStudent: [],
 }
 
 const pageResponse: RoomMapPageResponse = {
@@ -186,5 +216,107 @@ describe('createRoomMap', () => {
       kind: 'validation',
       body: errorBody,
     })
+  })
+})
+
+describe('updateAllocations', () => {
+  const request = {
+    allocations: [
+      { studentId: 's1', layoutPositionId: 'p1' },
+      { studentId: 's2', layoutPositionId: 'p2' },
+    ],
+  }
+
+  it('faz PUT em /api/mapas/{id}/allocations com Bearer e body, retornando o view atualizado', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(response(200, updatedView))
+
+    await expect(updateAllocations(MAP_ID, request)).resolves.toEqual(updatedView)
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe(`${API_GATEWAY_URL}/mapa/api/mapas/${MAP_ID}/allocations`)
+    expect(init?.method).toBe('PUT')
+    expect((init?.headers as Record<string, string>).Authorization).toBe('Bearer jwt-token')
+    expect(JSON.parse(init?.body as string)).toEqual(request)
+  })
+
+  it('mapeia 400 (lista vazia/duplicada/posição inválida) para HttpError', async () => {
+    stubFetch().mockResolvedValue(response(400, { message: 'validação falhou' }))
+    await expect(updateAllocations(MAP_ID, request)).rejects.toMatchObject({ kind: 'validation' })
+  })
+
+  it('mapeia 403 (professor sem vínculo) para HttpError forbidden', async () => {
+    stubFetch().mockResolvedValue(response(403, {}))
+    await expect(updateAllocations(MAP_ID, request)).rejects.toMatchObject({ kind: 'forbidden' })
+  })
+
+  it('mapeia 404 (mapa não encontrado/arquivado) para HttpError not_found', async () => {
+    stubFetch().mockResolvedValue(response(404, {}))
+    await expect(updateAllocations(MAP_ID, request)).rejects.toMatchObject({ kind: 'not_found' })
+  })
+})
+
+describe('moveStudent', () => {
+  const request = { studentId: 's1', targetLayoutPositionId: 'p2', onConflict: 'SWAP' as const }
+
+  it('faz PATCH em /api/mapas/{id}/locations/move com Bearer e body, sem corpo de retorno (204)', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(emptyResponse())
+
+    await expect(moveStudent(MAP_ID, request)).resolves.toBeUndefined()
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe(`${API_GATEWAY_URL}/mapa/api/mapas/${MAP_ID}/locations/move`)
+    expect(init?.method).toBe('PATCH')
+    expect((init?.headers as Record<string, string>).Authorization).toBe('Bearer jwt-token')
+    expect(JSON.parse(init?.body as string)).toEqual(request)
+  })
+
+  it('usa DISPLACE (default do back) quando onConflict é omitido', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(emptyResponse())
+    const requestWithoutConflict = { studentId: 's1', targetLayoutPositionId: 'p2' }
+
+    await expect(moveStudent(MAP_ID, requestWithoutConflict)).resolves.toBeUndefined()
+
+    const [, init] = fetchMock.mock.calls[0]!
+    expect(JSON.parse(init?.body as string)).toEqual(requestWithoutConflict)
+  })
+
+  it('mapeia 400 (posição inválida ou mapa arquivado) para HttpError', async () => {
+    stubFetch().mockResolvedValue(response(400, {}))
+    await expect(moveStudent(MAP_ID, request)).rejects.toMatchObject({ kind: 'validation' })
+  })
+
+  it('mapeia 403 (sem permissão/vínculo) para HttpError forbidden', async () => {
+    stubFetch().mockResolvedValue(response(403, {}))
+    await expect(moveStudent(MAP_ID, request)).rejects.toMatchObject({ kind: 'forbidden' })
+  })
+})
+
+describe('archiveRoomMap', () => {
+  it('faz PATCH em /api/mapas/{id}/arquivar com Bearer e sem body, sem corpo de retorno (204)', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(emptyResponse())
+
+    await expect(archiveRoomMap(MAP_ID)).resolves.toBeUndefined()
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe(`${API_GATEWAY_URL}/mapa/api/mapas/${MAP_ID}/arquivar`)
+    expect(init?.method).toBe('PATCH')
+    expect((init?.headers as Record<string, string>).Authorization).toBe('Bearer jwt-token')
+  })
+
+  it('mapeia 400 (mapa já arquivado) para HttpError', async () => {
+    stubFetch().mockResolvedValue(response(400, {}))
+    await expect(archiveRoomMap(MAP_ID)).rejects.toMatchObject({ kind: 'validation' })
+  })
+
+  it('mapeia 404 (mapa não encontrado) para HttpError not_found', async () => {
+    stubFetch().mockResolvedValue(response(404, {}))
+    await expect(archiveRoomMap(MAP_ID)).rejects.toMatchObject({ kind: 'not_found' })
   })
 })

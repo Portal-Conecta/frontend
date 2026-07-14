@@ -16,3 +16,4 @@ export {
   getPostTags,
   getPostImages,
 } from './postsService'
+export { listTags } from './tagsService'
