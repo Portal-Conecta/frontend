@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ListItem } from '../../../atoms/ListItem'
-import { Icon, type IconName } from '../../../atoms/Icon'
-import { NotificationModal } from '../NotificationModal/NotificationModal'
+import { ListItem } from '../../atoms/ListItem'
+import { Icon, type IconName } from '../../atoms/Icon'
+import { NotificationModal } from '../../organisms/NotificationModal/NotificationModal'
 
 export type NotificationType = 'CHECKLIST' | 'MAPA' | 'COMUNICADO' | 'OUTRO'
 

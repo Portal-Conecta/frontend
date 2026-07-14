@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { useState } from 'react';
-import { ListItem } from './ListItem';
+import type { Meta, StoryObj } from '@storybook/react'
+import { useState } from 'react'
+import { ListItem } from './ListItem'
 
 const meta = {
   title: 'Componentes/Data/ListItem',
@@ -26,18 +26,18 @@ const meta = {
     selected: false,
     disableHover: false,
   },
-} satisfies Meta<typeof ListItem>;
+} satisfies Meta<typeof ListItem>
 
-export default meta;
-type Story = StoryObj<typeof meta>;
+export default meta
+type Story = StoryObj<typeof meta>
 
-export const Default: Story = {};
+export const Default: Story = {}
 
 export const HoverDisabled: Story = {
   args: {
     disableHover: true,
   },
-};
+}
 
 export const Selectable: Story = {
   args: {
@@ -46,17 +46,17 @@ export const Selectable: Story = {
   },
   render: (args) => {
     // Usamos o useState do React para controlar o estado localmente na story
-    const [isSelected, setIsSelected] = useState(args.selected ?? false);
-    
+    const [isSelected, setIsSelected] = useState(args.selected ?? false)
+
     return (
       <ListItem
         {...args}
         selected={isSelected}
         onClick={() => setIsSelected(!isSelected)}
       />
-    );
+    )
   }
-};
+}
 
 export const Selected: Story = {
   args: {
@@ -64,4 +64,4 @@ export const Selected: Story = {
     selected: true,
     children: 'Item selecionado (borda completa pressed)',
   },
-};
+}
