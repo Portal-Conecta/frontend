@@ -1,11 +1,11 @@
-import { Icon, Text } from '@portal/ui'
+import { Icon, Text } from "@portal/ui";
 
 export interface ChecklistItemResultProps {
-  title: string
-  description?: string
-  status: 'conforme' | 'nao-conforme'
-  observation?: string
-  className?: string
+  title: string;
+  description?: string;
+  status: "conforme" | "nao-conforme";
+  observation?: string;
+  className?: string;
 }
 
 export function ChecklistItemResult({
@@ -15,10 +15,14 @@ export function ChecklistItemResult({
   observation,
   className,
 }: ChecklistItemResultProps) {
-  const isConforme = status === 'conforme'
+  const isConforme = status === "conforme";
 
   return (
-    <div className={['border-t border-border-default py-3', className].filter(Boolean).join(' ')}>
+    <div
+      className={["border-t border-border-default py-3", className]
+        .filter(Boolean)
+        .join(" ")}
+    >
       <div className="flex items-center justify-between gap-4">
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           <Text variant="label-sm" tone="brand" className="md:text-label-md">
@@ -26,7 +30,11 @@ export function ChecklistItemResult({
           </Text>
 
           {isConforme && description && (
-            <Text variant="label-xs" tone="secondary" className="break-words md:text-label-sm">
+            <Text
+              variant="label-xs"
+              tone="secondary"
+              className="break-words md:text-label-sm"
+            >
               {description}
             </Text>
           )}
@@ -34,17 +42,20 @@ export function ChecklistItemResult({
 
         <div
           className={[
-            'flex h-8 w-12 shrink-0 items-center justify-center gap-2 rounded-md border-sm',
-            'md:h-auto md:w-36 md:px-3 md:py-2',
+            "flex h-8 w-10 shrink-0 items-center justify-center gap-2 rounded-md border-sm",
+            "md:h-auto md:w-30 md:px-3 md:py-2",
             isConforme
-              ? 'border-feedback-success text-feedback-success'
-              : 'border-feedback-error text-feedback-error',
-          ].join(' ')}
+              ? "border-feedback-success text-feedback-success"
+              : "border-feedback-error text-feedback-error",
+          ].join(" ")}
         >
-          <Icon name={isConforme ? 'check-check' : 'x'} size="sm" decorative />
+          <Icon name={isConforme ? "check-check" : "x"} size="sm" decorative />
 
-          <Text variant="label-xs" className="hidden whitespace-nowrap md:inline">
-            {isConforme ? 'Conforme' : 'Não Conforme'}
+          <Text
+            variant="label-xs"
+            className="whitespace-nowrap sr-only md:not-sr-only"
+          >
+            {isConforme ? "Conforme" : "Não Conforme"}
           </Text>
         </div>
       </div>
@@ -57,5 +68,5 @@ export function ChecklistItemResult({
         </div>
       )}
     </div>
-  )
+  );
 }

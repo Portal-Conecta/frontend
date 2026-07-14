@@ -1,1 +1,1 @@
-export * from './molecules/ChecklistItemResult'
+export * from "./molecules/ChecklistItemResult";
