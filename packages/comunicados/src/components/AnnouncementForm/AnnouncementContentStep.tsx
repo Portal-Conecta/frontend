@@ -2,7 +2,7 @@
 
 import { type ChangeEvent } from 'react'
 
-import { Field, FileUpload, Input, Textarea, type FileUploadItem } from '@portal/ui'
+import { Field, FileUpload, Input, RichTextEditor, type FileUploadItem } from '@portal/ui'
 
 import type { AnnouncementContentErrors, AnnouncementContentValue } from './types'
 import { ANNOUNCEMENT_TITLE_MAX_LENGTH } from '../../constants/announcementFieldLimits'
@@ -22,7 +22,7 @@ export interface AnnouncementContentStepProps {
  * Etapa 1 do wizard de criar comunicado: imagens + título + descrição.
  *
  * Reutiliza o `FileUpload` do DS (seleção de imagens), o átomo `Input` (título) e
- * o átomo `Textarea` (descrição), cada um dentro de um `Field` do DS para o rótulo
+ * o `RichTextEditor` (descrição HTML), cada um dentro de um `Field` do DS para o rótulo
  * acessível. Componente controlado — o wizard (#197) guarda o estado e faz o
  * "Avançar" para a etapa de destinatários.
  */
@@ -41,8 +41,8 @@ export function AnnouncementContentStep({
     onChange({ ...value, title: event.target.value })
   }
 
-  function setDescription(event: ChangeEvent<HTMLTextAreaElement>) {
-    onChange({ ...value, description: event.target.value })
+  function setDescription(html: string) {
+    onChange({ ...value, description: html })
   }
 
   return (
@@ -67,12 +67,12 @@ export function AnnouncementContentStep({
       </Field>
 
       <Field label="Descrição do comunicado">
-        <Textarea
+        <RichTextEditor
           value={value.description}
           onChange={setDescription}
           placeholder="Descreva aqui os detalhes do comunicado..."
-          rows={8}
           disabled={disabled}
+          aria-label="Descrição do comunicado"
           {...(errors?.description ? { error: errors.description } : {})}
         />
       </Field>

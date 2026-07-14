@@ -69,7 +69,10 @@ export interface ScheduleAnnouncementRequest extends PublishAnnouncementRequest 
 export interface AnnouncementResponse {
   id: string
   title: string
+  /** Conteúdo HTML sanitizado (TipTap). */
   description: string
+  /** Versão plain-text gerada no servidor. */
+  descriptionPlain?: string
   origin: AnnouncementOrigin
   status: AnnouncementStatus
   pinned: boolean
@@ -87,6 +90,10 @@ export interface AnnouncementResponse {
 export interface AnnouncementSummary {
   id: string
   title: string
+  /**
+   * Prévia plain-text na listagem (compatível com `descriptionPlain`).
+   * Preferir `descriptionPlain` quando disponível.
+   */
   description: string
   /** Versão plain-text recomendada para preview (mural/cards/tabela). Preferir a `description` quando ausente. */
   descriptionPlain?: string
