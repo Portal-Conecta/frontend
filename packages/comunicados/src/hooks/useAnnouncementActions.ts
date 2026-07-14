@@ -16,7 +16,7 @@ export interface UseAnnouncementActionsOptions {
   onChanged?: () => void
 }
 
-const ACTION_ERROR = 'Não foi possível concluir a ação. Tente novamente.'
+export const ACTION_ERROR = 'Não foi possível concluir a ação. Tente novamente.'
 
 export function useAnnouncementActions({ onChanged }: UseAnnouncementActionsOptions = {}) {
   const [pendingId, setPendingId] = useState<string | null>(null)

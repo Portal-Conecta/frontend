@@ -997,7 +997,8 @@
                                 "COURSE",
                                 "CLASS",
                                 "USER",
-                                "GENERAL"
+                                "GENERAL",
+                                "SHIFT"
                             ]
                         }
                     }
@@ -1490,11 +1491,14 @@
                 "properties": {
                     "title": {
                         "type": "string",
+                        "description": "Título do comunicado.",
+                        "example": "Reunião de alinhamento",
                         "maxLength": 255,
                         "minLength": 0
                     },
                     "description": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Conteúdo do comunicado em texto livre, sem limite de tamanho."
                     },
                     "origin": {
                         "type": "string",
@@ -1540,10 +1544,13 @@
                         "format": "uuid"
                     },
                     "title": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Título do comunicado.",
+                        "maxLength": 255
                     },
                     "description": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Conteúdo do comunicado em texto livre, sem limite de tamanho."
                     },
                     "origin": {
                         "type": "string",
@@ -1734,8 +1741,12 @@
                             "COURSE",
                             "CLASS",
                             "USER",
-                            "GENERAL"
+                            "GENERAL",
+                            "SHIFT"
                         ]
+                    },
+                    "hubEntityId": {
+                        "type": "string"
                     },
                     "active": {
                         "type": "boolean"
@@ -1772,10 +1783,14 @@
                 "properties": {
                     "title": {
                         "type": "string",
-                        "minLength": 1
+                        "description": "Título do comunicado.",
+                        "example": "Reunião de alinhamento",
+                        "maxLength": 255,
+                        "minLength": 0
                     },
                     "description": {
                         "type": "string",
+                        "description": "Conteúdo do comunicado em texto livre, sem limite de tamanho.",
                         "minLength": 1
                     },
                     "origin": {
@@ -1802,9 +1817,24 @@
                     },
                     "tagIds": {
                         "type": "array",
+                        "description": "UUIDs internos da tabela tag (tag.id), não hub_entity_id do Core. Opcional.",
                         "items": {
                             "type": "string",
                             "format": "uuid"
+                        }
+                    },
+                    "shiftCodes": {
+                        "type": "array",
+                        "description": "Turnos do comunicado (enum Shift do Core). Opcional; vazio = sem restrição de turno.",
+                        "example": [
+                            "FULL_AM_PM"
+                        ],
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "FULL_AM_PM",
+                                "FULL_PM_NT"
+                            ]
                         }
                     }
                 },
@@ -1821,10 +1851,14 @@
                 "properties": {
                     "title": {
                         "type": "string",
-                        "minLength": 1
+                        "description": "Título do comunicado.",
+                        "example": "Reunião de alinhamento",
+                        "maxLength": 255,
+                        "minLength": 0
                     },
                     "description": {
                         "type": "string",
+                        "description": "Conteúdo do comunicado em texto livre, sem limite de tamanho.",
                         "minLength": 1
                     },
                     "origin": {
@@ -1847,9 +1881,24 @@
                     },
                     "tagIds": {
                         "type": "array",
+                        "description": "UUIDs internos da tabela tag (tag.id), não hub_entity_id do Core. Opcional.",
                         "items": {
                             "type": "string",
                             "format": "uuid"
+                        }
+                    },
+                    "shiftCodes": {
+                        "type": "array",
+                        "description": "Turnos do comunicado (enum Shift do Core). Opcional; vazio = sem restrição de turno.",
+                        "example": [
+                            "FULL_AM_PM"
+                        ],
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "FULL_AM_PM",
+                                "FULL_PM_NT"
+                            ]
                         }
                     }
                 },
@@ -1889,10 +1938,13 @@
                         "format": "uuid"
                     },
                     "title": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Título do comunicado.",
+                        "maxLength": 255
                     },
                     "description": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Conteúdo do comunicado em texto livre, sem limite de tamanho."
                     },
                     "origin": {
                         "type": "string",
@@ -1931,8 +1983,14 @@
                     },
                     "thumbnailUrl": {
                         "type": "string",
-                        "description": "URL da miniatura do comunicado; null quando não há imagem",
-                        "nullable": true
+                        "description": "URL pré-assinada da miniatura do comunicado, se houver e estiver pronta."
+                    },
+                    "tags": {
+                        "type": "array",
+                        "description": "Tags vinculadas ao comunicado (curso, turma, turno, etc.).",
+                        "items": {
+                            "$ref": "#/components/schemas/TagResponse"
+                        }
                     }
                 }
             },
