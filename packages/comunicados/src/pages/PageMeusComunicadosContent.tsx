@@ -10,10 +10,8 @@ import { AnnouncementActionsMenu } from '../components/AnnouncementActionsMenu'
 import type { AnnouncementActionsMenuAction } from '../components/AnnouncementActionsMenu'
 import {
   AnnouncementFiltersBar,
+  MURAL_ORIGEM_OPTIONS,
   MURAL_PERIODO_OPTIONS,
-  MURAL_TIPO_OPTIONS,
-  announcementFiltersToParams,
-  createDefaultListParams,
   type AnnouncementFilters,
 } from '../components/AnnouncementFiltersBar'
 import { AnnouncementSearchField } from '../components/AnnouncementSearchField'
@@ -23,6 +21,7 @@ import { ACTION_ERROR, useAnnouncementActions } from '../hooks/useAnnouncementAc
 import { useMuralFilterCatalog } from '../hooks/useMuralFilterCatalog'
 import { useMyAnnouncements } from '../hooks/useMyAnnouncements'
 import type { AnnouncementSummary, ListPostsParams } from '../types/announcement'
+import { createDefaultFeedFilters, toListPostsParams } from '../utils/muralFilters'
 
 /** Espera após a última tecla antes de buscar no painel. */
 const SEARCH_DEBOUNCE_MS = 300
@@ -53,7 +52,7 @@ export function PageMeusComunicadosContent({ canCreate, userType }: PageMeusComu
   const [activeFilters, setActiveFilters] = useState<AnnouncementFilters>({})
   const [searchQuery, setSearchQuery] = useState('')
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('')
-  const [listParams, setListParams] = useState<ListPostsParams>(() => createDefaultListParams())
+  const [listParams, setListParams] = useState<ListPostsParams>(() => createDefaultFeedFilters())
 
   const { items, pinned, loading, error, reload } = useMyAnnouncements(listParams)
   const { remove, pin, unpin } = useAnnouncementActions({ onChanged: reload })
@@ -67,8 +66,8 @@ export function PageMeusComunicadosContent({ canCreate, userType }: PageMeusComu
   }, [searchQuery])
 
   useEffect(() => {
-    setListParams(announcementFiltersToParams(activeFilters, debouncedSearchQuery))
-  }, [activeFilters, debouncedSearchQuery])
+    setListParams(toListPostsParams(activeFilters, debouncedSearchQuery, catalog.tags))
+  }, [activeFilters, debouncedSearchQuery, catalog.tags])
 
   async function handlePin(post: AnnouncementSummary) {
     setPendingAction({ id: post.id, action: 'pin' })
@@ -90,7 +89,7 @@ export function PageMeusComunicadosContent({ canCreate, userType }: PageMeusComu
     setActiveFilters({})
     setSearchQuery('')
     setDebouncedSearchQuery('')
-    setListParams(createDefaultListParams())
+    setListParams(createDefaultFeedFilters())
   }
 
   const pendingFor = (id: string): AnnouncementActionsMenuAction | null =>
@@ -144,7 +143,7 @@ export function PageMeusComunicadosContent({ canCreate, userType }: PageMeusComu
             cursoOptions={catalog.courses}
             turmaOptions={catalog.classes}
             turnoOptions={catalog.shifts}
-            tipoOptions={MURAL_TIPO_OPTIONS}
+            origemOptions={MURAL_ORIGEM_OPTIONS}
             periodoOptions={MURAL_PERIODO_OPTIONS}
             onApply={setActiveFilters}
             onRestore={handleRestore}
