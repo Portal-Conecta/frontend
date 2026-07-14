@@ -136,7 +136,11 @@ export function AppHeader({
                 {/* Dot de notificação: sino azul (tone primary), só o dot é vermelho.
                     Posicionado no ombro do sino como o `bell-dot` do DS (Lucide: centro
                     ~75%/33% da caixa). O anel na cor do fundo recria o notch que separa
-                    o dot do traço do sino. */}
+                    o dot do traço do sino.
+                    Os valores arbitrários de posição (top-[28%] e os -translate-*) não
+                    têm token equivalente — não existe token de posicionamento de badge no
+                    DS, então é exceção consciente (como rounded-[20px] em outros pontos por
+                    falta de token de radius). Dívida conhecida a registrar com o squad. */}
                 {showDot ? (
                   <span
                     aria-hidden
