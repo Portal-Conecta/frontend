@@ -10,7 +10,7 @@ import { DefaultModal } from './DefaultModal'
  * wrapper com `useState` provê o gatilho e o estado.
  */
 const meta: Meta<typeof DefaultModal> = {
-  title: 'Componentes/Sobreposição/DefaultModal',
+  title: 'Componentes/Overlay/DefaultModal',
   component: DefaultModal,
   parameters: { layout: 'padded' },
 }
