@@ -10,7 +10,8 @@ import { AnnouncementFiltersBarSkeleton } from './AnnouncementFiltersBarSkeleton
 
 export interface AnnouncementFilters {
   curso?: string
-  tipo?: string
+  /** Origem do comunicado (`WEG` / `SENAI` / `BOTH`). */
+  origem?: string
   turma?: string
   turno?: string
   periodo?: string
@@ -23,7 +24,7 @@ export interface AnnouncementFiltersBarProps {
   userType?: TypeUser | undefined
   loading?: boolean
   cursoOptions?: SelectOption[]
-  tipoOptions?: SelectOption[]
+  origemOptions?: SelectOption[]
   turmaOptions?: ClassFilterOption[]
   turnoOptions?: SelectOption[]
   periodoOptions?: SelectOption[]
@@ -37,10 +38,11 @@ export interface AnnouncementFiltersBarProps {
 
 const todosOption: SelectOption = { value: 'todos', label: 'Todos' }
 
-export const MURAL_TIPO_OPTIONS: SelectOption[] = [
+export const MURAL_ORIGEM_OPTIONS: SelectOption[] = [
   todosOption,
-  { value: 'aviso', label: 'Aviso' },
-  { value: 'evento', label: 'Evento' },
+  { value: 'WEG', label: 'WEG' },
+  { value: 'SENAI', label: 'SENAI' },
+  { value: 'BOTH', label: 'WEG + SENAI' },
 ]
 
 export const MURAL_PERIODO_OPTIONS: SelectOption[] = [
@@ -62,7 +64,7 @@ export function AnnouncementFiltersBar({
   userType,
   loading = false,
   cursoOptions = [todosOption],
-  tipoOptions = MURAL_TIPO_OPTIONS,
+  origemOptions = MURAL_ORIGEM_OPTIONS,
   turmaOptions = [],
   turnoOptions = [todosOption],
   periodoOptions = MURAL_PERIODO_OPTIONS,
@@ -72,7 +74,7 @@ export function AnnouncementFiltersBar({
   titleId,
 }: AnnouncementFiltersBarProps) {
   const [curso, setCurso] = useState<string | null>('todos')
-  const [tipo, setTipo] = useState<string | null>('todos')
+  const [origem, setOrigem] = useState<string | null>('todos')
   const [turma, setTurma] = useState<string | null>('todos')
   const [turno, setTurno] = useState<string | null>('todos')
   const [periodo, setPeriodo] = useState<string | null>('todos')
@@ -122,15 +124,15 @@ export function AnnouncementFiltersBar({
     const filters: AnnouncementFilters = {}
 
     const normalizedCurso = normalize(curso)
-    const normalizedTipo = normalize(tipo)
+    const normalizedOrigem = normalize(origem)
     const normalizedTurma = normalize(turma)
     const normalizedTurno = normalize(turno)
     const normalizedPeriodo = normalize(periodo)
 
-    // UX: aluno não envia curso/tipo/turma/turno — autorização real continua no BFF/backend.
+    // UX: aluno não envia curso/origem/turma/turno — autorização real continua no BFF/backend.
     if (!isStudent) {
       if (normalizedCurso) filters.curso = normalizedCurso
-      if (normalizedTipo) filters.tipo = normalizedTipo
+      if (normalizedOrigem) filters.origem = normalizedOrigem
       if (normalizedTurma) filters.turma = normalizedTurma
       if (normalizedTurno) filters.turno = normalizedTurno
     }
@@ -144,7 +146,7 @@ export function AnnouncementFiltersBar({
 
   function handleRestore() {
     setCurso('todos')
-    setTipo('todos')
+    setOrigem('todos')
     setTurma('todos')
     setTurno('todos')
     setPeriodo('todos')
@@ -179,9 +181,9 @@ export function AnnouncementFiltersBar({
               value={curso}
               onChange={handleCursoChange}
             />
-            {/* Tipo fica no painel desktop; o modal mobile do Figma não inclui esse campo. */}
+            {/* Origem fica no painel desktop; o modal mobile do Figma não inclui esse campo. */}
             {!isSheet ? (
-              <FilterSelect label="Tipo" options={tipoOptions} value={tipo} onChange={setTipo} />
+              <FilterSelect label="Origem" options={origemOptions} value={origem} onChange={setOrigem} />
             ) : null}
             <FilterSelect
               label="Turma"
