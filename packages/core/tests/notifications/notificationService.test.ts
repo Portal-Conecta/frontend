@@ -3,9 +3,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { HttpError } from '@portal/core/http/errors'
 import {
   getNotifications,
+  getUnreadNotificationsCount,
   markNotificationsAsRead,
 } from '@portal/core/notifications/notificationService'
-import type { PagedNotificationsResponse } from '@portal/core/notifications/types'
+import type {
+  PagedNotificationsResponse,
+  UnreadCountResponse,
+} from '@portal/core/notifications/types'
 
 const API_GATEWAY_URL = 'https://gateway.test'
 const TOKEN = 'jwt-token'
@@ -31,6 +35,8 @@ const pagedResponse: PagedNotificationsResponse = {
   totalElements: 0,
   totalPages: 0,
 }
+
+const unreadCountResponse: UnreadCountResponse = { unreadCount: 3 }
 
 beforeEach(() => {
   process.env.API_GATEWAY_URL = API_GATEWAY_URL
@@ -127,5 +133,41 @@ describe('markNotificationsAsRead', () => {
     await expect(markNotificationsAsRead(TOKEN, ['uuid-a'])).rejects.toMatchObject({
       kind: 'unauthorized',
     })
+  })
+})
+
+describe('getUnreadNotificationsCount', () => {
+  it('busca a contagem pelo gateway sob /hub e resolve o unreadCount', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(response(200, unreadCountResponse))
+
+    await expect(getUnreadNotificationsCount(TOKEN)).resolves.toEqual(unreadCountResponse)
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe(`${API_GATEWAY_URL}/hub/notifications/unread-count`)
+    expect(init?.method).toBe('GET')
+    expect(init?.headers).toMatchObject({ Authorization: `Bearer ${TOKEN}` })
+  })
+
+  it('mapeia 401 para HttpError unauthorized', async () => {
+    stubFetch().mockResolvedValue(response(401, {}))
+    await expect(getUnreadNotificationsCount(TOKEN)).rejects.toMatchObject({
+      kind: 'unauthorized',
+    })
+  })
+
+  it('mapeia 500 para HttpError server', async () => {
+    stubFetch().mockResolvedValue(response(500, {}))
+    await expect(getUnreadNotificationsCount(TOKEN)).rejects.toMatchObject({
+      kind: 'server',
+    })
+  })
+
+  it('mapeia falha de rede para HttpError network', async () => {
+    stubFetch().mockRejectedValue(new TypeError('fetch failed'))
+    const error = await getUnreadNotificationsCount(TOKEN).catch((e) => e)
+    expect(error).toBeInstanceOf(HttpError)
+    expect(error).toMatchObject({ kind: 'network' })
   })
 })

@@ -15,6 +15,7 @@ import { useRouter } from 'next/navigation'
 import { AppLayout, PermissionsProvider, type CurrentUser } from '@portal/core'
 import type { SidebarItem } from '@portal/ui'
 
+import { useUnreadNotificationsCount } from '../notifications/useUnreadNotificationsCount'
 import { visibleNavFor } from './navRegistry'
 
 export function AppShell({
@@ -27,6 +28,7 @@ export function AppShell({
   children: ReactNode
 }) {
   const router = useRouter()
+  const hasUnreadNotifications = useUnreadNotificationsCount()
 
   const items: SidebarItem[] = visibleNavFor(user).map(
     ({ key, icon, label, href }) => ({
@@ -39,7 +41,13 @@ export function AppShell({
 
   return (
     <PermissionsProvider user={user}>
-      <AppLayout items={items} activeKey={activeKey} onLogoClick={() => router.push('/comunicados')}>
+      <AppLayout
+        items={items}
+        activeKey={activeKey}
+        onLogoClick={() => router.push('/comunicados')}
+        onNotificationsClick={() => router.push('/notifications')}
+        hasUnreadNotifications={hasUnreadNotifications}
+      >
         {children}
       </AppLayout>
     </PermissionsProvider>
