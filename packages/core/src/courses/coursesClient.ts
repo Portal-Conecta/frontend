@@ -23,7 +23,7 @@ export function listCoursesClient(params: CoursesListParams = {}): Promise<Cours
 
 /** Detalhe de um curso com turmas ativas e inativas (`GET /api/courses/{id}`). */
 export function getCourseDetailClient(courseId: string): Promise<CourseDetail> {
-  return bffFetch<CourseDetail>(`/api/courses/${courseId}`)
+  return bffFetch<CourseDetail>(`/api/courses/${encodeURIComponent(courseId)}`)
 }
 
 /**
@@ -42,7 +42,7 @@ export function updateCourseClient(
   courseId: string,
   payload: UpdateCoursePayload,
 ): Promise<UpdatedCourse> {
-  return bffFetch<UpdatedCourse>(`/api/courses/${courseId}`, {
+  return bffFetch<UpdatedCourse>(`/api/courses/${encodeURIComponent(courseId)}`, {
     method: 'PATCH',
     body: JSON.stringify(payload),
   })

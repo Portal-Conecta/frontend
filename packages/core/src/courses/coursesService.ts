@@ -84,7 +84,11 @@ export async function listCourses(
   if (params.shift) {
     const classes = await fetchAllClasses(token)
     const courseIdsInShift = new Set(
-      classes.filter((cls) => cls.shift === params.shift).map((cls) => cls.courseId),
+      classes
+        // `active` explícito: não depender só do default do hub (includeInactive
+        // omitido) — a regra "≥1 turma ativa no turno" fica garantida aqui.
+        .filter((cls) => cls.active && cls.shift === params.shift)
+        .map((cls) => cls.courseId),
     )
     result = result.filter((course) => courseIdsInShift.has(course.id))
   }
@@ -98,7 +102,7 @@ export async function listCourses(
  * O curso é buscado primeiro: se não existir, propaga o 404 sem varrer as turmas.
  */
 export async function getCourseDetail(courseId: string, token: string): Promise<CourseDetail> {
-  const course = await http.get<Course>(hubGatewayPath(`/courses/${courseId}`), { token })
+  const course = await http.get<Course>(hubGatewayPath(`/courses/${encodeURIComponent(courseId)}`), { token })
   const classes = await fetchAllClasses(token, { includeInactive: true })
   return { ...course, classes: classes.filter((cls) => cls.courseId === courseId) }
 }
@@ -144,5 +148,5 @@ export function updateCourse(
   payload: UpdateCoursePayload,
   token: string,
 ): Promise<UpdatedCourse> {
-  return http.patch<UpdatedCourse>(hubGatewayPath(`/courses/${courseId}`), { token, body: payload })
+  return http.patch<UpdatedCourse>(hubGatewayPath(`/courses/${encodeURIComponent(courseId)}`), { token, body: payload })
 }
