@@ -1,6 +1,6 @@
 'use client'
 
-import type { KeyboardEvent, MouseEvent, PointerEvent } from 'react'
+import type { KeyboardEvent, MouseEvent, PointerEvent, ReactNode } from 'react'
 import type { AnnouncementSummary } from '../../types/announcement'
 
 import { useRef, useState } from 'react'
@@ -12,16 +12,28 @@ import { AnnouncementCard } from '../AnnouncementCard'
 export interface PinnedPostsSectionProps {
   /** Resumos já filtrados pelo back (`ListAnnouncementsResponse.pinned`). */
   posts: AnnouncementSummary[]
+  /**
+   * Ações sobrepostas ao gradiente de cada card (fixar/editar/excluir) — usadas no
+   * painel de gestão. Ausente no mural, onde os fixados são só leitura.
+   */
+  renderActions?: (post: AnnouncementSummary) => ReactNode
 }
 
 type DragState = {
-  active: boolean
+  pointerId: number | null
+  /** Ponteiro pressionado — arraste em potencial, ainda indefinido. */
+  pressed: boolean
+  /** Já passou do limiar de movimento — arrastando de fato. */
+  dragging: boolean
+  /** Houve arraste neste gesto (para engolir o clique final). */
   moved: boolean
   startX: number
   scrollLeft: number
 }
 
 const KEYBOARD_SCROLL_STEP = 320
+/** Movimento mínimo (px) para tratar o gesto como arraste, não clique. */
+const DRAG_THRESHOLD = 4
 
 function getPinnedOrder(post: AnnouncementSummary): number {
   return post.pinnedOrder ?? Number.MAX_SAFE_INTEGER
@@ -34,10 +46,12 @@ function getPostTime(post: AnnouncementSummary): number {
   return Number.isNaN(timestamp) ? 0 : timestamp
 }
 
-export function PinnedPostsSection({ posts }: PinnedPostsSectionProps) {
+export function PinnedPostsSection({ posts, renderActions }: PinnedPostsSectionProps) {
   const scrollerRef = useRef<HTMLUListElement>(null)
   const dragRef = useRef<DragState>({
-    active: false,
+    pointerId: null,
+    pressed: false,
+    dragging: false,
     moved: false,
     startX: 0,
     scrollLeft: 0,
@@ -68,27 +82,35 @@ export function PinnedPostsSection({ posts }: PinnedPostsSectionProps) {
     const scroller = scrollerRef.current
     if (!scroller) return
 
+    // Só registra o ponto de partida. A captura de ponteiro e o modo "arrastando"
+    // só começam quando o movimento passa do limiar (handlePointerMove) — assim um
+    // clique simples nunca é sequestrado e chega aos controles do card (fixar/editar/excluir).
     dragRef.current = {
-      active: true,
+      pointerId: event.pointerId,
+      pressed: true,
+      dragging: false,
       moved: false,
       startX: event.clientX,
       scrollLeft: scroller.scrollLeft,
     }
-
-    setDragging(true)
-    scroller.setPointerCapture(event.pointerId)
   }
 
   function handlePointerMove(event: PointerEvent<HTMLUListElement>) {
     const scroller = scrollerRef.current
     const drag = dragRef.current
 
-    if (!scroller || !drag.active) return
+    if (!scroller || !drag.pressed || drag.pointerId !== event.pointerId) return
 
     const distance = event.clientX - drag.startX
 
-    if (Math.abs(distance) > 4) {
+    if (!drag.dragging) {
+      if (Math.abs(distance) <= DRAG_THRESHOLD) return
+
+      // Passou do limiar: agora é arraste. Só aqui capturamos o ponteiro.
+      drag.dragging = true
       drag.moved = true
+      setDragging(true)
+      scroller.setPointerCapture(event.pointerId)
     }
 
     scroller.scrollLeft = drag.scrollLeft - distance
@@ -96,7 +118,11 @@ export function PinnedPostsSection({ posts }: PinnedPostsSectionProps) {
 
   function handlePointerUp(event: PointerEvent<HTMLUListElement>) {
     const scroller = scrollerRef.current
-    dragRef.current.active = false
+    const drag = dragRef.current
+
+    drag.pressed = false
+    drag.dragging = false
+    drag.pointerId = null
     setDragging(false)
 
     if (!scroller) return
@@ -109,6 +135,8 @@ export function PinnedPostsSection({ posts }: PinnedPostsSectionProps) {
   function handleClickCapture(event: MouseEvent<HTMLUListElement>) {
     if (!dragRef.current.moved) return
 
+    // Um arraste acabou de terminar: engole o clique para não navegar nem acionar
+    // um botão sem querer.
     event.preventDefault()
     event.stopPropagation()
     dragRef.current.moved = false
@@ -153,8 +181,8 @@ export function PinnedPostsSection({ posts }: PinnedPostsSectionProps) {
         onKeyDown={handleKeyDown}
       >
         {pinnedPosts.map((post) => (
-          <li key={post.id} className="w-96 shrink-0">
-            <AnnouncementCard announcement={post} highlighted />
+          <li key={post.id} className="w-96 shrink-0 sm:w-[32rem] lg:w-[41rem]">
+            <AnnouncementCard announcement={post} highlighted actions={renderActions?.(post)} />
           </li>
         ))}
       </ul>
