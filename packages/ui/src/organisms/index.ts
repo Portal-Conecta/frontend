@@ -1,4 +1,5 @@
 export * from './AppFooter'
 export * from './AppHeader'
 export * from './ConfirmDialog'
+export * from './RichTextEditor'
 export * from './Sidebar'

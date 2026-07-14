@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { useState, type ComponentProps } from 'react'
+import { useState } from 'react'
 
 import { Button } from '../../atoms/Button'
-import { ConfirmDialog } from './ConfirmDialog'
+import { ConfirmDialog, type ConfirmDialogConfirmProps } from './ConfirmDialog'
 
 /**
  * Diálogo de confirmação controlado (`open`/`onClose`) e dirigido por props:
@@ -32,7 +32,7 @@ function Demo({
 }: {
   triggerLabel?: string
   onConfirm?: () => void
-} & Omit<ComponentProps<typeof ConfirmDialog>, 'open' | 'onClose' | 'onConfirm'>) {
+} & Omit<ConfirmDialogConfirmProps, 'open' | 'onClose' | 'onConfirm'>) {
   const [open, setOpen] = useState(false)
   const close = () => setOpen(false)
 
@@ -111,4 +111,46 @@ export const ScrimFechaAoClicar: Story = {
       confirmTone="negative"
     />
   ),
+}
+
+/** Variante `prompt`: pede um valor (URL, texto) antes de confirmar. */
+function PromptDemo() {
+  const [open, setOpen] = useState(false)
+  const [url, setUrl] = useState('https://')
+
+  return (
+    <>
+      <Button
+        onClick={() => {
+          setUrl('https://')
+          setOpen(true)
+        }}
+      >
+        Inserir link
+      </Button>
+      <ConfirmDialog
+        variant="prompt"
+        open={open}
+        onClose={() => {
+          setOpen(false)
+        }}
+        onConfirm={() => {
+          setOpen(false)
+        }}
+        subTitle="Editor"
+        title="Inserir link"
+        content="Informe a URL. Deixe em branco para remover o link da seleção."
+        inputValue={url}
+        onInputChange={setUrl}
+        inputPlaceholder="https://"
+        inputLabel="URL do link"
+        labelCancel="Cancelar"
+        labelConfirm="Aplicar"
+      />
+    </>
+  )
+}
+
+export const Prompt: Story = {
+  render: () => <PromptDemo />,
 }
