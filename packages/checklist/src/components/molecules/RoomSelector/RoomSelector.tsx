@@ -43,7 +43,7 @@ export function RoomSelector({
         Selecione a Sala para Preencher o Checklist
       </Text>
 
-      <div className="w-full max-w-[974px]">
+      <div className="w-full max-w-5xl">
         <Input
           iconRight="search"
           value={search}
