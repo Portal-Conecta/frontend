@@ -10,6 +10,7 @@ import { AnnouncementActionsMenu } from '../components/AnnouncementActionsMenu'
 import type { PendingAnnouncementAction } from '../components/AnnouncementActionsMenu'
 import {
   AnnouncementFiltersBar,
+  AnnouncementFiltersSheet,
   MURAL_ORIGEM_OPTIONS,
   MURAL_PERIODO_OPTIONS,
   type AnnouncementFilters,
@@ -54,6 +55,7 @@ export function PageMeusComunicadosContent({ canCreate, userType }: PageMeusComu
 
   const [pendingAction, setPendingAction] = useState<PendingAnnouncementAction | null>(null)
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
+  const [filtersOpen, setFiltersOpen] = useState(false)
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearchQuery(searchQuery), SEARCH_DEBOUNCE_MS)
@@ -91,6 +93,18 @@ export function PageMeusComunicadosContent({ canCreate, userType }: PageMeusComu
     pendingAction?.id === id ? pendingAction.action : null
 
   const goToEdit = (id: string) => router.push(`/comunicados/${id}/editar`)
+
+  const filtersBarProps = {
+    userType,
+    loading: catalog.loading,
+    cursoOptions: catalog.courses,
+    turmaOptions: catalog.classes,
+    turnoOptions: catalog.shifts,
+    origemOptions: MURAL_ORIGEM_OPTIONS,
+    periodoOptions: MURAL_PERIODO_OPTIONS,
+    onApply: setActiveFilters,
+    onRestore: handleRestore,
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -150,22 +164,25 @@ export function PageMeusComunicadosContent({ canCreate, userType }: PageMeusComu
       ) : null}
 
       <div className="grid gap-6 xl:grid-cols-3 xl:items-start">
-        <div className="xl:order-2 xl:col-span-1">
-          <AnnouncementFiltersBar
-            userType={userType}
-            loading={catalog.loading}
-            cursoOptions={catalog.courses}
-            turmaOptions={catalog.classes}
-            turnoOptions={catalog.shifts}
-            origemOptions={MURAL_ORIGEM_OPTIONS}
-            periodoOptions={MURAL_PERIODO_OPTIONS}
-            onApply={setActiveFilters}
-            onRestore={handleRestore}
-          />
+        {/* Figma mobile ("comunicado-mobile-edição"): filtros ficam atrás do botão "Filtros" (AnnouncementFiltersSheet), igual ao mural. */}
+        <div className="hidden xl:order-2 xl:col-span-1 xl:block">
+          <AnnouncementFiltersBar {...filtersBarProps} />
         </div>
 
         <div className="min-w-0 xl:order-1 xl:col-span-2">
-          <AnnouncementSearchField value={searchQuery} onChange={setSearchQuery} />
+          <div className="flex items-center gap-3">
+            <div className="min-w-0 flex-1">
+              <AnnouncementSearchField value={searchQuery} onChange={setSearchQuery} />
+            </div>
+            <Button
+              variant="outlined"
+              iconLeft="funnel"
+              className="h-9 shrink-0 xl:hidden"
+              onClick={() => setFiltersOpen(true)}
+            >
+              Filtros
+            </Button>
+          </div>
 
           <div className="mt-6">
             <MyAnnouncementsTableContent
@@ -182,6 +199,12 @@ export function PageMeusComunicadosContent({ canCreate, userType }: PageMeusComu
           </div>
         </div>
       </div>
+
+      <AnnouncementFiltersSheet
+        open={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        {...filtersBarProps}
+      />
 
       <ConfirmDialog
         open={deleteTargetId != null}
