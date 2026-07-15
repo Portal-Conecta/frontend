@@ -14,12 +14,11 @@ export interface SuccessModalProps {
 export function SuccessModal({
   open = false,
   message = "",
-  confirmLabel = "OK!",
+  confirmLabel = "Ok!",
   onClose,
 }: SuccessModalProps) {
   return (
     <BaseFeedbackModal open={open} message={message} onDismiss={onClose}>
-      {/* usar size do Button do DS em vez de sobrescrever a tipografia com valor cru */}
       <Button variant="solid" size="sm" onClick={onClose} className="w-full">
         {confirmLabel}
       </Button>
