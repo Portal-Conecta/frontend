@@ -1,1 +1,1 @@
-export * from './BaseFeedbackModal'
+export * from "./BaseFeedbackModal";

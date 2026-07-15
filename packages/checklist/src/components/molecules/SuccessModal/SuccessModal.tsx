@@ -1,31 +1,28 @@
-'use client'
+"use client";
 
-import { Button } from '@portal/ui'
+import { Button } from "@portal/ui";
 
-import { BaseFeedbackModal } from '../BaseFeedbackModal'
+import { BaseFeedbackModal } from "../BaseFeedbackModal";
 
 export interface SuccessModalProps {
-  open?: boolean
-  message?: string
-  confirmLabel?: string
-  onClose?: () => void
+  open?: boolean;
+  message?: string;
+  confirmLabel?: string;
+  onClose?: () => void;
 }
-
-const noop = () => {}
 
 export function SuccessModal({
   open = false,
-  message = '',
-  confirmLabel = 'OK!',
-  onClose = noop,
+  message = "",
+  confirmLabel = "OK!",
+  onClose,
 }: SuccessModalProps) {
   return (
     <BaseFeedbackModal open={open} message={message} onDismiss={onClose}>
-      <Button variant="solid" onClick={onClose} className="w-full">
-        {/* eslint-disable-next-line no-restricted-syntax -- tamanho fixo 12px sobrescrevendo o
-        text-label-md-emphasis fixo do Button (16px). Ver AGENTS.md §Tokens, exceção pendente de aprovação do TL. */}
-        <span style={{ fontSize: '12px', fontWeight: 400 }}>{confirmLabel}</span>
+      {/* usar size do Button do DS em vez de sobrescrever a tipografia com valor cru */}
+      <Button variant="solid" size="sm" onClick={onClose} className="w-full">
+        {confirmLabel}
       </Button>
     </BaseFeedbackModal>
-  )
+  );
 }
