@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 
 import { AppShell } from '@portal/core'
 import { Icon, Text } from '@portal/ui'
+import { getCurrentUser } from '@portal/core/auth/getCurrentUser'
 
 export const metadata: Metadata = {
   title: 'Central de Ajuda | Portal Conecta',
@@ -33,10 +34,12 @@ const faqItems: readonly FaqItem[] = [
   },
 ]
 
-export default function AjudaPage() {
+export default async function AjudaPage() {
+   const user = await getCurrentUser()
+
   return (
  
-    <AppShell>
+    <AppShell user={user} activeKey="">
       <Text as="h1" 
           variant="heading-h2" 
           className="text-text-brand px-6 pt-2 text-xl md:text-2xl lg:text-3xl">

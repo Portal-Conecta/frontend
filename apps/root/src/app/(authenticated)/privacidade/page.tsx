@@ -2,14 +2,17 @@ import type { Metadata } from 'next'
 
 import { AppShell } from '@portal/core'
 import { Text } from '@portal/ui'
+import { getCurrentUser } from '@portal/core/auth/getCurrentUser'
 
 export const metadata: Metadata = {
   title: 'Política de Privacidade | Portal Conecta',
 }
 
-export default function PrivacidadePage() {
+export default async function PrivacidadePage() {
+     const user = await getCurrentUser()
+
   return (
-    <AppShell>
+    <AppShell user={user} activeKey="">
       <Text
         as="h1"
         variant="heading-h2"
