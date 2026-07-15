@@ -7,6 +7,7 @@ import { useRef, useState } from 'react'
 
 import { Text } from '@portal/ui'
 
+import { resolveAnnouncementDisplayDate } from '../../utils/announcement'
 import { AnnouncementCard } from '../AnnouncementCard'
 
 export interface PinnedPostsSectionProps {
@@ -54,7 +55,8 @@ function getPinnedOrder(post: AnnouncementSummary): number {
 }
 
 function getPostTime(post: AnnouncementSummary): number {
-  const date = post.publishedAt ?? post.scheduledFor ?? post.createdAt
+  const date = resolveAnnouncementDisplayDate(post)
+  if (!date) return 0
   const timestamp = Date.parse(date)
 
   return Number.isNaN(timestamp) ? 0 : timestamp

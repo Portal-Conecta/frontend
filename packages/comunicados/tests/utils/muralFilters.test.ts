@@ -8,6 +8,7 @@ import {
   resolveRequiredTagIds,
   toListPostsParams,
 } from '../../src/utils/muralFilters'
+import { brasiliaDayBoundaryIso } from '../../src/components/ScheduleDatePicker/datetime'
 
 const tags: Tag[] = [
   {
@@ -79,6 +80,21 @@ describe('resolveRequiredTagIds / toListPostsParams', () => {
   it('mapeia origem para origin do back', () => {
     const params = toListPostsParams({ origem: 'SENAI' }, '', tags)
     expect(params.origin).toBe('SENAI')
+  })
+
+  it('converte intervalo de datas no fuso de Brasília (não local→UTC cego)', () => {
+    const params = toListPostsParams(
+      { dataInicio: '2026-07-15', dataFim: '2026-07-15' },
+      '',
+      tags,
+    )
+
+    expect(params.publishedFrom).toBe(brasiliaDayBoundaryIso('2026-07-15', false))
+    expect(params.publishedTo).toBe(brasiliaDayBoundaryIso('2026-07-15', true))
+    // 2026-07-15 00:00 BRT = 2026-07-15T03:00:00.000Z
+    expect(params.publishedFrom).toBe('2026-07-15T03:00:00.000Z')
+    // 2026-07-15 23:59:59.999 BRT = 2026-07-16T02:59:59.999Z
+    expect(params.publishedTo).toBe('2026-07-16T02:59:59.999Z')
   })
 })
 

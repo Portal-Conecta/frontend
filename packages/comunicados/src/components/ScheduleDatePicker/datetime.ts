@@ -105,6 +105,27 @@ export function combineToIso(dateStr: string, timeStr: string): string | null {
   return Number.isNaN(instant.getTime()) ? null : instant.toISOString()
 }
 
+/**
+ * Início (`00:00:00.000`) ou fim (`23:59:59.999`) do dia civil em Brasília,
+ * como ISO-8601 UTC — usado nos filtros `publishedFrom` / `publishedTo` do mural.
+ */
+export function brasiliaDayBoundaryIso(dateStr: string, endOfDay: boolean): string | null {
+  if (!dateStr) return null
+
+  const [year, month, day] = dateStr.split('-').map(Number)
+  if (!year || !month || !day) return null
+
+  const time = endOfDay ? '23:59:59.999' : '00:00:00.000'
+  const withOffset = `${year}-${pad(month)}-${pad(day)}T${time}-03:00`
+  const instant = new Date(withOffset)
+  return Number.isNaN(instant.getTime()) ? null : instant.toISOString()
+}
+
+/** Soma dias a um `yyyy-mm-dd` (calendário civil). Exportado para filtros do mural. */
+export function addCalendarDays(dateStr: string, days: number): string {
+  return addDaysToDateInput(dateStr, days)
+}
+
 /** Data de hoje em Brasília (`yyyy-mm-dd`) — usada no atributo `min` do input de data. */
 export function todayLocalDate(now: Date = new Date()): string {
   return formatBrasiliaDate(now)

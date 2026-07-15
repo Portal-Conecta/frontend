@@ -23,6 +23,7 @@ import { ScheduleDatePicker } from '../ScheduleDatePicker'
 import { BRASILIA_TIMEZONE } from '../ScheduleDatePicker/datetime'
 import { StepProgressBar } from '../StepProgressBar'
 import { useDestinationCatalog } from '../../hooks/useDestinationCatalog'
+import type { Tag } from '../../types/tag'
 import { mapRecipientsToPayload } from './mapRecipientsToPayload'
 
 const STEPS = [
@@ -39,14 +40,16 @@ function buildFormValues(
   content: AnnouncementContentValue,
   recipients: Recipient[],
   scheduledFor: string | null,
+  tags: readonly Tag[],
 ): CreateAnnouncementFormValues {
-  const { destinations, tagIds } = mapRecipientsToPayload(recipients)
+  const { destinations, tagIds, shiftCodes } = mapRecipientsToPayload(recipients, tags)
   return {
     title: content.title,
     description: content.description,
     origin: ANNOUNCEMENT_ORIGIN.BOTH,
     destinations,
     tagIds,
+    shiftCodes,
     scheduledFor: scheduledFor ?? '',
     pinned: false,
   }
@@ -119,6 +122,11 @@ export function CreateAnnouncementWizard() {
         setDestinationsError('Selecione ao menos um destinatário.')
         return
       }
+      const mapped = mapRecipientsToPayload(recipients, catalog.tags)
+      if (mapped.errors.length > 0) {
+        setDestinationsError(mapped.errors.join(' '))
+        return
+      }
       setDestinationsError(undefined)
     }
 
@@ -142,7 +150,14 @@ export function CreateAnnouncementWizard() {
   async function handleSubmit() {
     setConfirmOpen(false)
 
-    const formValues = buildFormValues(content, recipients, scheduledFor)
+    const mapped = mapRecipientsToPayload(recipients, catalog.tags)
+    if (mapped.errors.length > 0) {
+      setDestinationsError(mapped.errors.join(' '))
+      setStepIndex(1)
+      return
+    }
+
+    const formValues = buildFormValues(content, recipients, scheduledFor, catalog.tags)
 
     const submitOptions = { images: content.images }
 

@@ -5,7 +5,10 @@ import Link from 'next/link'
 
 import { Text, colors } from '@portal/ui'
 
-import { formatAnnouncementDate, getAnnouncementOriginLabel } from '../../utils/announcement'
+import {
+  formatAnnouncementDisplayDate,
+  getAnnouncementOriginLabel,
+} from '../../utils/announcement'
 
 export interface AnnouncementCardProps {
   announcement: AnnouncementSummary
@@ -35,7 +38,7 @@ export function AnnouncementCard({
 }: AnnouncementCardProps) {
   const href = from ? `/comunicados/${announcement.id}?from=${from}` : `/comunicados/${announcement.id}`
   const isHighlighted = highlighted ?? announcement.pinned
-  const date = announcement.publishedAt ?? announcement.scheduledFor ?? announcement.createdAt
+  const dateLabel = formatAnnouncementDisplayDate(announcement)
   const thumbnailUrl = announcement.thumbnailUrl
 
   const classes = [
@@ -79,7 +82,7 @@ export function AnnouncementCard({
             <span className="px-2" aria-hidden="true">
               |
             </span>
-            {formatAnnouncementDate(date)}
+            {dateLabel ?? '—'}
           </Text>
 
           {actions ? <div className="pointer-events-auto">{actions}</div> : null}
