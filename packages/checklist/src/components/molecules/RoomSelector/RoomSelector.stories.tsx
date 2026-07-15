@@ -1,27 +1,74 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import { RoomSelector } from "./RoomSelector";
+"use client";
 
-const meta = {
-  title: "Checklist/Molecules/RoomSelector",
-  component: RoomSelector,
-  parameters: { layout: "fullscreen" },
-} satisfies Meta<typeof RoomSelector>;
+import { Input, Text } from "@portal/ui";
+import { useState } from "react";
 
-export default meta;
-type Story = StoryObj<typeof meta>;
+import { RoomListItem } from "../../atoms/RoomListItem/RoomListItem";
 
-const rooms = [
-  { id: "1", number: 204, name: "Laboratório de informática" },
-  { id: "2", number: 203, name: "Laboratório de informática" },
-  { id: "3", number: 202, name: "Laboratório de informática" },
-  { id: "4", number: 201, name: "Laboratório de informática" },
-];
+export interface Room {
+  id: string;
+  number: string | number;
+  name: string;
+}
 
-export const Default: Story = {
-  args: { rooms, onSelect: (r) => console.log("selecionou", r) },
-};
+export interface RoomSelectorProps {
+  rooms: Room[];
+  onSelect: (room: Room) => void;
+  className?: string;
+}
 
-export const Mobile: Story = {
-  args: { rooms, onSelect: (r) => console.log("selecionou", r) },
-  parameters: { viewport: { defaultViewport: "mobile1" } },
-};
+export function RoomSelector({
+  rooms,
+  onSelect,
+  className,
+}: RoomSelectorProps) {
+  const [search, setSearch] = useState("");
+
+  const filtered = rooms.filter(
+    (r) =>
+      r.name.toLowerCase().includes(search.toLowerCase()) ||
+      String(r.number).includes(search),
+  );
+
+  return (
+    <div
+      className={[
+        "flex min-h-screen flex-col items-center justify-center gap-6 px-4 md:gap-10 md:px-8",
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
+      <Text as="h1" variant="heading-h2" tone="brand" className="text-center">
+        Selecione a Sala para Preencher o Checklist
+      </Text>
+
+      <div className="w-full max-w-5xl">
+        <Input
+          iconRight="search"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          aria-label="Buscar Sala"
+        />
+
+        {filtered.length > 0 ? (
+          <ul role="list" className="mt-2">
+            {filtered.map((room) => (
+              <li key={room.id}>
+                <RoomListItem
+                  number={room.number}
+                  name={room.name}
+                  onClick={() => onSelect(room)}
+                />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <Text variant="body-sm" tone="secondary" className="mt-4 text-center">
+            Nenhuma sala encontrada.
+          </Text>
+        )}
+      </div>
+    </div>
+  );
+}
