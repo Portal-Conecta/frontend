@@ -17,6 +17,20 @@ export interface PinnedPostsSectionProps {
    * painel de gestão. Ausente no mural, onde os fixados são só leitura.
    */
   renderActions?: (post: AnnouncementSummary) => ReactNode
+  /** Origem da navegação (ex.: `"meus"`) — repassada ao `AnnouncementCard`. */
+  from?: string
+  /**
+   * Ações ao lado do título "Fixados" (Figma "Tela inicial de comunicados",
+   * node 1209:27279) — "Abrir painel de gestão" e "Publicar novo comunicado" no
+   * mural. Ausente no painel de gestão, que já tem seu próprio cabeçalho.
+   */
+  headerActions?: ReactNode
+  /**
+   * Mostra o título "Fixados" acima do carrossel. Default `true` (mural). O
+   * painel de gestão já deixa isso implícito pelo cabeçalho da própria página —
+   * passa `false` pra não repetir.
+   */
+  showTitle?: boolean
 }
 
 type DragState = {
@@ -46,7 +60,13 @@ function getPostTime(post: AnnouncementSummary): number {
   return Number.isNaN(timestamp) ? 0 : timestamp
 }
 
-export function PinnedPostsSection({ posts, renderActions }: PinnedPostsSectionProps) {
+export function PinnedPostsSection({
+  posts,
+  renderActions,
+  from,
+  headerActions,
+  showTitle = true,
+}: PinnedPostsSectionProps) {
   const scrollerRef = useRef<HTMLUListElement>(null)
   const dragRef = useRef<DragState>({
     pointerId: null,
@@ -64,10 +84,22 @@ export function PinnedPostsSection({ posts, renderActions }: PinnedPostsSectionP
 
   if (pinnedPosts.length === 0) {
     return (
-      <section aria-labelledby="pinned-posts-title" className="w-full">
-        <Text id="pinned-posts-title" as="h2" variant="body-xl-emphasis" tone="brand">
-          Fixados
-        </Text>
+      <section
+        aria-label={showTitle ? undefined : 'Fixados'}
+        aria-labelledby={showTitle ? 'pinned-posts-title' : undefined}
+        className="w-full"
+      >
+        {showTitle || headerActions ? (
+          <div className="flex items-center justify-between gap-4">
+            {showTitle ? (
+              <Text id="pinned-posts-title" as="h2" variant="body-xl-emphasis" tone="brand">
+                Fixados
+              </Text>
+            ) : null}
+
+            {headerActions}
+          </div>
+        ) : null}
 
         <div className="mt-4 flex min-h-32 items-center justify-center px-4">
           <Text as="p" variant="body-md" tone="secondary" className="text-center">
@@ -159,10 +191,22 @@ export function PinnedPostsSection({ posts, renderActions }: PinnedPostsSectionP
   }
 
   return (
-    <section aria-labelledby="pinned-posts-title" className="w-full overflow-hidden">
-      <Text id="pinned-posts-title" as="h2" variant="body-xl-emphasis" tone="brand">
-        Fixados
-      </Text>
+    <section
+      aria-label={showTitle ? undefined : 'Fixados'}
+      aria-labelledby={showTitle ? 'pinned-posts-title' : undefined}
+      className="w-full overflow-hidden"
+    >
+      {showTitle || headerActions ? (
+        <div className="flex items-center justify-between gap-4">
+          {showTitle ? (
+            <Text id="pinned-posts-title" as="h2" variant="body-xl-emphasis" tone="brand">
+              Fixados
+            </Text>
+          ) : null}
+
+          {headerActions}
+        </div>
+      ) : null}
 
       <ul
         ref={scrollerRef}
@@ -170,6 +214,8 @@ export function PinnedPostsSection({ posts, renderActions }: PinnedPostsSectionP
         aria-label="Comunicados fixados. Use as setas para rolar horizontalmente."
         className={[
           'mt-4 flex gap-4 overflow-x-auto pb-2 outline-none',
+          // Scroll é por arraste (drag) ou setas — a barra nativa é ruído visual, some em todo navegador.
+          '[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
           'focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2',
           dragging ? 'cursor-grabbing select-none' : 'cursor-grab',
         ].join(' ')}
@@ -182,7 +228,12 @@ export function PinnedPostsSection({ posts, renderActions }: PinnedPostsSectionP
       >
         {pinnedPosts.map((post) => (
           <li key={post.id} className="w-96 shrink-0 sm:w-[32rem] lg:w-[41rem]">
-            <AnnouncementCard announcement={post} highlighted actions={renderActions?.(post)} />
+            <AnnouncementCard
+              announcement={post}
+              highlighted
+              actions={renderActions?.(post)}
+              {...(from ? { from } : {})}
+            />
           </li>
         ))}
       </ul>
