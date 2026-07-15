@@ -186,6 +186,8 @@ export function PinnedPostsSection({ posts, renderActions, from, headerActions }
         aria-label="Comunicados fixados. Use as setas para rolar horizontalmente."
         className={[
           'mt-4 flex gap-4 overflow-x-auto pb-2 outline-none',
+          // Scroll é por arraste (drag) ou setas — a barra nativa é ruído visual, some em todo navegador.
+          '[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
           'focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2',
           dragging ? 'cursor-grabbing select-none' : 'cursor-grab',
         ].join(' ')}
