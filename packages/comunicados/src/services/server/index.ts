@@ -8,7 +8,6 @@ export {
 export {
   listHubCourses,
   listHubClasses,
-  listHubUsers,
 } from './hubCatalogService'
 export {
   listPosts,
