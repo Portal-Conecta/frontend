@@ -43,12 +43,10 @@ export function BaseFeedbackModal({
   const lastFocusedRef = useRef<HTMLElement | null>(null)
   const [mounted, setMounted] = useState(false)
 
-  // Portal só é seguro após montar no client (evita crash em SSR).
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  // Foco inicial ao abrir + restauração do foco ao fechar/desmontar.
   useEffect(() => {
     if (!open) return
 
@@ -64,7 +62,6 @@ export function BaseFeedbackModal({
     }
   }, [open])
 
-  // Escape fecha o modal (quando dismissible).
   useEffect(() => {
     if (!open || !dismissible) return
     const onKey = (e: KeyboardEvent) => {
@@ -76,8 +73,7 @@ export function BaseFeedbackModal({
 
   if (!open || !mounted) return null
 
-  // Trap de foco inline — mesmo padrão hoje usado na Sidebar (AGENTS.md § Dívidas técnicas,
-  // pendente extração para useFocusTrap compartilhado, issue #105).
+
   const trapFocus = (e: ReactKeyboardEvent<HTMLDivElement>) => {
     if (e.key !== 'Tab' || !dialogRef.current) return
 
@@ -86,6 +82,8 @@ export function BaseFeedbackModal({
 
     const first = focusable[0]
     const last = focusable[focusable.length - 1]
+
+    if (!first || !last) return
 
     if (e.shiftKey && document.activeElement === first) {
       e.preventDefault()
@@ -111,18 +109,13 @@ export function BaseFeedbackModal({
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         onKeyDown={trapFocus}
-        // eslint-disable-next-line no-restricted-syntax -- dimensões fixas de spec de Design (366x286),
-        // fora da escala de espaçamento. Ver AGENTS.md §Tokens, exceção pendente de aprovação do TL.
         className="flex h-[286px] w-[366px] flex-col items-center gap-10 rounded-md bg-background-surface px-6 py-8 text-center shadow-xl outline-none"
       >
-        {/* eslint-disable-next-line no-restricted-syntax -- tamanho fora da escala do Icon (16/24/32);
-        ícone de destaque do modal pede 80px por spec de Design. Ver AGENTS.md §Tokens, exceção pendente de aprovação do TL. */}
         <Icon
           name={iconName}
           size="lg"
           decorative
           className={iconClassName}
-          // eslint-disable-next-line no-restricted-syntax -- ver comentário acima
           style={{ width: 80, height: 80 }}
         />
         {message && (
