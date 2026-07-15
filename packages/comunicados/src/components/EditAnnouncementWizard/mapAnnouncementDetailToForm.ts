@@ -39,18 +39,21 @@ export function toEditorDescriptionHtml(raw: string | null | undefined): string 
 }
 
 function mapFilesToUploadItems(detail: AnnouncementDetail): FileUploadItem[] {
-  return detail.files
-    .filter((file) => file.type === 'IMAGE')
-    .map((file) => {
-      const previewUrl = resolveAnnouncementFileUrl(file)?.trim() ?? ''
-      if (!previewUrl) return null
-      return {
-        id: file.id,
-        previewUrl,
-        name: file.originalName,
-      }
+  const items: FileUploadItem[] = []
+
+  for (const file of detail.files) {
+    if (file.type !== 'IMAGE') continue
+    const previewUrl = resolveAnnouncementFileUrl(file)?.trim()
+    if (!previewUrl) continue
+
+    items.push({
+      id: file.id,
+      previewUrl,
+      name: file.originalName,
     })
-    .filter((item): item is FileUploadItem => item != null)
+  }
+
+  return items
 }
 
 /**
