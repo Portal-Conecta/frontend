@@ -19,6 +19,12 @@ export interface PinnedPostsSectionProps {
   renderActions?: (post: AnnouncementSummary) => ReactNode
   /** Origem da navegação (ex.: `"meus"`) — repassada ao `AnnouncementCard`. */
   from?: string
+  /**
+   * Ações ao lado do título "Fixados" (Figma "Tela inicial de comunicados",
+   * node 1209:27279) — "Abrir painel de gestão" e "Publicar novo comunicado" no
+   * mural. Ausente no painel de gestão, que já tem seu próprio cabeçalho.
+   */
+  headerActions?: ReactNode
 }
 
 type DragState = {
@@ -48,7 +54,7 @@ function getPostTime(post: AnnouncementSummary): number {
   return Number.isNaN(timestamp) ? 0 : timestamp
 }
 
-export function PinnedPostsSection({ posts, renderActions, from }: PinnedPostsSectionProps) {
+export function PinnedPostsSection({ posts, renderActions, from, headerActions }: PinnedPostsSectionProps) {
   const scrollerRef = useRef<HTMLUListElement>(null)
   const dragRef = useRef<DragState>({
     pointerId: null,
@@ -67,9 +73,13 @@ export function PinnedPostsSection({ posts, renderActions, from }: PinnedPostsSe
   if (pinnedPosts.length === 0) {
     return (
       <section aria-labelledby="pinned-posts-title" className="w-full">
-        <Text id="pinned-posts-title" as="h2" variant="body-xl-emphasis" tone="brand">
-          Fixados
-        </Text>
+        <div className="flex items-center justify-between gap-4">
+          <Text id="pinned-posts-title" as="h2" variant="body-xl-emphasis" tone="brand">
+            Fixados
+          </Text>
+
+          {headerActions}
+        </div>
 
         <div className="mt-4 flex min-h-32 items-center justify-center px-4">
           <Text as="p" variant="body-md" tone="secondary" className="text-center">
@@ -162,9 +172,13 @@ export function PinnedPostsSection({ posts, renderActions, from }: PinnedPostsSe
 
   return (
     <section aria-labelledby="pinned-posts-title" className="w-full overflow-hidden">
-      <Text id="pinned-posts-title" as="h2" variant="body-xl-emphasis" tone="brand">
-        Fixados
-      </Text>
+      <div className="flex items-center justify-between gap-4">
+        <Text id="pinned-posts-title" as="h2" variant="body-xl-emphasis" tone="brand">
+          Fixados
+        </Text>
+
+        {headerActions}
+      </div>
 
       <ul
         ref={scrollerRef}

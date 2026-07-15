@@ -108,9 +108,27 @@ export function PageMeusComunicadosContent({ canCreate, userType }: PageMeusComu
         </div>
 
         {canCreate ? (
-          <Button iconLeft="plus" onClick={() => router.push('/comunicados/criar')}>
-            Publicar novo comunicado
-          </Button>
+          <>
+            {/*
+              Mesmo padrão do mural (AnnouncementFeed): icon-only no mobile, rotulado a
+              partir do `sm`. `hidden`/`flex` viram wrapper `<div>` — o `Button` já tem
+              `inline-flex` fixo no próprio componente, então "hidden" direto na classe
+              dele briga com esse "inline-flex" e os dois acabam renderizando juntos.
+            */}
+            <div className="sm:hidden">
+              <Button
+                size="sm"
+                icon="plus"
+                aria-label="Publicar novo comunicado"
+                onClick={() => router.push('/comunicados/criar')}
+              />
+            </div>
+            <div className="hidden sm:block">
+              <Button size="sm" iconLeft="plus" onClick={() => router.push('/comunicados/criar')}>
+                Publicar novo comunicado
+              </Button>
+            </div>
+          </>
         ) : null}
       </header>
 
