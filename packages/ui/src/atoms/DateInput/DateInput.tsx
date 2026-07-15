@@ -10,23 +10,40 @@
  * `text-label-md`). O indicador nativo é escondido: o seletor abre **apenas**
  * pelo botão do ícone à esquerda (`showPicker()`), focável por teclado. Estado
  * de erro (barra + mensagem) espelha o átomo `Input`; a borda permanece neutra.
+ *
+ * Faixa padrão `2000-01-01`…`2600-12-31` (`min`/`max` omitidos): o teto barra
+ * anos com mais de quatro dígitos que o input nativo aceitaria na digitação.
  */
 import { useId, useRef } from 'react'
 
 import { Icon } from '../Icon'
 
+const DEFAULT_MIN = '2000-01-01'
+const DEFAULT_MAX = '2600-12-31'
+
 export interface DateInputProps {
   /** Valor no formato nativo `yyyy-mm-dd`. `''` = vazio. */
   value: string
   onChange: (value: string) => void
+  /**
+   * Disparado ao sair do campo. O input nativo emite `onChange` a cada dígito —
+   * inclusive datas completas intermediárias enquanto o ano é digitado (o ano 2
+   * antes do 2026). Correção/validação de intervalo pertence aqui, senão ela
+   * sobrescreve o campo no meio da digitação.
+   */
+  onBlur?: () => void
   disabled?: boolean
   /** Mensagem de erro. Presença ativa o estado de erro (barra + mensagem) e `aria-invalid`. */
   error?: string
   /** Marca `aria-invalid` sem renderizar mensagem (a mensagem vem do container, ex.: molecule). */
   invalid?: boolean
-  /** Limite inferior (`yyyy-mm-dd`). */
+  /** Limite inferior (`yyyy-mm-dd`). Default `2000-01-01` — omitir não deixa o campo ilimitado. */
   min?: string
-  /** Limite superior (`yyyy-mm-dd`). */
+  /**
+   * Limite superior (`yyyy-mm-dd`). Default `2600-12-31` — a rede que barra o
+   * ano com mais de quatro dígitos na digitação (o input nativo não impõe teto
+   * de dígitos sozinho). Omitir não deixa o campo ilimitado.
+   */
   max?: string
   id?: string
   'aria-label'?: string
@@ -40,11 +57,12 @@ export interface DateInputProps {
 export function DateInput({
   value,
   onChange,
+  onBlur,
   disabled = false,
   error,
   invalid,
-  min,
-  max,
+  min = DEFAULT_MIN,
+  max = DEFAULT_MAX,
   id,
   'aria-label': ariaLabel,
   'aria-labelledby': ariaLabelledby,
@@ -115,6 +133,7 @@ export function DateInput({
           aria-invalid={isInvalid || undefined}
           aria-describedby={describedBy}
           onChange={(event) => onChange(event.target.value)}
+          onBlur={onBlur}
           className={inputClasses}
         />
       </div>

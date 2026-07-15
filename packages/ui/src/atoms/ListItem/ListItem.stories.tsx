@@ -44,10 +44,10 @@ export const Selectable: Story = {
     selectable: true,
     children: 'Item selecionável (clique para testar a seleção)',
   },
-  render: function Render(args) {
+  render: (args) => {
     // Usamos o useState do React para controlar o estado localmente na story
     const [isSelected, setIsSelected] = useState(args.selected ?? false)
-    
+
     return (
       <ListItem
         {...args}
