@@ -108,7 +108,7 @@ export function PageMeusComunicadosContent({ canCreate, userType }: PageMeusComu
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="flex flex-col gap-4 border-b border-border-default pb-4 sm:flex-row sm:items-center sm:justify-between">
+      <header className="flex items-center justify-between gap-4 border-b border-border-default pb-4">
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
