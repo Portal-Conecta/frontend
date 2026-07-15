@@ -84,9 +84,10 @@ export function ChecklistManagerItem({
   // px 12px / py 8px, radius via token, cores via token semântico
   // não selecionado = cinza (border-default + text-secondary)
   // selecionado (foco) = brand na borda e no texto
+  // field-sizing:content ajusta a largura ao conteúdo (inclui placeholder)
   // OBS: field-sizing:content não é suportado no Firefox — largura cai para o padrão lá
   const inputBase =
-    "max-w-full min-w-[8rem] rounded-lg border border-border-default bg-transparent px-3 py-2 " +
+    "rounded-lg border border-border-default bg-transparent px-3 py-2 " +
     "text-text-secondary placeholder:text-text-secondary " +
     "focus:border-interactive-default focus:text-text-brand focus:outline-none " +
     "transition-colors duration-200 [field-sizing:content]";
