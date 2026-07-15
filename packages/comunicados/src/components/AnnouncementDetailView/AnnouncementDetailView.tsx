@@ -21,7 +21,7 @@ import type { AnnouncementDetail, AnnouncementTag } from '../../types'
 
 import Link from 'next/link'
 
-import { Tag, Text } from '@portal/ui'
+import { RichTextContent, Tag, Text } from '@portal/ui'
 
 import { AnnouncementDetailDocuments } from './AnnouncementDetailDocuments'
 import { AnnouncementDetailImages } from './AnnouncementDetailImages'
@@ -101,11 +101,17 @@ function Header({
 }
 
 function Body({ description }: { description: string }) {
+  const looksLikeHtml = /<\/?[a-z][\s\S]*>/i.test(description)
+
   return (
     <section aria-label="Corpo do comunicado">
-      <Text as="p" variant="body-md" tone="primary" className="whitespace-pre-wrap">
-        {description}
-      </Text>
+      {looksLikeHtml ? (
+        <RichTextContent html={description} />
+      ) : (
+        <Text as="p" variant="body-md" tone="primary" className="whitespace-pre-wrap">
+          {description}
+        </Text>
+      )}
     </section>
   )
 }

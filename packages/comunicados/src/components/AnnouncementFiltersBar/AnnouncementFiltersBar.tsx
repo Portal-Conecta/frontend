@@ -7,6 +7,7 @@ import { Button, DateInput, Field, Select, Text, type SelectOption } from '@port
 
 import type { ClassFilterOption } from '../../services/destinationCatalogMappers'
 import { AnnouncementFiltersBarSkeleton } from './AnnouncementFiltersBarSkeleton'
+import { clampDataFim, clampDataInicio } from './dateRange'
 
 export interface AnnouncementFilters {
   curso?: string
@@ -120,6 +121,18 @@ export function AnnouncementFiltersBar({
     setTurma('todos')
   }
 
+  // Correção só ao sair do campo: o input nativo emite `onChange` a cada dígito,
+  // e enquanto o ano é digitado ele passa por datas completas intermediárias
+  // (o ano 2, depois 20, 202... antes de 2026). Corrigir no `onChange` faria o
+  // clamp confundir isso com "data menor" e roubar o campo no primeiro dígito.
+  function handleDataInicioBlur() {
+    setDataInicio(clampDataInicio(dataInicio, dataFim))
+  }
+
+  function handleDataFimBlur() {
+    setDataFim(clampDataFim(dataFim, dataInicio))
+  }
+
   function buildFilters(): AnnouncementFilters {
     const filters: AnnouncementFilters = {}
 
@@ -138,10 +151,26 @@ export function AnnouncementFiltersBar({
     }
 
     if (normalizedPeriodo) filters.periodo = normalizedPeriodo
+
+    // Rede: o clamp já roda no blur, mas "Aplicar" pode ser acionado sem o campo
+    // perder o foco. Ancorar na data inicial mantém o intervalo válido sem
+    // alargá-lo (aplicar os dois clamps aqui trocaria as datas de lugar).
     if (dataInicio) filters.dataInicio = dataInicio
-    if (dataFim) filters.dataFim = dataFim
+    const fim = clampDataFim(dataFim, dataInicio)
+    if (fim) filters.dataFim = fim
 
     return filters
+  }
+
+  function handleApply() {
+    // "Aplicar" pode ser acionado sem o campo perder o foco (o clamp roda no
+    // blur). Sincroniza o estado do campo final para o usuário não continuar
+    // vendo um intervalo invertido nos inputs depois de aplicar. Ancorado só na
+    // data inicial (mesma escolha do `buildFilters`); clampar a inicial também
+    // trocaria as datas de lugar em vez de colapsar o intervalo.
+    const fim = clampDataFim(dataFim, dataInicio)
+    if (fim !== dataFim) setDataFim(fim)
+    onApply?.(buildFilters())
   }
 
   function handleRestore() {
@@ -202,13 +231,21 @@ export function AnnouncementFiltersBar({
 
         <FilterSelect label="Período" options={periodoOptions} value={periodo} onChange={setPeriodo} />
 
+        {/*
+          Sem `min`/`max` cruzando os dois campos: o spinner do ano do input
+          nativo não desce abaixo do `min` — ele dá a volta e salta para o teto
+          (uma seta para baixo em 2026 com `min=2026` devolve 2600, não 2025).
+          Isso impediria o campo de emitir a data menor que o clamp precisa ver
+          para igualar as duas. Quem garante o intervalo é o clamp; a faixa dos
+          anos fica por conta da rede de segurança do próprio DateInput.
+        */}
         <div className="flex items-center justify-between gap-3">
           <DateInput
             value={dataInicio}
             onChange={setDataInicio}
+            onBlur={handleDataInicioBlur}
             aria-label="Data inicial"
             {...(isSheet ? { className: 'min-w-0 flex-1' } : {})}
-            {...(dataFim ? { max: dataFim } : {})}
           />
 
           {!isSheet ? (
@@ -220,9 +257,9 @@ export function AnnouncementFiltersBar({
           <DateInput
             value={dataFim}
             onChange={setDataFim}
+            onBlur={handleDataFimBlur}
             aria-label="Data final"
             {...(isSheet ? { className: 'min-w-0 flex-1' } : {})}
-            {...(dataInicio ? { min: dataInicio } : {})}
           />
         </div>
 
@@ -231,7 +268,7 @@ export function AnnouncementFiltersBar({
             Restaurar
           </Button>
 
-          <Button fullWidth onClick={() => onApply?.(buildFilters())}>
+          <Button fullWidth onClick={handleApply}>
             Aplicar
           </Button>
         </div>
