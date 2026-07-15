@@ -1,9 +1,5 @@
 export { uploadPostImage, presignPostImage, uploadPostImageViaPresign, imagesService } from '../imagesService'
-export {
-  listHubCourses,
-  listHubClasses,
-  listHubUsers,
-} from './hubCatalogService'
+export { listHubCourses, listHubClasses } from './hubCatalogService'
 export {
   listPosts,
   listMyPosts,
@@ -16,3 +12,4 @@ export {
   getPostTags,
   getPostImages,
 } from './postsService'
+export { listTags } from './tagsService'

@@ -16,6 +16,9 @@ export async function bffFetch<T>(path: string, init?: RequestInit): Promise<T> 
   try {
     res = await fetch(path, {
       ...init,
+      // Lista/mutations do BFF não podem reusar cache HTTP do browser — senão o mural
+      // volta desatualizado após criar/editar (parece vazio até um hard refresh).
+      cache: init?.cache ?? 'no-store',
       headers: {
         'Content-Type': 'application/json',
         ...init?.headers,
