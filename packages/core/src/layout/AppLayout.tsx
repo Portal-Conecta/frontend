@@ -39,6 +39,8 @@ export interface AppLayoutProps {
   onLogoClick?: () => void
   /** Clique no perfil (header). */
   onProfileClick?: () => void
+  /** Menu de perfil aberto (header) — alimenta aria-expanded do gatilho. */
+  profileMenuOpen?: boolean
   /** Clique nas notificações (header). */
   onNotificationsClick?: () => void
   /** Há notificação não lida — sobrepõe um dot vermelho no sino do header. */
@@ -54,6 +56,7 @@ export function AppLayout({
   defaultExpanded = false,
   onLogoClick,
   onProfileClick,
+  profileMenuOpen = false,
   onNotificationsClick,
   hasUnreadNotifications = false,
   onMoreOptionsClick,
@@ -77,6 +80,7 @@ export function AppLayout({
       <AppHeader
         sidebarExpanded={expanded}
         hasUnreadNotifications={hasUnreadNotifications}
+        profileMenuOpen={profileMenuOpen}
         {...headerActions}
       />
 
