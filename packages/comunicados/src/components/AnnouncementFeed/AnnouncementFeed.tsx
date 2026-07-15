@@ -11,6 +11,7 @@ import { Button, Text } from '@portal/ui'
 
 import { usePostsList } from '../../hooks/usePostsList'
 import { formatAnnouncementDate, getAnnouncementOriginLabel } from '../../utils/announcement'
+import { getAnnouncementPlainDescription } from '../../utils/announcementDescription'
 import { ComunicadosEmptyState } from '../ComunicadosEmptyState'
 import { PinnedPostsSection } from '../PinnedPostsSection'
 import {
@@ -22,11 +23,18 @@ import {
   mergeAnnouncementFeedItems,
   resolveAnnouncementFeedErrorMessage,
 } from './announcementFeedModel'
+import { announcementMatchesMuralFilters } from '../../utils/muralFilters'
+import type { AnnouncementFilters } from '../AnnouncementFiltersBar'
 
 export interface AnnouncementFeedProps {
   canCreate?: boolean
   /** Filtros controlados pelo mural (busca/filtros). Paginação fica interna. */
   filters?: ListPostsParams
+  /**
+   * Filtros de UI aplicados (curso/turno/origem…). Usados no AND client-side
+   * contra `post.tags` — o back só faz OR em `tagIds`.
+   */
+  activeFilters?: AnnouncementFilters
   toolbar?: ReactNode
   sidebar?: ReactNode
 }
@@ -55,6 +63,7 @@ function filtersQueryKey(filters: ListPostsParams): string {
 export function AnnouncementFeed({
   canCreate = false,
   filters = { page: 0, size: 6 },
+  activeFilters = {},
   toolbar,
   sidebar,
 }: AnnouncementFeedProps) {
@@ -62,7 +71,10 @@ export function AnnouncementFeed({
   const { data, loading, error, page, setPage, setFilters, refetch } = usePostsList(filters)
   const [items, setItems] = useState<AnnouncementSummary[]>([])
   const [pinnedItems, setPinnedItems] = useState<AnnouncementSummary[]>([])
-  const queryKey = useMemo(() => filtersQueryKey(filters), [filters])
+  const queryKey = useMemo(
+    () => `${filtersQueryKey(filters)}|ui:${JSON.stringify(activeFilters)}`,
+    [filters, activeFilters],
+  )
   const previousQueryKey = useRef(queryKey)
 
   useEffect(() => {
@@ -76,13 +88,14 @@ export function AnnouncementFeed({
   useEffect(() => {
     if (!data || loading) return
 
-    setPinnedItems(data.pinned)
+    setPinnedItems(data.pinned.filter((post) => announcementMatchesMuralFilters(post, activeFilters)))
 
     setItems((current) => {
-      if (data.page === 0) return data.items
-      return mergeAnnouncementFeedItems(current, data.items)
+      const nextPage = data.items.filter((post) => announcementMatchesMuralFilters(post, activeFilters))
+      if (data.page === 0) return nextPage
+      return mergeAnnouncementFeedItems(current, nextPage)
     })
-  }, [data, loading])
+  }, [data, loading, activeFilters])
 
   useEffect(() => {
     if (isAnnouncementFeedUnauthorizedError(error)) {
@@ -122,6 +135,8 @@ export function AnnouncementFeedContent({
   toolbar,
   sidebar,
 }: AnnouncementFeedContentProps) {
+  const router = useRouter()
+
   if (isAnnouncementFeedUnauthorizedError(error)) {
     return null
   }
@@ -140,7 +155,38 @@ export function AnnouncementFeedContent({
           ))}
         </div>
       ) : (
-        <PinnedPostsSection posts={resolvedPinnedItems} />
+        <PinnedPostsSection
+          posts={resolvedPinnedItems}
+          headerActions={
+            canCreate ? (
+              <>
+                {/* Figma mobile ("Smartphone 5:4", node 319:3191): ações icon-only, sem rótulo. */}
+                <div className="flex items-center gap-3 sm:hidden">
+                  <Button
+                    size="sm"
+                    icon="settings"
+                    aria-label="Abrir painel de gestão"
+                    onClick={() => router.push('/comunicados/meus')}
+                  />
+                  <Button
+                    size="sm"
+                    icon="plus"
+                    aria-label="Publicar novo comunicado"
+                    onClick={() => router.push('/comunicados/criar')}
+                  />
+                </div>
+                <div className="hidden items-center gap-3 sm:flex">
+                  <Button size="sm" iconLeft="settings" onClick={() => router.push('/comunicados/meus')}>
+                    Abrir painel de gestão
+                  </Button>
+                  <Button size="sm" iconLeft="plus" onClick={() => router.push('/comunicados/criar')}>
+                    Publicar novo comunicado
+                  </Button>
+                </div>
+              </>
+            ) : undefined
+          }
+        />
       )}
 
       <div className="grid gap-6 xl:grid-cols-3 xl:items-start">
@@ -229,8 +275,8 @@ function AnnouncementFeedItem({ post }: { post: AnnouncementSummary }) {
             {post.title}
           </Text>
 
-          <Text as="p" variant="body-sm" tone="primary" className="mt-4 hidden line-clamp-3 md:block">
-            {post.description}
+          <Text as="p" variant="body-sm" tone="primary" className="mt-4 hidden truncate md:block">
+            {getAnnouncementPlainDescription(post)}
           </Text>
 
           <Text as="p" variant="label-xs" tone="secondary" className="mt-3 md:mt-6">

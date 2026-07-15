@@ -32,4 +32,26 @@ describe('validateAnnouncementContent', () => {
       }),
     ).toEqual({})
   })
+
+  it('rejeita HTML vazio do TipTap', () => {
+    expect(
+      validateAnnouncementContent({
+        ...EMPTY_ANNOUNCEMENT_CONTENT,
+        title: 'Comunicado',
+        description: '<p></p>',
+      }),
+    ).toEqual({
+      description: 'A descrição é obrigatória.',
+    })
+  })
+
+  it('aceita descrição com markup', () => {
+    expect(
+      validateAnnouncementContent({
+        ...EMPTY_ANNOUNCEMENT_CONTENT,
+        title: 'Comunicado',
+        description: '<p>Texto com <strong>negrito</strong></p>',
+      }),
+    ).toEqual({})
+  })
 })

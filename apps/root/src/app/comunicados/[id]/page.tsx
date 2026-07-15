@@ -4,6 +4,7 @@ import { getAnnouncement } from '@portal/comunicados/services/server'
 
 interface ComunicadoDetailPageProps {
   params: Promise<{ id: string }>
+  searchParams: Promise<{ from?: string }>
 }
 
 /**
@@ -32,7 +33,9 @@ export async function generateMetadata({
  */
 export default async function ComunicadoDetailPage({
   params,
+  searchParams,
 }: ComunicadoDetailPageProps) {
   const { id } = await params
-  return <PageAnnouncementDetail id={id} />
+  const { from } = await searchParams
+  return <PageAnnouncementDetail id={id} {...(from ? { from } : {})} />
 }

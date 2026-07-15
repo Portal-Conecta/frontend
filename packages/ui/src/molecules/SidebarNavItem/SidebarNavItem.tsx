@@ -57,7 +57,7 @@ export function SidebarNavItem({
       aria-current={active ? 'page' : undefined}
       className={buttonClasses}
     >
-      <Icon name={icon} size="md" className="shrink-0 lg:w-8 lg:h-8" decorative />
+      <Icon name={icon} size="md" className="shrink-0 lg:w-7 lg:h-7" decorative />
       <Text variant="body-sm" as="span" className={labelClasses}>
         {label}
       </Text>

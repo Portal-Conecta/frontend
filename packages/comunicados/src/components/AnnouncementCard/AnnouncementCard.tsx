@@ -13,6 +13,11 @@ export interface AnnouncementCardProps {
   /** Ações (fixar/editar/excluir) sobrepostas ao gradiente — só quem gerencia o comunicado. */
   actions?: ReactNode
   className?: string
+  /**
+   * Origem da navegação (ex.: `"meus"`) — vai como `?from=` na URL do detalhe pra
+   * ele saber pra onde voltar (painel de gestão x mural público).
+   */
+  from?: string
 }
 
 const cardGradient =
@@ -26,8 +31,9 @@ export function AnnouncementCard({
   highlighted,
   actions,
   className,
+  from,
 }: AnnouncementCardProps) {
-  const href = `/comunicados/${announcement.id}`
+  const href = from ? `/comunicados/${announcement.id}?from=${from}` : `/comunicados/${announcement.id}`
   const isHighlighted = highlighted ?? announcement.pinned
   const date = announcement.publishedAt ?? announcement.scheduledFor ?? announcement.createdAt
   const thumbnailUrl = announcement.thumbnailUrl

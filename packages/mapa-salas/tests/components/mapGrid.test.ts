@@ -4,8 +4,8 @@ import {
   isSpacerPosition,
   positionKey,
   resolveStudentSeatState,
-} from '../src/components/MapGrid/MapGrid.logic'
-import type { RoomMapGridPosition, UnassignedStudent } from '../src/types'
+} from '../../src/components/MapGrid/MapGrid.logic'
+import type { RoomMapGridPosition, UnassignedStudent } from '../../src/types'
 
 function makeStudent(overrides: Partial<UnassignedStudent> = {}): UnassignedStudent {
   return {
