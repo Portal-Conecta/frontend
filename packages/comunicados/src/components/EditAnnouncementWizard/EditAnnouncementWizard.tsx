@@ -16,6 +16,7 @@ import {
   uploadAnnouncementImagesClient,
 } from '../../services/client/announcementImagesClient'
 import { getDestinationUserClient } from '../../services/client/destinationsClient'
+import { listTagsClient } from '../../services/client/tagsClient'
 import {
   AnnouncementContentStep,
   EMPTY_ANNOUNCEMENT_CONTENT,
@@ -29,14 +30,13 @@ import { ScheduleDatePicker } from '../ScheduleDatePicker'
 import { BRASILIA_TIMEZONE } from '../ScheduleDatePicker/datetime'
 import { StepProgressBar } from '../StepProgressBar'
 import {
-  applyUserLabels,
   buildDestinationsFromRecipients,
   buildEditUpdatePayload,
-  enrichRecipientsFromCatalog,
   hasLocalImageFiles,
   hasRemainingRemoteImages,
   listUserIdsNeedingLabel,
   mapDetailToEditForm,
+  resolveRecipientLabels,
   resolveRemovedImageIds,
 } from './mapAnnouncementDetailToForm'
 
@@ -159,79 +159,72 @@ export function EditAnnouncementWizard({ announcementId }: EditAnnouncementWizar
 
   const { detail, error, load, save, reschedule } = useEditAnnouncement(announcementId)
   const catalog = useDestinationCatalog()
+  const fetchedUserIds = useRef(new Set<string>())
 
   useEffect(() => {
     setFormReady(false)
+    fetchedUserIds.current.clear()
     void load(announcementId).catch(() => {
       // erro já fica em `error` do hook
     })
   }, [announcementId, load])
 
+  // Hidrata o form só depois de resolver nomes (curso/turma/usuário) — evita chips com "Usuário"/UUID.
   useEffect(() => {
-    if (!detail || formReady) return
-    const mapped = mapDetailToEditForm(detail)
-    setContent(mapped.content)
-    setRecipients(mapped.recipients)
-    setScheduledFor(mapped.scheduledFor)
-    setCurrentStatus(mapped.status)
-    setInitialImageIds(mapped.initialImageIds)
-    setFormReady(true)
-  }, [detail, formReady])
-
-  // Curso/turma: `tagId` do detalhe ≠ `referenceId` do Hub — resolve via catálogo.
-  useEffect(() => {
-    if (!formReady || catalog.loading) return
-    if (catalog.courses.length === 0 && catalog.classes.length === 0) return
-
-    setRecipients((current) =>
-      enrichRecipientsFromCatalog(current, catalog.courses, catalog.classes),
-    )
-  }, [formReady, catalog.loading, catalog.courses, catalog.classes])
-
-  // Usuário: busca nome no Hub quando o chip ainda é "Usuário".
-  const fetchedUserIds = useRef(new Set<string>())
-
-  useEffect(() => {
-    if (!formReady) return
-
-    const userIds = listUserIdsNeedingLabel(recipients).filter(
-      (userId) => !fetchedUserIds.current.has(userId),
-    )
-    if (userIds.length === 0) return
-
-    for (const userId of userIds) {
-      fetchedUserIds.current.add(userId)
-    }
+    if (!detail || formReady || catalog.loading) return
 
     let cancelled = false
 
     void (async () => {
-      const entries = await Promise.all(
+      const mapped = mapDetailToEditForm(detail)
+
+      const tagsByHubEntityId = new Map<string, string>()
+      try {
+        const tags = await listTagsClient()
+        for (const tag of tags) {
+          const hubId = tag.hubEntityId?.trim()
+          if (hubId) tagsByHubEntityId.set(hubId, tag.name)
+        }
+      } catch {
+        // catálogo Hub abaixo ainda tenta resolver curso/turma
+      }
+
+      const userIds = listUserIdsNeedingLabel(mapped.recipients)
+      const userLabels = new Map<string, string>()
+      await Promise.all(
         userIds.map(async (userId) => {
+          fetchedUserIds.current.add(userId)
           try {
             const user = await getDestinationUserClient(userId)
-            return [userId, user.name] as const
+            if (user.name?.trim()) userLabels.set(userId, user.name.trim())
           } catch {
-            return null
+            // mantém fallback "Usuário"
           }
         }),
       )
 
       if (cancelled) return
 
-      const labels = new Map<string, string>()
-      for (const entry of entries) {
-        if (entry) labels.set(entry[0], entry[1])
-      }
-      if (labels.size === 0) return
+      const recipients = resolveRecipientLabels({
+        recipients: mapped.recipients,
+        courses: catalog.courses,
+        classes: catalog.classes,
+        tagsByHubEntityId,
+        userLabels,
+      })
 
-      setRecipients((current) => applyUserLabels(current, labels))
+      setContent(mapped.content)
+      setRecipients(recipients)
+      setScheduledFor(mapped.scheduledFor)
+      setCurrentStatus(mapped.status)
+      setInitialImageIds(mapped.initialImageIds)
+      setFormReady(true)
     })()
 
     return () => {
       cancelled = true
     }
-  }, [formReady, recipients])
+  }, [detail, formReady, catalog.loading, catalog.courses, catalog.classes])
 
   const step = STEPS[stepIndex]!.key
   const confirmCopy = getSaveConfirmCopy({ currentStatus, scheduledFor })

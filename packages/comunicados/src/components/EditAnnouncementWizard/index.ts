@@ -7,4 +7,6 @@ export {
   enrichRecipientsFromCatalog,
   applyUserLabels,
   listUserIdsNeedingLabel,
+  resolveRecipientLabels,
+  recipientNeedsName,
 } from './mapAnnouncementDetailToForm'

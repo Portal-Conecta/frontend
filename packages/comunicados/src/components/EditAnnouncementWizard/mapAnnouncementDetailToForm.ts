@@ -147,14 +147,29 @@ export function enrichRecipientsFromCatalog(
   })
 }
 
+/** Indica se o rótulo ainda é placeholder (UUID, "Usuário", tipo cru). */
+export function recipientNeedsName(recipient: Recipient): boolean {
+  if (recipient.kind === 'user') {
+    return (
+      recipient.label === 'Usuário' ||
+      recipient.label === 'USER' ||
+      recipient.label === recipient.refId
+    )
+  }
+  if (recipient.kind === 'course' || recipient.kind === 'class') {
+    return (
+      recipient.label === recipient.refId ||
+      recipient.label === 'COURSE' ||
+      recipient.label === 'CLASS'
+    )
+  }
+  return false
+}
+
 /** Destinatários USER ainda sem nome legível. */
 export function listUserIdsNeedingLabel(recipients: readonly Recipient[]): string[] {
   return recipients
-    .filter(
-      (recipient) =>
-        recipient.kind === 'user' &&
-        (recipient.label === 'Usuário' || recipient.label === recipient.refId),
-    )
+    .filter((recipient) => recipient.kind === 'user' && recipientNeedsName(recipient))
     .map((recipient) => recipient.refId)
 }
 
@@ -169,6 +184,36 @@ export function applyUserLabels(
     const label = labelsByUserId.get(recipient.refId)
     return label ? { ...recipient, label } : recipient
   })
+}
+
+export interface ResolveRecipientLabelsInput {
+  recipients: readonly Recipient[]
+  courses: readonly SelectOption[]
+  classes: readonly SelectOption[]
+  /** Tags do domínio com `hubEntityId` → nome. */
+  tagsByHubEntityId?: ReadonlyMap<string, string>
+  /** Nomes de usuário já resolvidos. */
+  userLabels?: ReadonlyMap<string, string>
+}
+
+/** Aplica catálogo + tags + usuários aos rótulos dos destinatários. */
+export function resolveRecipientLabels(input: ResolveRecipientLabelsInput): Recipient[] {
+  let next = enrichRecipientsFromCatalog(input.recipients, input.courses, input.classes)
+
+  if (input.tagsByHubEntityId && input.tagsByHubEntityId.size > 0) {
+    next = next.map((recipient) => {
+      if (recipient.kind !== 'course' && recipient.kind !== 'class') return recipient
+      if (!recipientNeedsName(recipient)) return recipient
+      const label = input.tagsByHubEntityId!.get(recipient.refId)
+      return label ? { ...recipient, label } : recipient
+    })
+  }
+
+  if (input.userLabels) {
+    next = applyUserLabels(next, input.userLabels)
+  }
+
+  return next
 }
 
 export interface BuildEditUpdatePayloadInput {
