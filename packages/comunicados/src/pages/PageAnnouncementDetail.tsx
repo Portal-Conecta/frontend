@@ -17,7 +17,7 @@ interface PageAnnouncementDetailProps {
 }
 
 const BACK_DESTINATIONS: Record<string, { href: string; label: string }> = {
-  meus: { href: '/comunicados/meus', label: 'Painel de gestão de comunicados' },
+  meus: { href: '/comunicados/meus', label: 'Gestão de Comunicados' },
 }
 const DEFAULT_BACK_DESTINATION = { href: '/comunicados', label: 'Mural de Comunicados' }
 
