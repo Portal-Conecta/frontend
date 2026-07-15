@@ -1,4 +1,6 @@
 import type {
+  CreateRoomMapRequest,
+  LayoutTemplateWithPositions,
   ListRoomMapsParams,
   MoveStudentRequest,
   RoomMapPageResponse,
@@ -32,6 +34,25 @@ export async function getRoomMapViewClient(
   turmaId: string,
 ): Promise<RoomMapView> {
   return bffFetch<RoomMapView>(`/api/mapa-salas/mapas/salas/${salaId}/turmas/${turmaId}`)
+}
+
+/**
+ * Cria o mapa de sala de uma turma via BFF (`POST /api/mapa-salas/mapas`),
+ * retornando a view do mapa criado.
+ */
+export async function createRoomMapClient(request: CreateRoomMapRequest): Promise<RoomMapView> {
+  return bffFetch<RoomMapView>('/api/mapa-salas/mapas', {
+    method: 'POST',
+    body: JSON.stringify(request),
+  })
+}
+
+/**
+ * Carrega o layout da sala (template + posições) via BFF
+ * (`GET /api/mapa-salas/layouts/salas/{salaId}`).
+ */
+export async function getRoomLayoutClient(salaId: string): Promise<LayoutTemplateWithPositions> {
+  return bffFetch<LayoutTemplateWithPositions>(`/api/mapa-salas/layouts/salas/${salaId}`)
 }
 
 /**
