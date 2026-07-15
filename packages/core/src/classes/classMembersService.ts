@@ -28,7 +28,7 @@ export function listClassMembers(
   role?: ClassRole,
   token?: string,
 ): Promise<ClassMember[]> {
-  return http.get<ClassMember[]>(hubGatewayPath(`/classes/${classId}/members`), {
+  return http.get<ClassMember[]>(hubGatewayPath(`/classes/${encodeURIComponent(classId)}/members`), {
     ...(role ? { params: { role } } : {}),
     ...(token ? { token } : {}),
   })
@@ -44,7 +44,7 @@ export function addClassMember(
   body: AddMemberRequest,
   token?: string,
 ): Promise<AddMemberResponse> {
-  return http.post<AddMemberResponse>(hubGatewayPath(`/classes/${classId}/members`), {
+  return http.post<AddMemberResponse>(hubGatewayPath(`/classes/${encodeURIComponent(classId)}/members`), {
     body,
     ...(token ? { token } : {}),
   })
@@ -61,7 +61,7 @@ export function removeClassMember(
   token?: string,
 ): Promise<void> {
   return http.delete<void>(
-    hubGatewayPath(`/classes/${classId}/members/${userId}`),
+    hubGatewayPath(`/classes/${encodeURIComponent(classId)}/members/${encodeURIComponent(userId)}`),
     token ? { token } : undefined,
   )
 }
@@ -82,7 +82,7 @@ export function setClassRepresentative(
   representative: boolean,
   token?: string,
 ): Promise<MemberRoleResponse> {
-  const path = hubGatewayPath(`/classes/${classId}/members/${userId}/representative`)
+  const path = hubGatewayPath(`/classes/${encodeURIComponent(classId)}/members/${encodeURIComponent(userId)}/representative`)
   const options = token ? { token } : undefined
   return representative
     ? http.patch<MemberRoleResponse>(path, options)
