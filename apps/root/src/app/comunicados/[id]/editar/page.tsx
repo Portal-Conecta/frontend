@@ -1,16 +1,21 @@
-import { notFound } from 'next/navigation';
-import { PageEditarComunicado } from './PageEditarComunicado';
+import { notFound } from 'next/navigation'
 
-interface EditarComunicadoProps {
-  params: Promise<{ id: string }>;
+import { PageEditarComunicado } from '@portal/comunicados/pages/PageEditarComunicado'
+
+interface EditarComunicadoPageProps {
+  params: Promise<{ id: string }>
 }
 
-export default async function Page({ params }: EditarComunicadoProps) {
-  const { id } = await params;
+/**
+ * Rota fina de edição — `/comunicados/[id]/editar`.
+ * Delega ao domínio `@portal/comunicados`.
+ */
+export default async function EditarComunicadoPage({ params }: EditarComunicadoPageProps) {
+  const { id } = await params
 
   if (!id) {
-    notFound();
+    notFound()
   }
 
-  return <PageEditarComunicado announcementId={id} />;
+  return <PageEditarComunicado id={id} />
 }

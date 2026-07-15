@@ -53,7 +53,9 @@ export function useEditAnnouncement(initialId?: string | null): UseEditAnnouncem
     setError(null)
 
     try {
-      const result = await updateAnnouncementClient(announcementId, payload)
+      // PUT devolve AnnouncementResponse — recarrega o detalhe completo.
+      await updateAnnouncementClient(announcementId, payload)
+      const result = await loadAnnouncementClient(announcementId)
       setDetail(result)
       return result
     } catch (err) {
@@ -73,7 +75,8 @@ export function useEditAnnouncement(initialId?: string | null): UseEditAnnouncem
     setError(null)
 
     try {
-      const result = await rescheduleAnnouncementClient(announcementId, scheduledFor)
+      await rescheduleAnnouncementClient(announcementId, scheduledFor)
+      const result = await loadAnnouncementClient(announcementId)
       setDetail(result)
       return result
     } catch (err) {

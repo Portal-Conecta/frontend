@@ -1,12 +1,14 @@
 import type { AnnouncementDetail } from '../types'
 
 import { AppShell } from '@portal/core'
+import { getCurrentUser } from '@portal/core/auth/getCurrentUser'
 import { HttpError } from '@portal/core/http/errors'
 import { getUserById } from '@portal/core/profile/profileService'
 import { Text } from '@portal/ui'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
+import { canCreateAnnouncement } from '../auth/canCreateAnnouncement'
 import { AnnouncementDetailView } from '../components/AnnouncementDetailView'
 import { getAnnouncement } from '../services'
 
@@ -41,6 +43,8 @@ async function resolveCreatorName(userId: string): Promise<string | undefined> {
 }
 
 export async function PageAnnouncementDetail({ id }: PageAnnouncementDetailProps) {
+  const user = await getCurrentUser()
+
   let detail: AnnouncementDetail | undefined
   let creatorName: string | undefined
   let errorMessage: string | undefined
@@ -55,8 +59,14 @@ export async function PageAnnouncementDetail({ id }: PageAnnouncementDetailProps
     errorMessage = resolveFetchError(error)
   }
 
+  const canEdit =
+    Boolean(detail) &&
+    canCreateAnnouncement(user) &&
+    user?.id === detail?.announcement.createdByUserId &&
+    detail?.announcement.status !== 'REMOVED'
+
   return (
-    <AppShell user={null} activeKey="comunicados">
+    <AppShell user={user} activeKey="comunicados">
       <div className="p-8">
         <div className="mx-auto w-full max-w-3xl">
           <nav className="mb-6" aria-label="Trilha de navegação">
@@ -80,7 +90,7 @@ export async function PageAnnouncementDetail({ id }: PageAnnouncementDetailProps
           {detail ? (
             <AnnouncementDetailView
               detail={detail}
-              canEdit={false}
+              canEdit={canEdit}
               {...(creatorName ? { creatorName } : {})}
             />
           ) : null}

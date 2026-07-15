@@ -1,4 +1,5 @@
 import type {
+  HubUser,
   ListHubClassesResponse,
   ListHubCoursesResponse,
   ListHubUsersParams,
@@ -27,4 +28,9 @@ export function listDestinationUsersClient(
   return bffFetch<ListHubUsersResponse>(
     `/api/comunicados/destinations/users${buildQuery(params as QueryParams)}`,
   )
+}
+
+/** Busca um usuário do Hub por id (rótulo do destinatário USER na edição). */
+export async function getDestinationUserClient(id: string): Promise<Pick<HubUser, 'id' | 'name'>> {
+  return bffFetch<Pick<HubUser, 'id' | 'name'>>(`/api/comunicados/destinations/users/${id}`)
 }

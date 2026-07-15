@@ -17,6 +17,14 @@ export interface UploadAnnouncementImageOptions {
   thumbnail?: boolean
 }
 
+export interface UploadAnnouncementImagesOptions {
+  /**
+   * Quando true (default), a primeira imagem nova vira thumbnail.
+   * Na edição, desligar se ainda restarem imagens remotas.
+   */
+  markFirstAsThumbnail?: boolean
+}
+
 async function parseError(res: Response): Promise<AnnouncementImagesClientError> {
   const data = (await res.json().catch(() => null)) as { code?: string; message?: string } | null
   return new AnnouncementImagesClientError(
@@ -51,18 +59,36 @@ export async function uploadAnnouncementImageClient(
   return (await res.json()) as PresignedImageUploadResult
 }
 
+/** Remove imagem via BFF (`DELETE /api/comunicados/posts/{id}/images/{imageId}`). */
+export async function deleteAnnouncementImageClient(
+  postId: string,
+  imageId: string,
+): Promise<void> {
+  const res = await fetch(`/api/comunicados/posts/${postId}/images/${imageId}`, {
+    method: 'DELETE',
+    cache: 'no-store',
+  })
+
+  if (res.status === 204) return
+  if (!res.ok) {
+    throw await parseError(res)
+  }
+}
+
 /** Envia em sequência as imagens locais do wizard (#198). */
 export async function uploadAnnouncementImagesClient(
   postId: string,
   images: readonly FileUploadItem[],
+  options: UploadAnnouncementImagesOptions = {},
 ): Promise<PresignedImageUploadResult[]> {
+  const markFirstAsThumbnail = options.markFirstAsThumbnail ?? true
   const pending = images.filter((item): item is FileUploadItem & { file: File } => Boolean(item.file))
   const uploaded: PresignedImageUploadResult[] = []
 
   for (let index = 0; index < pending.length; index++) {
     const item = pending[index]!
     const result = await uploadAnnouncementImageClient(postId, item.file, {
-      thumbnail: index === 0,
+      thumbnail: markFirstAsThumbnail && index === 0,
     })
     uploaded.push(result)
   }

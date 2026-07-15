@@ -1,0 +1,250 @@
+import type { FileUploadItem, SelectOption } from '@portal/ui'
+
+import {
+  ANNOUNCEMENT_DESTINATION_TYPE,
+  ANNOUNCEMENT_STATUS,
+  type AnnouncementDetail,
+  type AnnouncementStatus,
+  type AnnouncementUpdatePayload,
+  type CreateAnnouncementDestinationInput,
+} from '../../types/announcement'
+import { resolveAnnouncementFileUrl } from '../../utils/announcementFile'
+import type { AnnouncementContentValue } from '../AnnouncementForm/types'
+import { makeRecipient, type Recipient } from '../DestinationSelector/types'
+import { mapRecipientsToPayload } from '../CreateAnnouncementWizard/mapRecipientsToPayload'
+
+export interface EditAnnouncementFormState {
+  content: AnnouncementContentValue
+  recipients: Recipient[]
+  scheduledFor: string | null
+  status: AnnouncementStatus
+  /** IDs das imagens remotas carregadas no detalhe (para diff na remoção). */
+  initialImageIds: string[]
+}
+
+/**
+ * Converte a descrição do back para HTML do TipTap.
+ * HTML sanitizado segue; plain-text vira `<p>` escapado.
+ */
+export function toEditorDescriptionHtml(raw: string | null | undefined): string {
+  const trimmed = raw?.trim() ?? ''
+  if (!trimmed) return '<p></p>'
+  if (/<\/?[a-z][\s\S]*>/i.test(trimmed)) return trimmed
+
+  const escaped = trimmed
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+  return `<p>${escaped}</p>`
+}
+
+function mapFilesToUploadItems(detail: AnnouncementDetail): FileUploadItem[] {
+  return detail.files
+    .filter((file) => file.type === 'IMAGE')
+    .map((file) => {
+      const previewUrl = resolveAnnouncementFileUrl(file)?.trim() ?? ''
+      if (!previewUrl) return null
+      return {
+        id: file.id,
+        previewUrl,
+        name: file.originalName,
+      }
+    })
+    .filter((item): item is FileUploadItem => item != null)
+}
+
+/**
+ * Converte o detalhe do back no estado inicial do wizard de edição.
+ * Imagens remotas entram sem `file` (só `previewUrl`), como prevê o FileUpload.
+ */
+export function mapDetailToEditForm(detail: AnnouncementDetail): EditAnnouncementFormState {
+  const { announcement, destinations, tags } = detail
+
+  const images = mapFilesToUploadItems(detail)
+
+  const tagNameById = new Map(tags.map((tag) => [tag.tagId, tag.tagName]))
+  const recipients: Recipient[] = []
+  const seen = new Set<string>()
+
+  for (const destination of destinations) {
+    const refId = destination.referenceId?.trim() ?? ''
+
+    switch (destination.type) {
+      case ANNOUNCEMENT_DESTINATION_TYPE.COURSE: {
+        if (!refId || seen.has(`course:${refId}`)) break
+        seen.add(`course:${refId}`)
+        recipients.push(makeRecipient('course', refId, tagNameById.get(refId) ?? refId))
+        break
+      }
+      case ANNOUNCEMENT_DESTINATION_TYPE.CLASS: {
+        if (!refId || seen.has(`class:${refId}`)) break
+        seen.add(`class:${refId}`)
+        recipients.push(makeRecipient('class', refId, tagNameById.get(refId) ?? refId))
+        break
+      }
+      case ANNOUNCEMENT_DESTINATION_TYPE.USER: {
+        if (!refId || seen.has(`user:${refId}`)) break
+        seen.add(`user:${refId}`)
+        recipients.push(makeRecipient('user', refId, tagNameById.get(refId) ?? 'Usuário'))
+        break
+      }
+      case ANNOUNCEMENT_DESTINATION_TYPE.GENERAL: {
+        if (seen.has('group:STUDENTS')) break
+        seen.add('group:STUDENTS')
+        recipients.push(makeRecipient('group', 'STUDENTS', 'Público geral'))
+        break
+      }
+      default:
+        break
+    }
+  }
+
+  // Tags de turno (e outras) sem destino correspondente — só para exibição inicial.
+  const destinationRefs = new Set(
+    destinations.map((item) => item.referenceId).filter((id): id is string => Boolean(id)),
+  )
+  for (const tag of tags) {
+    if (destinationRefs.has(tag.tagId) || seen.has(`shift:${tag.tagId}`)) continue
+    seen.add(`shift:${tag.tagId}`)
+    recipients.push(makeRecipient('shift', tag.tagId, tag.tagName))
+  }
+
+  return {
+    content: {
+      images,
+      title: announcement.title,
+      description: toEditorDescriptionHtml(announcement.description),
+    },
+    recipients,
+    scheduledFor:
+      announcement.status === ANNOUNCEMENT_STATUS.SCHEDULED
+        ? announcement.scheduledFor
+        : null,
+    status: announcement.status,
+    initialImageIds: images.map((item) => item.id),
+  }
+}
+
+/** Troca label UUID/`Usuário` pelo nome do catálogo Hub (curso/turma). */
+export function enrichRecipientsFromCatalog(
+  recipients: readonly Recipient[],
+  courses: readonly SelectOption[],
+  classes: readonly SelectOption[],
+): Recipient[] {
+  const courseLabels = new Map(courses.map((item) => [item.value, item.label]))
+  const classLabels = new Map(classes.map((item) => [item.value, item.label]))
+
+  return recipients.map((recipient) => {
+    if (recipient.kind === 'course') {
+      const label = courseLabels.get(recipient.refId)
+      return label ? { ...recipient, label } : recipient
+    }
+    if (recipient.kind === 'class') {
+      const label = classLabels.get(recipient.refId)
+      return label ? { ...recipient, label } : recipient
+    }
+    return recipient
+  })
+}
+
+/** Destinatários USER ainda sem nome legível. */
+export function listUserIdsNeedingLabel(recipients: readonly Recipient[]): string[] {
+  return recipients
+    .filter(
+      (recipient) =>
+        recipient.kind === 'user' &&
+        (recipient.label === 'Usuário' || recipient.label === recipient.refId),
+    )
+    .map((recipient) => recipient.refId)
+}
+
+export function applyUserLabels(
+  recipients: readonly Recipient[],
+  labelsByUserId: ReadonlyMap<string, string>,
+): Recipient[] {
+  if (labelsByUserId.size === 0) return [...recipients]
+
+  return recipients.map((recipient) => {
+    if (recipient.kind !== 'user') return recipient
+    const label = labelsByUserId.get(recipient.refId)
+    return label ? { ...recipient, label } : recipient
+  })
+}
+
+export interface BuildEditUpdatePayloadInput {
+  title: string
+  description: string
+  destinations: CreateAnnouncementDestinationInput[]
+  /** Status atual do comunicado no back. */
+  currentStatus: AnnouncementStatus
+  /** `null` = publicar agora; ISO UTC = agendar/reagendar. */
+  scheduledFor: string | null
+}
+
+/**
+ * Monta o body de `PUT /api/posts/{id}` conforme a transição de publicação.
+ *
+ * - SCHEDULED → publicar agora: `status: PUBLISHED`
+ * - SCHEDULED → nova data: mantém status e envia `scheduledFor` (ou PATCH depois)
+ * - PUBLISHED → agendar: `status: SCHEDULED` + `scheduledFor`
+ * - PUBLISHED → permanece agora: só conteúdo/destinos
+ */
+export function buildEditUpdatePayload(input: BuildEditUpdatePayloadInput): AnnouncementUpdatePayload {
+  const title = input.title.trim()
+  const description = input.description.trim()
+  const destinations = input.destinations
+
+  if (input.scheduledFor == null) {
+    if (input.currentStatus === ANNOUNCEMENT_STATUS.SCHEDULED) {
+      return {
+        title,
+        description,
+        destinations,
+        status: ANNOUNCEMENT_STATUS.PUBLISHED,
+      }
+    }
+
+    return { title, description, destinations }
+  }
+
+  if (input.currentStatus === ANNOUNCEMENT_STATUS.PUBLISHED) {
+    return {
+      title,
+      description,
+      destinations,
+      status: ANNOUNCEMENT_STATUS.SCHEDULED,
+      scheduledFor: input.scheduledFor,
+    }
+  }
+
+  return {
+    title,
+    description,
+    destinations,
+    scheduledFor: input.scheduledFor,
+  }
+}
+
+export function buildDestinationsFromRecipients(
+  recipients: readonly Recipient[],
+): CreateAnnouncementDestinationInput[] {
+  return mapRecipientsToPayload(recipients).destinations
+}
+
+export function resolveRemovedImageIds(
+  initialImageIds: readonly string[],
+  currentImages: readonly FileUploadItem[],
+): string[] {
+  const remainingRemote = new Set(
+    currentImages.filter((item) => !item.file).map((item) => item.id),
+  )
+  return initialImageIds.filter((id) => !remainingRemote.has(id))
+}
+
+export function hasLocalImageFiles(images: readonly FileUploadItem[]): boolean {
+  return images.some((item) => Boolean(item.file))
+}
+
+export function hasRemainingRemoteImages(images: readonly FileUploadItem[]): boolean {
+  return images.some((item) => !item.file && Boolean(item.previewUrl))
+}
