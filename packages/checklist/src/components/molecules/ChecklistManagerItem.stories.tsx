@@ -1,22 +1,22 @@
-import type { Meta, StoryObj } from '@storybook/react'
+import type { Meta, StoryObj } from "@storybook/react";
 
-import { ChecklistManagerItem } from './ChecklistManagerItem'
+import { ChecklistManagerItem } from "./ChecklistManagerItem";
 
 const meta = {
-  title: 'Checklist/Molecules/ChecklistManagerItem',
+  title: "Checklist/Molecules/ChecklistManagerItem",
   component: ChecklistManagerItem,
-  parameters: { layout: 'fullscreen' },
-} satisfies Meta<typeof ChecklistManagerItem>
+  parameters: { layout: "fullscreen" },
+} satisfies Meta<typeof ChecklistManagerItem>;
 
-export default meta
+export default meta;
 
-type Story = StoryObj<typeof meta>
+type Story = StoryObj<typeof meta>;
 
 const args = {
-  title: 'laboratório de informática',
-  description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+  title: "laboratório de informática",
+  description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
   onEdit: () => {},
   onDelete: () => {},
-}
+};
 
-export const Default: Story = { args }
+export const Default: Story = { args };
