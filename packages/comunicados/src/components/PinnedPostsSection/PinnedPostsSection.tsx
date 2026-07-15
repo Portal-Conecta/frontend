@@ -25,6 +25,12 @@ export interface PinnedPostsSectionProps {
    * mural. Ausente no painel de gestão, que já tem seu próprio cabeçalho.
    */
   headerActions?: ReactNode
+  /**
+   * Mostra o título "Fixados" acima do carrossel. Default `true` (mural). O
+   * painel de gestão já deixa isso implícito pelo cabeçalho da própria página —
+   * passa `false` pra não repetir.
+   */
+  showTitle?: boolean
 }
 
 type DragState = {
@@ -54,7 +60,13 @@ function getPostTime(post: AnnouncementSummary): number {
   return Number.isNaN(timestamp) ? 0 : timestamp
 }
 
-export function PinnedPostsSection({ posts, renderActions, from, headerActions }: PinnedPostsSectionProps) {
+export function PinnedPostsSection({
+  posts,
+  renderActions,
+  from,
+  headerActions,
+  showTitle = true,
+}: PinnedPostsSectionProps) {
   const scrollerRef = useRef<HTMLUListElement>(null)
   const dragRef = useRef<DragState>({
     pointerId: null,
@@ -72,14 +84,22 @@ export function PinnedPostsSection({ posts, renderActions, from, headerActions }
 
   if (pinnedPosts.length === 0) {
     return (
-      <section aria-labelledby="pinned-posts-title" className="w-full">
-        <div className="flex items-center justify-between gap-4">
-          <Text id="pinned-posts-title" as="h2" variant="body-xl-emphasis" tone="brand">
-            Fixados
-          </Text>
+      <section
+        aria-label={showTitle ? undefined : 'Fixados'}
+        aria-labelledby={showTitle ? 'pinned-posts-title' : undefined}
+        className="w-full"
+      >
+        {showTitle || headerActions ? (
+          <div className="flex items-center justify-between gap-4">
+            {showTitle ? (
+              <Text id="pinned-posts-title" as="h2" variant="body-xl-emphasis" tone="brand">
+                Fixados
+              </Text>
+            ) : null}
 
-          {headerActions}
-        </div>
+            {headerActions}
+          </div>
+        ) : null}
 
         <div className="mt-4 flex min-h-32 items-center justify-center px-4">
           <Text as="p" variant="body-md" tone="secondary" className="text-center">
@@ -171,14 +191,22 @@ export function PinnedPostsSection({ posts, renderActions, from, headerActions }
   }
 
   return (
-    <section aria-labelledby="pinned-posts-title" className="w-full overflow-hidden">
-      <div className="flex items-center justify-between gap-4">
-        <Text id="pinned-posts-title" as="h2" variant="body-xl-emphasis" tone="brand">
-          Fixados
-        </Text>
+    <section
+      aria-label={showTitle ? undefined : 'Fixados'}
+      aria-labelledby={showTitle ? 'pinned-posts-title' : undefined}
+      className="w-full overflow-hidden"
+    >
+      {showTitle || headerActions ? (
+        <div className="flex items-center justify-between gap-4">
+          {showTitle ? (
+            <Text id="pinned-posts-title" as="h2" variant="body-xl-emphasis" tone="brand">
+              Fixados
+            </Text>
+          ) : null}
 
-        {headerActions}
-      </div>
+          {headerActions}
+        </div>
+      ) : null}
 
       <ul
         ref={scrollerRef}
