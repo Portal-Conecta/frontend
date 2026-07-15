@@ -2,13 +2,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   addClassMember,
-  listClassStudents,
+  listClassMembers,
   removeClassMember,
   setClassRepresentative,
 } from '@portal/core/classes/classMembersService'
 import type {
   AddMemberResponse,
-  ClassStudent,
+  ClassMember,
   MemberRoleResponse,
 } from '@portal/core/classes/types'
 import { HttpError } from '@portal/core/http/errors'
@@ -41,28 +41,40 @@ afterEach(() => {
   delete process.env.API_GATEWAY_URL
 })
 
-describe('listClassStudents', () => {
-  const students: ClassStudent[] = [
-    { id: 'a1', name: 'Ana Souza' },
-    { id: 'b2', name: 'Bruno Dias' },
+describe('listClassMembers', () => {
+  const members: ClassMember[] = [
+    { id: 'a1', name: 'Ana Souza', role: 'STUDENT' },
+    { id: 'b2', name: 'Bruno Dias', role: 'REPRESENTATIVE' },
   ]
 
-  it('busca alunos da turma sob /hub/classes/{classId}/students', async () => {
+  it('filtra por papel via ?role= sob /hub/classes/{classId}/members', async () => {
     const fetchMock = stubFetch()
-    fetchMock.mockResolvedValue(response(200, students))
+    fetchMock.mockResolvedValue(response(200, members))
 
-    await expect(listClassStudents(CLASS_ID, TOKEN)).resolves.toEqual(students)
+    await expect(listClassMembers(CLASS_ID, 'STUDENT', TOKEN)).resolves.toEqual(members)
 
     const [url, init] = fetchMock.mock.calls[0]!
-    expect(url).toBe(`${API_GATEWAY_URL}/hub/classes/${CLASS_ID}/students`)
+    const parsed = new URL(url as string)
+    expect(parsed.pathname).toBe(`/hub/classes/${CLASS_ID}/members`)
+    expect(parsed.searchParams.get('role')).toBe('STUDENT')
     expect(init?.method).toBe('GET')
     expect(init?.headers).toMatchObject({ Authorization: `Bearer ${TOKEN}` })
+  })
+
+  it('sem papel, não envia query (backend retorna todos os membros)', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(response(200, members))
+
+    await expect(listClassMembers(CLASS_ID, undefined, TOKEN)).resolves.toEqual(members)
+
+    const [url] = fetchMock.mock.calls[0]!
+    expect(url).toBe(`${API_GATEWAY_URL}/hub/classes/${CLASS_ID}/members`)
   })
 
   it('mapeia 404 (turma inexistente) para HttpError not_found', async () => {
     stubFetch().mockResolvedValue(response(404, {}))
 
-    await expect(listClassStudents(CLASS_ID, TOKEN)).rejects.toMatchObject({
+    await expect(listClassMembers(CLASS_ID, 'STUDENT', TOKEN)).rejects.toMatchObject({
       kind: 'not_found',
     })
   })
