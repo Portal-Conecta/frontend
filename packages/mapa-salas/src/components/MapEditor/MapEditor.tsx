@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react'
+
 import type { RoomMapGrid, UnassignedStudent } from '../../types'
 import { MapGrid } from '../MapGrid'
 import { StudentSidebar } from '../StudentSidebar'
@@ -22,6 +24,18 @@ export type MapEditorProps = {
    * num assento, devolve-o ao banco.
    */
   onBenchAreaClick: () => void
+  /**
+   * Slot renderizado sob o grid, dentro da coluna esquerda — no frame de
+   * edição do Figma o `MapToolbar` (e o alerta de aluno sem lugar) centraliza
+   * na área do grid, não na largura total (a coluna de alunos segue inteira à
+   * direita). Quem monta o slot é a página (#298).
+   */
+  footer?: ReactNode
+  /**
+   * Classes extras do `MapGrid` (ex.: `MAP_GRID_GAP` da página) — o grid não
+   * define gap próprio (ver TODO(design) em `MapGrid.tsx`).
+   */
+  gridClassName?: string
   className?: string
 }
 
@@ -62,20 +76,25 @@ export function MapEditor({
   onSeatClick,
   onStudentClick,
   onBenchAreaClick,
+  footer,
+  gridClassName,
   className,
 }: MapEditorProps) {
   const classes = ['flex flex-col gap-6 lg:flex-row lg:items-stretch', className].filter(Boolean).join(' ')
 
   return (
     <div className={classes}>
-      <MapGrid
-        grid={grid}
-        draftAllocations={draftAllocations}
-        selectedStudentId={selectedStudentId}
-        isEditing={isEditing}
-        onSeatClick={onSeatClick}
-        className="flex-1"
-      />
+      <div className="flex flex-1 flex-col gap-10">
+        <MapGrid
+          grid={grid}
+          draftAllocations={draftAllocations}
+          selectedStudentId={selectedStudentId}
+          isEditing={isEditing}
+          onSeatClick={onSeatClick}
+          className={['flex-1', gridClassName].filter(Boolean).join(' ')}
+        />
+        {footer}
+      </div>
       <div
         className={[
           'lg:shrink-0 lg:rounded-tl-lg lg:border-l-md lg:border-t-md lg:border-border-default',

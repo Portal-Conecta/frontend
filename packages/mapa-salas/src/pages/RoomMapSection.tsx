@@ -2,21 +2,37 @@
 
 /**
  * RoomMapSection — carrega e renderiza a grade de assentos de uma sala/turma já
- * resolvidas. Isolado do `PageMapaSalasContent` de propósito: só monta quando os
- * dois ids existem, então o `useRoomMapView` (que busca no mount) nunca dispara
- * com id vazio.
+ * resolvidas, e orquestra a alternância visualização ↔ edição (#298). Isolado
+ * do `PageMapaSalasContent` de propósito: só monta quando os dois ids existem,
+ * então o `useRoomMapView` (que busca no mount) nunca dispara com id vazio.
  *
- * Estados: loading → skeleton; erro `not_found` → `MapEmptyState` (só p/ quem
- * edita) ou mensagem; demais erros → mensagem amigável; dados → grade.
- * `suggested=true` NÃO é estado vazio: é o mapa alfabético não salvo, renderizado
- * normalmente (ambos os braços da união têm `grid`).
+ * Estados: loading → skeleton; sessão de edição ativa → `RoomMapEditMode`;
+ * erro `not_found` → `MapEmptyState` (só p/ quem edita — o CTA carrega o
+ * layout da sala e abre a edição) ou mensagem; demais erros → mensagem
+ * amigável; dados → grade + `MapToolbar` em modo view p/ quem edita.
+ * `suggested=true` NÃO é estado vazio: é o mapa alfabético não salvo,
+ * renderizado normalmente (ambos os braços da união têm `grid`).
+ *
+ * A sessão de edição é remontada por `key` a cada entrada (o `useMapaDeSala`
+ * lê o view inicial só na montagem); ao salvar, o fluxo volta pra cá via
+ * `onSaved` → refetch + `mode` view.
  */
-import { HttpError } from '@portal/core/http/errors'
-import { Text } from '@portal/ui'
+import { useRef, useState } from 'react'
 
-import { MapEmptyState, MapGrid, MapGridSkeleton, StudentSidebar } from '../components'
+import { HttpError } from '@portal/core/http/errors'
+import { Text, useToast } from '@portal/ui'
+
+import { MapEmptyState, MapGrid, MapGridSkeleton, MapToolbar, StudentSidebar } from '../components'
 import { useRoomMapView } from '../hooks/useRoomMapView'
+import { getRoomLayoutClient } from '../services/client/roomMapClient'
 import { MAP_GRID_GAP } from './mapGridLayout'
+import {
+  buildSessionFromLayout,
+  buildSessionFromView,
+  LOAD_LAYOUT_ERROR,
+  type MapEditSession,
+} from './roomMapEditModel'
+import { RoomMapEditMode } from './RoomMapEditMode'
 import { toDraftAllocations, toUnassignedStudents } from './roomMapViewModel'
 
 export interface RoomMapSectionProps {
@@ -26,9 +42,14 @@ export interface RoomMapSectionProps {
   selectedStudentId: string | null
   /** Aluno: mostra o rodapé "Seu lugar está localizado no ponto azul". */
   showFooter: boolean
-  /** Habilita o CTA de criação no estado sem mapa (só quem edita). */
+  /** Mostra os controles de edição (toolbar/CTA de criação) — gate de UX, o real é o 403 do back. */
   canEdit: boolean
+  /** Sobe o `isDirty` do rascunho de edição — guard de descarte da página. */
+  onDirtyChange?: (dirty: boolean) => void
 }
+
+/** `MapToolbar` exige os três callbacks; em modo view só `onEdit` existe. */
+function noop() {}
 
 export function RoomMapSection({
   salaId,
@@ -36,11 +57,65 @@ export function RoomMapSection({
   selectedStudentId,
   showFooter,
   canEdit,
+  onDirtyChange,
 }: RoomMapSectionProps) {
-  const { data, loading, error } = useRoomMapView(salaId, turmaId)
+  const { data, loading, error, refetch } = useRoomMapView(salaId, turmaId)
+  const { toast } = useToast()
+
+  const [editSession, setEditSession] = useState<MapEditSession | null>(null)
+  // Incrementa a cada sessão nova — vira a `key` que remonta o RoomMapEditMode
+  // (o rascunho do useMapaDeSala inicializa uma única vez por montagem).
+  const [sessionSeq, setSessionSeq] = useState(0)
+  const startingCreateRef = useRef(false)
+
+  function startEditFromView() {
+    if (!data) return
+    setEditSession(buildSessionFromView(data))
+    setSessionSeq((seq) => seq + 1)
+  }
+
+  /**
+   * CTA do `MapEmptyState`: o grid da criação vem do layout da sala
+   * (`GET layouts/salas/{salaId}`) — a view respondeu `not_found`, então não
+   * há grid nem lista de alunos para partir. Falhou o GET → toast e continua
+   * no estado vazio.
+   */
+  async function startCreateFromLayout() {
+    if (startingCreateRef.current) return
+    startingCreateRef.current = true
+    try {
+      const layout = await getRoomLayoutClient(salaId)
+      setEditSession(buildSessionFromLayout(layout))
+      setSessionSeq((seq) => seq + 1)
+    } catch {
+      toast.error(LOAD_LAYOUT_ERROR)
+    } finally {
+      startingCreateRef.current = false
+    }
+  }
+
+  function handleSaved() {
+    setEditSession(null)
+    void refetch()
+  }
 
   if (loading) {
     return <MapGridSkeleton className={MAP_GRID_GAP} />
+  }
+
+  // Antes do braço de erro: a sessão `layout` nasce justamente do `not_found`
+  // (o editor renderiza por cima de um fetch que "falhou").
+  if (editSession) {
+    return (
+      <RoomMapEditMode
+        key={sessionSeq}
+        session={editSession}
+        salaId={salaId}
+        turmaId={turmaId}
+        onSaved={handleSaved}
+        onDirtyChange={onDirtyChange ?? noop}
+      />
+    )
   }
 
   if (error) {
@@ -51,8 +126,7 @@ export function RoomMapSection({
     const notFound = error instanceof HttpError && error.kind === 'not_found'
 
     if (notFound && canEdit) {
-      // Criação do mapa é a issue #294 — aqui o CTA é no-op.
-      return <MapEmptyState onCreateMap={() => {}} />
+      return <MapEmptyState onCreateMap={() => void startCreateFromLayout()} />
     }
 
     return (
@@ -74,13 +148,29 @@ export function RoomMapSection({
       <div className="flex gap-8">
         {/* Professor vem da posição TEACHER dentro do próprio grid (MapGrid) —
             não renderizamos um professor à parte aqui para não duplicar. */}
-        <MapGrid
-          grid={data.grid}
-          draftAllocations={draftAllocations}
-          selectedStudentId={selectedStudentId}
-          isEditing={false}
-          className={`flex-1 ${MAP_GRID_GAP}`}
-        />
+        <div className="flex flex-1 flex-col gap-10">
+          <MapGrid
+            grid={data.grid}
+            draftAllocations={draftAllocations}
+            selectedStudentId={selectedStudentId}
+            isEditing={false}
+            className={MAP_GRID_GAP}
+          />
+
+          {canEdit ? (
+            // Toolbar centraliza na área do grid (frame do Figma 280-7901) —
+            // a coluna de não-alocados segue inteira à direita.
+            <div className="flex justify-center">
+              <MapToolbar
+                mode="view"
+                canSave={false}
+                onEdit={startEditFromView}
+                onClear={noop}
+                onSave={noop}
+              />
+            </div>
+          ) : null}
+        </div>
 
         {unassignedStudents.length > 0 ? (
           <StudentSidebar
