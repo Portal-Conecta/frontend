@@ -12,7 +12,14 @@ import { getAnnouncement } from '../services'
 
 interface PageAnnouncementDetailProps {
   id: string
+  /** Origem da navegação (`?from=meus`) — decide pra onde a trilha volta. */
+  from?: string
 }
+
+const BACK_DESTINATIONS: Record<string, { href: string; label: string }> = {
+  meus: { href: '/comunicados/meus', label: 'Painel de gestão de comunicados' },
+}
+const DEFAULT_BACK_DESTINATION = { href: '/comunicados', label: 'Mural de Comunicados' }
 
 function resolveFetchError(error: unknown): string {
   if (error instanceof HttpError) {
@@ -40,10 +47,11 @@ async function resolveCreatorName(userId: string): Promise<string | undefined> {
   }
 }
 
-export async function PageAnnouncementDetail({ id }: PageAnnouncementDetailProps) {
+export async function PageAnnouncementDetail({ id, from }: PageAnnouncementDetailProps) {
   let detail: AnnouncementDetail | undefined
   let creatorName: string | undefined
   let errorMessage: string | undefined
+  const backDestination = (from && BACK_DESTINATIONS[from]) || DEFAULT_BACK_DESTINATION
 
   try {
     detail = await getAnnouncement(id)
@@ -61,8 +69,8 @@ export async function PageAnnouncementDetail({ id }: PageAnnouncementDetailProps
         <div className="mx-auto w-full max-w-3xl">
           <nav className="mb-6" aria-label="Trilha de navegação">
             <Text as="span" variant="label-sm" tone="secondary">
-              <Link href="/comunicados" className="hover:text-text-brand transition-colors">
-                Mural de Comunicados
+              <Link href={backDestination.href} className="hover:text-text-brand transition-colors">
+                {backDestination.label}
               </Link>
               {' / '}
               <Text as="span" variant="label-sm" tone="primary">

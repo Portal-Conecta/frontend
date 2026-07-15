@@ -113,7 +113,7 @@ export function MyAnnouncementsTableContent({
             >
               {/* Cobre o item inteiro — mesmo padrão do AnnouncementCard: mantém a linha inteira clicável sem aninhar os botões de ação numa âncora. */}
               <Link
-                href={`/comunicados/${id}`}
+                href={`/comunicados/${id}?from=meus`}
                 aria-label={`Abrir comunicado: ${title}`}
                 className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
               />

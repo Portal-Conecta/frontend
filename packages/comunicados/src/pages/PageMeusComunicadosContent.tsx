@@ -117,6 +117,7 @@ export function PageMeusComunicadosContent({ canCreate, userType }: PageMeusComu
       {pinned.length > 0 ? (
         <PinnedPostsSection
           posts={pinned}
+          from="meus"
           renderActions={(post) => (
             <AnnouncementActionsMenu
               variant="solid"

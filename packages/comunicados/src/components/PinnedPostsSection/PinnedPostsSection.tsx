@@ -17,6 +17,8 @@ export interface PinnedPostsSectionProps {
    * painel de gestão. Ausente no mural, onde os fixados são só leitura.
    */
   renderActions?: (post: AnnouncementSummary) => ReactNode
+  /** Origem da navegação (ex.: `"meus"`) — repassada ao `AnnouncementCard`. */
+  from?: string
 }
 
 type DragState = {
@@ -46,7 +48,7 @@ function getPostTime(post: AnnouncementSummary): number {
   return Number.isNaN(timestamp) ? 0 : timestamp
 }
 
-export function PinnedPostsSection({ posts, renderActions }: PinnedPostsSectionProps) {
+export function PinnedPostsSection({ posts, renderActions, from }: PinnedPostsSectionProps) {
   const scrollerRef = useRef<HTMLUListElement>(null)
   const dragRef = useRef<DragState>({
     pointerId: null,
@@ -182,7 +184,12 @@ export function PinnedPostsSection({ posts, renderActions }: PinnedPostsSectionP
       >
         {pinnedPosts.map((post) => (
           <li key={post.id} className="w-96 shrink-0 sm:w-[32rem] lg:w-[41rem]">
-            <AnnouncementCard announcement={post} highlighted actions={renderActions?.(post)} />
+            <AnnouncementCard
+              announcement={post}
+              highlighted
+              actions={renderActions?.(post)}
+              {...(from ? { from } : {})}
+            />
           </li>
         ))}
       </ul>
