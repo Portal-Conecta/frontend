@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react'
 
-import { AnnouncementFiltersBar, MURAL_PERIODO_OPTIONS, MURAL_TIPO_OPTIONS } from './AnnouncementFiltersBar'
+import { AnnouncementFiltersBar, MURAL_ORIGEM_OPTIONS, MURAL_PERIODO_OPTIONS } from './AnnouncementFiltersBar'
 import type { ClassFilterOption } from '../../services/destinationCatalogMappers'
 import { HUB_SHIFT_OPTIONS } from '../../constants/hubShifts'
 
@@ -21,7 +21,7 @@ const meta: Meta<typeof AnnouncementFiltersBar> = {
   parameters: { layout: 'padded' },
   args: {
     cursoOptions,
-    tipoOptions: MURAL_TIPO_OPTIONS,
+    origemOptions: MURAL_ORIGEM_OPTIONS,
     turmaOptions,
     turnoOptions: HUB_SHIFT_OPTIONS,
     periodoOptions: MURAL_PERIODO_OPTIONS,
