@@ -1,9 +1,10 @@
 import { createHttpClient } from '../http/httpClient'
 import { hubGatewayPath } from '../http/hubGateway'
+import type { ClassRole } from '../rbac'
 import type {
   AddMemberRequest,
   AddMemberResponse,
-  ClassStudent,
+  ClassMember,
   MemberRoleResponse,
 } from './types'
 
@@ -18,15 +19,19 @@ import type {
 const http = createHttpClient('API_GATEWAY_URL')
 
 /**
- * Lista os aprendizes (e representantes) de uma turma
- * (`GET /hub/classes/{classId}/students`). Não inclui docentes — o core não
- * expõe listagem de professores por turma.
+ * Lista os membros de uma turma (`GET /hub/classes/{classId}/members`),
+ * opcionalmente filtrados por papel (`?role=STUDENT | TEACHER | REPRESENTATIVE`).
+ * Sem `role`, retorna todos os membros; cada item traz o papel (`role`).
  */
-export function listClassStudents(classId: string, token?: string): Promise<ClassStudent[]> {
-  return http.get<ClassStudent[]>(
-    hubGatewayPath(`/classes/${classId}/students`),
-    token ? { token } : undefined,
-  )
+export function listClassMembers(
+  classId: string,
+  role?: ClassRole,
+  token?: string,
+): Promise<ClassMember[]> {
+  return http.get<ClassMember[]>(hubGatewayPath(`/classes/${classId}/members`), {
+    ...(role ? { params: { role } } : {}),
+    ...(token ? { token } : {}),
+  })
 }
 
 /**
