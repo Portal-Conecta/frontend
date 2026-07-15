@@ -21,20 +21,26 @@ export function UnreadBatchControls({ shown, totalElements }: UnreadBatchControl
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
-  const remaining = Math.max(totalElements - shown, 0)
+  const safeShown = shown || 0
+  const safeTotal = totalElements || 0
+  const remaining = Math.max(safeTotal - safeShown, 0)
+
+  if (safeTotal === 0) return null
 
   return (
-    <div>
+    <div className="flex w-full items-center justify-between pt-4 text-body-sm text-text-subtle">
       <span>
-        {shown} de {totalElements} não lidas
+        Exibindo {safeShown} de {safeTotal} não lidas
       </span>
+      
       {remaining > 0 && (
         <button
           type="button"
           disabled={isPending}
           onClick={() => startTransition(() => router.refresh())}
+          //className="rounded-md px-4 py-2 text-interactive-default hover:bg-interactive-hover disabled:opacity-50"
         >
-          {isPending ? 'Carregando…' : 'Próximas'}
+          {isPending ? 'Carregando…' : `Carregar próximas (${remaining})`}
         </button>
       )}
     </div>

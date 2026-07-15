@@ -1,3 +1,4 @@
+import { NotificationListItem } from '@portal/ui/molecules/NotificationListItem/NotificationListItem'
 import type { Notification, NotificationType } from '../types'
 
 const ICON_BY_TYPE: Record<NotificationType, string> = {
@@ -23,22 +24,24 @@ function formatTimestamp(timestamp: string): string {
 export function NotificationsList({ notifications }: NotificationsListProps) {
   if (notifications.length === 0) {
     return (
-      <div>
-        <p>Nenhuma notificação encontrada.</p>
+      <div className="flex w-full items-center justify-center p-8 text-body-md text-text-subtle">
+        Nenhuma notificação encontrada.
       </div>
     )
   }
 
   return (
-    <ul>
+    <div className="flex flex-col divide-y divide-border-default rounded-md border border-border-default bg-background-default">
       {notifications.map((notification) => (
-        <li key={notification.id} data-icon={ICON_BY_TYPE[notification.type]}>
-          <div>
-            <p>{notification.title}</p>
-            <span>{formatTimestamp(notification.timestamp)}</span>
-          </div>
-        </li>
+        <NotificationListItem
+          key={notification.id}
+          title={notification.title}
+          body={notification.body}
+          type={notification.type}
+          isRead={notification.read} // Mapeando a prop 'read' do backend para o 'isRead' do componente
+          dateText={formatTimestamp(notification.timestamp)}
+        />
       ))}
-    </ul>
+    </div>
   )
 }

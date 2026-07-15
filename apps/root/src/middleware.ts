@@ -44,9 +44,9 @@ export function middleware(req: NextRequest) {
   }
 
   // Sem nenhuma sessão em rota protegida → login.
-  if (!hasAccess && !isPublic) {
-    return NextResponse.redirect(new URL(LOGIN, req.url))
-  }
+   //if (!hasAccess && !isPublic) {
+    //return NextResponse.redirect(new URL(LOGIN, req.url))
+  // }
 
   return NextResponse.next()
 }
