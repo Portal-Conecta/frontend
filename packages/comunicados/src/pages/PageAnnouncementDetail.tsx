@@ -8,7 +8,7 @@ import { Text } from '@portal/ui'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
-import { canCreateAnnouncement } from '../auth/canCreateAnnouncement'
+import { canEditAnnouncement } from '../auth/canEditAnnouncement'
 import { AnnouncementDetailView } from '../components/AnnouncementDetailView'
 import { getAnnouncement } from '../services'
 
@@ -67,11 +67,7 @@ export async function PageAnnouncementDetail({ id, from }: PageAnnouncementDetai
     errorMessage = resolveFetchError(error)
   }
 
-  const canEdit =
-    Boolean(detail) &&
-    canCreateAnnouncement(user) &&
-    user?.id === detail?.announcement.createdByUserId &&
-    detail?.announcement.status !== 'REMOVED'
+  const canEdit = canEditAnnouncement(user, detail)
 
   return (
     <AppShell user={user} activeKey="comunicados">
