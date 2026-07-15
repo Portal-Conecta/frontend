@@ -3,7 +3,12 @@ import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react'
 import type { RoomMapGrid, UnassignedStudent } from '../../types'
 
-import { handleSeatClick, selectStudent, type MapaDeSalaDraftState } from '../../hooks/useMapaDeSala.logic'
+import {
+  handleBenchClick,
+  handleSeatClick,
+  selectStudent,
+  type MapaDeSalaDraftState,
+} from '../../hooks/useMapaDeSala.logic'
 import { MapEditor } from './MapEditor'
 
 const grid: RoomMapGrid = {
@@ -52,6 +57,7 @@ function InteractiveMapEditor() {
       isEditing
       onSeatClick={(layoutPositionId) => setState((prev) => handleSeatClick(prev, layoutPositionId))}
       onStudentClick={(studentId) => setState((prev) => selectStudent(prev, studentId))}
+      onBenchAreaClick={() => setState((prev) => handleBenchClick(prev))}
     />
   )
 }
@@ -68,6 +74,7 @@ const meta: Meta<typeof MapEditor> = {
     isEditing: true,
     onSeatClick: () => undefined,
     onStudentClick: () => undefined,
+    onBenchAreaClick: () => undefined,
   },
 }
 

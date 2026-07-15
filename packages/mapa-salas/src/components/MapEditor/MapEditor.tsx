@@ -16,6 +16,12 @@ export type MapEditorProps = {
   onSeatClick: (layoutPositionId: string) => void
   /** `selectStudent` do `useMapaDeSala` */
   onStudentClick: (studentId: string) => void
+  /**
+   * `handleBenchClick` do `useMapaDeSala` — clique na área vazia da
+   * sidebar (fora de qualquer item). Se o aluno selecionado está sentado
+   * num assento, devolve-o ao banco.
+   */
+  onBenchAreaClick: () => void
   className?: string
 }
 
@@ -32,10 +38,12 @@ export type MapEditorProps = {
  * alimentar toolbar e grid com o mesmo estado — por isso o hook fica no
  * consumidor, e este componente só recebe as fatias já resolvidas.
  *
- * Sem hooks/handlers próprios — mesmo padrão do `MapGrid`/`StudentSidebar`
- * (recebem função via prop mas não declaram 'use client'); precisa ser
- * renderizado dentro de uma árvore que já tenha um Client Component boundary
- * acima (a página que chama `useMapaDeSala`).
+ * Sem hooks/handlers próprios — mesmo padrão do `MapGrid` (recebe função via
+ * prop mas não declara 'use client'); a `StudentSidebar` é 'use client' por
+ * conta própria (precisa distinguir clique em item de clique na área vazia).
+ * De todo modo, `MapEditor` precisa ser renderizado dentro de uma árvore que
+ * já tenha um Client Component boundary acima (a página que chama
+ * `useMapaDeSala`), já que repassa funções como `onSeatClick`/`onStudentClick`.
  *
  * Layout conferido contra o protótipo (node 2008:36012/2008:36092 do Figma
  * `qGo0ACyYHgWTYvenzzwSLG`): no desktop a `StudentSidebar` não é uma lista
@@ -53,6 +61,7 @@ export function MapEditor({
   isEditing,
   onSeatClick,
   onStudentClick,
+  onBenchAreaClick,
   className,
 }: MapEditorProps) {
   const classes = ['flex flex-col gap-6 lg:flex-row lg:items-stretch', className].filter(Boolean).join(' ')
@@ -82,6 +91,7 @@ export function MapEditor({
           selectedStudentId={selectedStudentId}
           isEditing={isEditing}
           onStudentClick={onStudentClick}
+          onEmptyAreaClick={onBenchAreaClick}
         />
       </div>
     </div>

@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   clearAll,
   computeIsDirty,
+  handleBenchClick,
   handleSeatClick,
   initDraftState,
   selectStudent,
@@ -137,6 +138,37 @@ describe('unassign — desalocar', () => {
     const next = unassign(state, 'pos-1')
 
     expect(next.selectedStudentId).toBeNull()
+  })
+})
+
+describe('handleBenchClick — clique na área vazia do banco', () => {
+  it('aluno selecionado está sentado: devolve ao banco e limpa a seleção', () => {
+    const state = selectStudent(initDraftState(makeView()), 'student-1')
+
+    const next = handleBenchClick(state)
+
+    expect(next.draftAllocations.has('pos-1')).toBe(false)
+    expect(next.unassignedStudents).toEqual([
+      { id: 'student-2', name: 'Bruno Lima' },
+      { id: 'student-1', name: 'Ana Souza' },
+    ])
+    expect(next.selectedStudentId).toBeNull()
+  })
+
+  it('aluno selecionado já está no banco: no-op', () => {
+    const state = selectStudent(initDraftState(makeView()), 'student-2')
+
+    const next = handleBenchClick(state)
+
+    expect(next).toBe(state)
+  })
+
+  it('sem seleção: no-op', () => {
+    const state = initDraftState(makeView())
+
+    const next = handleBenchClick(state)
+
+    expect(next).toBe(state)
   })
 })
 

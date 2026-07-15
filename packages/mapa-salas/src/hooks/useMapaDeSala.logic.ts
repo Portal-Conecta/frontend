@@ -104,6 +104,22 @@ export function handleSeatClick(
   return { draftAllocations, unassignedStudents, selectedStudentId: null }
 }
 
+/**
+ * Clique na área vazia do banco (sidebar de não-alocados) em modo edição:
+ * - aluno selecionado está sentado num assento → desaloca (volta pro banco)
+ * - aluno selecionado já está no banco, ou sem seleção → no-op (clicar na
+ *   área vazia não deve desfazer a seleção de quem já não está sentado)
+ */
+export function handleBenchClick(state: MapaDeSalaDraftState): MapaDeSalaDraftState {
+  const { selectedStudentId } = state
+  if (!selectedStudentId) return state
+
+  const located = locateStudent(state, selectedStudentId)
+  if (!located?.seatedAt) return state
+
+  return unassign(state, located.seatedAt)
+}
+
 export function unassign(state: MapaDeSalaDraftState, layoutPositionId: string): MapaDeSalaDraftState {
   const student = state.draftAllocations.get(layoutPositionId)
   if (!student) return state

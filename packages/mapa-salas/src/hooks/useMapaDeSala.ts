@@ -6,6 +6,7 @@ import type { AllocationEntryRequest, RoomMapView, UnassignedStudent } from '../
 import {
   clearAll as clearAllDraft,
   computeIsDirty,
+  handleBenchClick as handleBenchClickDraft,
   handleSeatClick as handleSeatClickDraft,
   initDraftState,
   selectStudent as selectStudentDraft,
@@ -28,6 +29,11 @@ export interface UseMapaDeSalaResult {
   handleSeatClick: (layoutPositionId: string) => void
   /** Devolve o aluno de um assento para a sidebar. */
   unassign: (layoutPositionId: string) => void
+  /**
+   * Clique na área vazia da sidebar (`onEmptyAreaClick` da `StudentSidebar`)
+   * — se o aluno selecionado está sentado num assento, devolve-o ao banco.
+   */
+  handleBenchClick: () => void
   /** Zera o rascunho — devolve todos os alunos alocados para a sidebar. */
   clearAll: () => void
   /** Converte `draftAllocations` para o formato aceito por `UpdateRoomMapAllocationsRequest`. */
@@ -66,6 +72,7 @@ export function useMapaDeSala(view: RoomMapView): UseMapaDeSalaResult {
     handleSeatClick: (layoutPositionId: string) =>
       setState((prev) => handleSeatClickDraft(prev, layoutPositionId)),
     unassign: (layoutPositionId: string) => setState((prev) => unassignDraft(prev, layoutPositionId)),
+    handleBenchClick: () => setState((prev) => handleBenchClickDraft(prev)),
     clearAll: () => setState((prev) => clearAllDraft(prev)),
     toAllocationEntries: () => toAllocationEntries(state.draftAllocations),
   }
