@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
+  deletePostImage,
   ImagesError,
   presignPostImage,
   uploadPostImage,
@@ -110,5 +111,19 @@ describe('uploadPostImageViaPresign', () => {
     expect(putUrl).toBe(presignResponse.uploadUrl)
     expect(putInit?.method).toBe('PUT')
     expect((putInit?.headers as Record<string, string>)['Content-Type']).toBe('image/png')
+  })
+})
+
+describe('deletePostImage', () => {
+  it('204 → deleted', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(response(204, null))
+    await expect(deletePostImage(POST_ID, 'img-1', TOKEN)).resolves.toBe('deleted')
+  })
+
+  it('404 → missing (no-op)', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(response(404, { message: 'not found' }))
+    await expect(deletePostImage(POST_ID, 'img-1', TOKEN)).resolves.toBe('missing')
   })
 })

@@ -2,9 +2,12 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { FileUploadItem } from '@portal/ui'
 
-import { uploadAnnouncementImagesClient } from '../../src/services/client/announcementImagesClient'
+import {
+  deleteAnnouncementImageClient,
+  uploadAnnouncementImagesClient,
+} from '../../src/services/client/announcementImagesClient'
 
-function response(status: number, body: unknown): Response {
+function response(status: number, body?: unknown): Response {
   return {
     ok: status >= 200 && status < 300,
     status,
@@ -62,5 +65,39 @@ describe('uploadAnnouncementImagesClient', () => {
     ])
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('no retry parcial só envia ids ainda não sincronizados', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(response(201, { fileId: 'f2' }))
+    const onUploaded = vi.fn()
+
+    await uploadAnnouncementImagesClient(
+      'post-1',
+      [imageItem('1', 'a.png'), imageItem('2', 'b.png')],
+      {
+        alreadyUploadedLocalIds: new Set(['1']),
+        markFirstAsThumbnail: false,
+        onUploaded,
+      },
+    )
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(fetchMock.mock.calls[0]![0]).toBe('/api/comunicados/posts/post-1/images')
+    expect(onUploaded).toHaveBeenCalledWith('2', { fileId: 'f2' })
+  })
+})
+
+describe('deleteAnnouncementImageClient', () => {
+  it('204 → deleted', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(response(204))
+    await expect(deleteAnnouncementImageClient('p', 'img')).resolves.toBe('deleted')
+  })
+
+  it('404 → missing (no-op)', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(response(404, { code: 'not_found' }))
+    await expect(deleteAnnouncementImageClient('p', 'img')).resolves.toBe('missing')
   })
 })

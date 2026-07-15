@@ -139,12 +139,26 @@ export function CreateAnnouncementWizard() {
     setConfirmOpen(false)
   }
 
+  function clearUploadedLocalFile(localId: string) {
+    setContent((previous) => ({
+      ...previous,
+      images: previous.images.map((item) =>
+        item.id === localId
+          ? { id: item.id, previewUrl: item.previewUrl, ...(item.name != null ? { name: item.name } : {}) }
+          : item,
+      ),
+    }))
+  }
+
   async function handleSubmit() {
     setConfirmOpen(false)
 
     const formValues = buildFormValues(content, recipients, scheduledFor)
 
-    const submitOptions = { images: content.images }
+    const submitOptions = {
+      images: content.images,
+      onImageUploaded: clearUploadedLocalFile,
+    }
 
     const created = scheduledFor
       ? await scheduleFrom({ ...formValues, scheduledFor }, submitOptions)

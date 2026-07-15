@@ -228,9 +228,27 @@ export async function uploadPostImage(
   throw await toImagesError(res)
 }
 
+/**
+ * Remove imagem do post no gateway.
+ * 404 = no-op (#398) — idempotente para retry de sync na edição.
+ */
+export async function deletePostImage(
+  postId: string,
+  imageId: string,
+  token: string,
+): Promise<'deleted' | 'missing'> {
+  const path = comunicadosGatewayPath(`/api/posts/${postId}/images/${imageId}`)
+  const res = await gatewayFetch(path, token, { method: 'DELETE' })
+
+  if (res.status === 204) return 'deleted'
+  if (res.status === 404) return 'missing'
+  throw await toImagesError(res)
+}
+
 export const imagesService = {
   presignPostImage,
   putFileToPresignedUrl,
   uploadPostImageViaPresign,
   uploadPostImage,
+  deletePostImage,
 }

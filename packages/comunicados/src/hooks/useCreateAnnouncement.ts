@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 import {
@@ -56,6 +56,11 @@ export interface CreateAnnouncementFormValues {
 export interface SubmitAnnouncementOptions {
   /** Imagens locais a anexar após criar o comunicado (#198). */
   images?: readonly FileUploadItem[]
+  /**
+   * Chamado após cada upload OK — o wizard deve limpar `file` do item para o
+   * retry não reenviar imagens já sincronizadas (#398).
+   */
+  onImageUploaded?: (localId: string) => void
 }
 
 export interface UseCreateAnnouncementOptions {
@@ -76,8 +81,9 @@ const DEFAULT_VALUES: CreateAnnouncementFormValues = {
 }
 
 const GENERIC_ERROR = 'Serviço indisponível, tente novamente.'
-const IMAGE_UPLOAD_ERROR =
-  'Comunicado criado, mas não foi possível enviar as imagens. Tente novamente.'
+/** Mensagem quando o post já existe e só falta o sync de imagens (#398). */
+export const PENDING_IMAGE_UPLOAD_ERROR =
+  'Comunicado criado, mas não foi possível enviar as imagens. Tente novamente — só as imagens pendentes serão reenviadas.'
 
 function messageFromApi(message: string | undefined, status: number): string {
   // FRÁGIL: o back ainda não envia `code` de erro — o match é pela frase exata.
@@ -144,6 +150,8 @@ export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}
   const [formError, setFormError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [pendingPost, setPendingPost] = useState<AnnouncementResponse | null>(null)
+  /** Ids locais já enviados com sucesso — retry pula estes (#398). */
+  const uploadedLocalIdsRef = useRef(new Set<string>())
 
   const setField = useCallback(
     <K extends keyof CreateAnnouncementFormValues>(
@@ -166,37 +174,56 @@ export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}
     setFieldErrors({})
     setFormError('')
     setPendingPost(null)
+    uploadedLocalIdsRef.current = new Set()
   }, [options.initialValues])
 
   const buildPublishBody = useCallback((): PublishAnnouncementRequest => {
     return buildPublishBodyFrom(values)
   }, [values])
 
-  const uploadImages = useCallback(async (postId: string, images: readonly FileUploadItem[]) => {
-    const hasFiles = images.some((item) => Boolean(item.file))
-    if (!hasFiles) return true
+  const uploadImages = useCallback(
+    async (
+      postId: string,
+      images: readonly FileUploadItem[],
+      onImageUploaded?: (localId: string) => void,
+    ) => {
+      const hasPending = images.some(
+        (item) => Boolean(item.file) && !uploadedLocalIdsRef.current.has(item.id),
+      )
+      if (!hasPending) return true
 
-    try {
-      await uploadAnnouncementImagesClient(postId, images)
-      return true
-    } catch {
-      setFormError(IMAGE_UPLOAD_ERROR)
-      return false
-    }
-  }, [])
+      try {
+        await uploadAnnouncementImagesClient(postId, images, {
+          alreadyUploadedLocalIds: uploadedLocalIdsRef.current,
+          markFirstAsThumbnail: uploadedLocalIdsRef.current.size === 0,
+          onUploaded: (localId) => {
+            uploadedLocalIdsRef.current.add(localId)
+            onImageUploaded?.(localId)
+          },
+        })
+        return true
+      } catch {
+        setFormError(PENDING_IMAGE_UPLOAD_ERROR)
+        return false
+      }
+    },
+    [],
+  )
 
   const finishAfterImages = useCallback(
     async (
       post: AnnouncementResponse,
       images: readonly FileUploadItem[],
+      onImageUploaded?: (localId: string) => void,
     ): Promise<AnnouncementResponse | null> => {
-      const imagesOk = await uploadImages(post.id, images)
+      const imagesOk = await uploadImages(post.id, images, onImageUploaded)
       if (!imagesOk) {
         setPendingPost(post)
         return null
       }
 
       setPendingPost(null)
+      uploadedLocalIdsRef.current = new Set()
       if (redirectOnSuccess) {
         router.push(redirectTo)
       }
@@ -217,7 +244,11 @@ export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}
 
       try {
         if (pendingPost?.id) {
-          return await finishAfterImages(pendingPost, options.images ?? [])
+          return await finishAfterImages(
+            pendingPost,
+            options.images ?? [],
+            options.onImageUploaded,
+          )
         }
 
         const res = await fetch(`/api/comunicados/posts/${endpoint}`, {
@@ -247,7 +278,7 @@ export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}
           return null
         }
 
-        return await finishAfterImages(created, options.images ?? [])
+        return await finishAfterImages(created, options.images ?? [], options.onImageUploaded)
       } catch {
         setFormError(GENERIC_ERROR)
         return null
