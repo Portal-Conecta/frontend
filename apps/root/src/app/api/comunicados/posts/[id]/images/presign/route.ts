@@ -56,7 +56,7 @@ export async function POST(req: Request, context: RouteContext) {
 
   const validation = validateAnnouncementImagePresign({
     contentType: body.contentType,
-    sizeBytes: body.sizeBytes,
+    ...(body.sizeBytes != null ? { sizeBytes: body.sizeBytes } : {}),
   })
   if (validation) {
     const status = validation.code === 'size' ? 413 : 400
