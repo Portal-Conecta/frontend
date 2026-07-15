@@ -1,4 +1,6 @@
-import Link from 'next/link'
+'use client'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Pagination } from '@portal/ui' // Ajuste o import
 
 interface NotificationsPaginationProps {
   page: number
@@ -20,35 +22,26 @@ export function NotificationsPagination({
   totalElements,
   size,
 }: NotificationsPaginationProps) {
-  const start = totalElements === 0 ? 0 : page * size + 1
-  const end = Math.min((page + 1) * size, totalElements)
+  const router = useRouter()
+  const searchParams = useSearchParams()
 
-  const hasPrevious = page > 0
-  const hasNext = page < totalPages - 1
+  const handlePageChange = (newPage: number) => {
+    const params = new URLSearchParams(searchParams.toString())
+    // Subtrai 1 porque a API espera base 0, mas a UI retorna base 1
+    params.set('page', (newPage - 1).toString()) 
+    router.push(`/notifications?${params.toString()}`)
+  }
 
-  const href = (target: number) => `/notifications?status=read&page=${target}&size=${size}`
+  const AnyPagination = Pagination as unknown as any
 
   return (
-    <div>
-      <span>
-        {start}-{end} de {totalElements}
-      </span>
-      <div>
-        {hasPrevious ? (
-          <Link href={href(page - 1)} aria-label="Página anterior">
-            ‹
-          </Link>
-        ) : (
-          <span aria-disabled="true">‹</span>
-        )}
-        {hasNext ? (
-          <Link href={href(page + 1)} aria-label="Próxima página">
-            ›
-          </Link>
-        ) : (
-          <span aria-disabled="true">›</span>
-        )}
-      </div>
+    <div className="flex w-full justify-end pt-4">
+      <AnyPagination
+        initialPage={(page || 0) + 1} // Soma 1 para a UI exibir a página correta
+        pageSize={size || 20}
+        totalItems={totalElements || 0}
+        onChange={handlePageChange} // Adicionei o onChange para capturar o clique
+      />
     </div>
   )
 }

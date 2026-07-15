@@ -1,5 +1,7 @@
 import { redirect } from 'next/navigation'
 
+import { AppShell } from '../layout/AppShell'
+import { getCurrentUser } from '../auth/getCurrentUser'
 import { getSession } from '../auth/session'
 import { HttpError } from '../http/errors'
 import { MarkPageAsRead } from '../notifications/components/MarkPageAsRead'
@@ -21,14 +23,13 @@ function parseIndex(raw: string | undefined, fallback: number): number {
 }
 
 export async function PageNotifications({ searchParams }: PageNotificationsProps) {
+  const user = await getCurrentUser()
   const params = await searchParams
   const status: NotificationStatus = params.status === 'read' ? 'READ' : 'UNREAD'
 
   const parsedSize = parseIndex(params.size, DEFAULT_PAGE_SIZE)
   const size = parsedSize > 0 ? parsedSize : DEFAULT_PAGE_SIZE
 
-  // A aba "Não Lidas" ignora `?page=`: abrir a página marca os itens como lidos, o
-  // conjunto encolhe, e a fatia seguinte é sempre a página 0 (ver UnreadBatchControls).
   const page = status === 'READ' ? parseIndex(params.page, 0) : 0
 
   const accessToken = await getSession()
@@ -50,24 +51,37 @@ export async function PageNotifications({ searchParams }: PageNotificationsProps
     status === 'UNREAD' ? data.content.map((notification) => notification.notificationId) : []
 
   return (
-    <div>
-      <h1>Notificação</h1>
-      <NotificationsFilters activeStatus={status} />
-      <NotificationsList notifications={data.content} />
+    <AppShell user={user} activeKey="">
+    <div className="mx-auto flex w-full max-w-[1024px] flex-col p-6 md:p-8">
+      {/* Cabeçalho */}
+      <div className="mb-6 flex flex-col gap-4">
+        <h2 className="text-text-brand text text-body-xl-emphasis mb-8">
+          Notificações
+        </h2>
+        {/* Rodapé com controles/paginação */}
+      <div className="mt-6 flex items-center place-content-between gap-4">
 
-      {status === 'UNREAD' ? (
-        <>
-          <UnreadBatchControls shown={data.content.length} totalElements={data.totalElements} />
-          {unreadIds.length > 0 && <MarkPageAsRead notificationIds={unreadIds} />}
-        </>
-      ) : (
-        <NotificationsPagination
-          page={data.page}
-          totalPages={data.totalPages}
-          totalElements={data.totalElements}
-          size={data.size}
-        />
-      )}
+        <NotificationsFilters activeStatus={status} />
+
+        {status === 'UNREAD' ? (
+          <>
+            <UnreadBatchControls shown={data.content.length} totalElements={data.totalElements} />
+            {unreadIds.length > 0 && <MarkPageAsRead notificationIds={unreadIds} />}
+          </>
+        ) : (
+          <NotificationsPagination
+            page={data.page ?? page}
+            totalPages={data.totalPages ?? 0}
+            totalElements={data.totalElements ?? 0}
+            size={data.size ?? size}
+          />
+        )}
+      </div>
+      </div>
+
+      {/* Lista com o componente NotificationListItem */}
+      <NotificationsList notifications={data.content} />
     </div>
+    </AppShell>
   )
 }
