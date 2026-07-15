@@ -152,14 +152,36 @@ export function PageMeusComunicadosContent({ canCreate, userType }: PageMeusComu
           from="meus"
           showTitle={false}
           renderActions={(post) => (
-            <AnnouncementActionsMenu
-              variant="solid"
-              pinned={post.pinned}
-              onPin={() => void handlePin(post)}
-              onEdit={() => goToEdit(post.id)}
-              onDelete={() => setDeleteTargetId(post.id)}
-              pending={pendingFor(post.id)}
-            />
+            <>
+              {/*
+                Mesmo padrão do MyAnnouncementsTable: icon-only no mobile, rotulado a
+                partir do `sm`. `hidden`/`flex` viram wrapper `<div>` — o próprio
+                AnnouncementActionsMenu já tem `flex` fixo na classe base, então
+                "hidden" direto nele briga com esse "flex" e os dois acabam
+                renderizando juntos.
+              */}
+              <div className="sm:hidden">
+                <AnnouncementActionsMenu
+                  variant="solid"
+                  pinned={post.pinned}
+                  onPin={() => void handlePin(post)}
+                  onEdit={() => goToEdit(post.id)}
+                  onDelete={() => setDeleteTargetId(post.id)}
+                  pending={pendingFor(post.id)}
+                  compact
+                />
+              </div>
+              <div className="hidden sm:block">
+                <AnnouncementActionsMenu
+                  variant="solid"
+                  pinned={post.pinned}
+                  onPin={() => void handlePin(post)}
+                  onEdit={() => goToEdit(post.id)}
+                  onDelete={() => setDeleteTargetId(post.id)}
+                  pending={pendingFor(post.id)}
+                />
+              </div>
+            </>
           )}
         />
       ) : null}

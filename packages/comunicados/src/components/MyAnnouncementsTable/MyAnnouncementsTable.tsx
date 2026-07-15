@@ -144,24 +144,31 @@ export function MyAnnouncementsTableContent({
                   </Text>
                 </div>
 
-                {/* Figma mobile: ações icon-only (compact); desktop: ícone + rótulo. */}
-                <AnnouncementActionsMenu
-                  pinned={pinned}
-                  onPin={() => onPin?.(post)}
-                  onEdit={() => onEdit?.(id)}
-                  onDelete={() => onDeleteRequest?.(id)}
-                  pending={rowPending}
-                  compact
-                  className="pointer-events-auto sm:hidden"
-                />
-                <AnnouncementActionsMenu
-                  pinned={pinned}
-                  onPin={() => onPin?.(post)}
-                  onEdit={() => onEdit?.(id)}
-                  onDelete={() => onDeleteRequest?.(id)}
-                  pending={rowPending}
-                  className="pointer-events-auto hidden sm:flex"
-                />
+                {/*
+                  Figma mobile: ações icon-only (compact); desktop: ícone + rótulo.
+                  `hidden`/`flex` viram wrapper `<div>` — o próprio AnnouncementActionsMenu
+                  já tem `flex` fixo na classe base, então "hidden" direto nele briga com
+                  esse "flex" e os dois acabam renderizando juntos.
+                */}
+                <div className="pointer-events-auto sm:hidden">
+                  <AnnouncementActionsMenu
+                    pinned={pinned}
+                    onPin={() => onPin?.(post)}
+                    onEdit={() => onEdit?.(id)}
+                    onDelete={() => onDeleteRequest?.(id)}
+                    pending={rowPending}
+                    compact
+                  />
+                </div>
+                <div className="pointer-events-auto hidden sm:block">
+                  <AnnouncementActionsMenu
+                    pinned={pinned}
+                    onPin={() => onPin?.(post)}
+                    onEdit={() => onEdit?.(id)}
+                    onDelete={() => onDeleteRequest?.(id)}
+                    pending={rowPending}
+                  />
+                </div>
               </div>
 
               {/* Figma "CardComunicado": thumbnail fluida — proporção 132/116 no mobile, 485/273 no desktop. Escala com a linha pra não deixar vão morto nas larguras intermediárias. */}
