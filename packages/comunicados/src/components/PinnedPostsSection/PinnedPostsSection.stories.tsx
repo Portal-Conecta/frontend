@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import type { AnnouncementSummary } from '../../types/announcement'
 
+import { AnnouncementActionsMenu } from '../AnnouncementActionsMenu'
 import { PinnedPostsSection } from './PinnedPostsSection'
 
 function makeSummary(
@@ -61,5 +62,20 @@ export const Default: Story = {}
 export const Empty: Story = {
   args: {
     posts: [],
+  },
+}
+
+/** Painel de gestão (#216): cards fixados com fixar/editar/excluir sobrepostos. */
+export const WithActions: Story = {
+  args: {
+    renderActions: (post: AnnouncementSummary) => (
+      <AnnouncementActionsMenu
+        variant="solid"
+        pinned={post.pinned}
+        onPin={() => undefined}
+        onEdit={() => undefined}
+        onDelete={() => undefined}
+      />
+    ),
   },
 }
