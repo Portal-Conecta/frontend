@@ -34,7 +34,9 @@ export function formatAnnouncementStatusLine(
   }
 
   if (post.status === 'PUBLISHED') {
-    const when = formatMyAnnouncementDateTime(post.publishedAt ?? post.scheduledFor)
+    // Só `publishedAt` — nunca cair em `scheduledFor`/`createdAt` (agendado
+    // publicado agora via PUT precisa gravar publishedAt=now no back).
+    const when = formatMyAnnouncementDateTime(post.publishedAt)
     return when ? `Publicado em ${when}` : null
   }
 

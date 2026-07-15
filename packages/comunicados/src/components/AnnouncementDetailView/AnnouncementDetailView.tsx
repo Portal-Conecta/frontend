@@ -68,7 +68,11 @@ function Header({
   creatorName?: string
 }) {
   const { announcement } = detail
-  const dateLabel = formatDate(announcement.publishedAt ?? announcement.scheduledFor)
+  const dateLabel = formatDate(
+    announcement.status === 'SCHEDULED'
+      ? announcement.scheduledFor
+      : announcement.publishedAt,
+  )
 
   return (
     <header className="flex flex-col gap-3">

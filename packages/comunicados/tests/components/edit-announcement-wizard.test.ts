@@ -155,7 +155,7 @@ describe('enrichRecipientsFromCatalog', () => {
 })
 
 describe('buildEditUpdatePayload', () => {
-  it('SCHEDULED → publicar agora envia status PUBLISHED', () => {
+  it('SCHEDULED → publicar agora envia status PUBLISHED e scheduledFor null', () => {
     expect(
       buildEditUpdatePayload({
         title: 'T',
@@ -169,6 +169,7 @@ describe('buildEditUpdatePayload', () => {
       description: 'D',
       destinations: [{ type: 'GENERAL' }],
       status: ANNOUNCEMENT_STATUS.PUBLISHED,
+      scheduledFor: null,
     })
   })
 

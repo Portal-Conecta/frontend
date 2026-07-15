@@ -232,7 +232,7 @@ export interface BuildEditUpdatePayloadInput {
 /**
  * Monta o body de `PUT /api/posts/{id}` conforme a transição de publicação.
  *
- * - SCHEDULED → publicar agora: `status: PUBLISHED`
+ * - SCHEDULED → publicar agora: `status: PUBLISHED` + `scheduledFor: null`
  * - SCHEDULED → nova data: mantém status e envia `scheduledFor` (ou PATCH depois)
  * - PUBLISHED → agendar: `status: SCHEDULED` + `scheduledFor`
  * - PUBLISHED → permanece agora: só conteúdo/destinos
@@ -249,6 +249,8 @@ export function buildEditUpdatePayload(input: BuildEditUpdatePayloadInput): Anno
         description,
         destinations,
         status: ANNOUNCEMENT_STATUS.PUBLISHED,
+        // Limpa o agendamento no back (junto com publishedAt=now na transição).
+        scheduledFor: null,
       }
     }
 
