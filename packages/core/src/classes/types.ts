@@ -9,14 +9,15 @@ import type { ClassRole, TypeUser } from '../rbac'
  */
 
 /**
- * Item de `GET /classes/{classId}/students`: aprendizes e representantes da
- * turma (o backend inclui representantes, pois ocupam assento no mapa, mas
- * **não** inclui docentes). O contrato só expõe `{ id, name }` — não distingue
- * quem é representante. Ver dívida de backend registrada na issue #367.
+ * Item de `GET /classes/{classId}/members?role=`: membro da turma com o seu
+ * papel. Espelha o `ClassMemberResponse` do backend — `{ id, name, role }`,
+ * onde `role` é o `ClassRole` (`STUDENT | TEACHER | REPRESENTATIVE`). Sem `role`
+ * na query, o backend retorna todos os membros.
  */
-export interface ClassStudent {
+export interface ClassMember {
   id: string
   name: string
+  role: ClassRole
 }
 
 /** Corpo de `POST /classes/{classId}/members`. */
