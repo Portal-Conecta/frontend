@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 
 import { setClassRepresentative } from '@portal/core/classes/classMembersService'
-import { bffErrorResponse } from '@portal/core/http/bffResponse'
+import { bffErrorResponse } from '@portal/core/http/bffError'
 
 /**
  * BFF — marca/desmarca um aluno como representante da turma (toggle). Corpo

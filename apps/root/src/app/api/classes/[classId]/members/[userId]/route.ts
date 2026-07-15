@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 
 import { removeClassMember } from '@portal/core/classes/classMembersService'
-import { bffErrorResponse } from '@portal/core/http/bffResponse'
+import { bffErrorResponse } from '@portal/core/http/bffError'
 
 /**
  * BFF — desvincula um usuário da turma. Proxy de

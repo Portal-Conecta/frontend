@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 
 import { addClassMember, listClassMembers } from '@portal/core/classes/classMembersService'
 import type { AddMemberRequest } from '@portal/core/classes/types'
-import { bffErrorResponse } from '@portal/core/http/bffResponse'
+import { bffErrorResponse } from '@portal/core/http/bffError'
 import type { ClassRole } from '@portal/core/rbac'
 
 const CLASS_ROLES = new Set<ClassRole>(['STUDENT', 'TEACHER', 'REPRESENTATIVE'])
@@ -11,7 +11,8 @@ const CLASS_ROLES = new Set<ClassRole>(['STUDENT', 'TEACHER', 'REPRESENTATIVE'])
  * BFF — lista os membros da turma, opcionalmente filtrados por papel
  * (`?role=STUDENT | TEACHER | REPRESENTATIVE`). Proxy de
  * `GET /hub/classes/{classId}/members`. Sem `role`, retorna todos; `role`
- * desconhecido é ignorado (retorna todos), como no `GET /api/users`.
+ * desconhecido é erro explícito (400) — senão viraria "sem filtro" e devolveria
+ * todos, escondendo o engano do chamador (mesmo critério do `GET /api/courses`).
  */
 export async function GET(
   req: Request,
@@ -19,10 +20,14 @@ export async function GET(
 ) {
   const { classId } = await params
   const roleParam = new URL(req.url).searchParams.get('role')
-  const role =
-    roleParam && CLASS_ROLES.has(roleParam as ClassRole)
-      ? (roleParam as ClassRole)
-      : undefined
+
+  if (roleParam && !CLASS_ROLES.has(roleParam as ClassRole)) {
+    return NextResponse.json(
+      { code: 'validation', message: 'role deve ser um de: STUDENT, TEACHER, REPRESENTATIVE.' },
+      { status: 400 },
+    )
+  }
+  const role = (roleParam as ClassRole | null) ?? undefined
 
   try {
     return NextResponse.json(await listClassMembers(classId, role))
@@ -44,7 +49,12 @@ export async function POST(
   const { classId } = await params
   const body = (await req.json().catch(() => ({}))) as Partial<AddMemberRequest>
 
-  if (!body.userId || !body.classRole || !CLASS_ROLES.has(body.classRole)) {
+  if (
+    typeof body.userId !== 'string' ||
+    body.userId.length === 0 ||
+    !body.classRole ||
+    !CLASS_ROLES.has(body.classRole)
+  ) {
     return NextResponse.json(
       {
         code: 'validation',
