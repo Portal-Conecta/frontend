@@ -33,11 +33,18 @@ const defaultLabel: Partial<Record<SeatCardState, string>> = {
 
 const colorClassByState: Record<SeatCardState, string> = {
   available: 'text-text-secondary',
-  occupied: 'text-interactive-default',
-  // "Selecionado" reusa interactive-pressed, mesmo padrão do estado ativo do
-  // SidebarNavItem — não há token dedicado a seleção no DS.
-  selected: 'text-interactive-pressed',
-  teacher: 'text-interactive-default',
+  // "Ocupado" precisa ficar visualmente neutro — só o assento do próprio
+  // usuário (`selected`) pode usar azul, senão o "ponto azul" do rodapé
+  // (RoomMapSection) deixa de ser único e vira ambíguo com colegas alocados.
+  occupied: 'text-text-primary',
+  // `selected` (blue/300, mais claro) e `teacher` (blue/700, mais escuro)
+  // precisam ser azuis distinguíveis: os dois aparecem no mesmo grid e o
+  // rodapé da página só chama de "ponto azul" o assento do aluno — se
+  // fossem a mesma cor, o aluno confundiria seu lugar com o do professor.
+  // Reusa os tokens semânticos existentes (sem token dedicado a assento no
+  // DS): interactive-focus-ring = blue/300, interactive-hover = blue/700.
+  selected: 'text-interactive-focus-ring',
+  teacher: 'text-interactive-hover',
 }
 
 export function SeatCard({
