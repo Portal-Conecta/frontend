@@ -116,7 +116,11 @@ export function PageMeusComunicadosContent({ canCreate, userType }: PageMeusComu
             aria-label="Voltar ao mural"
             onClick={() => router.push('/comunicados')}
           />
-          <Text as="h1" variant="heading-h2" tone="brand">
+          {/* Mobile usa h3 (título menor); tablet/desktop volta pro h2 padrão da página. */}
+          <Text as="h1" variant="heading-h3" tone="brand" className="sm:hidden">
+            Painel de gestão de comunicados
+          </Text>
+          <Text as="h1" variant="heading-h2" tone="brand" className="hidden sm:block">
             Painel de gestão de comunicados
           </Text>
         </div>
