@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 
 import { AppShell } from '@portal/core'
-import { Icon, Text } from '@portal/ui'
 import { getCurrentUser } from '@portal/core/auth/getCurrentUser'
+import { Icon, Text } from '@portal/ui'
 
 export const metadata: Metadata = {
   title: 'Central de Ajuda | Portal Conecta',
@@ -21,11 +21,13 @@ const faqItems: readonly FaqItem[] = [
   },
   {
     question: 'Como visualizo meus comunicados?',
-    answer: 'Os comunicados podem ser vistos pelo menu lateral, em "Comunicados", ou pelo seu e-mail corporativo.',
+    answer:
+      'Os comunicados podem ser vistos pelo menu lateral, em "Comunicados", ou pelo seu e-mail corporativo.',
   },
   {
     question: 'Onde encontro meu mapa de sala?',
-    answer: 'A localização da sua sala fica disponível na seção "Mapa de Sala" do menu principal.',
+    answer:
+      'A localização da sua sala fica disponível na seção "Mapa de Sala" do menu principal.',
   },
   {
     question: 'Como solicito um novo crachá?',
@@ -35,51 +37,61 @@ const faqItems: readonly FaqItem[] = [
 ]
 
 export default async function AjudaPage() {
-   const user = await getCurrentUser()
+  const user = await getCurrentUser()
 
   return (
- 
     <AppShell user={user} activeKey="">
-      <Text as="h1" 
-          variant="heading-h2" 
-          className="text-text-brand px-6 pt-2 text-xl md:text-2xl lg:text-3xl">
-          Central de Ajuda
+      <Text
+        as="h1"
+        variant="heading-h3"
+        tone="brand"
+        className="px-6 pt-2 md:text-heading-h2"
+      >
+        Central de Ajuda
       </Text>
-      
-      <div className="mx-auto flex max-w-5xl flex-col items-center gap-8 px-6 py-22">
+
+      <div className="mx-auto flex max-w-5xl flex-col items-center gap-8 px-6 py-20">
         <div className="flex flex-col items-center text-center">
-          <div className="text-center lg:text-left">
-        <Text 
-          as="h1" 
-          variant="label-xl-emphasis" 
-          className="text-text-brand text-xl md:text-2xl lg:text-3xl">
-          Perguntas Frequentes
-        </Text>
-      </div>
-          <Text variant="body-md" 
-          className="text-text-secondary max-w-2xl text-center text-body-sm md:text-base lg:text-lg">
-            Encontre respostas rápidas para suas dúvidas ou explore nossos tópicos de suporte.
+          <Text
+            as="h2"
+            variant="heading-h3"
+            tone="brand"
+            className="md:text-heading-h2"
+          >
+            Perguntas Frequentes
+          </Text>
+          <Text
+            variant="body-sm"
+            tone="secondary"
+            className="max-w-2xl text-center md:text-body-md"
+          >
+            Encontre respostas rápidas para suas dúvidas ou explore nossos
+            tópicos de suporte.
           </Text>
         </div>
 
-        <div className="flex w-full flex-col gap-3 md:max-w-2xl md:mx-auto lg:max-w-full">
+        <div className="flex w-full flex-col gap-3 md:mx-auto md:max-w-2xl lg:max-w-full">
           {faqItems.map((item) => (
             <details
               key={item.question}
-              className="text-text-secondary group rounded-md border-sm border-border-disabled open:text-text-brand open:border-interactive-disabled"
+              className="group rounded-md border-sm border-border-disabled text-text-secondary open:border-interactive-disabled open:text-text-brand"
             >
-              <summary className="flex w-full cursor-pointer list-none items-center justify-between px-6 py-3 md:p-4 lg:p-5 text-sm md:text-base lg:text-lg">
+              <summary className="flex w-full cursor-pointer list-none items-center justify-between px-6 py-3 text-label-sm md:p-4 md:text-label-md lg:p-5">
                 {item.question}
                 <Icon
                   name="chevron-down"
-                  size="md" 
+                  size="md"
                   className="text-text-secondary transition-transform group-open:rotate-180"
-                  aria-hidden="true"
+                  decorative
                 />
               </summary>
-              <p className="border-t-sm border-border-disabled px-4 py-3 text-label-sm md:text-base lg:text-lg text-text-secondary">
+              <Text
+                variant="body-sm"
+                tone="secondary"
+                className="border-t-sm border-border-disabled px-4 py-3 md:text-body-md"
+              >
                 {item.answer}
-              </p>
+              </Text>
             </details>
           ))}
         </div>

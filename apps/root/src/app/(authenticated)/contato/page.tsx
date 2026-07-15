@@ -12,11 +12,22 @@ interface ContactChannel {
   icon: IconName
   label: string
   value: string
+  href?: string
 }
 
 const contactChannels: readonly ContactChannel[] = [
-  { icon: 'mail', label: 'Email', value: 'suporte@portalconecta.com.br' },
-  { icon: 'phone', label: 'Telefone', value: '(47) 3333-3333' },
+  {
+    icon: 'mail',
+    label: 'Email',
+    value: 'suporte@portalconecta.com.br',
+    href: 'mailto:suporte@portalconecta.com.br',
+  },
+  {
+    icon: 'phone',
+    label: 'Telefone',
+    value: '(47) 3333-3333',
+    href: 'tel:+554733333333',
+  },
   { icon: 'map-pin', label: 'Localização', value: 'Jaraguá do Sul - SC' },
 ]
 
@@ -27,9 +38,9 @@ export default async function ContatoPage() {
     <AppShell user={user} activeKey="">
       <Text
         as="h1"
-        variant="heading-h2"
+        variant="heading-h3"
         tone="brand"
-        className="px-6 pt-2 text-xl md:text-2xl lg:text-3xl"
+        className="px-6 pt-2 md:text-heading-h2"
       >
         Contato
       </Text>
@@ -38,19 +49,18 @@ export default async function ContatoPage() {
         <section className="flex flex-col items-center text-center">
           <Text
             as="h2"
-            variant="label-xl-emphasis"
+            variant="heading-h3"
             tone="brand"
-            className="text-xl md:text-2xl lg:text-3xl"
+            className="md:text-heading-h2"
           >
             Fale conosco
           </Text>
           <Text
-            variant="body-md"
+            variant="body-sm"
             tone="secondary"
-            className="mt-4 max-w-2xl text-body-sm md:text-base lg:text-lg"
+            className="mt-4 max-w-2xl md:text-body-md"
           >
-            Entre em contato conosco através dos canais oficiais ou envie uma
-            mensagem pelo formulário
+            Entre em contato conosco através dos canais oficiais.
           </Text>
         </section>
 
@@ -58,7 +68,7 @@ export default async function ContatoPage() {
           aria-label="Canais de contato"
           className="mt-20 flex w-full max-w-3xl flex-col gap-8"
         >
-          {contactChannels.map(({ icon, label, value }) => (
+          {contactChannels.map(({ icon, label, value, href }) => (
             <div
               key={label}
               className="flex items-center gap-10 rounded-md border-sm border-border-disabled px-6 py-5 md:px-10"
@@ -68,9 +78,21 @@ export default async function ContatoPage() {
                 <Text variant="label-md-emphasis" tone="primary">
                   {label}
                 </Text>
-                <Text variant="label-sm" tone="disabled">
-                  {value}
-                </Text>
+                {href ? (
+                  <Text
+                    as="a"
+                    href={href}
+                    variant="label-sm"
+                    tone="disabled"
+                    className="hover:text-text-brand hover:underline"
+                  >
+                    {value}
+                  </Text>
+                ) : (
+                  <Text variant="label-sm" tone="disabled">
+                    {value}
+                  </Text>
+                )}
               </div>
             </div>
           ))}
@@ -79,25 +101,25 @@ export default async function ContatoPage() {
         <section className="mt-30 flex flex-col items-center text-center">
           <Text
             as="h2"
-            variant="label-xl-emphasis"
+            variant="heading-h3"
             tone="brand"
-            className="text-xl md:text-2xl lg:text-3xl"
+            className="md:text-heading-h2"
           >
             Ainda precisa de ajuda?
           </Text>
           <Text
-            variant="body-md"
+            variant="body-sm"
             tone="secondary"
-            className="mt-4 text-body-sm md:text-base lg:text-lg"
+            className="mt-4 md:text-body-md"
           >
             Consulte as respostas para as dúvidas mais comuns.
           </Text>
           <Text
             as="a"
             href="/ajuda"
-            variant="body-md"
+            variant="body-sm"
             tone="brand"
-            className="mt-14 flex items-center gap-4 text-body-sm md:text-base lg:text-lg"
+            className="mt-14 flex items-center gap-4 md:text-body-md"
           >
             Acessar Central de Ajuda
             <Icon name="chevron-right" size="md" decorative />
