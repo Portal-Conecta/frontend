@@ -27,7 +27,7 @@ describe('PATCH /api/checklist/issues/[id]/cancel', () => {
 
   it('deve chamar cancelIssue e retornar o resultado com sucesso', async () => {
     const mockData = { id: '123', status: 'CANCELED' }
-    vi.mocked(cancelIssue).mockResolvedValue(mockData as any)
+    vi.mocked(cancelIssue).mockResolvedValue(mockData as never)
 
     const req = {} as Request
     const params = Promise.resolve({ id: '123' })
@@ -43,7 +43,7 @@ describe('PATCH /api/checklist/issues/[id]/cancel', () => {
     const mockError = new Error('Erro ao cancelar')
     vi.mocked(cancelIssue).mockRejectedValue(mockError)
     
-    const mockErrorResponse = { status: 500, data: 'Error' } as any
+    const mockErrorResponse = { status: 500, data: 'Error' } as never
     vi.mocked(bffErrorResponse).mockReturnValue(mockErrorResponse)
 
     const req = {} as Request
