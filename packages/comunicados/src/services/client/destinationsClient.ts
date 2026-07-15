@@ -1,5 +1,4 @@
 import type {
-  HubUser,
   ListHubClassesResponse,
   ListHubCoursesResponse,
 } from '../../types/hub'
@@ -8,6 +7,7 @@ import type { ListUsersResponse } from '@portal/core/classes/types'
 import type { ListUsersParams } from '@portal/core/classes/userDirectoryService'
 import { bffFetch } from '@portal/core/http/bffClient'
 import { buildQuery, type QueryParams } from '@portal/core/http/query'
+import type { UserById } from '@portal/core/profile/types'
 
 export function listDestinationCoursesClient(): Promise<ListHubCoursesResponse> {
   return bffFetch<ListHubCoursesResponse>('/api/comunicados/destinations/courses')
@@ -31,6 +31,6 @@ export function listDestinationUsersClient(
 }
 
 /** Busca um usuário do Hub por id (rótulo do destinatário USER na edição). */
-export async function getDestinationUserClient(id: string): Promise<Pick<HubUser, 'id' | 'name'>> {
-  return bffFetch<Pick<HubUser, 'id' | 'name'>>(`/api/comunicados/destinations/users/${id}`)
+export async function getDestinationUserClient(id: string): Promise<Pick<UserById, 'id' | 'name'>> {
+  return bffFetch<Pick<UserById, 'id' | 'name'>>(`/api/comunicados/destinations/users/${id}`)
 }
