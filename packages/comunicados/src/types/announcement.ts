@@ -95,7 +95,7 @@ export interface AnnouncementSummary {
    * Preferir `descriptionPlain` quando disponível.
    */
   description: string
-  /** Versão plain-text recomendada para mural/cards. */
+  /** Versão plain-text recomendada para preview (mural/cards/tabela). Preferir a `description` quando ausente. */
   descriptionPlain?: string
   origin: AnnouncementOrigin
   status: AnnouncementStatus
