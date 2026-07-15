@@ -1,0 +1,23 @@
+import { createHttpClient } from '../http/httpClient'
+import { hubGatewayPath } from '../http/hubGateway'
+import type { MyListCourseResponse, MyProfile, UserById } from './types'
+
+const http = createHttpClient('API_GATEWAY_URL')
+
+/** Consulta os dados principais do usuario autenticado. */
+export function getMyProfile(token: string): Promise<MyProfile> {
+  return http.get<MyProfile>(hubGatewayPath('/me'), { token })
+}
+
+/** Consulta os cursos e turmas vinculados ao usuario autenticado. */
+export function getMyCourses(token: string): Promise<MyListCourseResponse> {
+  return http.get<MyListCourseResponse>(hubGatewayPath('/me/courses'), { token })
+}
+
+/**
+ * Consulta um usuário ativo por id (`GET /hub/users/{userId}`).
+ * Sem `token`, usa o JWT da sessão (Server Components / Route Handlers).
+ */
+export function getUserById(userId: string, token?: string): Promise<UserById> {
+  return http.get<UserById>(hubGatewayPath(`/users/${userId}`), token ? { token } : undefined)
+}

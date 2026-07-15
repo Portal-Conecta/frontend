@@ -73,7 +73,9 @@ export function SeatCard({
       disabled={!isEditing}
       aria-pressed={state === 'selected'}
     >
-      <SeatIcon size="md" />
+      {/* Cadeira do professor fica de frente para a turma — espelhada
+          verticalmente em relação ao assento padrão  */}
+      <SeatIcon size="md" flipped={state === 'teacher'} />
       <Text variant="label-sm">{resolvedLabel}</Text>
     </button>
   )

@@ -1,19 +1,18 @@
 import type { AnnouncementSummary } from '../../types/announcement'
+import type { ReactNode } from 'react'
 
 import Link from 'next/link'
 
 import { Text, colors } from '@portal/ui'
 
+import { formatAnnouncementDate, getAnnouncementOriginLabel } from '../../utils/announcement'
+
 export interface AnnouncementCardProps {
   announcement: AnnouncementSummary
   highlighted?: boolean
+  /** Ações (fixar/editar/excluir) sobrepostas ao gradiente — só quem gerencia o comunicado. */
+  actions?: ReactNode
   className?: string
-}
-
-const originLabel: Record<AnnouncementSummary['origin'], string> = {
-  WEG: 'WEG',
-  SENAI: 'SENAI',
-  BOTH: 'WEG + SENAI',
 }
 
 const cardGradient =
@@ -22,17 +21,16 @@ const cardGradient =
   `${colors.interactive.pressed}40 74%, ` +
   `${colors.interactive.pressed}99 100%)`
 
-function formatDate(value: string): string {
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return value
-
-  return new Intl.DateTimeFormat('pt-BR').format(date)
-}
-
-export function AnnouncementCard({ announcement, highlighted, className }: AnnouncementCardProps) {
+export function AnnouncementCard({
+  announcement,
+  highlighted,
+  actions,
+  className,
+}: AnnouncementCardProps) {
   const href = `/comunicados/${announcement.id}`
   const isHighlighted = highlighted ?? announcement.pinned
   const date = announcement.publishedAt ?? announcement.scheduledFor ?? announcement.createdAt
+  const thumbnailUrl = announcement.thumbnailUrl
 
   const classes = [
     'group relative flex aspect-video w-full overflow-hidden rounded-md bg-interactive-disabled',
@@ -45,22 +43,42 @@ export function AnnouncementCard({ announcement, highlighted, className }: Annou
     .join(' ')
 
   return (
-    <Link href={href} className={classes} aria-label={`Abrir comunicado: ${announcement.title}`}>
-      <div className="absolute inset-0" style={{ backgroundImage: cardGradient }} aria-hidden="true" />
+    <div className={classes}>
+      {thumbnailUrl ? (
+        <img
+          src={thumbnailUrl}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+          aria-hidden="true"
+        />
+      ) : null}
 
-      <div className="relative flex w-full flex-col gap-2 overflow-hidden text-text-inverse">
-        <Text as="h3" variant="body-xl-emphasis" tone="inverse" className="truncate">
-          {announcement.title}
-        </Text>
+      {/* Cobre o card inteiro — mantém o card inteiro clicável sem aninhar os botões de `actions` numa âncora. */}
+      <Link
+        href={href}
+        aria-label={`Abrir comunicado: ${announcement.title}`}
+        className="absolute inset-0 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
+      />
 
-        <Text as="p" variant="label-xs" tone="inverse" className="truncate">
-          {originLabel[announcement.origin]}
-          <span className="px-2" aria-hidden="true">
-            |
-          </span>
-          {formatDate(date)}
-        </Text>
+      <div className="pointer-events-none absolute inset-0 flex items-end p-3 transition-opacity group-hover:opacity-95 md:p-6">
+        <div className="absolute inset-0 -z-10" style={{ backgroundImage: cardGradient }} aria-hidden="true" />
+
+        <div className="relative flex w-full flex-col gap-2 overflow-hidden text-text-inverse">
+          <Text as="h3" variant="body-xl-emphasis" tone="inverse" className="truncate">
+            {announcement.title}
+          </Text>
+
+          <Text as="p" variant="label-xs" tone="inverse" className="truncate">
+            {getAnnouncementOriginLabel(announcement.origin)}
+            <span className="px-2" aria-hidden="true">
+              |
+            </span>
+            {formatAnnouncementDate(date)}
+          </Text>
+
+          {actions ? <div className="pointer-events-auto">{actions}</div> : null}
+        </div>
       </div>
-    </Link>
+    </div>
   )
 }

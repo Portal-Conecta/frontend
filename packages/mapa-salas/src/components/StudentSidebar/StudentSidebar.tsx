@@ -56,4 +56,3 @@ export function StudentSidebar({
     </ul>
   )
 }
-

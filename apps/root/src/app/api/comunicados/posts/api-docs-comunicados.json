@@ -997,7 +997,8 @@
                                 "COURSE",
                                 "CLASS",
                                 "USER",
-                                "GENERAL"
+                                "GENERAL",
+                                "SHIFT"
                             ]
                         }
                     }
@@ -1104,11 +1105,11 @@
                     {
                         "name": "search",
                         "in": "query",
-                        "description": "Termo de busca textual (título, descrição, nome de tag ou destinatário)",
+                        "description": "Termo de busca textual (título, descriptionPlain, nome de tag ou destinatário)",
                         "required": false,
                         "schema": {
                             "type": "string",
-                            "description": "Termo de busca textual (título, descrição, nome de tag ou destinatário)",
+                            "description": "Termo de busca textual (título, descriptionPlain, nome de tag ou destinatário)",
                             "example": "retirada"
                         },
                         "example": "retirada"
@@ -1490,11 +1491,14 @@
                 "properties": {
                     "title": {
                         "type": "string",
+                        "description": "Título do comunicado.",
+                        "example": "Reunião de alinhamento",
                         "maxLength": 255,
                         "minLength": 0
                     },
                     "description": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Conteúdo do comunicado em HTML sanitizado (allowlist TipTap). O servidor deriva descriptionPlain automaticamente; não enviar plain no request."
                     },
                     "origin": {
                         "type": "string",
@@ -1540,10 +1544,17 @@
                         "format": "uuid"
                     },
                     "title": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Título do comunicado.",
+                        "maxLength": 255
                     },
                     "description": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Conteúdo do comunicado em HTML sanitizado (TipTap)."
+                    },
+                    "descriptionPlain": {
+                        "type": "string",
+                        "description": "Versão plain-text da descrição, sem HTML — gerada no servidor."
                     },
                     "origin": {
                         "type": "string",
@@ -1734,8 +1745,12 @@
                             "COURSE",
                             "CLASS",
                             "USER",
-                            "GENERAL"
+                            "GENERAL",
+                            "SHIFT"
                         ]
+                    },
+                    "hubEntityId": {
+                        "type": "string"
                     },
                     "active": {
                         "type": "boolean"
@@ -1772,10 +1787,14 @@
                 "properties": {
                     "title": {
                         "type": "string",
-                        "minLength": 1
+                        "description": "Título do comunicado.",
+                        "example": "Reunião de alinhamento",
+                        "maxLength": 255,
+                        "minLength": 0
                     },
                     "description": {
                         "type": "string",
+                        "description": "Conteúdo do comunicado em HTML sanitizado (allowlist TipTap: p, br, strong/b, em/i, u, ul/ol/li, a[href]). O servidor strip tags perigosas e deriva descriptionPlain automaticamente.",
                         "minLength": 1
                     },
                     "origin": {
@@ -1802,9 +1821,24 @@
                     },
                     "tagIds": {
                         "type": "array",
+                        "description": "UUIDs internos da tabela tag (tag.id), não hub_entity_id do Core. Opcional.",
                         "items": {
                             "type": "string",
                             "format": "uuid"
+                        }
+                    },
+                    "shiftCodes": {
+                        "type": "array",
+                        "description": "Turnos do comunicado (enum Shift do Core). Opcional; vazio = sem restrição de turno.",
+                        "example": [
+                            "FULL_AM_PM"
+                        ],
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "FULL_AM_PM",
+                                "FULL_PM_NT"
+                            ]
                         }
                     }
                 },
@@ -1821,10 +1855,14 @@
                 "properties": {
                     "title": {
                         "type": "string",
-                        "minLength": 1
+                        "description": "Título do comunicado.",
+                        "example": "Reunião de alinhamento",
+                        "maxLength": 255,
+                        "minLength": 0
                     },
                     "description": {
                         "type": "string",
+                        "description": "Conteúdo do comunicado em HTML sanitizado (allowlist TipTap: p, br, strong/b, em/i, u, ul/ol/li, a[href]). O servidor strip tags perigosas e deriva descriptionPlain automaticamente.",
                         "minLength": 1
                     },
                     "origin": {
@@ -1847,9 +1885,24 @@
                     },
                     "tagIds": {
                         "type": "array",
+                        "description": "UUIDs internos da tabela tag (tag.id), não hub_entity_id do Core. Opcional.",
                         "items": {
                             "type": "string",
                             "format": "uuid"
+                        }
+                    },
+                    "shiftCodes": {
+                        "type": "array",
+                        "description": "Turnos do comunicado (enum Shift do Core). Opcional; vazio = sem restrição de turno.",
+                        "example": [
+                            "FULL_AM_PM"
+                        ],
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "FULL_AM_PM",
+                                "FULL_PM_NT"
+                            ]
                         }
                     }
                 },
@@ -1889,10 +1942,17 @@
                         "format": "uuid"
                     },
                     "title": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Título do comunicado.",
+                        "maxLength": 255
                     },
                     "description": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Prévia plain-text da descrição (sem HTML) para mural/cards. Compatível: mesmo valor de descriptionPlain."
+                    },
+                    "descriptionPlain": {
+                        "type": "string",
+                        "description": "Versão plain-text da descrição, sem HTML — uso recomendado no mural."
                     },
                     "origin": {
                         "type": "string",
@@ -1928,6 +1988,17 @@
                     "createdAt": {
                         "type": "string",
                         "format": "date-time"
+                    },
+                    "thumbnailUrl": {
+                        "type": "string",
+                        "description": "URL pré-assinada da miniatura do comunicado, se houver e estiver pronta."
+                    },
+                    "tags": {
+                        "type": "array",
+                        "description": "Tags vinculadas ao comunicado (curso, turma, turno, etc.).",
+                        "items": {
+                            "$ref": "#/components/schemas/TagResponse"
+                        }
                     }
                 }
             },

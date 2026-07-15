@@ -4,9 +4,9 @@ Ponto de entrada para agentes e desenvolvedores. Leia antes de qualquer implemen
 
 **Stack:** Next.js 15 · React 19 · TypeScript estrito · Tailwind CSS v4 · pnpm workspaces
 
-→ [Índice de docs](docs/README.md) · [Índice de ADRs](docs/adr/README.md) · [Commits, branches e PR](CONTRIBUTING.md)
+→ [Índice de docs](docs/README.md) · [Índice de ADRs](docs/adr/README.md) · [Commits, branches e PR](CONTRIBUTING.md) · [Rubric de revisão de PR](REVISION.md)
 
-**Antes de delegar a um agente, leia os guardrails:** [Context pack](docs/ai/ai-context.md) · [Definition of Done](docs/ai/definition-of-done.md) · [Como usar IA](docs/ai/como-usar-ia.md) · [Code review por IA](docs/ai/code-review.md)
+**Antes de delegar a um agente, leia os guardrails:** [Context pack](docs/ai/ai-context.md) · [Definition of Done](docs/ai/definition-of-done.md) · [Como usar IA](docs/ai/como-usar-ia.md) · [Rubric de revisão de PR](REVISION.md)
 
 **AGENTS por domínio:** [checklist](packages/checklist/AGENTS.md) · [comunicados](packages/comunicados/AGENTS.md) · [mapa-salas](packages/mapa-salas/AGENTS.md)
 
@@ -103,6 +103,7 @@ export function LoginForm() {
 
 | Item | Localização | O que falta |
 |---|---|---|
+| Chromatic (visual regression) desativado temporariamente | `.github/workflows/chromatic.yml` · proteção da branch `develop` | Incidente no Capture Cloud do Chromatic em 2026-07-10 (status.chromatic.com) deixou builds presos em "Running N tests" indefinidamente, travando a fila de Actions do repo. Trigger trocado de `push` para `workflow_dispatch` manual **e** `Visual Regression` removido dos status checks obrigatórios da `develop` (senão toda PR fica travada esperando um check que nunca roda) — checks obrigatórios hoje: `Lint`, `Type Check`, `Build`. **Reverter (os dois juntos):** conferir que status.chromatic.com voltou a "operational"; restaurar o bloco `on: push` comentado no próprio arquivo (branches `feature/**` e `develop`); devolver `Visual Regression` aos required status checks da `develop` (Settings → Branches → develop, ou `gh api repos/Portal-Conecta/frontend/branches/develop/protection/required_status_checks -X PATCH -f contexts[]='Lint' -f contexts[]='Type Check' -f contexts[]='Build' -f contexts[]='Visual Regression'`); remover esta linha. |
 | `Button` sem `tone="overlay"` | `packages/ui/src/atoms/Button/Button.tsx` | Variante para fundo colorido — override pontual em `PageLogin` com `className` |
 | `body/sm-emphasis` font family | `scripts/sync-tokens.ts` | Correção hardcoded no script — depende de ajuste no Figma DS |
 | Focus-trap inline na `Sidebar` | `packages/ui/src/organisms/Sidebar/Sidebar.tsx` | Bug de re-render já corrigido (`onToggle` em ref, efeito só depende de `expanded`). Falta extrair `useDrawerFocusTrap(panelRef, { active, onClose })` — isola a11y do layout e abre para teste (DoD [#105](https://github.com/Portal-Conecta/frontend/issues/105)) |
@@ -110,5 +111,8 @@ export function LoginForm() {
 | Toggle "Reduzir" duplicado (rail, drawer e `leftSlot` do footer) | `packages/ui/src/organisms/Sidebar/Sidebar.tsx` · `packages/core/src/layout/AppLayout.tsx` | Extrair molecule `SidebarToggle` (ícone `chevrons-left/right` + label) reusado pelos três |
 | Valor preenchido de `DateInput`/`TimeInput` usa `text-text-brand` (blue/500) | `packages/ui/src/atoms/DateInput/DateInput.tsx` · `packages/ui/src/atoms/TimeInput/TimeInput.tsx` | Figma pede blue/700 no preenchido, mas não há token de texto blue/700 (só `interactive-hover`). Promover token de texto ou confirmar blue/500 — issue [#241](https://github.com/Portal-Conecta/frontend/issues/241) |
 | Escala `display-*` e `tracking-display` ainda não existem no Figma DS | `packages/ui/src/tokens/typography.ts` | Tokens promovidos no código (aprovação TL, #174) por reuso nas páginas de erro; falta o designer criar as variáveis na coleção Typography do Figma DS para o próximo `pnpm sync:tokens` bater com o código |
+| Escala `heading-h1`/`h2`/`h3` divergente do Figma DS | `packages/ui/src/tokens/typography.ts` | Tamanhos trocados de 48/36/24px para 32/28/24px (aprovação TL, #328) — alinhamento com a escala Headline do Material Design 3 (Large/Medium/Small), reduzindo o peso visual dos títulos no app. Falta o designer atualizar h1/h2 e criar h3 na coleção Typography do Figma DS para o próximo `pnpm sync:tokens` bater com o código |
+| Logout offline não limpa o cookie de sessão | `packages/core/src/layout/AppShell.tsx` (`handleLogout`) | O `POST /api/auth/logout` roda `clearSession()` incondicionalmente mesmo se o gateway falhar — isso já está coberto. O que sobra é o `fetch` nem sair do browser (offline de fato, ou o Next inacessível): o cookie `access_token` é httpOnly, então o client não tem como limpá-lo sem um round-trip ao server que por definição não aconteceu nesse cenário. O redirect para `/login` é só client-side e pode ser revertido pelo middleware na próxima navegação enquanto a sessão continuar válida no server. Corrigir exigiria um mecanismo de limpeza que não depende de um request bem-sucedido (fora de escopo por ora) — issue #328 |
+| `ProfileMenu` sem teste de componente | `packages/core/src/layout/ProfileMenu.tsx` | Cobre lógica não-trivial (cache em módulo, clique-fora, `Esc` via `useFocusTrap`, fallback de fetch) sem nenhum teste automatizado. Bloqueado em infra: `vitest.config.ts` da raiz roda só `environment: 'node'` e `include` só casa `*.test.ts` — não existe ainda `@testing-library/react`/jsdom no monorepo (seria o primeiro teste de componente). Adicionar a dependência exige alinhamento prévio de TL (`pnpm add`, regra do AGENTS.md) — issue #328 |
 
 → [Como registrar e tratar dívidas de token](docs/conventions/tokens-e-theming.md)

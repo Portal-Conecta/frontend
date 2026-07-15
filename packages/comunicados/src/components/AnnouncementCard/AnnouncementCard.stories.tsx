@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import type { AnnouncementSummary } from '../../types/announcement'
 
+import { AnnouncementActionsMenu } from '../AnnouncementActionsMenu'
 import { AnnouncementCard } from './AnnouncementCard'
 
 const announcement: AnnouncementSummary = {
@@ -14,7 +15,23 @@ const announcement: AnnouncementSummary = {
   scheduledFor: null,
   createdAt: '2026-06-02T12:00:00.000Z',
   description: 'Preview do comunicado',
-  tags: ['Institucional', 'Segurança'],
+  thumbnailUrl: null,
+  tags: [
+    {
+      id: 'tag-1',
+      name: 'Institucional',
+      entityType: 'GENERAL',
+      active: true,
+      createdAt: '2026-01-01T00:00:00.000Z',
+    },
+    {
+      id: 'tag-2',
+      name: 'Segurança',
+      entityType: 'GENERAL',
+      active: true,
+      createdAt: '2026-01-01T00:00:00.000Z',
+    },
+  ],
 }
 
 const scheduledAnnouncement: AnnouncementSummary = {
@@ -29,7 +46,23 @@ const scheduledAnnouncement: AnnouncementSummary = {
   createdAt: '2026-07-03T09:30:00.000Z',
   description:
     'Confira as atividades previstas para os cursos técnicos, encontros de turma e ações de integração no mural do portal.',
-  tags: ['Cursos', 'Agenda'],
+  thumbnailUrl: null,
+  tags: [
+    {
+      id: 'tag-3',
+      name: 'Cursos',
+      entityType: 'GENERAL',
+      active: true,
+      createdAt: '2026-01-01T00:00:00.000Z',
+    },
+    {
+      id: 'tag-4',
+      name: 'Agenda',
+      entityType: 'GENERAL',
+      active: true,
+      createdAt: '2026-01-01T00:00:00.000Z',
+    },
+  ],
 }
 
 const meta: Meta<typeof AnnouncementCard> = {
@@ -73,4 +106,35 @@ export const ResponsiveList: Story = {
       <AnnouncementCard announcement={scheduledAnnouncement} />
     </div>
   ),
+}
+
+/** Com o menu de ações (Desafixar/Editar/Excluir) — quem gerencia o comunicado. */
+export const WithActions: Story = {
+  args: {
+    actions: (
+      <AnnouncementActionsMenu
+        variant="solid"
+        pinned
+        onPin={() => {}}
+        onEdit={() => {}}
+        onDelete={() => {}}
+      />
+    ),
+  },
+}
+
+/** Ações em modo compacto (só ícone) — mesmo card, menu reduzido. */
+export const WithActionsCompact: Story = {
+  args: {
+    actions: (
+      <AnnouncementActionsMenu
+        variant="solid"
+        compact
+        pinned
+        onPin={() => {}}
+        onEdit={() => {}}
+        onDelete={() => {}}
+      />
+    ),
+  },
 }

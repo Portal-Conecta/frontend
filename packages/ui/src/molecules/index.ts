@@ -1,4 +1,6 @@
 export * from "./Alert";
+export * from "./ClassCard";
+export * from "./Banner";
 export * from "./ErrorPage";
 export * from "./Field";
 export * from "./FileUpload";
@@ -7,3 +9,5 @@ export * from "./Section";
 export * from "./Select";
 export * from "./SidebarNavItem";
 export * from "./Toast";
+export * from "./Pagination";
+export * from "./NotificationListItem";

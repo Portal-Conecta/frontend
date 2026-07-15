@@ -15,6 +15,8 @@ packages/checklist/src/pages/PageChecklist.tsx   ← componente de página (este
 apps/root/src/app/checklist/page.tsx             ← rota que importa de @portal/checklist
 ```
 
+Este pacote ainda é scaffolding (`src/pages/` vazio, sem rota em `apps/root`). O padrão de página + rota já foi fechado no piloto de `@portal/comunicados` (`PageAnnouncements` + `AppShell` de `@portal/core`) — espelhe esse pacote como referência ao implementar a primeira página aqui.
+
 ## Fronteiras
 
 - **Pode importar de:** `@portal/ui`, `@portal/core`, `@portal/shared` (camadas abaixo).
