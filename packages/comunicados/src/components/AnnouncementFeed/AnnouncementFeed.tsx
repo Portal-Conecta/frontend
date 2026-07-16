@@ -335,6 +335,7 @@ function AnnouncementFeedItem({ post }: { post: AnnouncementSummary }) {
           <img
             src={thumbnailUrl}
             alt=""
+            loading="lazy"
             className="h-28 w-32 shrink-0 rounded-md object-cover md:aspect-video md:h-auto md:w-full"
             aria-hidden="true"
           />
