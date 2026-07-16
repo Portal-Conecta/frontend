@@ -20,10 +20,10 @@ import {
 import { DestinationSelector } from '../DestinationSelector'
 import type { Recipient } from '../DestinationSelector/types'
 import { ScheduleDatePicker } from '../ScheduleDatePicker'
-import { BRASILIA_TIMEZONE } from '../ScheduleDatePicker/datetime'
+import { BRASILIA_TIMEZONE } from '../../utils/datetime'
 import { StepProgressBar } from '../StepProgressBar'
 import { useDestinationCatalog } from '../../hooks/useDestinationCatalog'
-import { mapRecipientsToPayload } from './mapRecipientsToPayload'
+import { mapRecipientsToPayload, type RecipientsPayload } from './mapRecipientsToPayload'
 
 const STEPS = [
   { key: 'content', label: 'Conteúdo' },
@@ -37,16 +37,16 @@ function validateContent(content: AnnouncementContentValue) {
 
 function buildFormValues(
   content: AnnouncementContentValue,
-  recipients: Recipient[],
+  mapped: Pick<RecipientsPayload, 'destinations' | 'tagIds' | 'shiftCodes'>,
   scheduledFor: string | null,
 ): CreateAnnouncementFormValues {
-  const { destinations, tagIds } = mapRecipientsToPayload(recipients)
   return {
     title: content.title,
     description: content.description,
     origin: ANNOUNCEMENT_ORIGIN.BOTH,
-    destinations,
-    tagIds,
+    destinations: mapped.destinations,
+    tagIds: mapped.tagIds,
+    shiftCodes: mapped.shiftCodes,
     scheduledFor: scheduledFor ?? '',
     pinned: false,
   }
@@ -119,6 +119,11 @@ export function CreateAnnouncementWizard() {
         setDestinationsError('Selecione ao menos um destinatário.')
         return
       }
+      const mapped = mapRecipientsToPayload(recipients, catalog.tags)
+      if (mapped.errors.length > 0) {
+        setDestinationsError(mapped.errors.join(' '))
+        return
+      }
       setDestinationsError(undefined)
     }
 
@@ -142,7 +147,14 @@ export function CreateAnnouncementWizard() {
   async function handleSubmit() {
     setConfirmOpen(false)
 
-    const formValues = buildFormValues(content, recipients, scheduledFor)
+    const mapped = mapRecipientsToPayload(recipients, catalog.tags)
+    if (mapped.errors.length > 0) {
+      setDestinationsError(mapped.errors.join(' '))
+      setStepIndex(1)
+      return
+    }
+
+    const formValues = buildFormValues(content, mapped, scheduledFor)
 
     const submitOptions = { images: content.images }
 

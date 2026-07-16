@@ -3,17 +3,13 @@ import type { AnnouncementOrigin, AnnouncementSummary } from '../../types'
 import { Tag, Text } from '@portal/ui'
 
 import { PinnedPostsSection } from '../PinnedPostsSection'
+import { formatAnnouncementDisplayDate } from '../../utils/announcement'
 import { getAnnouncementPlainDescription } from '../../utils/announcementDescription'
 
 const originLabel: Record<AnnouncementOrigin, string> = {
   WEG: 'WEG',
   SENAI: 'SENAI',
   BOTH: 'WEG + SENAI',
-}
-
-function formatDate(iso: string | null): string | null {
-  if (!iso) return null
-  return new Date(iso).toLocaleDateString('pt-BR')
 }
 
 export interface AnnouncementsBoardProps {
@@ -48,9 +44,7 @@ export function AnnouncementsBoard({ items, errorMessage }: AnnouncementsBoardPr
       {regularPosts.length > 0 ? (
         <ul className="flex flex-col gap-4">
           {regularPosts.map((post) => {
-            const dateLabel = formatDate(
-              post.status === 'SCHEDULED' ? post.scheduledFor : post.publishedAt,
-            )
+            const dateLabel = formatAnnouncementDisplayDate(post)
 
             return (
               <li

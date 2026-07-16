@@ -7,6 +7,7 @@ import { useRef, useState } from 'react'
 
 import { Text } from '@portal/ui'
 
+import { resolveAnnouncementDisplayDate } from '../../utils/announcement'
 import { AnnouncementCard } from '../AnnouncementCard'
 
 export interface PinnedPostsSectionProps {
@@ -54,7 +55,9 @@ function getPinnedOrder(post: AnnouncementSummary): number {
 }
 
 function getPostTime(post: AnnouncementSummary): number {
-  const date = post.publishedAt ?? post.scheduledFor ?? post.createdAt
+  // Exibição: só publishedAt/scheduledFor. Ordenação: createdAt se display estiver
+  // ausente (ex.: PUBLISHED sem publishedAt) — evita epoch 1970 (#397).
+  const date = resolveAnnouncementDisplayDate(post) ?? post.createdAt
   const timestamp = Date.parse(date)
 
   return Number.isNaN(timestamp) ? 0 : timestamp
