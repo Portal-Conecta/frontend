@@ -11,4 +11,3 @@ export * from "./SidebarNavItem";
 export * from "./Toast";
 export * from "./Pagination";
 export * from "./NotificationListItem";
-export * from './CreateCourseForm/CreateCourseForm';
