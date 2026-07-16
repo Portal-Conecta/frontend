@@ -1,6 +1,5 @@
 import type { AnnouncementDetail } from '../types'
 
-import { AppShell } from '@portal/core'
 import { HttpError } from '@portal/core/http/errors'
 import { getUserById } from '@portal/core/profile/profileService'
 import { Text } from '@portal/ui'
@@ -64,37 +63,35 @@ export async function PageAnnouncementDetail({ id, from }: PageAnnouncementDetai
   }
 
   return (
-    <AppShell user={null} activeKey="comunicados">
-      <div className="p-8">
-        <div className="mx-auto w-full max-w-3xl">
-          <nav className="mb-6" aria-label="Trilha de navegação">
-            <Text as="span" variant="label-sm" tone="secondary">
-              <Link href={backDestination.href} className="hover:text-text-brand transition-colors">
-                {backDestination.label}
-              </Link>
-              {' / '}
-              <Text as="span" variant="label-sm" tone="primary">
-                {detail?.announcement.title ?? 'Detalhe'}
-              </Text>
+    <div className="p-8">
+      <div className="mx-auto w-full max-w-3xl">
+        <nav className="mb-6" aria-label="Trilha de navegação">
+          <Text as="span" variant="label-sm" tone="secondary">
+            <Link href={backDestination.href} className="hover:text-text-brand transition-colors">
+              {backDestination.label}
+            </Link>
+            {' / '}
+            <Text as="span" variant="label-sm" tone="primary">
+              {detail?.announcement.title ?? 'Detalhe'}
             </Text>
-          </nav>
+          </Text>
+        </nav>
 
-          {errorMessage ? (
-            <Text as="p" variant="body-md" tone="secondary" role="alert">
-              {errorMessage}
-            </Text>
-          ) : null}
+        {errorMessage ? (
+          <Text as="p" variant="body-md" tone="secondary" role="alert">
+            {errorMessage}
+          </Text>
+        ) : null}
 
-          {detail ? (
-            <AnnouncementDetailView
-              detail={detail}
-              canEdit={false}
-              {...(creatorName ? { creatorName } : {})}
-            />
-          ) : null}
-        </div>
+        {detail ? (
+          <AnnouncementDetailView
+            detail={detail}
+            canEdit={false}
+            {...(creatorName ? { creatorName } : {})}
+          />
+        ) : null}
       </div>
-    </AppShell>
+    </div>
   )
 }
 

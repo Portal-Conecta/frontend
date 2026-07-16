@@ -7,10 +7,12 @@ import { getUnreadCountClient } from './client/notificationsClient'
 /**
  * Indica se há notificação não lida — alimenta o dot vermelho do sino no
  * `AppHeader`. Sem polling/websocket (não é tempo real): a contagem é buscada
- * na montagem e **revalidada quando a aba/janela volta ao foco**. É isso que faz
- * o dot sumir depois que o usuário lê as notificações e retorna à tela — a página
- * de notificações marca como lidas, a contagem zera no back, e ao voltar o foco
- * (ou ao remontar o header numa navegação) o hook rebusca e limpa o dot.
+ * na montagem e **revalidada quando a aba/janela volta ao foco**. Desde a #405 o
+ * hook vive no `AppShell` do layout `(authenticated)`, que monta uma única vez —
+ * a busca de montagem roda 1×/sessão, não a cada navegação. É o retorno de foco
+ * que faz o dot sumir depois que o usuário lê as notificações e volta à tela: a
+ * página de notificações marca como lidas, a contagem zera no back, e ao reganhar
+ * o foco o hook rebusca e limpa o dot.
  *
  * Falha silenciosa: em erro de rede, mantém o estado atual (fallback seguro).
  */
@@ -32,7 +34,8 @@ export function useUnreadNotificationsCount(): boolean {
     refresh()
 
     // Revalida ao reexibir a aba (troca de aba) ou ao a janela reganhar foco —
-    // cobre o caso de ler as notificações e voltar sem uma navegação que remonte.
+    // como o header não remonta mais por navegação (#405), é este o gancho que
+    // atualiza o dot depois de ler as notificações e voltar à tela.
     const onFocus = () => {
       if (document.visibilityState === 'visible') refresh()
     }
