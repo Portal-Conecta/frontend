@@ -31,14 +31,15 @@ export function NotificationsList({ notifications }: NotificationsListProps) {
   }
 
   return (
-    <div className="flex flex-col divide-y divide-border-default rounded-md border border-border-default bg-background-default">
+    <div className="flex flex-col divide-y divide-border-default rounded-md">
       {notifications.map((notification) => (
         <NotificationListItem
           key={notification.id}
           title={notification.title}
           body={notification.body}
           type={notification.type}
-          isRead={notification.read} // Mapeando a prop 'read' do backend para o 'isRead' do componente
+          isRead={notification.read} 
+          
           dateText={formatTimestamp(notification.timestamp)}
         />
       ))}
