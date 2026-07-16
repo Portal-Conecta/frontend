@@ -10,6 +10,3 @@ export const originLabel: Record<AnnouncementOrigin, string> = {
   SENAI: 'SENAI',
   BOTH: 'WEG + SENAI',
 }
-
-/** @deprecated Preferir `formatAnnouncementStatusLine` / `formatAnnouncementDateTime`. */
-export { formatAnnouncementDateTime as formatMyAnnouncementDate } from '../../utils/announcement'
