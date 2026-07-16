@@ -37,7 +37,7 @@ export function RoomSelector({
   return (
     <div
       className={[
-        "flex min-h-screen flex-col items-center justify-center gap-6 px-4 md:gap-10 md:px-8",
+        "flex min-h-screen flex-col items-center justify-center gap-6 px-3 md:gap-10 md:px-8",
         className,
       ]
         .filter(Boolean)
