@@ -64,7 +64,7 @@ export async function refresh(refreshToken: string): Promise<LoginResponse> {
         res = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ refresh_token: refreshToken }),
+            body: JSON.stringify({ refreshToken }),
         })
     } catch {
         throw new AuthError('network')
