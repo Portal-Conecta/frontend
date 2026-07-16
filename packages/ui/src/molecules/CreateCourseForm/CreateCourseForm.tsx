@@ -33,7 +33,7 @@ export const CreateCourseForm: React.FC<CreateCourseFormProps> = ({
         </Text>
         <Input
           value={codigo}
-          onChange={(e: any) => setCodigo(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCodigo(e.target.value)}
         />
       </div>
 
@@ -43,7 +43,7 @@ export const CreateCourseForm: React.FC<CreateCourseFormProps> = ({
         </Text>
         <Input
           value={nome}
-          onChange={(e: any) => setNome(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNome(e.target.value)}
           placeholder="Ex: Desenvolvimento de Sistema"
         />
       </div>
