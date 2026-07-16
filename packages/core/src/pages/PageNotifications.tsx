@@ -59,7 +59,7 @@ export async function PageNotifications({ searchParams }: PageNotificationsProps
           Notificações
         </h2>
         {/* Rodapé com controles/paginação */}
-      <div className="mt-6 flex items-center place-content-between gap-4">
+      <div className="flex items-center place-content-between gap-4">
 
         <NotificationsFilters activeStatus={status} />
 

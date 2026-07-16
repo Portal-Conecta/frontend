@@ -24,7 +24,7 @@ function formatTimestamp(timestamp: string): string {
 export function NotificationsList({ notifications }: NotificationsListProps) {
   if (notifications.length === 0) {
     return (
-      <div className="flex w-full items-center justify-center p-8 text-body-md text-text-subtle">
+      <div className="flex w-full items-center justify-center text-body-md text-text-subtle">
         Nenhuma notificação encontrada.
       </div>
     )

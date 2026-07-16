@@ -37,7 +37,7 @@ export function NotificationsPagination({
   }
 
   return (
-    <div className="flex w-full justify-end pt-4">
+    <div className="flex w-full justify-end">
       <Pagination
         currentPage={safePage + 1}
         pageSize={safeSize}
