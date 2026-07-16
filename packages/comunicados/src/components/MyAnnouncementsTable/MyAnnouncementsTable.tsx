@@ -13,7 +13,8 @@ import type { PendingAnnouncementAction } from '../AnnouncementActionsMenu'
 import { AnnouncementActionsMenu } from '../AnnouncementActionsMenu'
 import { AnnouncementEmptyIllustration } from '../AnnouncementEmptyIllustration'
 import { getAnnouncementPlainDescription } from '../../utils/announcementDescription'
-import { formatMyAnnouncementDate, originLabel } from './myAnnouncementsTableModel'
+import { formatAnnouncementStatusLine } from '../../utils/announcement'
+import { originLabel } from './myAnnouncementsTableModel'
 
 export interface MyAnnouncementsTableContentProps {
   items: AnnouncementSummary[]
@@ -110,7 +111,7 @@ export function MyAnnouncementsTableContent({
         {items.map((post) => {
           const { id, title, origin, pinned, thumbnailUrl } = post
           const description = getAnnouncementPlainDescription(post)
-          const dateLabel = formatMyAnnouncementDate(post.publishedAt ?? post.scheduledFor)
+          const statusLine = formatAnnouncementStatusLine(post)
           const rowPending = pendingAction?.id === id ? pendingAction.action : null
 
           return (
@@ -140,12 +141,12 @@ export function MyAnnouncementsTableContent({
 
                   <Text as="p" variant="label-xs" tone="disabled">
                     {originLabel[origin]}
-                    {dateLabel ? (
+                    {statusLine ? (
                       <>
                         <span className="px-2" aria-hidden="true">
                           |
                         </span>
-                        {dateLabel}
+                        {statusLine}
                       </>
                     ) : null}
                   </Text>

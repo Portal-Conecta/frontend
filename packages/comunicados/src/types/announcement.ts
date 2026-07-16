@@ -139,7 +139,8 @@ export interface AnnouncementDetail {
 
 /**
  * Body parcial de `PUT /api/posts/{id}`.
- * Destinos não são editáveis nesta versão do back.
+ * Campos ausentes são preservados. `destinations` é opcional — quando enviado,
+ * substitui a lista atual.
  */
 export interface AnnouncementUpdatePayload {
   title?: string
@@ -149,6 +150,7 @@ export interface AnnouncementUpdatePayload {
   pinned?: boolean
   pinnedOrder?: number | null
   scheduledFor?: string | null
+  destinations?: CreateAnnouncementDestinationInput[]
 }
 
 /**
