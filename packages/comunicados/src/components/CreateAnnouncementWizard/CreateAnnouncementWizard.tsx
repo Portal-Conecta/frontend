@@ -99,9 +99,10 @@ export function CreateAnnouncementWizard() {
       redirectOnSuccess: false,
     })
 
-  const catalog = useDestinationCatalog()
-
   const step = STEPS[stepIndex]!.key
+  // Só busca cursos/turmas/usuários quando o step de destinatários abre pela
+  // primeira vez — evita o request no mount do wizard inteiro (issue #399).
+  const catalog = useDestinationCatalog(step === 'destinations')
   const confirmCopy = getPublishConfirmCopy(scheduledFor)
 
   function handleNext() {

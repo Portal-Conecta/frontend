@@ -45,7 +45,13 @@ const USERS_SEARCH_FETCH_SIZE = 100
 /** Espera após a última tecla antes de buscar usuários (mesmo default do SearchBarAsync). */
 const USERS_SEARCH_DEBOUNCE_MS = 300
 
-export function useDestinationCatalog(): UseDestinationCatalogResult {
+/**
+ * @param enabled Controla quando o catálogo (cursos/turmas/usuários) começa a
+ * carregar. Passar `false` até o step de destinatários abrir evita a chamada no
+ * mount do wizard inteiro (issue #399) — quem nunca chega nesse step não paga o
+ * request à toa.
+ */
+export function useDestinationCatalog(enabled = true): UseDestinationCatalogResult {
   const [courses, setCourses] = useState<SelectOption[]>([])
   const [classes, setClasses] = useState<SelectOption[]>([])
   const shifts = getShiftOptions()
@@ -60,6 +66,15 @@ export function useDestinationCatalog(): UseDestinationCatalogResult {
   const [debouncedUsersQuery, setDebouncedUsersQuery] = useState('')
   const [usersPageIndex, setUsersPageIndex] = useState(1)
   const debouncedUsersQueryRef = useRef(debouncedUsersQuery)
+
+  // Trava em `true` na primeira vez que `enabled` liga — mantém o catálogo já
+  // buscado em memória se o usuário sair do step de destinatários e voltar
+  // (sem isso, `enabled` viraria `false` de novo e um novo `useEffect` abaixo
+  // teria que decidir se refaz o fetch; travado, ele nunca refaz à toa).
+  const [activated, setActivated] = useState(enabled)
+  useEffect(() => {
+    if (enabled && !activated) setActivated(true)
+  }, [enabled, activated])
 
   const [loading, setLoading] = useState(true)
   const [usersLoading, setUsersLoading] = useState(false)
@@ -77,6 +92,8 @@ export function useDestinationCatalog(): UseDestinationCatalogResult {
   }, [usersQuery])
 
   useEffect(() => {
+    if (!activated) return
+
     let cancelled = false
 
     async function loadCatalog() {
@@ -103,7 +120,7 @@ export function useDestinationCatalog(): UseDestinationCatalogResult {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [activated])
 
   const loadUsers = useCallback(async (page: number, query: string) => {
     setUsersLoading(true)
@@ -144,8 +161,9 @@ export function useDestinationCatalog(): UseDestinationCatalogResult {
   }, [])
 
   useEffect(() => {
+    if (!activated) return
     void loadUsers(usersPageIndex, debouncedUsersQuery)
-  }, [loadUsers, usersPageIndex, debouncedUsersQuery])
+  }, [activated, loadUsers, usersPageIndex, debouncedUsersQuery])
 
   function setUsersQuery(query: string) {
     setUsersQueryState(query)
