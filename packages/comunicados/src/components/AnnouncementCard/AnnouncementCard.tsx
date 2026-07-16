@@ -7,10 +7,9 @@ import { Text, colors } from '@portal/ui'
 
 import {
   formatAnnouncementDisplayDate,
-  formatAnnouncementDate,
+  formatAnnouncementStatusLine,
   getAnnouncementOriginLabel,
 } from '../../utils/announcement'
-import { formatAnnouncementStatusLine } from '../MyAnnouncementsTable/myAnnouncementsTableModel'
 
 export interface AnnouncementCardProps {
   announcement: AnnouncementSummary
@@ -46,11 +45,10 @@ export function AnnouncementCard({
 }: AnnouncementCardProps) {
   const href = from ? `/comunicados/${announcement.id}?from=${from}` : `/comunicados/${announcement.id}`
   const isHighlighted = highlighted ?? announcement.pinned
-  const dateLabel = formatAnnouncementDisplayDate(announcement)
   const thumbnailUrl = announcement.thumbnailUrl
   const metaLabel = showStatus
     ? formatAnnouncementStatusLine(announcement)
-    : dateLabel ? formatAnnouncementDate(dateLabel) : null
+    : formatAnnouncementDisplayDate(announcement)
 
   const classes = [
     'group relative flex aspect-video w-full overflow-hidden rounded-md bg-interactive-disabled',
