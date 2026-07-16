@@ -157,25 +157,32 @@ describe('mapDetailToEditForm', () => {
     ])
   })
 
-  it('GENERAL + tag ROLE Alunos vira grupo STUDENTS', () => {
-    const form = mapDetailToEditForm(
-      makeDetail({
-        destinations: [
-          {
-            id: 'd-gen',
-            announcementId: 'a1',
-            type: ANNOUNCEMENT_DESTINATION_TYPE.GENERAL,
-            referenceId: null,
-          },
-        ],
-        tags: [{ announcementId: 'a1', tagId: 'role-student', tagName: 'Alunos' }],
-      }),
-    )
+  it.each([
+    ['Alunos', 'role-student', 'STUDENTS', 'Todos os Alunos'],
+    ['Professores', 'role-teacher', 'TEACHERS', 'Todos os Professores'],
+    ['Representantes', 'role-representative', 'REPRESENTATIVES', 'Todos os Representantes'],
+  ] as const)(
+    'GENERAL + tag ROLE %s reconstitui o grupo %s',
+    (tagName, tagId, group, label) => {
+      const form = mapDetailToEditForm(
+        makeDetail({
+          destinations: [
+            {
+              id: 'd-gen',
+              announcementId: 'a1',
+              type: ANNOUNCEMENT_DESTINATION_TYPE.GENERAL,
+              referenceId: null,
+            },
+          ],
+          tags: [{ announcementId: 'a1', tagId, tagName }],
+        }),
+      )
 
-    expect(form.recipients).toEqual([
-      { key: 'group:STUDENTS', kind: 'group', refId: 'STUDENTS', label: 'Todos os Alunos' },
-    ])
-  })
+      expect(form.recipients).toEqual([
+        { key: `group:${group}`, kind: 'group', refId: group, label },
+      ])
+    },
+  )
 })
 
 describe('enrichRecipientsFromCatalog', () => {

@@ -20,7 +20,7 @@ const ROLE_TAG_NAME_TO_GROUP: ReadonlyMap<
 > = new Map([
   ['Alunos', { group: 'STUDENTS', label: 'Todos os Alunos' }],
   ['Professores', { group: 'TEACHERS', label: 'Todos os Professores' }],
-  ['Responsáveis', { group: 'REPRESENTATIVES', label: 'Todos os Representantes' }],
+  ['Representantes', { group: 'REPRESENTATIVES', label: 'Todos os Representantes' }],
 ])
 
 export interface EditAnnouncementFormState {
