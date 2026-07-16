@@ -1,12 +1,12 @@
 'use client'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Pagination } from '@portal/ui' // Ajuste o import
+import { Pagination } from '@portal/ui/molecules' // Ajuste o import
 
 interface NotificationsPaginationProps {
-  page: number
-  totalPages: number
-  totalElements: number
-  size: number
+  page?: number
+  totalPages?: number
+  totalElements?: number
+  size?: number
 }
 
 /**
@@ -18,12 +18,16 @@ interface NotificationsPaginationProps {
  */
 export function NotificationsPagination({
   page,
-  totalPages,
   totalElements,
   size,
 }: NotificationsPaginationProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
+
+  // Fallbacks de segurança para evitar NaN
+  const safePage = Number(page) || 0
+  const safeTotal = Number(totalElements) || 0
+  const safeSize = Number(size) || 20
 
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -32,15 +36,13 @@ export function NotificationsPagination({
     router.push(`/notifications?${params.toString()}`)
   }
 
-  const AnyPagination = Pagination as unknown as any
-
   return (
     <div className="flex w-full justify-end pt-4">
-      <AnyPagination
-        initialPage={(page || 0) + 1} // Soma 1 para a UI exibir a página correta
-        pageSize={size || 20}
-        totalItems={totalElements || 0}
-        onChange={handlePageChange} // Adicionei o onChange para capturar o clique
+      <Pagination
+        currentPage={safePage + 1}
+        pageSize={safeSize}
+        totalItems={safeTotal}
+        onPageChange={handlePageChange}
       />
     </div>
   )
