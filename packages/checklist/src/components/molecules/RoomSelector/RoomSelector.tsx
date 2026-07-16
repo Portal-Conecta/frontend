@@ -59,12 +59,13 @@ export function RoomSelector({
           {filtered.length > 0 ? (
             <ul role="list" className="mt-2">
               {filtered.map((room) => (
-                <RoomListItem
-                  key={room.id}
-                  number={room.number}
-                  name={room.name}
-                  onClick={() => onSelect(room)}
-                />
+                <li key={room.id}>
+                  <RoomListItem
+                    number={room.number}
+                    name={room.name}
+                    onClick={() => onSelect(room)}
+                  />
+                </li>
               ))}
             </ul>
           ) : (
