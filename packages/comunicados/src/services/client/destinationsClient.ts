@@ -3,7 +3,7 @@ import type {
   ListHubCoursesResponse,
 } from '../../types/hub'
 
-import type { ListUsersResponse } from '@portal/core/classes/types'
+import type { ClassMember, ListUsersResponse } from '@portal/core/classes/types'
 import type { ListUsersParams } from '@portal/core/classes/userDirectoryService'
 import { bffFetch } from '@portal/core/http/bffClient'
 import { buildQuery, type QueryParams } from '@portal/core/http/query'
@@ -28,6 +28,18 @@ export function listDestinationUsersClient(
   return bffFetch<ListUsersResponse>(
     `/api/comunicados/destinations/users${buildQuery(params as QueryParams)}`,
   )
+}
+
+export interface MyClassStudentsResponse {
+  students: ClassMember[]
+}
+
+/**
+ * Alunos das turmas do usuário autenticado (docente/representante —
+ * RN-COM-PA02/PA03). O escopo vem dos claims do JWT no BFF.
+ */
+export function listMyClassStudentsClient(): Promise<MyClassStudentsResponse> {
+  return bffFetch<MyClassStudentsResponse>('/api/comunicados/destinations/my-class-students')
 }
 
 /** Busca um usuário do Hub por id (rótulo do destinatário USER na edição). */
