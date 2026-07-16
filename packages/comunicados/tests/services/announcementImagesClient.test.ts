@@ -95,6 +95,12 @@ describe('deleteAnnouncementImageClient', () => {
     await expect(deleteAnnouncementImageClient('p', 'img')).resolves.toBe('deleted')
   })
 
+  it('200 → deleted (2xx, não só 204)', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(response(200, { ok: true }))
+    await expect(deleteAnnouncementImageClient('p', 'img')).resolves.toBe('deleted')
+  })
+
   it('404 → missing (no-op)', async () => {
     const fetchMock = stubFetch()
     fetchMock.mockResolvedValue(response(404, { code: 'not_found' }))

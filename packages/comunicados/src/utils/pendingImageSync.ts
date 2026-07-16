@@ -1,12 +1,15 @@
-import type { FileUploadItem } from '@portal/ui'
-
 /**
- * Mensagens e contrato para falha parcial de imagens após save (#398).
- * O wizard de edição (#205) deve espelhar o `pendingPost` do create:
- * - se conteúdo já salvou e o sync falhar, guardar `pendingImageSync.active = true`
- * - no próximo submit, pular save e chamar só `syncAnnouncementImages`
- * - atualizar `images` / `initialImageIds` com o retorno do sync após cada sucesso
+ * Contrato de falha parcial de imagens após save (#398).
+ *
+ * TODO(#205): consumir em `EditAnnouncementWizard` — espelhar `pendingPost` do
+ * create: se o conteúdo já salvou e o sync falhar, setar `active: true` e no
+ * próximo submit pular o save, chamar só `syncAnnouncementImages`, atualizando
+ * `images` / `initialImageIds` a cada `onProgress`. Sem consumidor nesta branch.
+ *
+ * @see https://github.com/Portal-Conecta/frontend/issues/205
  */
+
+import type { FileUploadItem } from '@portal/ui'
 
 export const PENDING_IMAGE_SYNC_ERROR =
   'Alterações salvas, mas não foi possível sincronizar as imagens. Tente novamente — só o sync de imagens será refeito.'

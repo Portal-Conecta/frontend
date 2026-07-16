@@ -121,6 +121,12 @@ describe('deletePostImage', () => {
     await expect(deletePostImage(POST_ID, 'img-1', TOKEN)).resolves.toBe('deleted')
   })
 
+  it('200 → deleted (2xx do gateway, não só 204)', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(response(200, { ok: true }))
+    await expect(deletePostImage(POST_ID, 'img-1', TOKEN)).resolves.toBe('deleted')
+  })
+
   it('404 → missing (no-op)', async () => {
     const fetchMock = stubFetch()
     fetchMock.mockResolvedValue(response(404, { message: 'not found' }))

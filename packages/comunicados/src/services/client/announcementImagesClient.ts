@@ -66,7 +66,8 @@ export async function uploadAnnouncementImageClient(
 
 /**
  * Remove imagem via BFF (`DELETE /api/comunicados/posts/{id}/images/{imageId}`).
- * 404 é no-op (#398) — retry de sync não falha se o arquivo já foi removido.
+ * Qualquer 2xx = `deleted`; 404 = no-op (#398) — retry de sync não falha se o
+ * arquivo já foi removido.
  */
 export async function deleteAnnouncementImageClient(
   postId: string,
@@ -77,12 +78,9 @@ export async function deleteAnnouncementImageClient(
     cache: 'no-store',
   })
 
-  if (res.status === 204) return 'deleted'
+  if (res.ok) return 'deleted'
   if (res.status === 404) return 'missing'
-  if (!res.ok) {
-    throw await parseError(res)
-  }
-  return 'deleted'
+  throw await parseError(res)
 }
 
 /** Envia em sequência só as imagens locais ainda pendentes (#198 / #398). */

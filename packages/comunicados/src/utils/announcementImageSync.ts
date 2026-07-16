@@ -1,3 +1,14 @@
+/**
+ * Sync de imagens na edição (#398).
+ *
+ * TODO(#205): wire em `EditAnnouncementWizard` — upload-first / delete-last +
+ * `onProgress` atualizando `images`/`initialImageIds`; em falha parcial após
+ * save, usar `pendingImageSync` (`PENDING_IMAGE_SYNC_ERROR`) e no retry chamar
+ * só este sync (sem re-salvar conteúdo). Hoje não há consumidor nesta branch.
+ *
+ * @see https://github.com/Portal-Conecta/frontend/issues/205
+ */
+
 import type { FileUploadItem } from '@portal/ui'
 
 import type { PresignedImageUploadResult } from '../types/presign'
