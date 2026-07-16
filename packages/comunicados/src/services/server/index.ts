@@ -1,5 +1,14 @@
-export { uploadPostImage, presignPostImage, uploadPostImageViaPresign, imagesService } from '../imagesService'
-export { listHubCourses, listHubClasses } from './hubCatalogService'
+export {
+  uploadPostImage,
+  presignPostImage,
+  uploadPostImageViaPresign,
+  deletePostImage,
+  imagesService,
+} from '../imagesService'
+export {
+  listHubCourses,
+  listHubClasses,
+} from './hubCatalogService'
 export {
   listPosts,
   listMyPosts,

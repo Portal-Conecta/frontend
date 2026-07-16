@@ -48,7 +48,9 @@ export function AnnouncementsBoard({ items, errorMessage }: AnnouncementsBoardPr
       {regularPosts.length > 0 ? (
         <ul className="flex flex-col gap-4">
           {regularPosts.map((post) => {
-            const dateLabel = formatDate(post.publishedAt ?? post.scheduledFor)
+            const dateLabel = formatDate(
+              post.status === 'SCHEDULED' ? post.scheduledFor : post.publishedAt,
+            )
 
             return (
               <li
