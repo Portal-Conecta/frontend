@@ -1,54 +1,56 @@
-import { AppShell } from "../layout/AppShell"
-import { ClassCardItem, Icon, SearchBarItem, SidebarItem } from "@portal/ui"
-import { Text, Button, Input, Field, ClassCard, ListItem } from "@portal/ui"
+import { redirect } from 'next/navigation'
 
+import { Banner, Button, Text } from '@portal/ui'
 
+import { getCurrentUser } from '../auth/getCurrentUser'
+import { getSession } from '../auth/session'
+import { HttpError } from '../http/errors'
+import { AppShell } from '../layout/AppShell'
+import { listTurmas } from './turmasService'
+import { TurmaList } from './TurmaList'
+import type { TurmaRow } from './turmaRows'
 
-export async function PageTurma(){
-    return(
-        <AppShell 
-            user={null}
-            activeKey="Turma"
-            children={
-            <div className="px-8 py-6">
-                <div className="flex flex-col gap-8">
-                    <div className="flex justify-between">
-                        <Text tone="brand" variant="heading-h2">Turmas</Text>
-                        <Button iconLeft="plus" size='sm'>Criar Nova Turma</Button>
-                    </div>
-                    <Input/>
-                </div>
-                <div className="grid lg:grid-cols-[2fr_1fr] mt-8 grid-rows-none gap-3">
-                    <div id="list" className="col-start-0"> 
-                        <ListItem className="flex justify-between px-3 py-6">
-                            <Text>Teste</Text>
-                            <Button size='sm' variant='outlined'iconLeft='chevron-right' >Gerenciar</Button>
-                        </ListItem>
-                        <ListItem className="flex justify-between px-3 py-6">
-                            <Text>Teste</Text>
-                            <Button size='sm' variant='outlined'iconLeft='chevron-right' >Gerenciar</Button>
-                        </ListItem>
-                        <ListItem className="flex justify-between px-3 py-6">
-                            <Text>Teste</Text>
-                            <Button size='sm' variant='outlined'iconLeft='chevron-right' >Gerenciar</Button>
-                        </ListItem>
-                    </div>
-                    <div id="Filtros" className="hidden lg:flex flex-col gap-6 col-start-2 px-8 py-6 ">
-                        <Text variant="heading-h3" tone="brand">Filtros</Text>
-                        <Field label="Curso">
-                            <Input placeholder="Todos"/>
-                        </Field>
-                        <Field label="Turno">
-                            <Input placeholder="Todos"/>
-                        </Field>
-                        <div className="flex gap-3">
-                            <Button fullWidth={true} variant='outlined' size='sm'>Restaurar</Button>
-                            <Button fullWidth={true} size='sm'>Aplicar</Button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            }
-        />
-    )
+export async function PageTurma() {
+  const accessToken = await getSession()
+  if (!accessToken) {
+    redirect('/login')
+  }
+
+  const user = await getCurrentUser()
+
+  let turmas: TurmaRow[] = []
+  let loadFailed = false
+  try {
+    turmas = await listTurmas(accessToken)
+  } catch (err) {
+    if (err instanceof HttpError && err.kind === 'unauthorized') {
+      redirect('/login')
+    }
+    loadFailed = true
+  }
+
+  return (
+    <AppShell user={user} activeKey="turma">
+      <div className="px-8 py-6">
+        <div className="flex justify-between">
+          <Text tone="brand" variant="heading-h2">
+            Turmas
+          </Text>
+          <Button iconLeft="plus" size='xs'>
+            Criar Nova Turma
+          </Button>
+        </div>
+
+        {loadFailed ? (
+          <Banner variant="error" className="mt-8">
+            Não foi possível carregar as turmas.
+          </Banner>
+        ) : (
+          <TurmaList turmas={turmas} />
+        )}
+      </div>
+    </AppShell>
+  )
 }
+
+export default PageTurma
