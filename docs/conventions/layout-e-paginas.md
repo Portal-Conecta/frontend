@@ -29,7 +29,6 @@ Os squads não montam o shell; apenas embrulham o conteúdo da tela nele.
 | `onLogoClick` | `() => void?` | Clique na logo do header (navegação para a home). |
 | `onProfileClick` | `() => void?` | Clique no perfil (header). |
 | `onNotificationsClick` | `() => void?` | Clique nas notificações (header). |
-| `onMoreOptionsClick` | `() => void?` | Clique em "mais opções" (header). |
 
 ## Como usar
 
