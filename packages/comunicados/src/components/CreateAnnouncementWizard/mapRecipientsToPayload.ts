@@ -1,24 +1,49 @@
+import { HUB_SHIFT, type HubShift } from '@portal/shared'
+
 import {
   ANNOUNCEMENT_DESTINATION_TYPE,
   type CreateAnnouncementDestinationInput,
 } from '../../types/announcement'
+import type { Tag } from '../../types/tag'
+import { findTagIdByHubEntity } from '../../utils/muralFilters'
 
 import type { Recipient } from '../DestinationSelector/types'
 
 export interface RecipientsPayload {
   destinations: CreateAnnouncementDestinationInput[]
+  /** UUIDs internos `tag.id` (COURSE/CLASS) — nunca `hub_entity_id`. */
   tagIds: string[]
+  /** Enums `Shift` do Core (`FULL_AM_PM` / `FULL_PM_NT`). */
+  shiftCodes: HubShift[]
+  /** Mensagens de campo quando algum destinatário não pôde ser mapeado. */
+  errors: string[]
+}
+
+const HUB_SHIFT_VALUES = new Set<string>(Object.values(HUB_SHIFT))
+
+function isHubShift(value: string): value is HubShift {
+  return HUB_SHIFT_VALUES.has(value)
 }
 
 /**
  * Reduz o `Recipient[]` expressivo (#195) ao contrato de publicação do back:
- * `destinations[]` + `tagIds[]` (tags de curso/turma/turno vinculadas na criação).
+ * `destinations[]` + `tagIds[]` (tag.id interno) + `shiftCodes[]`.
+ *
+ * Turnos vão em `shiftCodes` (não em `tagIds`). Curso/turma resolvem `tag.id`
+ * via catálogo (`findTagIdByHubEntity`) — o `referenceId` do destino continua
+ * sendo o id Hub.
  */
-export function mapRecipientsToPayload(recipients: readonly Recipient[]): RecipientsPayload {
+export function mapRecipientsToPayload(
+  recipients: readonly Recipient[],
+  tags: readonly Tag[] = [],
+): RecipientsPayload {
   const destinations: CreateAnnouncementDestinationInput[] = []
   const tagIds: string[] = []
+  const shiftCodes: HubShift[] = []
+  const errors: string[] = []
   const destKeys = new Set<string>()
   const tagSet = new Set<string>()
+  const shiftSet = new Set<HubShift>()
 
   function addDestination(type: CreateAnnouncementDestinationInput['type'], referenceId?: string) {
     const key = referenceId ? `${type}:${referenceId}` : type
@@ -34,19 +59,43 @@ export function mapRecipientsToPayload(recipients: readonly Recipient[]): Recipi
     }
   }
 
+  function addShift(code: HubShift) {
+    if (!shiftSet.has(code)) {
+      shiftSet.add(code)
+      shiftCodes.push(code)
+    }
+  }
+
   for (const recipient of recipients) {
     switch (recipient.kind) {
-      case 'course':
+      case 'course': {
         addDestination(ANNOUNCEMENT_DESTINATION_TYPE.COURSE, recipient.refId)
-        addTag(recipient.refId)
+        const tagId = findTagIdByHubEntity(tags, 'COURSE', recipient.refId)
+        if (!tagId) {
+          errors.push(`Tag de curso não encontrada para “${recipient.label}”.`)
+          break
+        }
+        addTag(tagId)
         break
-      case 'class':
+      }
+      case 'class': {
         addDestination(ANNOUNCEMENT_DESTINATION_TYPE.CLASS, recipient.refId)
-        addTag(recipient.refId)
+        const tagId = findTagIdByHubEntity(tags, 'CLASS', recipient.refId)
+        if (!tagId) {
+          errors.push(`Tag de turma não encontrada para “${recipient.label}”.`)
+          break
+        }
+        addTag(tagId)
         break
-      case 'shift':
-        addTag(recipient.refId)
+      }
+      case 'shift': {
+        if (!isHubShift(recipient.refId)) {
+          errors.push(`Turno inválido: “${recipient.label}”.`)
+          break
+        }
+        addShift(recipient.refId)
         break
+      }
       case 'user':
         addDestination(ANNOUNCEMENT_DESTINATION_TYPE.USER, recipient.refId)
         break
@@ -60,5 +109,5 @@ export function mapRecipientsToPayload(recipients: readonly Recipient[]): Recipi
     addDestination(ANNOUNCEMENT_DESTINATION_TYPE.GENERAL)
   }
 
-  return { destinations, tagIds }
+  return { destinations, tagIds, shiftCodes, errors }
 }

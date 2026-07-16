@@ -10,7 +10,10 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Button, Text } from '@portal/ui'
 
 import { usePostsList } from '../../hooks/usePostsList'
-import { formatAnnouncementDate, getAnnouncementOriginLabel } from '../../utils/announcement'
+import {
+  formatAnnouncementDisplayDate,
+  getAnnouncementOriginLabel,
+} from '../../utils/announcement'
 import { getAnnouncementPlainDescription } from '../../utils/announcementDescription'
 import { ComunicadosEmptyState } from '../ComunicadosEmptyState'
 import { PinnedPostsSection } from '../PinnedPostsSection'
@@ -135,6 +138,8 @@ export function AnnouncementFeedContent({
   toolbar,
   sidebar,
 }: AnnouncementFeedContentProps) {
+  const router = useRouter()
+
   if (isAnnouncementFeedUnauthorizedError(error)) {
     return null
   }
@@ -153,7 +158,38 @@ export function AnnouncementFeedContent({
           ))}
         </div>
       ) : (
-        <PinnedPostsSection posts={resolvedPinnedItems} />
+        <PinnedPostsSection
+          posts={resolvedPinnedItems}
+          headerActions={
+            canCreate ? (
+              <>
+                {/* Figma mobile ("Smartphone 5:4", node 319:3191): ações icon-only, sem rótulo. */}
+                <div className="flex items-center gap-3 sm:hidden">
+                  <Button
+                    size="sm"
+                    icon="settings"
+                    aria-label="Abrir painel de gestão"
+                    onClick={() => router.push('/comunicados/meus')}
+                  />
+                  <Button
+                    size="sm"
+                    icon="plus"
+                    aria-label="Publicar novo comunicado"
+                    onClick={() => router.push('/comunicados/criar')}
+                  />
+                </div>
+                <div className="hidden items-center gap-3 sm:flex">
+                  <Button size="sm" iconLeft="settings" onClick={() => router.push('/comunicados/meus')}>
+                    Abrir painel de gestão
+                  </Button>
+                  <Button size="sm" iconLeft="plus" onClick={() => router.push('/comunicados/criar')}>
+                    Publicar novo comunicado
+                  </Button>
+                </div>
+              </>
+            ) : undefined
+          }
+        />
       )}
 
       <div className="grid gap-6 xl:grid-cols-3 xl:items-start">
@@ -224,7 +260,7 @@ export function AnnouncementFeedContent({
 }
 
 function AnnouncementFeedItem({ post }: { post: AnnouncementSummary }) {
-  const date = post.publishedAt ?? post.scheduledFor ?? post.createdAt
+  const dateLabel = formatAnnouncementDisplayDate(post)
   const thumbnailUrl = post.thumbnailUrl
 
   return (
@@ -251,7 +287,7 @@ function AnnouncementFeedItem({ post }: { post: AnnouncementSummary }) {
             <span className="px-2" aria-hidden="true">
               |
             </span>
-            {formatAnnouncementDate(date)}
+            {dateLabel ?? '—'}
           </Text>
         </div>
 

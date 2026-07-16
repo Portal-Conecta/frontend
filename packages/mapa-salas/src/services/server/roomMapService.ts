@@ -1,4 +1,5 @@
 import type {
+  CreateRoomMapRequest,
   ListRoomMapsParams,
   MoveStudentRequest,
   RoomMapPageResponse,
@@ -37,6 +38,17 @@ export async function getRoomMapView(salaId: string, turmaId: string): Promise<R
   return http.get<RoomMapView>(
     mapaSalaGatewayPath(`/api/mapas/salas/${salaId}/turmas/${turmaId}`),
   )
+}
+
+/**
+ * Cria o mapa de sala de uma turma (`POST /api/mapas`), retornando a view do
+ * mapa criado. O back exige role TEACHER na turma (ADMIN em qualquer) — sem
+ * ela responde 403, que segue como `HttpError` `forbidden`.
+ */
+export async function createRoomMap(request: CreateRoomMapRequest): Promise<RoomMapView> {
+  return http.post<RoomMapView>(mapaSalaGatewayPath('/api/mapas'), {
+    body: request,
+  })
 }
 
 /**
