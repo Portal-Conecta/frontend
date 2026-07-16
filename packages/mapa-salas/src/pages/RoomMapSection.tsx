@@ -29,7 +29,7 @@ import { MAP_GRID_GAP } from './mapGridLayout'
 import {
   buildSessionFromLayout,
   buildSessionFromView,
-  LOAD_LAYOUT_ERROR,
+  resolveLayoutErrorMessage,
   type MapEditSession,
 } from './roomMapEditModel'
 import { RoomMapEditMode } from './RoomMapEditMode'
@@ -44,6 +44,14 @@ export interface RoomMapSectionProps {
   showFooter: boolean
   /** Mostra os controles de edição (toolbar/CTA de criação) — gate de UX, o real é o 403 do back. */
   canEdit: boolean
+  /**
+   * Mostra a coluna de alunos não alocados em modo visualização. `false` para
+   * `STUDENT` — privacidade: um aluno não deve ver a lista de colegas sem
+   * lugar, mesmo sem poder editar (gerência/professor sem `canEdit` continuam
+   * vendo, só quem edita muda). Modo edição nunca chega a um `STUDENT`
+   * (`canEditRoomMap` já bloqueia), então esse gate cobre só a view.
+   */
+  canSeeUnassignedList: boolean
   /** Sobe o `isDirty` do rascunho de edição — guard de descarte da página. */
   onDirtyChange?: (dirty: boolean) => void
 }
@@ -57,6 +65,7 @@ export function RoomMapSection({
   selectedStudentId,
   showFooter,
   canEdit,
+  canSeeUnassignedList,
   onDirtyChange,
 }: RoomMapSectionProps) {
   const { data, loading, error, refetch } = useRoomMapView(salaId, turmaId)
@@ -87,8 +96,8 @@ export function RoomMapSection({
       const layout = await getRoomLayoutClient(salaId)
       setEditSession(buildSessionFromLayout(layout))
       setSessionSeq((seq) => seq + 1)
-    } catch {
-      toast.error(LOAD_LAYOUT_ERROR)
+    } catch (err) {
+      toast.error(resolveLayoutErrorMessage(err))
     } finally {
       startingCreateRef.current = false
     }
@@ -172,7 +181,7 @@ export function RoomMapSection({
           ) : null}
         </div>
 
-        {unassignedStudents.length > 0 ? (
+        {canSeeUnassignedList && unassignedStudents.length > 0 ? (
           <StudentSidebar
             unassignedStudents={unassignedStudents}
             selectedStudentId={null}

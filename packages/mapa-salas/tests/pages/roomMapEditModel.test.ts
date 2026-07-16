@@ -1,10 +1,15 @@
 import { describe, expect, it } from 'vitest'
 
+import { HttpError } from '@portal/core/http/errors'
+
 import {
   buildGridFromLayout,
   buildSessionFromLayout,
   buildSessionFromView,
   computeCanSave,
+  LAYOUT_NOT_FOUND_ERROR,
+  LOAD_LAYOUT_ERROR,
+  resolveLayoutErrorMessage,
   toCreateLocations,
   type MapCreateSession,
 } from '../../src/pages/roomMapEditModel'
@@ -170,5 +175,17 @@ describe('toCreateLocations', () => {
     ]
 
     expect(toCreateLocations(session, withInvalid)).toEqual([{ studentId: 's3', seatNumber: 1 }])
+  })
+})
+
+describe('resolveLayoutErrorMessage', () => {
+  it('not_found vira a mensagem de sala sem layout', () => {
+    expect(resolveLayoutErrorMessage(new HttpError('not_found', 404))).toBe(LAYOUT_NOT_FOUND_ERROR)
+  })
+
+  it('demais falhas (HttpError de outro kind ou erro genérico) viram a mensagem transitória', () => {
+    expect(resolveLayoutErrorMessage(new HttpError('forbidden', 403))).toBe(LOAD_LAYOUT_ERROR)
+    expect(resolveLayoutErrorMessage(new HttpError('server', 500))).toBe(LOAD_LAYOUT_ERROR)
+    expect(resolveLayoutErrorMessage(new Error('boom'))).toBe(LOAD_LAYOUT_ERROR)
   })
 })

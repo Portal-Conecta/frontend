@@ -97,12 +97,24 @@ export function MapEditor({
       </div>
       <div
         className={[
-          'lg:shrink-0 lg:rounded-tl-lg lg:border-l-md lg:border-t-md lg:border-border-default',
+          'lg:shrink-0 lg:self-start lg:rounded-tl-lg lg:border-l-md lg:border-t-md lg:border-border-default',
           'lg:bg-background-default lg:p-6',
           // Largura de coluna sem token dedicado — aceitável por
           // docs/conventions/tokens-e-theming.md §5 ("valores arbitrários
           // aceitáveis" para largura de coluna), valor do frame do Figma.
           'lg:w-[398px]',
+          // Altura fixa contra o viewport, não contra o conteúdo: sem isso o
+          // wrapper herda `align-self: stretch` do pai e acompanha a altura do
+          // item mais alto da linha flex — como a StudentSidebar é esse item
+          // mais alto enquanto a turma inteira está no banco, a coluna
+          // "encolhe" a cada aluno alocado (ela deixa de ser a mais alta).
+          // 128px = header (64px) + footer (64px) do AppLayout, os únicos
+          // dois elementos fixos fora da área rolável de `<main>`
+          // (packages/ui/src/organisms/AppHeader e AppFooter, ambos
+          // `h-[64px]` a partir do breakpoint md/lg — mesmo precedente de
+          // altura literal usado lá). Com altura definida (não `auto`), o
+          // `h-full` + `overflow-y-auto` da StudentSidebar rola só ela.
+          'lg:h-[calc(100vh-128px)]',
         ].join(' ')}
       >
         <StudentSidebar

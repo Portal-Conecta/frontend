@@ -4,6 +4,8 @@
  * layout da sala e o grid do editor. Sem React, sem side-effects — testável
  * isoladamente (mesmo padrão de `roomMapViewModel.ts`).
  */
+import { HttpError } from '@portal/core/http/errors'
+
 import type {
   AllocationEntryRequest,
   CreateRoomMapInitialAllocationRequest,
@@ -17,6 +19,18 @@ export const SAVE_MAP_ERROR =
   'Não foi possível salvar o mapa de sala. Suas alterações foram mantidas — tente novamente.'
 export const LOAD_LAYOUT_ERROR =
   'Não foi possível carregar o layout da sala. Tente novamente.'
+export const LAYOUT_NOT_FOUND_ERROR =
+  'A sala selecionada não possui um layout configurado — não é possível montar o mapa.'
+
+/**
+ * Mensagem amigável para a falha do `GET layouts/salas/{salaId}`: `not_found`
+ * é um estado do dado (sala sem layout), o resto é falha transitória.
+ */
+export function resolveLayoutErrorMessage(error: unknown): string {
+  return error instanceof HttpError && error.kind === 'not_found'
+    ? LAYOUT_NOT_FOUND_ERROR
+    : LOAD_LAYOUT_ERROR
+}
 
 /**
  * Sessão de edição — decide o destino do save:

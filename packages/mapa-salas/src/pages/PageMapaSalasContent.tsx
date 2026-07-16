@@ -155,6 +155,7 @@ export function PageMapaSalasContent({ user, rooms, turmas }: PageMapaSalasConte
         selectedStudentId={isStudent ? (user?.id ?? null) : null}
         showFooter={Boolean(isStudent)}
         canEdit={canEditRoomMap(user, turmaId)}
+        canSeeUnassignedList={!isStudent}
         onDirtyChange={setIsMapDirty}
       />
 

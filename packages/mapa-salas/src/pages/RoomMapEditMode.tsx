@@ -20,7 +20,7 @@
  */
 import { useEffect, useRef, useState } from 'react'
 
-import { Alert, ConfirmDialog, useToast } from '@portal/ui'
+import { ConfirmDialog, Text, useToast } from '@portal/ui'
 
 import { MapEditor, MapToolbar } from '../components'
 import { useCreateRoomMap } from '../hooks/useCreateRoomMap'
@@ -30,7 +30,7 @@ import { getRoomLayoutClient } from '../services/client/roomMapClient'
 import { MAP_GRID_GAP } from './mapGridLayout'
 import {
   computeCanSave,
-  LOAD_LAYOUT_ERROR,
+  resolveLayoutErrorMessage,
   SAVE_MAP_ERROR,
   toCreateLocations,
   type MapEditSession,
@@ -114,8 +114,8 @@ export function RoomMapEditMode({
     let layoutTemplateId: string
     try {
       layoutTemplateId = await resolveLayoutTemplateId()
-    } catch {
-      toast.error(LOAD_LAYOUT_ERROR)
+    } catch (err) {
+      toast.error(resolveLayoutErrorMessage(err))
       return
     }
 
@@ -159,12 +159,20 @@ export function RoomMapEditMode({
               onSave={() => void handleSave()}
             />
             {unassignedStudents.length > 0 ? (
-              /* Chip escuro do frame do Figma (630:8060). O Alert do DS é
-                 modelado pro contexto overlay (texto inverse), então o fundo
-                 vem do token `background-overlay` — não há token de superfície
-                 escura dedicado; nova cor exigiria aprovação do DS. */
-              <div className="rounded-sm bg-background-overlay px-4 py-2">
-                <Alert variant="error">Não é possível salvar o mapa! Há alunos sem lugar</Alert>
+              /* Mesma anatomia do molecule `Alert` do DS, mas em contexto
+                 claro (Figma 630:8060: sem fundo, texto `text/primary` em
+                 label/xs, barra e "Há" em red/500). O Alert do DS é fixo no
+                 contexto overlay (tone inverse) e mudar `packages/ui` exige
+                 aprovação do squad — candidato a variante clara do Alert. */
+              <div role="alert" className="flex items-stretch gap-3">
+                <span className="w-[3px] shrink-0 rounded-full bg-feedback-error" aria-hidden="true" />
+                <Text as="p" variant="label-xs" tone="primary">
+                  Não é possível salvar o mapa!{' '}
+                  <Text as="span" variant="label-xs" className="text-feedback-error">
+                    Há
+                  </Text>{' '}
+                  alunos sem lugar
+                </Text>
               </div>
             ) : null}
           </div>
