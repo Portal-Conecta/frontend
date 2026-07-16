@@ -21,6 +21,7 @@ import {
 import {
   isAnnouncementFeedUnauthorizedError,
   mergeAnnouncementFeedItems,
+  needsAutoFillNextPage,
   resolveAnnouncementFeedErrorMessage,
 } from './announcementFeedModel'
 import { announcementMatchesMuralFilters } from '../../utils/muralFilters'
@@ -77,25 +78,54 @@ export function AnnouncementFeed({
   )
   const previousQueryKey = useRef(queryKey)
 
+  // AND local (curso+turno) roda depois da paginação do back, que só faz OR — sem
+  // isso, uma página cheia no back pode encolher (ou até zerar) na tela. Persegue
+  // páginas seguintes automaticamente até encher `targetFillRef` itens filtrados
+  // ou esgotar o back (`data.page + 1 >= data.totalPages`).
+  const targetFillRef = useRef(filters.size ?? 6)
+  const filledCountRef = useRef(0)
+
   useEffect(() => {
     if (previousQueryKey.current === queryKey) return
     previousQueryKey.current = queryKey
     setItems([])
     setPinnedItems([])
+    targetFillRef.current = filters.size ?? 6
+    filledCountRef.current = 0
     setFilters({ ...filters, page: 0 })
   }, [filters, queryKey, setFilters])
 
   useEffect(() => {
-    if (!data || loading) return
+    // `error` (não só `data`/`loading`): quando a busca da próxima página falha, o
+    // `usePostsList` mantém `data` parado na última página bem-sucedida — sem esse
+    // guard, `data.page` fica desatualizado, o cálculo abaixo continua achando que
+    // falta completar e `setPage` chama de novo o mesmo número de página. Isso gera
+    // um objeto de filtros novo a cada vez (`usePostsList.setPage` sempre spreada um
+    // objeto), o que reaciona o fetch mesmo com o número de página inalterado —
+    // loop infinito de retry em qualquer falha durante o auto-fill (401, rede etc.).
+    if (!data || loading || error) return
 
     setPinnedItems(data.pinned.filter((post) => announcementMatchesMuralFilters(post, activeFilters)))
 
+    const nextPageFiltered = data.items.filter((post) => announcementMatchesMuralFilters(post, activeFilters))
+    filledCountRef.current += nextPageFiltered.length
+
     setItems((current) => {
-      const nextPage = data.items.filter((post) => announcementMatchesMuralFilters(post, activeFilters))
-      if (data.page === 0) return nextPage
-      return mergeAnnouncementFeedItems(current, nextPage)
+      if (data.page === 0) return nextPageFiltered
+      return mergeAnnouncementFeedItems(current, nextPageFiltered)
     })
-  }, [data, loading, activeFilters])
+
+    if (
+      needsAutoFillNextPage({
+        filledCount: filledCountRef.current,
+        targetFill: targetFillRef.current,
+        currentPage: data.page,
+        totalPages: data.totalPages,
+      })
+    ) {
+      setPage(data.page + 1)
+    }
+  }, [data, loading, error, activeFilters, setPage])
 
   useEffect(() => {
     if (isAnnouncementFeedUnauthorizedError(error)) {
@@ -104,6 +134,21 @@ export function AnnouncementFeed({
   }, [error, router])
 
   const listLoading = loading && items.length === 0 && pinnedItems.length === 0
+  const hasMorePages = data ? data.page + 1 < data.totalPages : false
+  const isAutoFilling =
+    data != null &&
+    error == null &&
+    needsAutoFillNextPage({
+      filledCount: filledCountRef.current,
+      targetFill: targetFillRef.current,
+      currentPage: data.page,
+      totalPages: data.totalPages,
+    })
+
+  function handleLoadMore() {
+    filledCountRef.current = 0
+    setPage((data?.page ?? page) + 1)
+  }
 
   return (
     <AnnouncementFeedContent
@@ -112,10 +157,10 @@ export function AnnouncementFeed({
       loading={listLoading}
       error={error}
       canCreate={canCreate}
-      canLoadMore={data ? data.page + 1 < data.totalPages : false}
+      canLoadMore={hasMorePages && !isAutoFilling}
       loadingMore={loading && (items.length > 0 || pinnedItems.length > 0)}
       onRetry={() => void refetch()}
-      onLoadMore={() => setPage((data?.page ?? page) + 1)}
+      onLoadMore={handleLoadMore}
       toolbar={toolbar}
       sidebar={sidebar}
     />
