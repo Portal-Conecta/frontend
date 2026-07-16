@@ -28,8 +28,6 @@ export interface AppHeaderProps {
   sidebarExpanded?: boolean
   /** Clique na logo — navegação para a home. */
   onLogoClick?: () => void
-  /** Clique no ícone "mais opções" (ellipsis). */
-  onMoreOptionsClick?: () => void
   /** Clique no ícone de notificações (bell). */
   onNotificationsClick?: () => void
   /** Há notificação não lida — sobrepõe um dot vermelho no sino. */
@@ -67,7 +65,6 @@ function ActionIcon({ name }: { name: IconName }) {
 export function AppHeader({
   sidebarExpanded = false,
   onLogoClick,
-  onMoreOptionsClick,
   onNotificationsClick,
   hasUnreadNotifications = false,
   onProfileClick,
@@ -79,7 +76,6 @@ export function AppHeader({
   const logoPadding = sidebarExpanded ? 'pl-4' : 'pl-6'
 
   const actions: ActionItem[] = [
-    { icon: 'ellipsis', label: 'Mais opções', onClick: onMoreOptionsClick },
     {
       icon: 'bell',
       // Comunica ao leitor de tela o mesmo que o dot vermelho comunica visualmente.
