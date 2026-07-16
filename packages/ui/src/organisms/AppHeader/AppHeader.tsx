@@ -12,6 +12,12 @@
  * - Desktop (≥lg): bloco da logo alinhado à largura do rail (full quando
  *   `sidebarExpanded`, senão mark) + ações soltas à direita.
  * - Tablet/Mobile (<lg): logo-mark à esquerda + ações dentro de uma pílula.
+ *
+ * Botões de logo/ação são `inline-flex items-center justify-center`: um
+ * `<button>` nativo é `inline-block` e alinha o conteúdo por
+ * `vertical-align: baseline`, reservando espaço assimétrico abaixo do ícone
+ * (para descendentes de texto) e descentralizando-o verticalmente. Declarar
+ * flex no próprio botão remove essa dependência de baseline.
  */
 import { Icon, type IconName } from '../../atoms/Icon'
 import { Logo } from '../../atoms/Logo'
@@ -104,7 +110,7 @@ export function AppHeader({
           type="button"
           onClick={onLogoClick}
           aria-label="Página inicial"
-          className={`cursor-pointer rounded-md ${focusRing}`}
+          className={`inline-flex items-center justify-center cursor-pointer rounded-md ${focusRing}`}
         >
           <Logo variant={sidebarExpanded ? 'full' : 'mark'} tone="brand" size={54} decorative />
         </button>
@@ -116,7 +122,7 @@ export function AppHeader({
           type="button"
           onClick={onLogoClick}
           aria-label="Página inicial"
-          className={`cursor-pointer rounded-md lg:hidden ${focusRing}`}
+          className={`inline-flex items-center justify-center cursor-pointer rounded-md lg:hidden ${focusRing}`}
         >
           <Logo variant="mark" tone="brand" size={32} decorative className="md:hidden" />
           <Logo variant="mark" tone="brand" size={44} decorative className="hidden md:block" />
@@ -130,7 +136,7 @@ export function AppHeader({
               type="button"
               onClick={onClick}
               aria-label={label}
-              className={`cursor-pointer rounded-md ${focusRing}`}
+              className={`inline-flex items-center justify-center cursor-pointer rounded-md ${focusRing}`}
               // Deixa o `ProfileMenu` (@portal/core) reconhecer este botão como o
               // próprio gatilho: sem isso, o listener de "clique fora" que fecha o
               // menu dispara no `pointerdown` do mesmo clique que o reabre — o
