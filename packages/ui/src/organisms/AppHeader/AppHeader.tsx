@@ -53,17 +53,9 @@ interface ActionItem {
 // quebra o clique-fora do menu e o aria-expanded/aria-controls.
 const PROFILE_TRIGGER_ICON: IconName = 'circle-user'
 
-// Ícone de ação por breakpoint: 24px (md) abaixo de lg, 32px (lg) no desktop,
-// espelhando o Figma. O `size` do átomo Icon é fixo, então o tamanho responsivo
-// vem de duas instâncias alternadas por visibilidade — ambas decorativas, então
-// não duplicam leitura para o leitor de tela (o rótulo vive no botão).
+// Ícone de ação: 24px (token `md` do átomo Icon) em todos os breakpoints.
 function ActionIcon({ name }: { name: IconName }) {
-  return (
-    <>
-      <Icon name={name} size="md" tone="primary" decorative className="lg:hidden" />
-      <Icon name={name} size="lg" tone="primary" decorative className="hidden lg:block lg:w-7 lg:h-7" />
-    </>
-  )
+  return <Icon name={name} size="md" tone="primary" decorative />
 }
 
 export function AppHeader({
@@ -77,8 +69,8 @@ export function AppHeader({
   className,
 }: AppHeaderProps) {
   const sidebarWidth = sidebarExpanded ? SIDEBAR_WIDTH_EXPANDED : SIDEBAR_WIDTH_COLLAPSED
-  // Alinha a logo ao recuo dos itens de nav do rail (SidebarNavItem: pl-4 expandido / pl-8 colapsado).
-  const logoPadding = sidebarExpanded ? 'pl-4' : 'pl-8'
+  // Alinha a logo ao recuo dos itens de nav do rail (SidebarNavItem: pl-4 expandido / pl-6 colapsado).
+  const logoPadding = sidebarExpanded ? 'pl-4' : 'pl-6'
 
   const actions: ActionItem[] = [
     { icon: 'ellipsis', label: 'Mais opções', onClick: onMoreOptionsClick },
@@ -95,7 +87,7 @@ export function AppHeader({
   // Mobile/tablet: a sidebar é separada (drawer/FAB), então o header é branco.
   // Desktop: o header se conecta ao rail da sidebar — ambos em background/default.
   const headerClasses = [
-    'flex w-full items-center bg-background-surface lg:bg-background-default min-h-[64px] md:h-[64px]',
+    'flex w-full items-center bg-background-surface lg:bg-background-default min-h-[60px] md:h-[60px]',
     className,
   ]
     .filter(Boolean)
