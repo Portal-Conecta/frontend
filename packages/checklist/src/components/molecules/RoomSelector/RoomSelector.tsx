@@ -39,7 +39,7 @@ export function RoomSelector({
         .filter(Boolean)
         .join(" ")}
     >
-      <Text variant="heading-h2" tone="brand" className="text-center">
+      <Text as="h1" variant="heading-h2" tone="brand" className="text-center">
         Selecione a Sala para Preencher o Checklist
       </Text>
 
