@@ -8,7 +8,7 @@ vi.mock('@portal/checklist/services/server/issueService', () => ({
   cancelIssue: vi.fn(),
 }))
 
-vi.mock('../_lib/bffError', () => ({
+vi.mock('../../../apps/root/src/app/api/checklist/_lib/bffError', () => ({
   bffErrorResponse: vi.fn(),
 }))
 
