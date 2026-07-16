@@ -148,6 +148,19 @@ describe('mapRecipientsToPayload', () => {
     expect(result.roles).toEqual([])
   })
 
+  it('grupos SENAI/WEG/ADMIN (edição) mapeiam para roles', () => {
+    const result = mapRecipientsToPayload(
+      [
+        makeRecipient('group', 'SENAI', 'SENAI'),
+        makeRecipient('group', 'WEG', 'WEG'),
+        makeRecipient('group', 'ADMIN', 'Administradores'),
+      ],
+      tags,
+    )
+    expect(result.destinations).toEqual([{ type: 'GENERAL' }])
+    expect(result.roles).toEqual(['SENAI', 'WEG', 'ADMIN'])
+  })
+
   it('erro quando tag de curso não existe no catálogo', () => {
     const result = mapRecipientsToPayload(
       [makeRecipient('course', COURSE_UUID, 'DS')],

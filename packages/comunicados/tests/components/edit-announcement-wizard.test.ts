@@ -161,6 +161,9 @@ describe('mapDetailToEditForm', () => {
     ['Alunos', 'role-student', 'STUDENTS', 'Todos os Alunos'],
     ['Professores', 'role-teacher', 'TEACHERS', 'Todos os Professores'],
     ['Representantes', 'role-representative', 'REPRESENTATIVES', 'Todos os Representantes'],
+    ['SENAI', 'role-senai', 'SENAI', 'SENAI'],
+    ['WEG', 'role-weg', 'WEG', 'WEG'],
+    ['Administradores', 'role-admin', 'ADMIN', 'Administradores'],
   ] as const)(
     'GENERAL + tag ROLE %s reconstitui o grupo %s',
     (tagName, tagId, group, label) => {
@@ -183,6 +186,26 @@ describe('mapDetailToEditForm', () => {
       ])
     },
   )
+
+  it('tag desconhecida (não ROLE nem turno) não vira chip de shift', () => {
+    const form = mapDetailToEditForm(
+      makeDetail({
+        destinations: [
+          {
+            id: 'd-gen',
+            announcementId: 'a1',
+            type: ANNOUNCEMENT_DESTINATION_TYPE.GENERAL,
+            referenceId: null,
+          },
+        ],
+        tags: [{ announcementId: 'a1', tagId: 'tag-weird', tagName: 'Algo desconhecido' }],
+      }),
+    )
+
+    expect(form.recipients).toEqual([
+      { key: 'group:EVERYONE', kind: 'group', refId: 'EVERYONE', label: 'Público geral' },
+    ])
+  })
 })
 
 describe('enrichRecipientsFromCatalog', () => {

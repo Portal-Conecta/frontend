@@ -9,7 +9,7 @@ import {
 import type { Tag } from '../../types/tag'
 import { findTagIdByHubEntity } from '../../utils/muralFilters'
 
-import type { Recipient, RecipientGroup } from '../DestinationSelector/types'
+import type { Recipient } from '../DestinationSelector/types'
 
 export interface RecipientsPayload {
   destinations: CreateAnnouncementDestinationInput[]
@@ -28,19 +28,25 @@ export interface RecipientsPayload {
 
 const HUB_SHIFT_VALUES = new Set<string>(Object.values(HUB_SHIFT))
 
-/** UI `RecipientGroup` → enum `UserType` do back. */
-const GROUP_TO_ROLE: Record<RecipientGroup, AnnouncementRole> = {
+/**
+ * Chip `group.refId` → `UserType`. Inclui os 3 do `GroupTypePanel` e SENAI/WEG/ADMIN
+ * (tags ROLE reconstituídas na edição; a UI de criação não gera esses chips).
+ */
+const GROUP_TO_ROLE: Readonly<Record<string, AnnouncementRole>> = {
   STUDENTS: ANNOUNCEMENT_ROLE.STUDENT,
   TEACHERS: ANNOUNCEMENT_ROLE.TEACHER,
   REPRESENTATIVES: ANNOUNCEMENT_ROLE.REPRESENTATIVE,
+  SENAI: ANNOUNCEMENT_ROLE.SENAI,
+  WEG: ANNOUNCEMENT_ROLE.WEG,
+  ADMIN: ANNOUNCEMENT_ROLE.ADMIN,
 }
 
 function isHubShift(value: string): value is HubShift {
   return HUB_SHIFT_VALUES.has(value)
 }
 
-function isRecipientGroup(value: string): value is RecipientGroup {
-  return value in GROUP_TO_ROLE
+function roleFromGroupRef(value: string): AnnouncementRole | undefined {
+  return GROUP_TO_ROLE[value]
 }
 
 /**
@@ -133,9 +139,8 @@ export function mapRecipientsToPayload(
         break
       case 'group': {
         // `EVERYONE` (broadcast) e grupos desconhecidos: sem restrição de papel.
-        if (isRecipientGroup(recipient.refId)) {
-          addRole(GROUP_TO_ROLE[recipient.refId])
-        }
+        const role = roleFromGroupRef(recipient.refId)
+        if (role) addRole(role)
         break
       }
     }

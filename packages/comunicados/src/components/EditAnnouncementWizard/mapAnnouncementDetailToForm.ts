@@ -1,4 +1,5 @@
 import type { FileUploadItem, SelectOption } from '@portal/ui'
+import { HUB_SHIFT, HUB_SHIFT_LABELS, type HubShift } from '@portal/shared'
 
 import {
   ANNOUNCEMENT_DESTINATION_TYPE,
@@ -13,15 +14,39 @@ import type { AnnouncementContentValue } from '../AnnouncementForm/types'
 import { makeRecipient, RECIPIENT_GROUP_EVERYONE, type Recipient } from '../DestinationSelector/types'
 import { mapRecipientsToPayload } from '../CreateAnnouncementWizard/mapRecipientsToPayload'
 
-/** Nomes das tags ROLE semeadas no back (V008) → grupo da UI. */
-const ROLE_TAG_NAME_TO_GROUP: ReadonlyMap<
-  string,
-  { group: 'STUDENTS' | 'TEACHERS' | 'REPRESENTATIVES'; label: string }
-> = new Map([
+/**
+ * Nomes das tags ROLE semeadas no back (V008) → chip `group` na edição.
+ * Match por `tagName` porque `AnnouncementTag` do detalhe não expõe
+ * `entityType`/`hubEntityId`.
+ */
+const ROLE_TAG_NAME_TO_GROUP: ReadonlyMap<string, { group: string; label: string }> = new Map([
   ['Alunos', { group: 'STUDENTS', label: 'Todos os Alunos' }],
   ['Professores', { group: 'TEACHERS', label: 'Todos os Professores' }],
   ['Representantes', { group: 'REPRESENTATIVES', label: 'Todos os Representantes' }],
+  ['SENAI', { group: 'SENAI', label: 'SENAI' }],
+  ['WEG', { group: 'WEG', label: 'WEG' }],
+  ['Administradores', { group: 'ADMIN', label: 'Administradores' }],
 ])
+
+const HUB_SHIFT_VALUES = new Set<string>(Object.values(HUB_SHIFT))
+const HUB_SHIFT_BY_LABEL = new Map<string, HubShift>(
+  Object.entries(HUB_SHIFT_LABELS).map(([code, label]) => [label, code as HubShift]),
+)
+
+/** Resolve turno conhecido; tags ROLE/desconhecidas não devem virar chip `shift`. */
+function resolveShiftFromTag(tagId: string, tagName: string): { code: HubShift; label: string } | null {
+  if (HUB_SHIFT_VALUES.has(tagId)) {
+    const code = tagId as HubShift
+    return { code, label: HUB_SHIFT_LABELS[code] ?? tagName }
+  }
+  if (HUB_SHIFT_VALUES.has(tagName)) {
+    const code = tagName as HubShift
+    return { code, label: HUB_SHIFT_LABELS[code] ?? tagName }
+  }
+  const byLabel = HUB_SHIFT_BY_LABEL.get(tagName)
+  if (byLabel) return { code: byLabel, label: tagName }
+  return null
+}
 
 export interface EditAnnouncementFormState {
   content: AnnouncementContentValue
@@ -112,8 +137,8 @@ export function mapDetailToEditForm(detail: AnnouncementDetail): EditAnnouncemen
     }
   }
 
-  // Tags ROLE (nome semeado no back) → chips de grupo; demais tags sem destino
-  // correspondente entram como turno/exibição.
+  // Tags ROLE → chips de grupo; só turnos reconhecidos viram chip `shift`.
+  // Tags desconhecidas (sem entityType no detalhe) são ignoradas — não viram turno.
   const destinationRefs = new Set(
     destinations.map((item) => item.referenceId).filter((id): id is string => Boolean(id)),
   )
@@ -130,9 +155,13 @@ export function mapDetailToEditForm(detail: AnnouncementDetail): EditAnnouncemen
       continue
     }
 
-    if (destinationRefs.has(tag.tagId) || seen.has(`shift:${tag.tagId}`)) continue
-    seen.add(`shift:${tag.tagId}`)
-    recipients.push(makeRecipient('shift', tag.tagId, tag.tagName))
+    if (destinationRefs.has(tag.tagId)) continue
+
+    const shift = resolveShiftFromTag(tag.tagId, tag.tagName)
+    if (!shift) continue
+    if (seen.has(`shift:${shift.code}`)) continue
+    seen.add(`shift:${shift.code}`)
+    recipients.push(makeRecipient('shift', shift.code, shift.label))
   }
 
   // Broadcast: GENERAL sem restrição de papel → chip sintético (não é STUDENTS).
