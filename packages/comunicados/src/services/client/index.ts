@@ -1,5 +1,4 @@
 export {
-  deleteAnnouncementImageClient,
   uploadAnnouncementImageClient,
   uploadAnnouncementImagesClient,
   deleteAnnouncementImageClient,
