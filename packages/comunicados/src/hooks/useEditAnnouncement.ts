@@ -54,18 +54,22 @@ export function useEditAnnouncement(initialId?: string | null): UseEditAnnouncem
     setError(null)
 
     try {
+      const previousStatus = detail?.announcement.status
       // PUT devolve AnnouncementResponse — recarrega o detalhe completo.
       await updateAnnouncementClient(announcementId, payload)
       const result = await loadAnnouncementClient(announcementId)
-      setDetail(result as AnnouncementDetail)
-      return result as AnnouncementDetail
+      if (previousStatus) {
+        assertPublishedAtAfterScheduleToPublish(previousStatus, payload, result)
+      }
+      setDetail(result)
+      return result
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Falha ao salvar comunicado'))
       throw err
     } finally {
       setSaving(false)
     }
-  }, [announcementId])
+  }, [announcementId, detail])
 
   const reschedule = useCallback(async (scheduledFor: string): Promise<AnnouncementDetail> => {
     if (!announcementId) {
