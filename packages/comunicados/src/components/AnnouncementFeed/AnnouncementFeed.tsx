@@ -54,13 +54,6 @@ export interface AnnouncementFeedContentProps {
   sidebar?: ReactNode
 }
 
-/** Chave dos filtros sem `page` — mudança aqui reinicia a listagem. */
-function filtersQueryKey(filters: ListPostsParams): string {
-  const query = { ...filters }
-  delete query.page
-  return JSON.stringify(query)
-}
-
 export function AnnouncementFeed({
   canCreate = false,
   filters = { page: 0, size: 6 },
@@ -72,9 +65,14 @@ export function AnnouncementFeed({
   const { data, loading, error, page, setPage, setFilters, refetch } = usePostsList(filters)
   const [items, setItems] = useState<AnnouncementSummary[]>([])
   const [pinnedItems, setPinnedItems] = useState<AnnouncementSummary[]>([])
+  // Chave da intenção de filtro do usuário — `activeFilters` (curso/turno/origem/etc.) +
+  // `filters.search`. Não usa `filters` inteiro: `tagId`/`tagIds` só existem depois do
+  // catálogo resolver curso/turno (`toListPostsParams`), então o objeto `filters` muda de
+  // conteúdo assim que o catálogo termina de carregar — mesmo sem o usuário ter mexido em
+  // nada. Chavear nele resetava a listagem (zerava itens, refazia a página 0) à toa.
   const queryKey = useMemo(
-    () => `${filtersQueryKey(filters)}|ui:${JSON.stringify(activeFilters)}`,
-    [filters, activeFilters],
+    () => `${JSON.stringify(activeFilters)}|search:${filters.search ?? ''}`,
+    [activeFilters, filters.search],
   )
   const previousQueryKey = useRef(queryKey)
 
