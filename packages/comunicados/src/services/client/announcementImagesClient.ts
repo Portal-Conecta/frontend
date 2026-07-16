@@ -1,6 +1,7 @@
 import type { FileUploadItem } from '@portal/ui'
 
 import type { PresignedImageUploadResult } from '../../types/presign'
+import { pendingLocalImages } from '../../utils/announcementImageSync'
 
 export class AnnouncementImagesClientError extends Error {
   constructor(
@@ -19,10 +20,14 @@ export interface UploadAnnouncementImageOptions {
 
 export interface UploadAnnouncementImagesOptions {
   /**
-   * Quando true (default), a primeira imagem nova vira thumbnail.
+   * Quando true (default), a primeira imagem **pendente** vira thumbnail.
    * Na edição, desligar se ainda restarem imagens remotas.
    */
   markFirstAsThumbnail?: boolean
+  /** Ids locais já sincronizados — não entram no retry (#398). */
+  alreadyUploadedLocalIds?: ReadonlySet<string>
+  /** Chamado após cada upload OK — o wizard pode limpar `file` do item. */
+  onUploaded?: (localId: string, result: PresignedImageUploadResult) => void
 }
 
 async function parseError(res: Response): Promise<AnnouncementImagesClientError> {
@@ -59,30 +64,33 @@ export async function uploadAnnouncementImageClient(
   return (await res.json()) as PresignedImageUploadResult
 }
 
-/** Remove imagem via BFF (`DELETE /api/comunicados/posts/{id}/images/{imageId}`). */
+/**
+ * Remove imagem via BFF (`DELETE /api/comunicados/posts/{id}/images/{imageId}`).
+ * Qualquer 2xx = `deleted`; 404 = no-op (#398) — retry de sync não falha se o
+ * arquivo já foi removido.
+ */
 export async function deleteAnnouncementImageClient(
   postId: string,
   imageId: string,
-): Promise<void> {
+): Promise<'deleted' | 'missing'> {
   const res = await fetch(`/api/comunicados/posts/${postId}/images/${imageId}`, {
     method: 'DELETE',
     cache: 'no-store',
   })
 
-  if (res.status === 204) return
-  if (!res.ok) {
-    throw await parseError(res)
-  }
+  if (res.ok) return 'deleted'
+  if (res.status === 404) return 'missing'
+  throw await parseError(res)
 }
 
-/** Envia em sequência as imagens locais do wizard (#198). */
+/** Envia em sequência só as imagens locais ainda pendentes (#198 / #398). */
 export async function uploadAnnouncementImagesClient(
   postId: string,
   images: readonly FileUploadItem[],
   options: UploadAnnouncementImagesOptions = {},
 ): Promise<PresignedImageUploadResult[]> {
   const markFirstAsThumbnail = options.markFirstAsThumbnail ?? true
-  const pending = images.filter((item): item is FileUploadItem & { file: File } => Boolean(item.file))
+  const pending = pendingLocalImages(images, options.alreadyUploadedLocalIds)
   const uploaded: PresignedImageUploadResult[] = []
 
   for (let index = 0; index < pending.length; index++) {
@@ -91,6 +99,7 @@ export async function uploadAnnouncementImagesClient(
       thumbnail: markFirstAsThumbnail && index === 0,
     })
     uploaded.push(result)
+    options.onUploaded?.(item.id, result)
   }
 
   return uploaded
