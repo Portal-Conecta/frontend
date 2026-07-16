@@ -235,6 +235,7 @@ export function PinnedPostsSection({
               announcement={post}
               highlighted
               actions={renderActions?.(post)}
+              showStatus={from === 'meus'}
               {...(from ? { from } : {})}
             />
           </li>

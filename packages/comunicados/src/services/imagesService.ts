@@ -228,9 +228,23 @@ export async function uploadPostImage(
   throw await toImagesError(res)
 }
 
+/** Remove arquivo do comunicado (`DELETE /api/posts/{postId}/images/{imageId}`). */
+export async function deletePostImage(
+  postId: string,
+  imageId: string,
+  token: string,
+): Promise<void> {
+  const path = comunicadosGatewayPath(`/api/posts/${postId}/images/${imageId}`)
+  const res = await gatewayFetch(path, token, { method: 'DELETE' })
+
+  if (res.status === 204) return
+  throw await toImagesError(res)
+}
+
 export const imagesService = {
   presignPostImage,
   putFileToPresignedUrl,
   uploadPostImageViaPresign,
   uploadPostImage,
+  deletePostImage,
 }

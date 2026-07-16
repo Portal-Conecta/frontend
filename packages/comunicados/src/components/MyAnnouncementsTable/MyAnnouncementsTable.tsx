@@ -14,6 +14,7 @@ import { AnnouncementActionsMenu } from '../AnnouncementActionsMenu'
 import { ComunicadosEmptyState } from '../ComunicadosEmptyState'
 import { getAnnouncementPlainDescription } from '../../utils/announcementDescription'
 import { formatAnnouncementDisplayDate } from '../../utils/announcement'
+import { formatAnnouncementStatusLine } from './myAnnouncementsTableModel'
 import { originLabel } from './myAnnouncementsTableModel'
 
 export interface MyAnnouncementsTableContentProps {
@@ -105,6 +106,7 @@ export function MyAnnouncementsTableContent({
           const { id, title, origin, pinned, thumbnailUrl } = post
           const description = getAnnouncementPlainDescription(post)
           const dateLabel = formatAnnouncementDisplayDate(post)
+          const statusLine = formatAnnouncementStatusLine(post)
           const rowPending = pendingAction?.id === id ? pendingAction.action : null
 
           return (
@@ -134,12 +136,12 @@ export function MyAnnouncementsTableContent({
 
                   <Text as="p" variant="label-xs" tone="disabled">
                     {originLabel[origin]}
-                    {dateLabel ? (
+                    {statusLine ? (
                       <>
                         <span className="px-2" aria-hidden="true">
                           |
                         </span>
-                        {dateLabel}
+                        {statusLine}
                       </>
                     ) : null}
                   </Text>
