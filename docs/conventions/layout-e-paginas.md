@@ -2,7 +2,7 @@
 
 **Público:** squads operacionais (consumo do shell em telas de módulo).
 
-> Status: o AppLayout está **entregue** (`packages/core/src/layout/AppLayout.tsx`) e seu contrato está fixado na [ADR-0012](../adr/ADR-0012-contrato-do-applayout.md). A API descrita abaixo é estável. Apenas a montagem de tela de módulo (página + rota) segue **provisória** e fecha com o piloto de Comunicados.
+> Status: o AppLayout está **entregue** (`packages/core/src/layout/AppLayout.tsx`) e seu contrato está fixado na [ADR-0012](../adr/ADR-0012-contrato-do-applayout.md). A montagem de tela de módulo (página + rota) foi **fechada** com a #405: o shell é montado uma única vez no layout do grupo `(authenticated)` — ver "Onde a página do módulo vive" abaixo.
 
 ## O que é o AppLayout
 
@@ -53,8 +53,13 @@ export function MinhaTela() {
 }
 ```
 
-## Onde a página do módulo vive (provisório)
+## Onde a página do módulo vive
 
-> Esta seção fecha com o piloto de Comunicados. Não trate como contrato final.
+Contrato final (fechado na #405, após o piloto de Comunicados):
 
-O padrão pretendido: o domínio é dono das suas páginas em `packages/[dominio]/src/pages`, e o `apps/root` registra a rota (App Router) apontando para essa página, já protegida por auth via middleware. O wiring exato (rota fina em `apps/root` consumindo a page do domínio) será validado e documentado com o primeiro módulo. Até lá, alinhe com o squad Front antes de criar um novo padrão de página ou rota.
+- **O domínio é dono das suas páginas** em `packages/[dominio]/src/pages`, e o `apps/root` registra a rota com uma rota fina dentro do grupo `apps/root/src/app/(authenticated)/[rota]/page.tsx` (re-export ou wrapper que só repassa `params`/`searchParams`). A proteção de auth vem do middleware.
+- **O shell é montado uma única vez** em `apps/root/src/app/(authenticated)/layout.tsx`, que resolve `getCurrentUser()` e renderiza o `AppShell`. Como subárvore de layout, o shell **persiste entre navegações** — header/sidebar/menu não remontam, o estado `expanded` sobrevive e a contagem de não-lidas não refetcha por rota.
+- **A página renderiza só o conteúdo** — nunca importa `AppShell` nem resolve usuário "para o shell". Se o conteúdo precisa do `CurrentUser` (gates, filtros por papel), a própria página chama `getCurrentUser()` — é parse puro de cookie, sem I/O.
+- **O item ativo da nav é derivado da rota** (`activeKeyFromPathname` sobre o `NAV_REGISTRY`, dentro do `AppShell`) — não é responsabilidade da tela.
+- **`loading.tsx` é content-only**: só o skeleton do conteúdo, sem shell — o shell real já está na tela durante o Suspense.
+- **404/erro dentro do grupo são content-only**: `(authenticated)/not-found.tsx` e `(authenticated)/error.tsx` renderizam a mensagem dentro do shell persistente. Os boundaries da raiz cobrem URL fora de qualquer rota e falhas do próprio layout.
