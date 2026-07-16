@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { NextResponse } from 'next/server'
-import { PATCH } from '../issues/[id]/cancel/route'
+import { PATCH } from '../../../apps/root/src/app/api/checklist/issues/[id]/cancel/route'
 import { cancelIssue } from '@portal/checklist/services/server/issueService'
-import { bffErrorResponse } from '../_lib/bffError'
+import { bffErrorResponse } from '../../../apps/root/src/app/api/checklist/_lib/bffError'
 
 vi.mock('@portal/checklist/services/server/issueService', () => ({
   cancelIssue: vi.fn(),
@@ -42,7 +42,7 @@ describe('PATCH /api/checklist/issues/[id]/cancel', () => {
   it('deve chamar bffErrorResponse em caso de erro', async () => {
     const mockError = new Error('Erro ao cancelar')
     vi.mocked(cancelIssue).mockRejectedValue(mockError)
-    
+
     const mockErrorResponse = { status: 500, data: 'Error' } as never
     vi.mocked(bffErrorResponse).mockReturnValue(mockErrorResponse)
 
