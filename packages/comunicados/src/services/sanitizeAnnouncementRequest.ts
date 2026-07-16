@@ -2,6 +2,8 @@ import { HUB_SHIFT, type HubShift } from '@portal/shared'
 
 import {
   ANNOUNCEMENT_DESTINATION_TYPE,
+  ANNOUNCEMENT_ROLE,
+  type AnnouncementRole,
   type CreateAnnouncementDestinationInput,
   type PublishAnnouncementRequest,
   type ScheduleAnnouncementRequest,
@@ -11,6 +13,11 @@ const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
 const HUB_SHIFT_VALUES = new Set<string>(Object.values(HUB_SHIFT))
+const ANNOUNCEMENT_ROLE_VALUES = new Set<string>(Object.values(ANNOUNCEMENT_ROLE))
+
+export function isAnnouncementRole(value: string): value is AnnouncementRole {
+  return ANNOUNCEMENT_ROLE_VALUES.has(value)
+}
 
 /**
  * Indica se o valor é um UUID (versões 1–8, contrato de `tagIds` e
@@ -56,6 +63,7 @@ export function sanitizePublishBody(body: PublishAnnouncementRequest): PublishAn
 
   const tagIds = (body.tagIds ?? []).filter(isUuid)
   const shiftCodes = (body.shiftCodes ?? []).filter(isHubShiftCode)
+  const roles = (body.roles ?? []).filter(isAnnouncementRole)
 
   const sanitized: PublishAnnouncementRequest = {
     title: body.title,
@@ -74,6 +82,10 @@ export function sanitizePublishBody(body: PublishAnnouncementRequest): PublishAn
 
   if (shiftCodes.length > 0) {
     sanitized.shiftCodes = shiftCodes
+  }
+
+  if (roles.length > 0) {
+    sanitized.roles = roles
   }
 
   return sanitized

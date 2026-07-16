@@ -10,6 +10,7 @@ import {
   ANNOUNCEMENT_ORIGIN,
   type AnnouncementOrigin,
   type AnnouncementResponse,
+  type AnnouncementRole,
   type CreateAnnouncementDestinationInput,
   type PublishAnnouncementRequest,
   type ScheduleAnnouncementRequest,
@@ -52,6 +53,8 @@ export interface CreateAnnouncementFormValues {
   pinned: boolean
   tagIds: string[]
   shiftCodes: HubShift[]
+  /** Papéis (`UserType`); vazio = sem restrição de papel no publish/schedule. */
+  roles: AnnouncementRole[]
 }
 
 export interface SubmitAnnouncementOptions {
@@ -80,6 +83,7 @@ const DEFAULT_VALUES: CreateAnnouncementFormValues = {
   pinned: false,
   tagIds: [],
   shiftCodes: [],
+  roles: [],
 }
 
 const GENERIC_ERROR = 'Serviço indisponível, tente novamente.'
@@ -375,5 +379,6 @@ function buildPublishBodyFrom(values: CreateAnnouncementFormValues): PublishAnno
     pinned: values.pinned,
     tagIds: values.tagIds,
     shiftCodes: values.shiftCodes,
+    roles: values.roles,
   })
 }

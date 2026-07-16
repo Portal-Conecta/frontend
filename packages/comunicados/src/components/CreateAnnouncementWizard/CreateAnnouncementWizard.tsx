@@ -37,7 +37,7 @@ function validateContent(content: AnnouncementContentValue) {
 
 function buildFormValues(
   content: AnnouncementContentValue,
-  mapped: Pick<RecipientsPayload, 'destinations' | 'tagIds' | 'shiftCodes'>,
+  mapped: Pick<RecipientsPayload, 'destinations' | 'tagIds' | 'shiftCodes' | 'roles'>,
   scheduledFor: string | null,
 ): CreateAnnouncementFormValues {
   return {
@@ -47,6 +47,7 @@ function buildFormValues(
     destinations: mapped.destinations,
     tagIds: mapped.tagIds,
     shiftCodes: mapped.shiftCodes,
+    roles: mapped.roles,
     scheduledFor: scheduledFor ?? '',
     pinned: false,
   }
