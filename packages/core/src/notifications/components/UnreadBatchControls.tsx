@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
+import { Pagination } from '@portal/ui/molecules'
 
 interface UnreadBatchControlsProps {
   /** Quantas notificações a página atual exibe. */
@@ -23,26 +24,14 @@ export function UnreadBatchControls({ shown, totalElements }: UnreadBatchControl
 
   const safeShown = shown || 0
   const safeTotal = totalElements || 0
-  const remaining = Math.max(safeTotal - safeShown, 0)
-
-  if (safeTotal === 0) return null
 
   return (
-    <div className="flex w-full items-center justify-between pt-4 text-body-sm text-text-subtle">
-      <span>
-        Exibindo {safeShown} de {safeTotal} não lidas
-      </span>
-      
-      {remaining > 0 && (
-        <button
-          type="button"
-          disabled={isPending}
-          onClick={() => startTransition(() => router.refresh())}
-          //className="rounded-md px-4 py-2 text-interactive-default hover:bg-interactive-hover disabled:opacity-50"
-        >
-          {isPending ? 'Carregando…' : `Carregar próximas (${remaining})`}
-        </button>
-      )}
-    </div>
+    <Pagination
+      currentPage={1}
+      pageSize={safeShown > 0 ? safeShown : 1}
+      totalItems={safeTotal}
+      onPageChange={() => startTransition(() => router.refresh())}
+      disabled={isPending}
+    />
   )
 }
