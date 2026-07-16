@@ -40,16 +40,16 @@ const tags: Tag[] = [
 ]
 
 describe('canCreateAnnouncement', () => {
-  it('permite professores e gestores', () => {
+  it('permite professores, representantes e gestores', () => {
     expect(canCreateAnnouncement(user('TEACHER'))).toBe(true)
+    expect(canCreateAnnouncement(user('REPRESENTATIVE'))).toBe(true)
     expect(canCreateAnnouncement(user('SENAI'))).toBe(true)
     expect(canCreateAnnouncement(user('WEG'))).toBe(true)
     expect(canCreateAnnouncement(user('ADMIN'))).toBe(true)
   })
 
-  it('nega alunos e representantes', () => {
+  it('nega alunos e anônimos', () => {
     expect(canCreateAnnouncement(user('STUDENT'))).toBe(false)
-    expect(canCreateAnnouncement(user('REPRESENTATIVE'))).toBe(false)
     expect(canCreateAnnouncement(null)).toBe(false)
   })
 })
