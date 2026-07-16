@@ -17,6 +17,7 @@
     "build-storybook": "pnpm sb:css && storybook build",
     "test:a11y": "pnpm build-storybook && concurrently -k -s first -n SB,A11Y \"http-server storybook-static --port 6006 --silent\" \"wait-on tcp:127.0.0.1:6006 && test-storybook\"",
     "sync:tokens": "tsx scripts/sync-tokens.ts",
+    "validate:ds-palette": "tsx scripts/validate-ds-palette.ts",
     "chromatic": "chromatic"
   },
   "devDependencies": {

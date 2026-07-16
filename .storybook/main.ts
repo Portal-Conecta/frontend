@@ -22,6 +22,7 @@ const config: StorybookConfig = {
       '@portal/ui': path.resolve(__dirname, '../packages/ui/src'),
       '@portal/core': path.resolve(__dirname, '../packages/core/src'),
       '@portal/shared': path.resolve(__dirname, '../packages/shared/src'),
+      '@portal/checklist': path.resolve(__dirname, '../packages/checklist/src'),
     }
     return webpackConfig
   },

@@ -21,7 +21,7 @@ export interface NavEntry {
 export const NAV_REGISTRY: readonly NavEntry[] = [
   { key: 'comunicados', icon: 'newspaper', label: 'Comunicados', href: '/comunicados' },
   { key: 'mapa-salas', icon: 'map', label: 'Mapa de Sala', href: '/mapa-salas' },
-  { key: 'checklist', icon: 'clipboard-list', label: 'Checklist', href: '/checklist', requires: 'checklist:ver' },
+  { key: 'checklist', icon: 'clipboard-list', label: 'Checklist', href: '/checklist/dashboard', requires: 'checklist:ver' },
   { key: 'config', icon: 'settings', label: 'Configurações', href: '/configuracoes', requires: 'usuarios:gerenciar' },
 ]
 
