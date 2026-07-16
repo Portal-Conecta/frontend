@@ -5,8 +5,11 @@ import Link from 'next/link'
 
 import { Text, colors } from '@portal/ui'
 
-import { formatAnnouncementDate, getAnnouncementOriginLabel } from '../../utils/announcement'
-import { formatAnnouncementStatusLine } from '../MyAnnouncementsTable/myAnnouncementsTableModel'
+import {
+  formatAnnouncementDate,
+  formatAnnouncementStatusLine,
+  getAnnouncementOriginLabel,
+} from '../../utils/announcement'
 
 export interface AnnouncementCardProps {
   announcement: AnnouncementSummary
@@ -44,7 +47,9 @@ export function AnnouncementCard({
   const isHighlighted = highlighted ?? announcement.pinned
   const date = announcement.publishedAt ?? announcement.scheduledFor ?? announcement.createdAt
   const thumbnailUrl = announcement.thumbnailUrl
-  const statusLine = showStatus ? formatAnnouncementStatusLine(announcement) : null
+  const metaLabel = showStatus
+    ? formatAnnouncementStatusLine(announcement)
+    : formatAnnouncementDate(date)
 
   const classes = [
     'group relative flex aspect-video w-full overflow-hidden rounded-md bg-interactive-disabled',
@@ -84,19 +89,12 @@ export function AnnouncementCard({
 
           <Text as="p" variant="label-xs" tone="inverse" className="truncate">
             {getAnnouncementOriginLabel(announcement.origin)}
-            {showStatus && statusLine ? (
+            {metaLabel ? (
               <>
                 <span className="px-2" aria-hidden="true">
                   |
                 </span>
-                {statusLine}
-              </>
-            ) : !showStatus ? (
-              <>
-                <span className="px-2" aria-hidden="true">
-                  |
-                </span>
-                {formatAnnouncementDate(date)}
+                {metaLabel}
               </>
             ) : null}
           </Text>

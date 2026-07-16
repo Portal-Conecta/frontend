@@ -13,7 +13,8 @@ import type { PendingAnnouncementAction } from '../AnnouncementActionsMenu'
 import { AnnouncementActionsMenu } from '../AnnouncementActionsMenu'
 import { ComunicadosEmptyState } from '../ComunicadosEmptyState'
 import { getAnnouncementPlainDescription } from '../../utils/announcementDescription'
-import { formatAnnouncementStatusLine, originLabel } from './myAnnouncementsTableModel'
+import { formatAnnouncementStatusLine } from '../../utils/announcement'
+import { originLabel } from './myAnnouncementsTableModel'
 
 export interface MyAnnouncementsTableContentProps {
   items: AnnouncementSummary[]

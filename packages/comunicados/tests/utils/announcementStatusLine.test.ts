@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { formatAnnouncementStatusLine } from '../../src/components/MyAnnouncementsTable/myAnnouncementsTableModel'
+import { formatAnnouncementStatusLine } from '../../src/utils/announcement'
 
 describe('formatAnnouncementStatusLine', () => {
   it('PUBLISHED usa só publishedAt (não scheduledFor nem createdAt)', () => {
