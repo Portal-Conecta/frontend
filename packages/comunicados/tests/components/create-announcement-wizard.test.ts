@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { canCreateAnnouncement } from '../../src/auth/canCreateAnnouncement'
 import { mapRecipientsToPayload } from '../../src/components/CreateAnnouncementWizard/mapRecipientsToPayload'
 import { makeRecipient } from '../../src/components/DestinationSelector/types'
+import type { Tag } from '../../src/types/tag'
 import type { CurrentUser } from '@portal/core'
 
 function user(userType: CurrentUser['userType']): CurrentUser {
@@ -13,6 +14,30 @@ function user(userType: CurrentUser['userType']): CurrentUser {
     permissions: [],
   }
 }
+
+const COURSE_UUID = '550e8400-e29b-41d4-a716-446655440001'
+const CLASS_UUID = '550e8400-e29b-41d4-a716-446655440002'
+const TAG_COURSE_ID = '550e8400-e29b-41d4-a716-446655440011'
+const TAG_CLASS_ID = '550e8400-e29b-41d4-a716-446655440012'
+
+const tags: Tag[] = [
+  {
+    id: TAG_COURSE_ID,
+    name: 'DS',
+    entityType: 'COURSE',
+    hubEntityId: COURSE_UUID,
+    active: true,
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: TAG_CLASS_ID,
+    name: 'DS 2026',
+    entityType: 'CLASS',
+    hubEntityId: CLASS_UUID,
+    active: true,
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+]
 
 describe('canCreateAnnouncement', () => {
   it('permite professores e gestores', () => {
@@ -30,37 +55,69 @@ describe('canCreateAnnouncement', () => {
 })
 
 describe('mapRecipientsToPayload', () => {
-  it('mapeia curso e turma para destino + tagIds', () => {
-    const result = mapRecipientsToPayload([
-      makeRecipient('course', 'curso-ds', 'DS'),
-      makeRecipient('class', 'turma-ds-2026', 'DS 2026'),
-    ])
+  it('mapeia curso e turma para destino + tag.id interno (não hub id)', () => {
+    const result = mapRecipientsToPayload(
+      [
+        makeRecipient('course', COURSE_UUID, 'DS'),
+        makeRecipient('class', CLASS_UUID, 'DS 2026'),
+      ],
+      tags,
+    )
 
     expect(result.destinations).toEqual([
-      { type: 'COURSE', referenceId: 'curso-ds' },
-      { type: 'CLASS', referenceId: 'turma-ds-2026' },
+      { type: 'COURSE', referenceId: COURSE_UUID },
+      { type: 'CLASS', referenceId: CLASS_UUID },
     ])
-    expect(result.tagIds).toEqual(['curso-ds', 'turma-ds-2026'])
+    expect(result.tagIds).toEqual([TAG_COURSE_ID, TAG_CLASS_ID])
+    expect(result.shiftCodes).toEqual([])
+    expect(result.errors).toEqual([])
   })
 
   it('mapeia usuário específico', () => {
-    const result = mapRecipientsToPayload([makeRecipient('user', 'u-01', 'Ana')])
+    const result = mapRecipientsToPayload([makeRecipient('user', 'u-01', 'Ana')], tags)
     expect(result.destinations).toEqual([{ type: 'USER', referenceId: 'u-01' }])
     expect(result.tagIds).toEqual([])
+    expect(result.shiftCodes).toEqual([])
   })
 
-  it('turno vira tagId sem destino próprio', () => {
-    const result = mapRecipientsToPayload([makeRecipient('shift', 'turno-manha', 'Manhã')])
+  it('turno vai em shiftCodes e não em tagIds', () => {
+    const result = mapRecipientsToPayload(
+      [makeRecipient('shift', 'FULL_AM_PM', 'Manhã e tarde')],
+      tags,
+    )
     expect(result.destinations).toEqual([{ type: 'GENERAL' }])
-    expect(result.tagIds).toEqual(['turno-manha'])
+    expect(result.tagIds).toEqual([])
+    expect(result.shiftCodes).toEqual(['FULL_AM_PM'])
+    expect(result.errors).toEqual([])
+  })
+
+  it('erro quando tag de curso não existe no catálogo', () => {
+    const result = mapRecipientsToPayload(
+      [makeRecipient('course', COURSE_UUID, 'DS')],
+      [],
+    )
+    expect(result.tagIds).toEqual([])
+    expect(result.errors).toContain('Tag de curso não encontrada para “DS”.')
+  })
+
+  it('erro quando código de turno é inválido', () => {
+    const result = mapRecipientsToPayload(
+      [makeRecipient('shift', 'turno-manha', 'Manhã')],
+      tags,
+    )
+    expect(result.shiftCodes).toEqual([])
+    expect(result.errors).toContain('Turno inválido: “Manhã”.')
   })
 
   it('deduplica destinos e tags', () => {
-    const result = mapRecipientsToPayload([
-      makeRecipient('course', 'curso-ds', 'DS'),
-      makeRecipient('course', 'curso-ds', 'DS'),
-    ])
+    const result = mapRecipientsToPayload(
+      [
+        makeRecipient('course', COURSE_UUID, 'DS'),
+        makeRecipient('course', COURSE_UUID, 'DS'),
+      ],
+      tags,
+    )
     expect(result.destinations).toHaveLength(1)
-    expect(result.tagIds).toEqual(['curso-ds'])
+    expect(result.tagIds).toEqual([TAG_COURSE_ID])
   })
 })

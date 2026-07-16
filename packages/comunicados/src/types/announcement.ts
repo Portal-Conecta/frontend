@@ -8,6 +8,8 @@
  * matching union types stay type-safe.
  */
 
+import type { HubShift } from '@portal/shared'
+
 import type { AnnouncementFile } from './file'
 import type { Tag } from './tag'
 
@@ -54,7 +56,10 @@ export interface PublishAnnouncementRequest {
   origin: AnnouncementOrigin
   destinations: CreateAnnouncementDestinationInput[]
   pinned?: boolean
+  /** UUIDs internos da tabela tag (`tag.id`), não `hub_entity_id`. */
   tagIds?: string[]
+  /** Turnos do Core (`FULL_AM_PM` / `FULL_PM_NT`). */
+  shiftCodes?: HubShift[]
 }
 
 /**
@@ -138,9 +143,11 @@ export interface AnnouncementDetail {
 }
 
 /**
- * Body parcial de `PUT /api/posts/{id}`.
- * Campos ausentes são preservados. `destinations` é opcional — quando enviado,
- * substitui a lista atual.
+ * Body parcial de `PUT /api/posts/{id}` (`UpdateAnnouncementRequest`).
+ *
+ * Limitação OpenAPI (#397): o PUT aceita `destinations`, mas **não** expõe
+ * `tagIds` nem `shiftCodes`. Alterar turnos/tags na edição exige extensão do
+ * contrato no comunicados-backend; até lá o front só atualiza campos listados.
  */
 export interface AnnouncementUpdatePayload {
   title?: string

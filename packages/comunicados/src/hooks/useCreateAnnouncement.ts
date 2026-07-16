@@ -3,6 +3,8 @@
 import { useCallback, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
+import type { ApiFieldError, HubShift } from '@portal/shared'
+
 import {
   ANNOUNCEMENT_DESTINATION_TYPE,
   ANNOUNCEMENT_ORIGIN,
@@ -12,8 +14,6 @@ import {
   type PublishAnnouncementRequest,
   type ScheduleAnnouncementRequest,
 } from '../types/announcement'
-
-import type { ApiFieldError } from '@portal/shared'
 
 import type { FileUploadItem } from '@portal/ui'
 
@@ -51,6 +51,7 @@ export interface CreateAnnouncementFormValues {
   scheduledFor: string
   pinned: boolean
   tagIds: string[]
+  shiftCodes: HubShift[]
 }
 
 export interface SubmitAnnouncementOptions {
@@ -78,6 +79,7 @@ const DEFAULT_VALUES: CreateAnnouncementFormValues = {
   scheduledFor: '',
   pinned: false,
   tagIds: [],
+  shiftCodes: [],
 }
 
 const GENERIC_ERROR = 'Serviço indisponível, tente novamente.'
@@ -372,5 +374,6 @@ function buildPublishBodyFrom(values: CreateAnnouncementFormValues): PublishAnno
     destinations: values.destinations,
     pinned: values.pinned,
     tagIds: values.tagIds,
+    shiftCodes: values.shiftCodes,
   })
 }

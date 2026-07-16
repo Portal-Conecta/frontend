@@ -10,7 +10,7 @@ import {
   defaultScheduleBrasilia,
   resolveScheduleDefaults,
   todayLocalDate,
-} from '../../src/components/ScheduleDatePicker/datetime'
+} from '../../src/utils/datetime'
 
 /** Instante fixo: 2026-06-30 14:00 em Brasília (17:00 UTC). */
 const BRT_14H_UTC = '2026-06-30T17:00:00.000Z'
