@@ -5,10 +5,11 @@ import type { Tag } from '../../src/types/tag'
 import {
   announcementMatchesMuralFilters,
   findTagIdByHubEntity,
+  resolvePeriodoRange,
   resolveRequiredTagIds,
   toListPostsParams,
 } from '../../src/utils/muralFilters'
-import { brasiliaDayBoundaryIso } from '../../src/components/ScheduleDatePicker/datetime'
+import { brasiliaDayBoundaryIso } from '../../src/utils/datetime'
 
 const tags: Tag[] = [
   {
@@ -95,6 +96,30 @@ describe('resolveRequiredTagIds / toListPostsParams', () => {
     expect(params.publishedFrom).toBe('2026-07-15T03:00:00.000Z')
     // 2026-07-15 23:59:59.999 BRT = 2026-07-16T02:59:59.999Z
     expect(params.publishedTo).toBe('2026-07-16T02:59:59.999Z')
+  })
+
+  it('atalhos de período usam calendário de Brasília com now fixo', () => {
+    // 2026-07-15 18:00 BRT = 2026-07-15T21:00:00.000Z
+    const now = new Date('2026-07-15T21:00:00.000Z')
+
+    expect(resolvePeriodoRange('hoje', now)).toEqual({
+      from: '2026-07-15T03:00:00.000Z',
+      to: '2026-07-16T02:59:59.999Z',
+    })
+
+    expect(resolvePeriodoRange('semana', now)).toEqual({
+      from: '2026-07-09T03:00:00.000Z',
+      to: '2026-07-16T02:59:59.999Z',
+    })
+
+    expect(resolvePeriodoRange('mes', now)).toEqual({
+      from: '2026-07-01T03:00:00.000Z',
+      to: '2026-07-16T02:59:59.999Z',
+    })
+
+    const viaParams = toListPostsParams({ periodo: 'hoje' }, '', tags, now)
+    expect(viaParams.publishedFrom).toBe('2026-07-15T03:00:00.000Z')
+    expect(viaParams.publishedTo).toBe('2026-07-16T02:59:59.999Z')
   })
 })
 

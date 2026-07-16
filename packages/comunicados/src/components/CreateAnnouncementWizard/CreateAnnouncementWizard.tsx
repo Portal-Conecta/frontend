@@ -20,11 +20,10 @@ import {
 import { DestinationSelector } from '../DestinationSelector'
 import type { Recipient } from '../DestinationSelector/types'
 import { ScheduleDatePicker } from '../ScheduleDatePicker'
-import { BRASILIA_TIMEZONE } from '../ScheduleDatePicker/datetime'
+import { BRASILIA_TIMEZONE } from '../../utils/datetime'
 import { StepProgressBar } from '../StepProgressBar'
 import { useDestinationCatalog } from '../../hooks/useDestinationCatalog'
-import type { Tag } from '../../types/tag'
-import { mapRecipientsToPayload } from './mapRecipientsToPayload'
+import { mapRecipientsToPayload, type RecipientsPayload } from './mapRecipientsToPayload'
 
 const STEPS = [
   { key: 'content', label: 'Conteúdo' },
@@ -38,18 +37,16 @@ function validateContent(content: AnnouncementContentValue) {
 
 function buildFormValues(
   content: AnnouncementContentValue,
-  recipients: Recipient[],
+  mapped: Pick<RecipientsPayload, 'destinations' | 'tagIds' | 'shiftCodes'>,
   scheduledFor: string | null,
-  tags: readonly Tag[],
 ): CreateAnnouncementFormValues {
-  const { destinations, tagIds, shiftCodes } = mapRecipientsToPayload(recipients, tags)
   return {
     title: content.title,
     description: content.description,
     origin: ANNOUNCEMENT_ORIGIN.BOTH,
-    destinations,
-    tagIds,
-    shiftCodes,
+    destinations: mapped.destinations,
+    tagIds: mapped.tagIds,
+    shiftCodes: mapped.shiftCodes,
     scheduledFor: scheduledFor ?? '',
     pinned: false,
   }
@@ -157,7 +154,7 @@ export function CreateAnnouncementWizard() {
       return
     }
 
-    const formValues = buildFormValues(content, recipients, scheduledFor, catalog.tags)
+    const formValues = buildFormValues(content, mapped, scheduledFor)
 
     const submitOptions = { images: content.images }
 

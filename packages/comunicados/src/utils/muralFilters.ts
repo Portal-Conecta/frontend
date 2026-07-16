@@ -1,9 +1,5 @@
 import type { AnnouncementFilters } from '../components/AnnouncementFiltersBar'
-import {
-  addCalendarDays,
-  brasiliaDayBoundaryIso,
-  formatBrasiliaDate,
-} from '../components/ScheduleDatePicker/datetime'
+import { addCalendarDays, brasiliaDayBoundaryIso, formatBrasiliaDate } from './datetime'
 import type {
   AnnouncementOrigin,
   AnnouncementSummary,
@@ -21,7 +17,11 @@ function toDateTimeParam(dateValue: string, endOfDay: boolean): string {
   return brasiliaDayBoundaryIso(dateValue, endOfDay) ?? dateValue
 }
 
-function resolvePeriodoRange(
+/**
+ * Janela `publishedFrom`/`publishedTo` para atalhos de período do mural,
+ * sempre no calendário de Brasília (#397).
+ */
+export function resolvePeriodoRange(
   periodo: string,
   now: Date = new Date(),
 ): { from: string; to: string } {
@@ -113,11 +113,14 @@ export function announcementMatchesMuralFilters(
  * Monta a query do mural. `tagIds` no wire são UUIDs internos da tabela tag
  * (não `hub_entity_id`). Curso/turno resolvem via catálogo de tags quando possível.
  * Intervalos de data usam o calendário de Brasília (não o fuso local do browser).
+ *
+ * @param now — instante de referência dos atalhos `periodo` (injetável em teste).
  */
 export function toListPostsParams(
   filters: AnnouncementFilters,
   searchQuery: string,
   tags: readonly Tag[] = [],
+  now: Date = new Date(),
 ): ListPostsParams {
   const params = createDefaultFeedFilters()
   const search = searchQuery.trim()
@@ -142,7 +145,7 @@ export function toListPostsParams(
   }
 
   if (!filters.dataInicio && !filters.dataFim && filters.periodo) {
-    const range = resolvePeriodoRange(filters.periodo)
+    const range = resolvePeriodoRange(filters.periodo, now)
     params.publishedFrom = range.from
     params.publishedTo = range.to
   }

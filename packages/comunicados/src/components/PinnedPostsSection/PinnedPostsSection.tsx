@@ -55,8 +55,9 @@ function getPinnedOrder(post: AnnouncementSummary): number {
 }
 
 function getPostTime(post: AnnouncementSummary): number {
-  const date = resolveAnnouncementDisplayDate(post)
-  if (!date) return 0
+  // Exibição: só publishedAt/scheduledFor. Ordenação: createdAt se display estiver
+  // ausente (ex.: PUBLISHED sem publishedAt) — evita epoch 1970 (#397).
+  const date = resolveAnnouncementDisplayDate(post) ?? post.createdAt
   const timestamp = Date.parse(date)
 
   return Number.isNaN(timestamp) ? 0 : timestamp
