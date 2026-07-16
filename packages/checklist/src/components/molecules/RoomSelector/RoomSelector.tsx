@@ -1,7 +1,7 @@
 "use client";
 
 import { Input, Text } from "@portal/ui";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { RoomListItem } from "../../atoms/RoomListItem/RoomListItem";
 
@@ -24,11 +24,15 @@ export function RoomSelector({
 }: RoomSelectorProps) {
   const [search, setSearch] = useState("");
 
-  const filtered = rooms.filter(
-    (r) =>
-      r.name.toLowerCase().includes(search.toLowerCase()) ||
-      String(r.number).includes(search),
-  );
+  const filtered = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    if (!query) return rooms;
+    return rooms.filter(
+      (r) =>
+        r.name.toLowerCase().includes(query) ||
+        String(r.number).includes(query),
+    );
+  }, [rooms, search]);
 
   return (
     <div
@@ -51,23 +55,28 @@ export function RoomSelector({
           aria-label="Buscar Sala"
         />
 
-        {filtered.length > 0 ? (
-          <ul role="list" className="mt-2">
-            {filtered.map((room) => (
-              <li key={room.id}>
+        <div aria-live="polite">
+          {filtered.length > 0 ? (
+            <ul role="list" className="mt-2">
+              {filtered.map((room) => (
                 <RoomListItem
+                  key={room.id}
                   number={room.number}
                   name={room.name}
                   onClick={() => onSelect(room)}
                 />
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <Text variant="body-sm" tone="secondary" className="mt-4 text-center">
-            Nenhuma sala encontrada.
-          </Text>
-        )}
+              ))}
+            </ul>
+          ) : (
+            <Text
+              variant="body-sm"
+              tone="secondary"
+              className="mt-4 text-center"
+            >
+              Nenhuma sala encontrada.
+            </Text>
+          )}
+        </div>
       </div>
     </div>
   );
