@@ -70,6 +70,7 @@ describe('mapRecipientsToPayload', () => {
     ])
     expect(result.tagIds).toEqual([TAG_COURSE_ID, TAG_CLASS_ID])
     expect(result.shiftCodes).toEqual([])
+    expect(result.roles).toEqual([])
     expect(result.errors).toEqual([])
   })
 
@@ -78,9 +79,10 @@ describe('mapRecipientsToPayload', () => {
     expect(result.destinations).toEqual([{ type: 'USER', referenceId: 'u-01' }])
     expect(result.tagIds).toEqual([])
     expect(result.shiftCodes).toEqual([])
+    expect(result.roles).toEqual([])
   })
 
-  it('turno vai em shiftCodes e não em tagIds', () => {
+  it('turno vai em shiftCodes e não em tagIds; GENERAL sem roles = qualquer papel', () => {
     const result = mapRecipientsToPayload(
       [makeRecipient('shift', 'FULL_AM_PM', 'Manhã e tarde')],
       tags,
@@ -88,7 +90,62 @@ describe('mapRecipientsToPayload', () => {
     expect(result.destinations).toEqual([{ type: 'GENERAL' }])
     expect(result.tagIds).toEqual([])
     expect(result.shiftCodes).toEqual(['FULL_AM_PM'])
+    expect(result.roles).toEqual([])
     expect(result.errors).toEqual([])
+  })
+
+  it('Todos os Alunos → GENERAL + roles STUDENT', () => {
+    const result = mapRecipientsToPayload(
+      [makeRecipient('group', 'STUDENTS', 'Todos os Alunos')],
+      tags,
+    )
+    expect(result.destinations).toEqual([{ type: 'GENERAL' }])
+    expect(result.roles).toEqual(['STUDENT'])
+    expect(result.tagIds).toEqual([])
+  })
+
+  it('Todos os Professores → GENERAL + roles TEACHER', () => {
+    const result = mapRecipientsToPayload(
+      [makeRecipient('group', 'TEACHERS', 'Todos os Professores')],
+      tags,
+    )
+    expect(result.destinations).toEqual([{ type: 'GENERAL' }])
+    expect(result.roles).toEqual(['TEACHER'])
+  })
+
+  it('curso + só alunos → COURSE + roles STUDENT (sem GENERAL)', () => {
+    const result = mapRecipientsToPayload(
+      [
+        makeRecipient('course', COURSE_UUID, 'DS'),
+        makeRecipient('group', 'STUDENTS', 'Todos os Alunos'),
+      ],
+      tags,
+    )
+    expect(result.destinations).toEqual([{ type: 'COURSE', referenceId: COURSE_UUID }])
+    expect(result.roles).toEqual(['STUDENT'])
+    expect(result.tagIds).toEqual([TAG_COURSE_ID])
+  })
+
+  it('vários grupos acumulam roles sem duplicar', () => {
+    const result = mapRecipientsToPayload(
+      [
+        makeRecipient('group', 'STUDENTS', 'Todos os Alunos'),
+        makeRecipient('group', 'TEACHERS', 'Todos os Professores'),
+        makeRecipient('group', 'STUDENTS', 'Todos os Alunos'),
+      ],
+      tags,
+    )
+    expect(result.destinations).toEqual([{ type: 'GENERAL' }])
+    expect(result.roles).toEqual(['STUDENT', 'TEACHER'])
+  })
+
+  it('broadcast EVERYONE → GENERAL sem roles', () => {
+    const result = mapRecipientsToPayload(
+      [makeRecipient('group', 'EVERYONE', 'Público geral')],
+      tags,
+    )
+    expect(result.destinations).toEqual([{ type: 'GENERAL' }])
+    expect(result.roles).toEqual([])
   })
 
   it('erro quando tag de curso não existe no catálogo', () => {

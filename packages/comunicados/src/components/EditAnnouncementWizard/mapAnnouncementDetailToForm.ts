@@ -10,8 +10,18 @@ import {
 } from '../../types/announcement'
 import { resolveAnnouncementFileUrl } from '../../utils/announcementFile'
 import type { AnnouncementContentValue } from '../AnnouncementForm/types'
-import { makeRecipient, type Recipient } from '../DestinationSelector/types'
+import { makeRecipient, RECIPIENT_GROUP_EVERYONE, type Recipient } from '../DestinationSelector/types'
 import { mapRecipientsToPayload } from '../CreateAnnouncementWizard/mapRecipientsToPayload'
+
+/** Nomes das tags ROLE semeadas no back (V008) → grupo da UI. */
+const ROLE_TAG_NAME_TO_GROUP: ReadonlyMap<
+  string,
+  { group: 'STUDENTS' | 'TEACHERS' | 'REPRESENTATIVES'; label: string }
+> = new Map([
+  ['Alunos', { group: 'STUDENTS', label: 'Todos os Alunos' }],
+  ['Professores', { group: 'TEACHERS', label: 'Todos os Professores' }],
+  ['Responsáveis', { group: 'REPRESENTATIVES', label: 'Todos os Representantes' }],
+])
 
 export interface EditAnnouncementFormState {
   content: AnnouncementContentValue
@@ -68,6 +78,7 @@ export function mapDetailToEditForm(detail: AnnouncementDetail): EditAnnouncemen
   const tagNameById = new Map(tags.map((tag) => [tag.tagId, tag.tagName]))
   const recipients: Recipient[] = []
   const seen = new Set<string>()
+  let hasGeneralDestination = false
 
   for (const destination of destinations) {
     const refId = destination.referenceId?.trim() ?? ''
@@ -92,9 +103,8 @@ export function mapDetailToEditForm(detail: AnnouncementDetail): EditAnnouncemen
         break
       }
       case ANNOUNCEMENT_DESTINATION_TYPE.GENERAL: {
-        if (seen.has('group:STUDENTS')) break
-        seen.add('group:STUDENTS')
-        recipients.push(makeRecipient('group', 'STUDENTS', 'Público geral'))
+        // GENERAL sozinho ≠ “só alunos”. Papéis vêm das tags ROLE abaixo.
+        hasGeneralDestination = true
         break
       }
       default:
@@ -102,14 +112,33 @@ export function mapDetailToEditForm(detail: AnnouncementDetail): EditAnnouncemen
     }
   }
 
-  // Tags de turno (e outras) sem destino correspondente — só para exibição inicial.
+  // Tags ROLE (nome semeado no back) → chips de grupo; demais tags sem destino
+  // correspondente entram como turno/exibição.
   const destinationRefs = new Set(
     destinations.map((item) => item.referenceId).filter((id): id is string => Boolean(id)),
   )
+  let hasRoleGroup = false
   for (const tag of tags) {
+    const roleGroup = ROLE_TAG_NAME_TO_GROUP.get(tag.tagName)
+    if (roleGroup) {
+      const key = `group:${roleGroup.group}`
+      if (!seen.has(key)) {
+        seen.add(key)
+        recipients.push(makeRecipient('group', roleGroup.group, roleGroup.label))
+        hasRoleGroup = true
+      }
+      continue
+    }
+
     if (destinationRefs.has(tag.tagId) || seen.has(`shift:${tag.tagId}`)) continue
     seen.add(`shift:${tag.tagId}`)
     recipients.push(makeRecipient('shift', tag.tagId, tag.tagName))
+  }
+
+  // Broadcast: GENERAL sem restrição de papel → chip sintético (não é STUDENTS).
+  if (hasGeneralDestination && !hasRoleGroup && !seen.has(`group:${RECIPIENT_GROUP_EVERYONE}`)) {
+    seen.add(`group:${RECIPIENT_GROUP_EVERYONE}`)
+    recipients.push(makeRecipient('group', RECIPIENT_GROUP_EVERYONE, 'Público geral'))
   }
 
   return {

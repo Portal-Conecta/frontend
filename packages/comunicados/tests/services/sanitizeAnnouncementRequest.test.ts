@@ -67,6 +67,29 @@ describe('sanitizePublishBody', () => {
     expect(result.shiftCodes).toBeUndefined()
   })
 
+  it('mantém roles válidos e omite o campo quando vazio', () => {
+    const withRoles = sanitizePublishBody({
+      ...base,
+      tagIds: [],
+      roles: ['STUDENT', 'TEACHER'],
+    })
+    expect(withRoles.roles).toEqual(['STUDENT', 'TEACHER'])
+
+    const withoutRoles = sanitizePublishBody({
+      ...base,
+      tagIds: [],
+      roles: [],
+    })
+    expect(withoutRoles.roles).toBeUndefined()
+
+    const filtered = sanitizePublishBody({
+      ...base,
+      tagIds: [],
+      roles: ['STUDENT', 'NOT_A_ROLE' as 'STUDENT'],
+    })
+    expect(filtered.roles).toEqual(['STUDENT'])
+  })
+
   it('remove destino com referenceId inválido e cai em GENERAL', () => {
     const result = sanitizePublishBody({
       ...base,

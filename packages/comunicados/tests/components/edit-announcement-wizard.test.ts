@@ -136,6 +136,46 @@ describe('mapDetailToEditForm', () => {
 
     expect(form.content.description).toBe('<p>Texto puro sem HTML</p>')
   })
+
+  it('GENERAL sem tag ROLE vira Público geral (broadcast), não Todos os Alunos', () => {
+    const form = mapDetailToEditForm(
+      makeDetail({
+        destinations: [
+          {
+            id: 'd-gen',
+            announcementId: 'a1',
+            type: ANNOUNCEMENT_DESTINATION_TYPE.GENERAL,
+            referenceId: null,
+          },
+        ],
+        tags: [],
+      }),
+    )
+
+    expect(form.recipients).toEqual([
+      { key: 'group:EVERYONE', kind: 'group', refId: 'EVERYONE', label: 'Público geral' },
+    ])
+  })
+
+  it('GENERAL + tag ROLE Alunos vira grupo STUDENTS', () => {
+    const form = mapDetailToEditForm(
+      makeDetail({
+        destinations: [
+          {
+            id: 'd-gen',
+            announcementId: 'a1',
+            type: ANNOUNCEMENT_DESTINATION_TYPE.GENERAL,
+            referenceId: null,
+          },
+        ],
+        tags: [{ announcementId: 'a1', tagId: 'role-student', tagName: 'Alunos' }],
+      }),
+    )
+
+    expect(form.recipients).toEqual([
+      { key: 'group:STUDENTS', kind: 'group', refId: 'STUDENTS', label: 'Todos os Alunos' },
+    ])
+  })
 })
 
 describe('enrichRecipientsFromCatalog', () => {
