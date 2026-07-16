@@ -3,6 +3,7 @@
 import { Icon, Text } from "@portal/ui";
 import {
   useEffect,
+  useId,
   useRef,
   useState,
   type ComponentProps,
@@ -40,6 +41,7 @@ export function BaseFeedbackModal({
   const dialogRef = useRef<HTMLDivElement>(null);
   const lastFocusedRef = useRef<HTMLElement | null>(null);
   const [mounted, setMounted] = useState(false);
+  const generatedId = useId();
 
   useEffect(() => {
     setMounted(true);
@@ -99,7 +101,7 @@ export function BaseFeedbackModal({
     }
   };
 
-  const messageId = message ? "base-feedback-modal-message" : undefined;
+  const messageId = message ? generatedId : undefined;
 
   return createPortal(
     <div

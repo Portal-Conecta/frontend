@@ -6,14 +6,14 @@ import { BaseFeedbackModal } from "../BaseFeedbackModal";
 
 export interface SuccessModalProps {
   open?: boolean;
-  message?: string;
+  message: string;
   confirmLabel?: string;
   onClose?: () => void;
 }
 
 export function SuccessModal({
   open = false,
-  message = "",
+  message,
   confirmLabel = "Ok!",
   onClose,
 }: SuccessModalProps) {
