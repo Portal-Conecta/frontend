@@ -32,13 +32,19 @@ function wait(ms: number): Promise<void> {
 }
 
 /** Lista com retry curto — o gateway às vezes responde 500 logo após publish/upload. */
-async function listPostsWithRetry(filters: ListPostsParams): Promise<ListAnnouncementsResponse> {
+async function listPostsWithRetry(
+  filters: ListPostsParams,
+  signal: AbortSignal,
+): Promise<ListAnnouncementsResponse> {
   let lastError: unknown
 
   for (let attempt = 1; attempt <= LIST_RETRY_ATTEMPTS; attempt += 1) {
     try {
-      return await listPostsClient(filters)
+      return await listPostsClient(filters, signal)
     } catch (error) {
+      // Request abortada (filtro trocou/desmontou) não é falha de rede — não vale retry.
+      if (signal.aborted) throw error
+
       lastError = error
       if (!isRetryableListError(error) || attempt === LIST_RETRY_ATTEMPTS) {
         throw error
@@ -66,13 +72,17 @@ export function usePostsList(initialFilters: ListPostsParams = {}): UsePostsList
 
   useEffect(() => {
     let active = true
+    // Aborta a request em voo (não só ignora o resultado) quando o filtro troca de
+    // novo antes da resposta anterior chegar — evita gastar rede/back numa lista
+    // que não vai mais ser exibida.
+    const controller = new AbortController()
 
     async function loadPosts() {
       setLoading(true)
       setError(null)
 
       try {
-        const result = await listPostsWithRetry(filters)
+        const result = await listPostsWithRetry(filters, controller.signal)
         if (active) setData(result)
       } catch (err) {
         if (active) setError(err instanceof Error ? err : new Error('posts_list_error'))
@@ -85,6 +95,7 @@ export function usePostsList(initialFilters: ListPostsParams = {}): UsePostsList
 
     return () => {
       active = false
+      controller.abort()
     }
   }, [filters, reloadKey])
 
