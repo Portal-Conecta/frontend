@@ -1,11 +1,22 @@
 import type { Preview } from '@storybook/react'
 
-import '@fontsource/inter/400.css'
-import '@fontsource/inter/600.css'
-import '@fontsource/afacad/400.css'
-import '@fontsource/afacad/600.css'
+import { Afacad, Inter } from 'next/font/google'
 
 import './tailwind.generated.css'
+
+// O Storybook não renderiza o RootLayout do app, então as CSS vars das fontes
+// (`--font-inter`/`--font-afacad`, que os tokens `font-inter`/`font-afacad`
+// resolvem) não existiriam aqui — as stories cairiam em fallback do sistema.
+// Carrega as mesmas fontes via next/font (self-host; @storybook/nextjs suporta)
+// e aplica as vars no <html> do iframe do canvas. É no documentElement de
+// propósito, não num wrapper: conteúdo que faz portal para o body (Toast,
+// lightbox, drawer, dropdowns) precisa herdar as vars igual no app. Issue #407.
+const inter = Inter({ subsets: ['latin'], weight: ['400', '600'], display: 'swap', variable: '--font-inter' })
+const afacad = Afacad({ subsets: ['latin'], weight: ['400', '600'], display: 'swap', variable: '--font-afacad' })
+
+if (typeof document !== 'undefined') {
+  document.documentElement.classList.add(...`${inter.variable} ${afacad.variable}`.split(' ').filter(Boolean))
+}
 
 const preview: Preview = {
   // Gera uma página de Docs por componente (autodocs) sem marcar story a story.
