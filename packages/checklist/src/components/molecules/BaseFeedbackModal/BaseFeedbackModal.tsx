@@ -44,7 +44,7 @@ export function BaseFeedbackModal({
 
   useFocusTrap(dialogRef, {
     active: open && mounted,
-    onClose: dismissible ? onDismiss : undefined,
+    ...(dismissible && onDismiss ? { onClose: onDismiss } : {}),
   });
 
   useEffect(() => {
