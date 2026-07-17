@@ -2,15 +2,16 @@ import type { CSSProperties } from 'react'
 
 import { Text } from '@portal/ui'
 
-import { SEAT_ICON_FLUID_WIDTH } from '../seatSizing'
+import { SEAT_ICON_DESKTOP_WIDTH, SEAT_ICON_FLUID_WIDTH } from '../seatSizing'
 import { SeatIcon } from '../SeatIcon'
 
-// `aspectRatio` preserva a proporção do viewBox (99×58) do SeatIcon sem
-// precisar de `height` fixo — `width` fluida (clamp, ver seatSizing.ts) +
-// `height: 'auto'` deixa o navegador calcular a altura a partir da razão.
-// Módulo-level: mesmo objeto em todo render, não recriar por instância.
+// Abaixo de `lg`: largura fluida (`clamp`, ver seatSizing.ts). Em `lg+`:
+// trava no tamanho desktop (`md` = 99px) via max-width — o clamp já chega
+// nesse teto em 1024px, e o max-width cobre qualquer viewport maior.
+// `aspectRatio` preserva o viewBox (99×58) com `height: auto`.
 const seatIconStyle: CSSProperties = {
   width: SEAT_ICON_FLUID_WIDTH,
+  maxWidth: SEAT_ICON_DESKTOP_WIDTH,
   aspectRatio: '99 / 58',
   height: 'auto',
 }
@@ -94,11 +95,9 @@ export function SeatCard({
       aria-pressed={state === 'selected'}
     >
       {/* Cadeira do professor fica de frente para a turma — espelhada
-          verticalmente em relação ao assento padrão. Um único ícone, com
-          largura fluida via CSS `clamp()` (`seatIconStyle`, ver
-          seatSizing.ts) em vez de alternar entre dois tamanhos fixos —
-          cresce em pequenos incrementos com a tela, sem o salto abrupto de
-          um breakpoint binário. */}
+          verticalmente em relação ao assento padrão. Largura fluida abaixo
+          de `lg` (`seatIconStyle` / seatSizing.ts); em `lg+` trava no `md`
+          (99px) — sem regressão visual no desktop (#427). */}
       <SeatIcon flipped={state === 'teacher'} style={seatIconStyle} />
       <Text variant="label-sm" className="max-w-full truncate">
         {resolvedLabel}

@@ -100,25 +100,32 @@ export function MapGrid({
   // fixo entre assentos, esse espaçamento deveria virar token do componente
   // em vez de cada consumidor lembrar de passar via `className`.
   //
-  // `minmax(MAP_GRID_MIN_SEAT_WIDTH, 1fr)`: piso fluido por `clamp()`
-  // (seatSizing.ts, mesma fórmula do `SeatIcon` do SeatCard, só deslocada
-  // pelo padding do botão) — não um valor fixo nem escalonado por
-  // breakpoint. `1fr` deixa a coluna crescer sozinha quando sobra espaço, o
-  // piso nunca deixa encolher abaixo do que o ícone precisa, e por isso não
-  // precisa nunca "desligar" o piso em nenhuma largura de tela — o wrapper
-  // com overflow-x-auto só rola quando o total realmente não cabe.
-  const gridStyle: CSSProperties = {
+  // Abaixo de `lg`: `minmax(MAP_GRID_MIN_SEAT_WIDTH, 1fr)` — piso fluido
+  // (seatSizing.ts) + scroll horizontal quando a sala não cabe.
+  // Em `lg+`: `minmax(0, 1fr)` — comportamento desktop anterior (#427), sem
+  // piso artificial nem scroll forçado. `--map-grid-cols` alimenta o override
+  // responsivo via `repeat(var(--map-grid-cols), …)`.
+  const gridStyle = {
+    ['--map-grid-cols' as string]: String(grid.columns),
     gridTemplateColumns: `repeat(${grid.columns}, minmax(${MAP_GRID_MIN_SEAT_WIDTH}, 1fr))`,
     gridTemplateRows: `repeat(${grid.rows}, minmax(0, 1fr))`,
-  }
+  } satisfies CSSProperties
 
   return (
     // `-webkit-overflow-scrolling` não tem utility no DS nem no Tailwind
     // core — arbitrary property (docs/conventions/tokens-e-theming.md §5:
     // não é hex/tamanho arbitrário, é sintaxe padrão do Tailwind para
-    // propriedade CSS sem utility própria).
-    <div className="overflow-x-auto [-webkit-overflow-scrolling:touch]">
-      <div className={classes} style={gridStyle}>
+    // propriedade CSS sem utility própria). Scroll só abaixo de `lg`.
+    <div className="overflow-x-auto [-webkit-overflow-scrolling:touch] lg:overflow-x-visible">
+      <div
+        className={[
+          classes,
+          'lg:[grid-template-columns:repeat(var(--map-grid-cols),minmax(0,1fr))]',
+        ]
+          .filter(Boolean)
+          .join(' ')}
+        style={gridStyle}
+      >
         {cells}
       </div>
     </div>

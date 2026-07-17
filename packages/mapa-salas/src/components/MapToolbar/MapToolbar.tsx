@@ -36,7 +36,7 @@ export type MapToolbarProps = {
 // Equivalem aos tokens sm/md do Icon (packages/ui/src/atoms/Icon/Icon.tsx:
 // sizePx.sm=16, sizePx.md=24) — mesma escala 16/24/32 documentada no JSDoc do
 // Icon ("stroke 2px fixo, tamanhos 16/24/32").
-const iconSizeClasses = 'h-6 w-6 lg:h-6 lg:w-6'
+const iconSizeClasses = 'h-4 w-4 lg:h-6 lg:w-6'
 
 // O Button do DS (variant="ghost") sempre aplica hover E active quando
 // HABILITADO (muda cor de texto/fundo em ambos os estados). O frame não tem
@@ -87,18 +87,9 @@ export function MapToolbar({ mode, canSave, onEdit, onClear, onSave, className }
   if (mode === 'view') {
     return (
       <div className={containerClasses}>
-        <Button
-          variant="ghost"
-          tone="brand"
-          className={noHoverActiveBrand}
-          onClick={onEdit}
-          aria-label="Editar Mapa"
-        >
+        <Button variant="ghost" tone="brand" className={noHoverActiveBrand} onClick={onEdit}>
           <SquarePenIcon className={iconSizeClasses} />
-          {/* Abaixo de 475px (2 botões lado a lado em modo edição ficam
-              apertados antes disso) só o ícone fica visível — o `aria-label`
-              acima garante o nome acessível do botão nos dois estados. */}
-          <span className="hidden min-[475px]:inline">Editar Mapa</span>
+          Editar Mapa
         </Button>
       </div>
     )
@@ -106,15 +97,9 @@ export function MapToolbar({ mode, canSave, onEdit, onClear, onSave, className }
 
   return (
     <div className={containerClasses}>
-      <Button
-        variant="ghost"
-        tone="negative"
-        className={noHoverActiveNegative}
-        onClick={onClear}
-        aria-label="Limpar Mapa"
-      >
+      <Button variant="ghost" tone="negative" className={noHoverActiveNegative} onClick={onClear}>
         <TrashIcon className={iconSizeClasses} />
-        <span className="hidden min-[475px]:inline">Limpar Mapa</span>
+        Limpar Mapa
       </Button>
 
       {/*
@@ -129,10 +114,9 @@ export function MapToolbar({ mode, canSave, onEdit, onClear, onSave, className }
         className={canSave ? noHoverActiveBrand : undefined}
         disabled={!canSave}
         onClick={onSave}
-        aria-label="Salvar Alterações"
       >
         <SaveIcon className={iconSizeClasses} />
-        <span className="hidden min-[475px]:inline">Salvar Alterações</span>
+        Salvar Alterações
       </Button>
     </div>
   )
