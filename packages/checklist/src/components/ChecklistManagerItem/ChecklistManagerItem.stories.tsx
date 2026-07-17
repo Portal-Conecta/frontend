@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { ChecklistManagerItem } from "./ChecklistManagerItem";
+import { ChecklistManagerItem } from ".";
 
 const meta = {
   title: "Checklist/Molecules/ChecklistManagerItem",
