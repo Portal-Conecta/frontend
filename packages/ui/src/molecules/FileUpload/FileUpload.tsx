@@ -25,10 +25,32 @@ export interface FileUploadItem {
   name?: string
 }
 
+function isBlobPreviewUrl(url: string): boolean {
+  return url.startsWith('blob:')
+}
+
 /** Revoga object URLs (`blob:`) da lista. Use ao descartar (ex.: unmount do wizard). */
 export function revokeLocalFileUploadPreviews(items: readonly FileUploadItem[]): void {
   for (const item of items) {
-    if (item.previewUrl.startsWith('blob:')) {
+    if (isBlobPreviewUrl(item.previewUrl)) {
+      URL.revokeObjectURL(item.previewUrl)
+    }
+  }
+}
+
+/**
+ * Revoga só as blob URLs de itens que saíram de `value`.
+ * Mantém as que ainda estão na lista — necessário em wizards multi-etapa: o
+ * FileUpload desmonta ao trocar de passo, mas o pai ainda guarda os itens;
+ * revogar no unmount quebrava a preview ao voltar.
+ */
+export function revokeRemovedFileUploadPreviews(
+  previous: readonly FileUploadItem[],
+  next: readonly FileUploadItem[],
+): void {
+  const nextIds = new Set(next.map((item) => item.id))
+  for (const item of previous) {
+    if (isBlobPreviewUrl(item.previewUrl) && !nextIds.has(item.id)) {
       URL.revokeObjectURL(item.previewUrl)
     }
   }
@@ -87,12 +109,7 @@ export function FileUpload({
   useEffect(() => {
     const previous = previousValueRef.current
     previousValueRef.current = value
-    const nextIds = new Set(value.map((item) => item.id))
-    for (const item of previous) {
-      if (item.previewUrl.startsWith('blob:') && !nextIds.has(item.id)) {
-        URL.revokeObjectURL(item.previewUrl)
-      }
-    }
+    revokeRemovedFileUploadPreviews(previous, value)
   }, [value])
 
   const remaining = maxFiles - value.length

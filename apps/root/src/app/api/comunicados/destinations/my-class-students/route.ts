@@ -14,6 +14,7 @@ import { parseUserFromToken } from '@portal/core/rbac'
  * fan-out em `/classes/{id}/members`.
  *
  * "Aluno da turma" = STUDENT ou REPRESENTATIVE; o próprio usuário fica de fora.
+ * `listMyClassStudents` já filtra TEACHER e contas inativas de forma defensiva.
  */
 export async function GET() {
   const token = await getSession()

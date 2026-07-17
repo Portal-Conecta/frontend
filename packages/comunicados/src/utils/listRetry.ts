@@ -7,9 +7,12 @@ import { HttpError } from '@portal/core/http/errors'
  * publish/schedule + upload de imagens — a listagem que roda no soft-nav de
  * volta ao mural cai nesse buraco. Hard refresh funciona porque o back já
  * estabilizou. Erros de auth/validação não retentam.
+ *
+ * Teto curto de propósito: 3 tentativas × backoff linear 250ms (máx. ~750ms de
+ * espera) — cobre a race pós-create sem segurar a UI ~4s em outage real.
  */
-export const LIST_RETRY_ATTEMPTS = 5
-export const LIST_RETRY_BASE_DELAY_MS = 400
+export const LIST_RETRY_ATTEMPTS = 3
+export const LIST_RETRY_BASE_DELAY_MS = 250
 
 export function isRetryableListError(error: unknown): boolean {
   return error instanceof HttpError && (error.kind === 'server' || error.kind === 'network')

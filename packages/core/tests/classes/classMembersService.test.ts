@@ -102,6 +102,35 @@ describe('listMyClassStudents', () => {
     expect(init?.headers).toMatchObject({ Authorization: `Bearer ${TOKEN}` })
   })
 
+  it('exclui TEACHER e contas inativas/bloqueadas (RN-COM-PA02/PA03)', async () => {
+    stubFetch().mockResolvedValue(
+      response(200, [
+        { id: 'ok', name: 'Aluno Ok', classRole: 'STUDENT', active: true },
+        { id: 'rep', name: 'Rep Ok', classRole: 'REPRESENTATIVE' },
+        { id: 'tea', name: 'Prof', classRole: 'TEACHER', active: true },
+        { id: 'off', name: 'Inativo', classRole: 'STUDENT', active: false },
+        {
+          id: 'blk',
+          name: 'Bloqueado',
+          classRole: 'STUDENT',
+          active: true,
+          accountStatus: 'BLOCKED',
+        },
+        {
+          id: 'sus',
+          name: 'Suspenso',
+          classRole: 'REPRESENTATIVE',
+          accountStatus: 'suspended',
+        },
+      ]),
+    )
+
+    await expect(listMyClassStudents(TOKEN)).resolves.toEqual([
+      { id: 'ok', name: 'Aluno Ok', role: 'STUDENT' },
+      { id: 'rep', name: 'Rep Ok', role: 'REPRESENTATIVE' },
+    ])
+  })
+
   it('lista vazia quando o Core devolve array vazio', async () => {
     stubFetch().mockResolvedValue(response(200, []))
     await expect(listMyClassStudents(TOKEN)).resolves.toEqual([])
