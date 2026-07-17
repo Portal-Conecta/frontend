@@ -14,7 +14,7 @@ import {
   type AnnouncementFilters,
 } from '../components/AnnouncementFiltersBar'
 import { AnnouncementSearchField } from '../components/AnnouncementSearchField'
-import { useMuralFilterCatalog } from '../hooks/useMuralFilterCatalog'
+import { useMuralFilterCatalog, type MuralFilterCatalogSeed } from '../hooks/useMuralFilterCatalog'
 import type { ListPostsParams } from '../types/announcement'
 import { createDefaultFeedFilters, toListPostsParams } from '../utils/muralFilters'
 
@@ -46,10 +46,12 @@ function readStoredMuralFilters(): StoredMuralFilters {
 export interface PageMuralContentProps {
   canCreate: boolean
   userType?: TypeUser | undefined
+  /** Catálogo pré-carregado pelo `PageMural` (Server Component) — pula o fetch client (#406). */
+  catalogSeed?: MuralFilterCatalogSeed | undefined
 }
 
-export function PageMuralContent({ canCreate, userType }: PageMuralContentProps) {
-  const catalog = useMuralFilterCatalog()
+export function PageMuralContent({ canCreate, userType, catalogSeed }: PageMuralContentProps) {
+  const catalog = useMuralFilterCatalog(catalogSeed)
   const [activeFilters, setActiveFilters] = useState<AnnouncementFilters>(
     () => readStoredMuralFilters().filters,
   )
