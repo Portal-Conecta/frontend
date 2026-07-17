@@ -81,7 +81,7 @@ function getPublishConfirmCopy(scheduledFor: string | null) {
       subTitle: 'Comunicados',
       title: 'Confirmar agendamento?',
       content: `O comunicado será publicado em ${formatScheduledForLabel(scheduledFor)} (horário de Brasília). Você pode editá-lo depois.`,
-      labelConfirm: 'Agendar publicação',
+      labelConfirm: 'Confirmar',
     }
   }
 

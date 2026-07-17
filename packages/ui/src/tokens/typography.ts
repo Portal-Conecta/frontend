@@ -17,9 +17,14 @@
  */
 
 export const typography = {
+  // As famílias vêm de CSS vars injetadas pelo next/font/google (modo variable):
+  // --font-inter / --font-afacad são definidas no <html> do RootLayout
+  // (apps/root) em runtime e replicadas no iframe do canvas pelo decorator do
+  // Storybook em dev. Editado à mão (aprovação TL, #407); scripts/sync-tokens.ts
+  // só lê o Figma e loga — não reescreve este arquivo.
   fontFamily: {
-    inter:  ['Inter', 'sans-serif'],
-    afacad: ['Afacad', 'sans-serif'],
+    inter:  ['var(--font-inter)', 'sans-serif'],
+    afacad: ['var(--font-afacad)', 'sans-serif'],
   },
 
   fontSize: {
