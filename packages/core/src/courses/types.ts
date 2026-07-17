@@ -70,7 +70,6 @@ export interface BatchCreateItemResult {
  * individualmente.
  */
 export interface BatchCreateResult {
-  status: number
   results: BatchCreateItemResult[]
   createdCount: number
   errorCount: number

@@ -1,7 +1,6 @@
 "use client"
 
 import React, { useState } from 'react';
-
 import { Button, Input, Text, Field } from '@portal/ui';
 
 interface CreateCourseFormProps {
@@ -21,7 +20,7 @@ export const CreateCourseForm: React.FC<CreateCourseFormProps> = ({
   const [errors, setErrors] = useState({ code: '', name: '' });
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault(); 
+    e.preventDefault();
     
     let hasError = false;
     const newErrors = { code: '', name: '' };
@@ -45,10 +44,7 @@ export const CreateCourseForm: React.FC<CreateCourseFormProps> = ({
 
   return (
     <form onSubmit={handleSubmit} className="flex w-full flex-col gap-6">
-      
-      <div className="flex flex-col gap-4">
-        
-        <div className="flex flex-col">
+     <div className="flex flex-col">
           <Field label="Código do curso">
             <Input
               value={code}
@@ -58,9 +54,8 @@ export const CreateCourseForm: React.FC<CreateCourseFormProps> = ({
               }}
             />
           </Field>
-          
           {errors.code && (
-            <Text variant="body-sm" className="mt-1 text-red-600">
+            <Text variant="body-sm" className="mt-1 text-feedback-error">
               {errors.code}
             </Text>
           )}
@@ -77,19 +72,16 @@ export const CreateCourseForm: React.FC<CreateCourseFormProps> = ({
               placeholder="Ex: Desenvolvimento de Sistema"
             />
           </Field>
-          
           {errors.name && (
-            <Text variant="body-sm" className="mt-1 text-red-600">
+            <Text variant="body-sm" className="mt-1 text-feedback-error">
               {errors.name}
             </Text>
           )}
         </div>
 
-      </div>
-
       <div className="mt-2 flex gap-4">
         <Button
-          type="button" 
+          type="button"
           variant="outlined"
           onClick={onCancel}
           className="flex-1 font-normal text-label-xs md:text-label-sm lg:text-label-sm"
@@ -97,7 +89,7 @@ export const CreateCourseForm: React.FC<CreateCourseFormProps> = ({
           Descartar alterações
         </Button>
         <Button
-          type="submit" 
+          type="submit"
           variant="solid"
           disabled={isSaving}
           className="flex-1 font-normal text-label-xs md:text-label-sm lg:text-label-sm"

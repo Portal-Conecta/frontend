@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 import { createCoursesClient } from '@portal/core/courses/coursesClient'
+import { HttpError } from '@portal/core/http/errors'
 
 import { CreateCourseForm } from './CreateCourseForm'
 
@@ -17,17 +18,26 @@ export function CriarCursoFormWrapper() {
     try {
       const response = await createCoursesClient([data])
 
-      if (response.status === 201 || response.status === 207) {
+      if (response.errorCount === 0) {
         router.push('/cursos')
+        return
       }
-    } catch (error: any) {
-      const status = error?.response?.status
+      
+      const firstError = response.results.find((r) => r.status === 'error')
+      alert(firstError?.error?.message ?? 'Falha ao criar o curso. Verifique os dados e tente novamente.')
 
-      if (status === 409) {
-        alert('Conflito: Já existe um curso cadastrado com este código.') 
-      } else {
-        alert('Falha ao criar o curso. Verifique os dados e tente novamente.')
+    } catch (err) {
+      if (err instanceof HttpError) {
+        const message =
+          err.status === 409
+            ? 'Já existe um curso cadastrado com este código.'
+            : (err.body?.message ?? 'Falha ao criar o curso. Verifique os dados e tente novamente.')
+        
+        alert(message)
+        return
       }
+      
+      alert('Falha inesperada ao criar o curso. Tente novamente.')
     } finally {
       setIsSaving(false)
     }
