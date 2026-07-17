@@ -2,13 +2,11 @@
  * Modelo de destinatário do comunicado (público-alvo).
  *
  * O componente `DestinationSelector` (#195) produz uma lista rica de
- * `Recipient[]` que cobre os quatro modos de seleção da tela. O back-end de
- * comunicados só conhece `AnnouncementDestinationType` = GENERAL | COURSE |
- * CLASS | USER; a seleção "por tipo" (Alunos/Professores/Representantes) e o
- * "turno" ainda não têm destino próprio no contrato. Por isso a lista aqui é
- * intencionalmente mais expressiva e o mapeamento para o payload de publicação
- * fica a cargo do formulário (#197), que decide como reduzir cada `Recipient`
- * ao `destinations[]` suportado.
+ * `Recipient[]` que cobre os quatro modos de seleção da tela. O back-end
+ * separa escopo espacial (`destinations`: GENERAL | COURSE | CLASS | USER) de
+ * restrição de papel (`roles`: UserType → tag ROLE). Grupos da UI
+ * (Alunos/Professores/Representantes) mapeiam para `roles`; curso/turma/usuário
+ * mapeiam para `destinations`. O mapeamento fica em `mapRecipientsToPayload`.
  */
 
 /** Origem/natureza de cada destinatário selecionado. */
@@ -16,6 +14,12 @@ export type RecipientKind = 'course' | 'class' | 'shift' | 'group' | 'user'
 
 /** Grupos amplos por papel (modo "Selecionar usuários por tipo"). */
 export type RecipientGroup = 'STUDENTS' | 'TEACHERS' | 'REPRESENTATIVES'
+
+/**
+ * Chip sintético de broadcast (GENERAL sem `roles`) — usado na edição quando o
+ * detalhe traz destino GENERAL sem tags ROLE. Não aparece no `GroupTypePanel`.
+ */
+export const RECIPIENT_GROUP_EVERYONE = 'EVERYONE' as const
 
 export interface Recipient {
   /** Chave única (`kind:refId`) usada para deduplicar e remover. */

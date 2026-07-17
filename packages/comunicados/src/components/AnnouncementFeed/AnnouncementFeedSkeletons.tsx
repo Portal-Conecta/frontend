@@ -1,5 +1,7 @@
 import { Skeleton } from '@portal/ui'
 
+import { AnnouncementPinnedCardSkeleton } from '../AnnouncementPinnedCardSkeleton'
+
 /** Skeleton no formato do item do mural (texto + thumbnail). */
 export function AnnouncementFeedItemSkeleton() {
   return (
@@ -17,17 +19,22 @@ export function AnnouncementFeedItemSkeleton() {
         </div>
       </div>
 
-      <Skeleton
-        variant="rect"
-        className="h-28 w-32 shrink-0 rounded-md md:aspect-video md:h-auto md:w-full"
-      />
+      {/* O átomo Skeleton dimensiona via style inline — o tamanho fica no wrapper. */}
+      <div className="h-28 w-32 shrink-0 md:aspect-video md:h-auto md:w-full">
+        <Skeleton variant="rect" width="100%" height="100%" className="rounded-md" />
+      </div>
     </div>
   )
 }
 
-/** Skeleton no formato do card de fixados (aspect-video). */
+/**
+ * Skeleton no formato do card de fixados — mesma largura por breakpoint do item
+ * real do carrossel (`PinnedPostsSection`).
+ */
 export function AnnouncementPinnedSkeleton() {
   return (
-    <Skeleton variant="rect" className="aspect-video w-96 shrink-0 rounded-md" aria-hidden="true" />
+    <div className="w-96 shrink-0 sm:w-[32rem] lg:w-[41rem]" aria-hidden="true">
+      <AnnouncementPinnedCardSkeleton />
+    </div>
   )
 }
