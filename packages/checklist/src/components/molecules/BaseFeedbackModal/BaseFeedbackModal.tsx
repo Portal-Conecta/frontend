@@ -67,7 +67,7 @@ export function BaseFeedbackModal({
       document.body.style.overflow = previousOverflow;
       lastFocusedRef.current?.focus?.();
     };
-  }, [open]);
+  }, [open, mounted]);
 
   useEffect(() => {
     if (!open || !dismissible) return;
