@@ -38,7 +38,7 @@ describe('listHubCourses', () => {
     await listHubCourses('jwt-token')
 
     const [, init] = fetchMock.mock.calls[0]!
-    expect(init).toMatchObject({ next: { revalidate: 120, tags: ['hub-courses'] } })
+    expect(init).toMatchObject({ next: { revalidate: 60, tags: ['hub-courses'] } })
     expect(init).not.toHaveProperty('cache')
   })
 })
@@ -53,7 +53,7 @@ describe('listHubClasses', () => {
     await listHubClasses('jwt-token')
 
     const [, init] = fetchMock.mock.calls[0]!
-    expect(init).toMatchObject({ next: { revalidate: 120, tags: ['hub-classes'] } })
+    expect(init).toMatchObject({ next: { revalidate: 60, tags: ['hub-classes'] } })
     expect(init).not.toHaveProperty('cache')
   })
 })

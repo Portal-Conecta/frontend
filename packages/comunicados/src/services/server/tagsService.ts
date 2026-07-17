@@ -6,8 +6,8 @@ import { comunicadosGatewayPath } from '../comunicadosGateway'
 
 const http = createHttpClient('API_GATEWAY_URL')
 
-/** Catálogo quase estático (tags) — TTL adotado pelo time, sem alinhamento formal com o backend ainda (#406). */
-const TAGS_REVALIDATE_SECONDS = 120
+/** Catálogo quase estático (tags) — TTL adotado pelo time (#406). */
+const TAGS_REVALIDATE_SECONDS = 60
 
 export interface ListTagsParams {
   entityType?: TagEntityType

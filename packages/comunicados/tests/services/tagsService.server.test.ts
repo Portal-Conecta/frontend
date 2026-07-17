@@ -42,7 +42,7 @@ describe('listTags', () => {
     await listTags()
 
     const [, init] = fetchMock.mock.calls[0]!
-    expect(init).toMatchObject({ next: { revalidate: 120, tags: ['comunicados-tags'] } })
+    expect(init).toMatchObject({ next: { revalidate: 60, tags: ['comunicados-tags'] } })
     expect(init).not.toHaveProperty('cache')
   })
 })
