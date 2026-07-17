@@ -2,7 +2,11 @@ import type { HubShift } from '@portal/shared'
 
 /**
  * Contratos do Hub (core-backend) usados na seleção de destinatários.
- * Espelham `api-docs-core.json` — paths internos `/courses`, `/classes`, `/users`.
+ * Espelham `api-docs-core.json` — paths internos `/courses`, `/classes`.
+ *
+ * O catálogo de usuários (`/users`) é infra compartilhada e vive no core:
+ * `@portal/core/classes/userDirectoryService` (`DirectoryUser`, `ListUsersParams`,
+ * `ListUsersResponse`) + `TypeUser` de `@portal/core/rbac`.
  */
 
 export type { HubShift } from '@portal/shared'
@@ -41,32 +45,3 @@ export interface ListHubClassesResponse {
   totalPages: number
 }
 
-export type HubUserType =
-  | 'STUDENT'
-  | 'REPRESENTATIVE'
-  | 'TEACHER'
-  | 'SENAI'
-  | 'WEG'
-  | 'ADMIN'
-
-export interface HubUser {
-  id: string
-  name: string
-  email: string
-  typeUser: HubUserType
-  active: boolean
-}
-
-export interface ListHubUsersParams {
-  page?: number
-  size?: number
-  typeUser?: HubUserType
-}
-
-export interface ListHubUsersResponse {
-  content: HubUser[]
-  page: number
-  size: number
-  totalElements: number
-  totalPages: number
-}

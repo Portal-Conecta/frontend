@@ -47,6 +47,49 @@ describe('sanitizePublishBody', () => {
     expect(result.tagIds).toEqual([VALID_UUID])
   })
 
+  it('mantém shiftCodes válidos e descarta inválidos', () => {
+    const result = sanitizePublishBody({
+      ...base,
+      tagIds: [],
+      shiftCodes: ['FULL_AM_PM', 'turno-manha'] as ('FULL_AM_PM' | 'FULL_PM_NT')[],
+    })
+
+    expect(result.shiftCodes).toEqual(['FULL_AM_PM'])
+  })
+
+  it('omite shiftCodes quando vazio após filtro', () => {
+    const result = sanitizePublishBody({
+      ...base,
+      tagIds: [],
+      shiftCodes: ['turno-manha'] as unknown as ('FULL_AM_PM' | 'FULL_PM_NT')[],
+    })
+
+    expect(result.shiftCodes).toBeUndefined()
+  })
+
+  it('mantém roles válidos e omite o campo quando vazio', () => {
+    const withRoles = sanitizePublishBody({
+      ...base,
+      tagIds: [],
+      roles: ['STUDENT', 'TEACHER'],
+    })
+    expect(withRoles.roles).toEqual(['STUDENT', 'TEACHER'])
+
+    const withoutRoles = sanitizePublishBody({
+      ...base,
+      tagIds: [],
+      roles: [],
+    })
+    expect(withoutRoles.roles).toBeUndefined()
+
+    const filtered = sanitizePublishBody({
+      ...base,
+      tagIds: [],
+      roles: ['STUDENT', 'NOT_A_ROLE' as 'STUDENT'],
+    })
+    expect(filtered.roles).toEqual(['STUDENT'])
+  })
+
   it('remove destino com referenceId inválido e cai em GENERAL', () => {
     const result = sanitizePublishBody({
       ...base,
@@ -69,7 +112,7 @@ describe('sanitizePublishBody', () => {
 })
 
 describe('sanitizeScheduleBody', () => {
-  it('preserva scheduledFor', () => {
+  it('preserva scheduledFor e shiftCodes', () => {
     const result = sanitizeScheduleBody({
       title: 'T',
       description: 'D',
@@ -77,9 +120,11 @@ describe('sanitizeScheduleBody', () => {
       destinations: [{ type: 'GENERAL' }],
       scheduledFor: '2026-12-31T03:00:00.000Z',
       tagIds: ['invalid'],
+      shiftCodes: ['FULL_PM_NT'],
     })
 
     expect(result.scheduledFor).toBe('2026-12-31T03:00:00.000Z')
     expect(result.tagIds).toBeUndefined()
+    expect(result.shiftCodes).toEqual(['FULL_PM_NT'])
   })
 })

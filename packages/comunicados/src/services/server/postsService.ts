@@ -47,12 +47,12 @@ export async function getAnnouncement(id: string): Promise<AnnouncementDetail> {
   return http.get<AnnouncementDetail>(comunicadosGatewayPath(`/api/posts/${id}`))
 }
 
-/** Atualiza um comunicado (`PUT /api/posts/{id}`). */
+/** Atualiza um comunicado (`PUT /api/posts/{id}`). Devolve o envelope atualizado. */
 export async function updateAnnouncement(
   id: string,
   payload: AnnouncementUpdatePayload,
-): Promise<AnnouncementDetail> {
-  return http.put<AnnouncementDetail>(comunicadosGatewayPath(`/api/posts/${id}`), {
+): Promise<AnnouncementResponse> {
+  return http.put<AnnouncementResponse>(comunicadosGatewayPath(`/api/posts/${id}`), {
     body: payload,
   })
 }
@@ -61,8 +61,8 @@ export async function updateAnnouncement(
 export async function rescheduleAnnouncement(
   id: string,
   scheduledFor: string,
-): Promise<AnnouncementDetail> {
-  return http.patch<AnnouncementDetail>(comunicadosGatewayPath(`/api/posts/${id}/schedule`), {
+): Promise<AnnouncementResponse> {
+  return http.patch<AnnouncementResponse>(comunicadosGatewayPath(`/api/posts/${id}/schedule`), {
     body: { scheduledFor },
   })
 }
