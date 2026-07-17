@@ -10,8 +10,21 @@ import { useState } from 'react'
 import { Button } from '@portal/ui'
 
 import { TurmaFiltersSheet } from './TurmaFiltersSheet'
+import type { TurmaFilters } from './turmaRows'
 
-export function TurmaMobileFilters() {
+export interface TurmaMobileFiltersProps {
+  courseOptions?: string[] | undefined
+  shiftOptions?: string[] | undefined
+  onApply?: ((filters: TurmaFilters) => void) | undefined
+  onReset?: (() => void) | undefined
+}
+
+export function TurmaMobileFilters({
+  courseOptions,
+  shiftOptions,
+  onApply,
+  onReset,
+}: TurmaMobileFiltersProps) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -26,7 +39,14 @@ export function TurmaMobileFilters() {
         Filtros
       </Button>
 
-      <TurmaFiltersSheet open={open} onClose={() => setOpen(false)} />
+      <TurmaFiltersSheet
+        open={open}
+        onClose={() => setOpen(false)}
+        courseOptions={courseOptions}
+        shiftOptions={shiftOptions}
+        onApply={onApply}
+        onReset={onReset}
+      />
     </>
   )
 }

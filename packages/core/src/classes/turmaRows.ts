@@ -58,3 +58,35 @@ export function filterTurmas(rows: TurmaRow[], query: string): TurmaRow[] {
     (row) => row.code.toLowerCase().includes(q) || row.course.toLowerCase().includes(q),
   )
 }
+
+/**
+ * Seleção dos filtros de curso/turno (dropdowns). `undefined` = "Todos" (sem
+ * filtro naquela dimensão). Casam por igualdade com os rótulos exibidos na linha
+ * (`row.course` / `row.shift`) — as opções nascem das próprias linhas.
+ */
+export interface TurmaFilters {
+  course?: string
+  shift?: string
+}
+
+/** Aplica os filtros de curso/turno (igualdade). Dimensões independentes (E lógico). */
+export function applyTurmaFilters(rows: TurmaRow[], filters: TurmaFilters): TurmaRow[] {
+  const { course, shift } = filters
+  if (!course && !shift) return rows
+  return rows.filter((row) => {
+    if (course && row.course !== course) return false
+    if (shift && row.shift !== shift) return false
+    return true
+  })
+}
+
+/**
+ * Opções distintas de curso e turno derivadas das linhas, ordenadas em PT-BR.
+ * Alimentam os dropdowns; derive sempre da lista completa (não da filtrada) para
+ * as opções ficarem estáveis enquanto se filtra.
+ */
+export function turmaFilterOptions(rows: TurmaRow[]): { courses: string[]; shifts: string[] } {
+  const courses = [...new Set(rows.map((row) => row.course))].sort((a, b) => a.localeCompare(b, 'pt-BR'))
+  const shifts = [...new Set(rows.map((row) => row.shift))].sort((a, b) => a.localeCompare(b, 'pt-BR'))
+  return { courses, shifts }
+}

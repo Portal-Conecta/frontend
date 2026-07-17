@@ -12,13 +12,25 @@ import { createPortal } from 'react-dom'
 import { useFocusTrap } from '@portal/ui'
 
 import { TurmaFiltersForm } from './TurmaFiltersForm'
+import type { TurmaFilters } from './turmaRows'
 
 export interface TurmaFiltersSheetProps {
   open: boolean
   onClose: () => void
+  courseOptions?: string[] | undefined
+  shiftOptions?: string[] | undefined
+  onApply?: ((filters: TurmaFilters) => void) | undefined
+  onReset?: (() => void) | undefined
 }
 
-export function TurmaFiltersSheet({ open, onClose }: TurmaFiltersSheetProps) {
+export function TurmaFiltersSheet({
+  open,
+  onClose,
+  courseOptions,
+  shiftOptions,
+  onApply,
+  onReset,
+}: TurmaFiltersSheetProps) {
   const panelRef = useRef<HTMLDivElement>(null)
   const titleId = useId()
   useFocusTrap(panelRef, { active: open, onClose })
@@ -47,7 +59,16 @@ export function TurmaFiltersSheet({ open, onClose }: TurmaFiltersSheetProps) {
         tabIndex={-1}
         className="relative z-10 flex max-h-[90vh] w-full flex-col overflow-y-auto rounded-t-xl bg-background-surface px-6 py-8 focus-visible:outline-none"
       >
-        <TurmaFiltersForm titleId={titleId} onApply={onClose} />
+        <TurmaFiltersForm
+          titleId={titleId}
+          courseOptions={courseOptions}
+          shiftOptions={shiftOptions}
+          onApply={(filters) => {
+            onApply?.(filters)
+            onClose()
+          }}
+          onReset={onReset}
+        />
       </div>
     </div>,
     document.body,

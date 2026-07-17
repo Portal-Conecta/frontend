@@ -8,11 +8,17 @@
  */
 import { useMemo, useState } from 'react'
 
-import { Button, Input, ListItem, Text } from '@portal/ui'
+import { Button, Input, ListItem, Text, ClassCard, ClassCardSingleProps } from '@portal/ui'
 
 import { TurmaFiltersForm } from './TurmaFiltersForm'
 import { TurmaMobileFilters } from './TurmaMobileFilters'
-import { filterTurmas, type TurmaRow } from './turmaRows'
+import {
+  applyTurmaFilters,
+  filterTurmas,
+  turmaFilterOptions,
+  type TurmaFilters,
+  type TurmaRow,
+} from './turmaRows'
 
 export interface TurmaListProps {
   turmas: TurmaRow[]
@@ -20,7 +26,19 @@ export interface TurmaListProps {
 
 export function TurmaList({ turmas }: TurmaListProps) {
   const [query, setQuery] = useState('')
-  const filtered = useMemo(() => filterTurmas(turmas, query), [turmas, query])
+  const [filters, setFilters] = useState<TurmaFilters>({})
+
+  // Opções derivadas da lista completa (não da filtrada) para ficarem estáveis
+  // enquanto se filtra.
+  const { courses, shifts } = useMemo(() => turmaFilterOptions(turmas), [turmas])
+
+  const filtered = useMemo(
+    () => filterTurmas(applyTurmaFilters(turmas, filters), query),
+    [turmas, filters, query],
+  )
+
+  // "Restaurar" limpa o filtro aplicado na hora (não espera "Aplicar").
+  const resetFilters = () => setFilters({})
 
   return (
     <>
@@ -32,7 +50,12 @@ export function TurmaList({ turmas }: TurmaListProps) {
           value={query}
           onChange={(event) => setQuery(event.target.value)}
         />
-        <TurmaMobileFilters />
+        <TurmaMobileFilters
+          courseOptions={courses}
+          shiftOptions={shifts}
+          onApply={setFilters}
+          onReset={resetFilters}
+        />
       </div>
 
       <div className="mt-8 grid gap-3 lg:grid-cols-[2fr_1fr]">
@@ -47,7 +70,12 @@ export function TurmaList({ turmas }: TurmaListProps) {
         </div>
 
         <div className="hidden px-8 py-3 lg:block">
-          <TurmaFiltersForm />
+          <TurmaFiltersForm
+            courseOptions={courses}
+            shiftOptions={shifts}
+            onApply={setFilters}
+            onReset={resetFilters}
+          />
         </div>
       </div>
     </>
@@ -56,28 +84,18 @@ export function TurmaList({ turmas }: TurmaListProps) {
 
 /** Uma turma na lista — no mobile o curso e o turno empilham; no `md+` viram colunas. */
 function TurmaRowItem({ turma }: { turma: TurmaRow }) {
+  const itens : ClassCardSingleProps = {
+    variant:'single',
+    item:{
+      code:turma.code,
+      course:turma.course,
+      shift:turma.shift
+    }
+  }
+  
   return (
-    <ListItem className="flex items-center justify-between sm:gap-6">
-      <div className="flex items-center">
-        <div className="pr-2 md:pr-6">
-          <Text variant="body-sm-emphasis" tone="brand">
-            {turma.code}
-          </Text>
-        </div>
-        <div className="flex flex-col gap-1 border-l-md border-text-brand md:flex-row md:gap-0 md:border-l-0 md:text-left">
-          <div className="border-text-brand pl-4 md:border-x-md md:px-6">
-            <Text variant="body-sm" tone="brand">
-              {turma.course}
-            </Text>
-          </div>
-          <div className="pl-4">
-            <Text variant="body-sm" tone="brand">
-              {turma.shift}
-            </Text>
-          </div>
-        </div>
-      </div>
-
+    <ListItem className="flex items-center justify-between gap-2 md:gap-4">
+      <ClassCard {...itens}/>
       <span className="hidden md:inline-flex">
         <Button size="sm" variant="outlined" iconLeft="chevron-right">
           Gerenciar

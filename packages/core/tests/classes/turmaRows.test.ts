@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
-import { filterTurmas, toTurmaRows, type TurmaRow } from '@portal/core/classes/turmaRows'
+import {
+  applyTurmaFilters,
+  filterTurmas,
+  toTurmaRows,
+  turmaFilterOptions,
+  type TurmaRow,
+} from '@portal/core/classes/turmaRows'
 import type { Course, CourseClass } from '@portal/core/courses/types'
 
 const courses: Course[] = [
@@ -58,5 +64,51 @@ describe('filterTurmas', () => {
 
   it('devolve vazio quando nada casa', () => {
     expect(filterTurmas(rows, 'zzz')).toEqual([])
+  })
+})
+
+describe('applyTurmaFilters', () => {
+  const rows = toTurmaRows(courses, classes)
+
+  it('devolve tudo quando nenhum filtro está setado', () => {
+    expect(applyTurmaFilters(rows, {})).toEqual(rows)
+  })
+
+  it('filtra por curso (igualdade)', () => {
+    expect(applyTurmaFilters(rows, { course: 'Redes de Computadores' }).map((r) => r.id)).toEqual([
+      't2',
+    ])
+  })
+
+  it('filtra por turno (igualdade)', () => {
+    expect(applyTurmaFilters(rows, { shift: 'Tarde e noite' }).map((r) => r.id)).toEqual(['t1'])
+  })
+
+  it('combina curso e turno (E lógico, dimensões independentes)', () => {
+    expect(
+      applyTurmaFilters(rows, { course: 'Desenvolvimento de Sistemas', shift: 'Manhã e tarde' }),
+    ).toEqual([])
+    expect(
+      applyTurmaFilters(rows, {
+        course: 'Desenvolvimento de Sistemas',
+        shift: 'Tarde e noite',
+      }).map((r) => r.id),
+    ).toEqual(['t1'])
+  })
+})
+
+describe('turmaFilterOptions', () => {
+  const rows = toTurmaRows(courses, classes)
+
+  it('deriva cursos e turnos distintos, ordenados em PT-BR', () => {
+    expect(turmaFilterOptions(rows)).toEqual({
+      courses: ['Desenvolvimento de Sistemas', 'Redes de Computadores'],
+      shifts: ['Manhã e tarde', 'Tarde e noite'],
+    })
+  })
+
+  it('não repete valores quando várias turmas compartilham curso/turno', () => {
+    const repeated = toTurmaRows(courses, [classes[0]!, classes[0]!])
+    expect(turmaFilterOptions(repeated).courses).toEqual(['Desenvolvimento de Sistemas'])
   })
 })
