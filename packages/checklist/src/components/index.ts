@@ -3,6 +3,7 @@ export * from "./molecules/ChecklistItemResult";
 export * from "./molecules/RoomChecklistItem/index";
 export * from "./atoms/StatusToggle";
 export * from "./molecules/ChecklistItem";
+export * from "./molecules/ChecklistManagerItem";
 export * from "./molecules/ChecklistSubmissionCard";
 export * from "./molecules/RoomSelector";
 export * from "./atoms/RoomListItem";
