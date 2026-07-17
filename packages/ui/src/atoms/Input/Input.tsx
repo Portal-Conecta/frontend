@@ -24,7 +24,15 @@ const toneStyles: Record<InputTone, { box: string; input: string; suffix: string
     // foco visível sobre o painel azul: anel branco (a borda azul de border/focus
     // ficaria invisível no fundo azul).
     box: 'border-white focus-within:ring-2 focus-within:ring-white',
-    input: 'text-text-inverse placeholder:text-text-inverse',
+    // autofill: o browser injeta background-color:white via :-webkit-autofill e
+    // não respeita bg-transparent. O trick é box-shadow inset que ele não remove.
+    // blue/500 = #01258F (fundo do AuthLayout). -webkit-text-fill-color sobrescreve
+    // a cor de texto do autofill (color: não basta nesse pseudo-elemento).
+    input: [
+      'text-text-inverse placeholder:text-text-inverse',
+      'autofill:shadow-[inset_0_0_0_1000px_#01258F]',
+      'autofill:[-webkit-text-fill-color:#FFFFFF]',
+    ].join(' '),
     suffix: 'text-text-inverse',
     message: 'text-text-inverse',
   },
