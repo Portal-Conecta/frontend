@@ -3,7 +3,7 @@
 import { Input, Text } from "@portal/ui";
 import { useMemo, useState } from "react";
 
-import { RoomListItem } from "../../atoms/RoomListItem/RoomListItem";
+import { RoomListItem } from "../RoomListItem/RoomListItem";
 
 export interface Room {
   id: string;

@@ -1,18 +1,20 @@
-import { createHttpClient } from '@portal/core/http/httpClient'
-import { checklistGatewayPath } from '../checklistGateway'
+import { createHttpClient } from "@portal/core/http/httpClient";
+import { checklistGatewayPath } from "../checklistGateway";
 import type {
   ChecklistType,
   SubmissionWindowRequest,
   SubmissionWindowResponse,
-} from '../../types/submissionWindow'
+} from "../../types/submissionWindow";
 
-const http = createHttpClient('API_GATEWAY_URL')
+const http = createHttpClient("API_GATEWAY_URL");
 
 /** Lista todas as janelas configuradas. */
-export async function listSubmissionWindows(): Promise<SubmissionWindowResponse[]> {
+export async function listSubmissionWindows(): Promise<
+  SubmissionWindowResponse[]
+> {
   return http.get<SubmissionWindowResponse[]>(
-    checklistGatewayPath('/api/submission-windows'),
-  )
+    checklistGatewayPath("/api/submission-windows"),
+  );
 }
 
 /** Lista as janelas de uma turma específica. */
@@ -21,7 +23,7 @@ export async function listSubmissionWindowsByClass(
 ): Promise<SubmissionWindowResponse[]> {
   return http.get<SubmissionWindowResponse[]>(
     checklistGatewayPath(`/api/submission-windows/classes/${classId}`),
-  )
+  );
 }
 
 /** Cria ou atualiza a janela de uma turma + tipo de checklist (upsert). */
@@ -31,7 +33,9 @@ export async function upsertSubmissionWindow(
   body: SubmissionWindowRequest,
 ): Promise<SubmissionWindowResponse> {
   return http.put<SubmissionWindowResponse>(
-    checklistGatewayPath(`/api/submission-windows/classes/${classId}/${checklistType}`),
+    checklistGatewayPath(
+      `/api/submission-windows/classes/${classId}/${checklistType}`,
+    ),
     { body },
-  )
+  );
 }
