@@ -1,28 +1,28 @@
-'use client'
+"use client";
 
-import { useMemo } from 'react'
-import { Doughnut } from 'react-chartjs-2'
+import { useMemo } from "react";
+import { Doughnut } from "react-chartjs-2";
 import {
   ChartCard,
   dsDoughnutDatasetDefaults,
   makeDsChartOptions,
   registerDoughnutCharts,
   useDsChartTheme,
-} from '@portal/ui'
+} from "@portal/ui";
 
-import type { StatsEntry } from '../../../types/dashboard'
-import { isEmptyStats, statsToChartData } from './statsToChartData'
+import type { StatsEntry } from "../../../types/dashboard";
+import { isEmptyStats, statsToChartData } from "./statsToChartData";
 
-registerDoughnutCharts()
+registerDoughnutCharts();
 
 export interface DsDoughnutChartProps {
-  title: string
-  data: StatsEntry[]
-  loading?: boolean
-  height?: number
+  title: string;
+  data: StatsEntry[];
+  loading?: boolean;
+  height?: number;
   /** KPI mode: sem legenda ruidosa. */
-  kpi?: boolean
-  statusSemantics?: boolean
+  kpi?: boolean;
+  statusSemantics?: boolean;
 }
 
 export function DsDoughnutChart({
@@ -33,12 +33,12 @@ export function DsDoughnutChart({
   kpi = false,
   statusSemantics = false,
 }: DsDoughnutChartProps) {
-  const theme = useDsChartTheme()
+  const theme = useDsChartTheme();
   const chart = useMemo(
     () => statsToChartData(data, { statusSemantics }),
     [data, statusSemantics],
-  )
-  const empty = !loading && isEmptyStats(data)
+  );
+  const empty = !loading && isEmptyStats(data);
 
   const chartData = useMemo(
     () => ({
@@ -53,20 +53,20 @@ export function DsDoughnutChart({
       ],
     }),
     [chart, theme, title],
-  )
+  );
 
   const options = useMemo(
     () =>
-      makeDsChartOptions<'doughnut'>(theme, kpi ? 'kpi' : 'doughnut', {
+      makeDsChartOptions<"doughnut">(theme, kpi ? "kpi" : "doughnut", {
         seriesCount: chart.labels.length,
         ariaLabel: title,
       }),
     [theme, title, kpi, chart.labels.length],
-  )
+  );
 
   return (
     <ChartCard title={title} height={height} loading={loading} empty={empty}>
       <Doughnut data={chartData} options={options} />
     </ChartCard>
-  )
+  );
 }

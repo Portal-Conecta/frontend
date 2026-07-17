@@ -1,5 +1,5 @@
-export { PageChecklistDashboard, default } from './PageChecklistDashboard'
+export { PageChecklistDashboard, default } from "./PageChecklistDashboard";
 export {
   PageChecklistDashboardContent,
   type PageChecklistDashboardContentProps,
-} from './PageChecklistDashboardContent'
+} from "./PageChecklistDashboardContent";

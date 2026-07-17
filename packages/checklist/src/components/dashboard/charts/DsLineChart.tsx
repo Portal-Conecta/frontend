@@ -1,26 +1,26 @@
-'use client'
+"use client";
 
-import { useMemo } from 'react'
-import { Line } from 'react-chartjs-2'
+import { useMemo } from "react";
+import { Line } from "react-chartjs-2";
 import {
   ChartCard,
   dsLineDatasetDefaults,
   makeDsChartOptions,
   registerLineCharts,
   useDsChartTheme,
-} from '@portal/ui'
+} from "@portal/ui";
 
-import type { StatsEntry } from '../../../types/dashboard'
-import { isEmptyStats, statsToChartData } from './statsToChartData'
+import type { StatsEntry } from "../../../types/dashboard";
+import { isEmptyStats, statsToChartData } from "./statsToChartData";
 
-registerLineCharts()
+registerLineCharts();
 
 export interface DsLineChartProps {
-  title: string
-  data: StatsEntry[]
-  loading?: boolean
-  height?: number
-  datasetLabel?: string
+  title: string;
+  data: StatsEntry[];
+  loading?: boolean;
+  height?: number;
+  datasetLabel?: string;
 }
 
 export function DsLineChart({
@@ -28,12 +28,15 @@ export function DsLineChart({
   data,
   loading = false,
   height = 280,
-  datasetLabel = 'Total',
+  datasetLabel = "Total",
 }: DsLineChartProps) {
-  const theme = useDsChartTheme()
+  const theme = useDsChartTheme();
   // Séries temporais do backend (por dia) mantêm ordem cronológica.
-  const chart = useMemo(() => statsToChartData(data, { preserveOrder: true }), [data])
-  const empty = !loading && isEmptyStats(data)
+  const chart = useMemo(
+    () => statsToChartData(data, { preserveOrder: true }),
+    [data],
+  );
+  const empty = !loading && isEmptyStats(data);
 
   const chartData = useMemo(
     () => ({
@@ -49,20 +52,20 @@ export function DsLineChart({
       ],
     }),
     [chart, datasetLabel, theme],
-  )
+  );
 
   const options = useMemo(
     () =>
-      makeDsChartOptions<'line'>(theme, 'line', {
+      makeDsChartOptions<"line">(theme, "line", {
         seriesCount: 1,
         ariaLabel: title,
       }),
     [theme, title],
-  )
+  );
 
   return (
     <ChartCard title={title} height={height} loading={loading} empty={empty}>
       <Line data={chartData} options={options} />
     </ChartCard>
-  )
+  );
 }

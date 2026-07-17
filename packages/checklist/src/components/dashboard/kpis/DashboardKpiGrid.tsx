@@ -1,23 +1,26 @@
-'use client'
+"use client";
 
-import { Icon, Skeleton, Text, type IconName } from '@portal/ui'
+import { Icon, Skeleton, Text, type IconName } from "@portal/ui";
 
-import { DASHBOARD_KPIS } from '../data/dashboardDemoData'
-import type { DashboardKpiItem } from './deriveDashboardKpis'
+import { DASHBOARD_KPIS } from "../data/dashboardDemoData";
+import type { DashboardKpiItem } from "./deriveDashboardKpis";
 
-const toneIcon: Record<DashboardKpiItem['tone'], string> = {
-  positive: 'text-feedback-success',
-  brand: 'text-text-brand',
-  negative: 'text-feedback-error',
-}
+const toneIcon: Record<DashboardKpiItem["tone"], string> = {
+  positive: "text-feedback-success",
+  brand: "text-text-brand",
+  negative: "text-feedback-error",
+};
 
 export interface DashboardKpiGridProps {
-  loading?: boolean | undefined
+  loading?: boolean | undefined;
   /** KPIs calculados a partir do dashboard real; se omitido, usa demo. */
-  items?: readonly DashboardKpiItem[] | undefined
+  items?: readonly DashboardKpiItem[] | undefined;
 }
 
-export function DashboardKpiGrid({ loading = false, items }: DashboardKpiGridProps) {
+export function DashboardKpiGrid({
+  loading = false,
+  items,
+}: DashboardKpiGridProps) {
   const kpis: readonly DashboardKpiItem[] =
     items ??
     DASHBOARD_KPIS.map((k) => ({
@@ -27,7 +30,7 @@ export function DashboardKpiGrid({ loading = false, items }: DashboardKpiGridPro
       hint: k.hint,
       icon: k.icon as IconName,
       tone: k.tone,
-    }))
+    }));
 
   if (loading) {
     return (
@@ -42,7 +45,7 @@ export function DashboardKpiGrid({ loading = false, items }: DashboardKpiGridPro
           </div>
         ))}
       </div>
-    )
+    );
   }
 
   return (
@@ -58,15 +61,20 @@ export function DashboardKpiGrid({ loading = false, items }: DashboardKpiGridPro
             </Text>
             <span
               className={[
-                'flex h-9 w-9 items-center justify-center rounded-sm bg-background-default',
+                "flex h-9 w-9 items-center justify-center rounded-sm bg-background-default",
                 toneIcon[kpi.tone],
-              ].join(' ')}
+              ].join(" ")}
               aria-hidden
             >
               <Icon name={kpi.icon} size="sm" />
             </span>
           </div>
-          <Text as="p" variant="heading-h1" tone="primary" className="tracking-tight">
+          <Text
+            as="p"
+            variant="heading-h1"
+            tone="primary"
+            className="tracking-tight"
+          >
             {kpi.value}
           </Text>
           <Text variant="body-sm" tone="secondary">
@@ -75,5 +83,5 @@ export function DashboardKpiGrid({ loading = false, items }: DashboardKpiGridPro
         </article>
       ))}
     </div>
-  )
+  );
 }

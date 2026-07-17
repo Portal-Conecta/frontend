@@ -7,15 +7,15 @@
  * alerts/  orientações
  * data/    mocks, inventário, fixtures
  */
-export * from './alerts'
-export * from './charts'
-export * from './data'
-export * from './kpis'
-export * from './tables'
+export * from "./alerts";
+export * from "./charts";
+export * from "./data";
+export * from "./kpis";
+export * from "./tables";
 export {
   defaultDashboardPeriod,
   formatIsoDatePt,
   toLocalIsoDate,
   validateDashboardPeriod,
   type PeriodValidation,
-} from './period'
+} from "./period";

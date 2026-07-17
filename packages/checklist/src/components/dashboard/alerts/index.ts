@@ -1,1 +1,1 @@
-export { AlertaOrientacao } from './AlertaOrientacao'
+export { AlertaOrientacao } from "./AlertaOrientacao";

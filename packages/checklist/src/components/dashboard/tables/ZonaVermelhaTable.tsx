@@ -1,23 +1,29 @@
-'use client'
+"use client";
 
-import { Button, Tag, Text } from '@portal/ui'
+import { Button, Tag, Text } from "@portal/ui";
 
-import { ZONA_VERMELHA, type ZonaVermelhaIssue } from '../data/dashboardDemoData'
+import {
+  ZONA_VERMELHA,
+  type ZonaVermelhaIssue,
+} from "../data/dashboardDemoData";
 
-const prioridadeTone: Record<ZonaVermelhaIssue['prioridade'], 'negative' | 'warning' | 'neutral'> = {
-  HIGH: 'negative',
-  MEDIUM: 'warning',
-  LOW: 'neutral',
-}
+const prioridadeTone: Record<
+  ZonaVermelhaIssue["prioridade"],
+  "negative" | "warning" | "neutral"
+> = {
+  HIGH: "negative",
+  MEDIUM: "warning",
+  LOW: "neutral",
+};
 
-const prioridadeLabel: Record<ZonaVermelhaIssue['prioridade'], string> = {
-  HIGH: 'Alta',
-  MEDIUM: 'Média',
-  LOW: 'Baixa',
-}
+const prioridadeLabel: Record<ZonaVermelhaIssue["prioridade"], string> = {
+  HIGH: "Alta",
+  MEDIUM: "Média",
+  LOW: "Baixa",
+};
 
 export interface ZonaVermelhaTableProps {
-  onCorrigir?: (issueId: string) => void
+  onCorrigir?: (issueId: string) => void;
 }
 
 export function ZonaVermelhaTable({ onCorrigir }: ZonaVermelhaTableProps) {
@@ -28,7 +34,12 @@ export function ZonaVermelhaTable({ onCorrigir }: ZonaVermelhaTableProps) {
     >
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <Text as="h2" id="zona-vermelha-title" variant="label-md-emphasis" tone="primary">
+          <Text
+            as="h2"
+            id="zona-vermelha-title"
+            variant="label-md-emphasis"
+            tone="primary"
+          >
             Zona Vermelha
           </Text>
           <Text variant="body-sm" tone="secondary" className="mt-1">
@@ -44,8 +55,16 @@ export function ZonaVermelhaTable({ onCorrigir }: ZonaVermelhaTableProps) {
         <table className="w-full min-w-[640px] border-collapse text-left">
           <thead>
             <tr className="border-b border-border-default">
-              {['Sala', 'Item', 'Categoria', 'Prioridade', 'Turno', 'Aberto há', ''].map((h) => (
-                <th key={h || 'acao'} className="px-3 py-3">
+              {[
+                "Sala",
+                "Item",
+                "Categoria",
+                "Prioridade",
+                "Turno",
+                "Aberto há",
+                "",
+              ].map((h) => (
+                <th key={h || "acao"} className="px-3 py-3">
                   <Text as="span" variant="label-xs" tone="secondary">
                     {h}
                   </Text>
@@ -75,7 +94,11 @@ export function ZonaVermelhaTable({ onCorrigir }: ZonaVermelhaTableProps) {
                   </Text>
                 </td>
                 <td className="px-3 py-3">
-                  <Tag tone={prioridadeTone[issue.prioridade]} size="sm" radius="full">
+                  <Tag
+                    tone={prioridadeTone[issue.prioridade]}
+                    size="sm"
+                    radius="full"
+                  >
                     {prioridadeLabel[issue.prioridade]}
                   </Tag>
                 </td>
@@ -105,5 +128,5 @@ export function ZonaVermelhaTable({ onCorrigir }: ZonaVermelhaTableProps) {
         </table>
       </div>
     </section>
-  )
+  );
 }

@@ -4,4 +4,4 @@ export type {
   DashboardStatsResponse,
   StatsEntry,
   StatsPeriodo,
-} from './dashboard'
+} from "./dashboard";

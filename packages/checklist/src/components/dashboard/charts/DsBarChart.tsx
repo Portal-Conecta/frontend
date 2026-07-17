@@ -1,29 +1,29 @@
-'use client'
+"use client";
 
-import { useMemo } from 'react'
-import { Bar } from 'react-chartjs-2'
+import { useMemo } from "react";
+import { Bar } from "react-chartjs-2";
 import {
   ChartCard,
   dsBarDatasetDefaults,
   makeDsChartOptions,
   registerBarCharts,
   useDsChartTheme,
-} from '@portal/ui'
+} from "@portal/ui";
 
-import type { StatsEntry } from '../../../types/dashboard'
-import { isEmptyStats, statsToChartData } from './statsToChartData'
+import type { StatsEntry } from "../../../types/dashboard";
+import { isEmptyStats, statsToChartData } from "./statsToChartData";
 
-registerBarCharts()
+registerBarCharts();
 
 export interface DsBarChartProps {
-  title: string
-  data: StatsEntry[]
-  loading?: boolean
-  height?: number
-  datasetLabel?: string
-  horizontal?: boolean
-  statusSemantics?: boolean
-  prioritySemantics?: boolean
+  title: string;
+  data: StatsEntry[];
+  loading?: boolean;
+  height?: number;
+  datasetLabel?: string;
+  horizontal?: boolean;
+  statusSemantics?: boolean;
+  prioritySemantics?: boolean;
 }
 
 export function DsBarChart({
@@ -31,17 +31,17 @@ export function DsBarChart({
   data,
   loading = false,
   height = 280,
-  datasetLabel = 'Total',
+  datasetLabel = "Total",
   horizontal = false,
   statusSemantics = false,
   prioritySemantics = false,
 }: DsBarChartProps) {
-  const theme = useDsChartTheme()
+  const theme = useDsChartTheme();
   const chart = useMemo(
     () => statsToChartData(data, { statusSemantics, prioritySemantics }),
     [data, statusSemantics, prioritySemantics],
-  )
-  const empty = !loading && isEmptyStats(data)
+  );
+  const empty = !loading && isEmptyStats(data);
 
   const chartData = useMemo(
     () => ({
@@ -57,21 +57,21 @@ export function DsBarChart({
       ],
     }),
     [chart, datasetLabel],
-  )
+  );
 
   const options = useMemo(
     () =>
-      makeDsChartOptions<'bar'>(theme, 'bar', {
+      makeDsChartOptions<"bar">(theme, "bar", {
         seriesCount: 1,
-        indexAxis: horizontal ? 'y' : 'x',
+        indexAxis: horizontal ? "y" : "x",
         ariaLabel: title,
       }),
     [theme, title, horizontal],
-  )
+  );
 
   return (
     <ChartCard title={title} height={height} loading={loading} empty={empty}>
       <Bar data={chartData} options={options} />
     </ChartCard>
-  )
+  );
 }

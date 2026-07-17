@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/react'
+import type { Meta, StoryObj } from "@storybook/react";
 
-import { PageChecklistDashboardContent } from './PageChecklistDashboardContent'
+import { PageChecklistDashboardContent } from "./PageChecklistDashboardContent";
 
 /**
  * Storybook — Dashboard completo (payload alinhado ao backend).
@@ -8,25 +8,25 @@ import { PageChecklistDashboardContent } from './PageChecklistDashboardContent'
  * Menu: Checklist → Dashboard → Page → Demo
  */
 const meta: Meta<typeof PageChecklistDashboardContent> = {
-  title: 'Checklist/Dashboard/Page',
+  title: "Checklist/Dashboard/Page",
   component: PageChecklistDashboardContent,
   parameters: {
-    layout: 'fullscreen',
+    layout: "fullscreen",
     docs: {
       description: {
         component:
-          'Dashboard dos Checklists | Portal Conecta WEG — KPIs derivados + 6 gráficos do GET /api/checklist-stats/dashboard (via BFF).',
+          "Dashboard dos Checklists | Portal Conecta WEG — KPIs derivados + 6 gráficos do GET /api/checklist-stats/dashboard (via BFF).",
       },
     },
   },
-}
+};
 
-export default meta
-type Story = StoryObj<typeof PageChecklistDashboardContent>
+export default meta;
+type Story = StoryObj<typeof PageChecklistDashboardContent>;
 
 /** Página com MOCK_DASHBOARD_STATS (mesmo shape do backend). */
 export const Demo: Story = {
-  name: 'Dashboard completo',
+  name: "Dashboard completo",
   args: {
     useMock: true,
   },
@@ -37,4 +37,4 @@ export const Demo: Story = {
       </div>
     ),
   ],
-}
+};

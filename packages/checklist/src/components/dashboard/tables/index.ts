@@ -1,1 +1,4 @@
-export { ZonaVermelhaTable, type ZonaVermelhaTableProps } from './ZonaVermelhaTable'
+export {
+  ZonaVermelhaTable,
+  type ZonaVermelhaTableProps,
+} from "./ZonaVermelhaTable";

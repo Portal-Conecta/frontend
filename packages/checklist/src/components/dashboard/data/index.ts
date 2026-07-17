@@ -2,7 +2,7 @@ export {
   DASHBOARD_CHART_INVENTORY,
   type DashboardChartKind,
   type DashboardChartSpec,
-} from './chartInventory'
+} from "./chartInventory";
 export {
   ALERTAS_ORIENTACAO,
   DASHBOARD_KPIS,
@@ -14,5 +14,5 @@ export {
   TENDENCIA_META,
   ZONA_VERMELHA,
   type ZonaVermelhaIssue,
-} from './dashboardDemoData'
-export { MOCK_DASHBOARD_STATS } from './mockDashboardStats'
+} from "./dashboardDemoData";
+export { MOCK_DASHBOARD_STATS } from "./mockDashboardStats";

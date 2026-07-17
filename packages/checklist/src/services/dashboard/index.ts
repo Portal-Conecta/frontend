@@ -6,4 +6,4 @@
  * `@portal/checklist/services/dashboard/server/statsService`.
  * Não reexporte server daqui — puxa `next/headers` e quebra o bundle client.
  */
-export { fetchDashboardStats } from './dashboardClient'
+export { fetchDashboardStats } from "./dashboardClient";

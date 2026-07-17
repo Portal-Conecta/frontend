@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import { useMemo } from 'react'
-import { Line } from 'react-chartjs-2'
+import { useMemo } from "react";
+import { Line } from "react-chartjs-2";
 import {
   ChartCard,
   DS_CATEGORICAL,
@@ -9,31 +9,34 @@ import {
   makeDsChartOptions,
   registerLineCharts,
   useDsChartTheme,
-} from '@portal/ui'
+} from "@portal/ui";
 
 import {
   TENDENCIA_CONFORMIDADE_LABELS,
   TENDENCIA_CONFORMIDADE_VALUES,
   TENDENCIA_META,
-} from '../data/dashboardDemoData'
+} from "../data/dashboardDemoData";
 
-registerLineCharts()
+registerLineCharts();
 
 export interface DsTrendLineChartProps {
-  loading?: boolean
-  height?: number
+  loading?: boolean;
+  height?: number;
 }
 
-export function DsTrendLineChart({ loading = false, height = 300 }: DsTrendLineChartProps) {
-  const theme = useDsChartTheme()
-  const brand = DS_CATEGORICAL[0] ?? theme.textBrand
+export function DsTrendLineChart({
+  loading = false,
+  height = 300,
+}: DsTrendLineChartProps) {
+  const theme = useDsChartTheme();
+  const brand = DS_CATEGORICAL[0] ?? theme.textBrand;
 
   const chartData = useMemo(
     () => ({
       labels: [...TENDENCIA_CONFORMIDADE_LABELS],
       datasets: [
         {
-          label: 'Conformidade',
+          label: "Conformidade",
           data: [...TENDENCIA_CONFORMIDADE_VALUES],
           borderColor: brand,
           backgroundColor: brand,
@@ -42,7 +45,7 @@ export function DsTrendLineChart({ loading = false, height = 300 }: DsTrendLineC
           pointHoverRadius: 6,
         },
         {
-          label: 'Meta 90%',
+          label: "Meta 90%",
           data: TENDENCIA_CONFORMIDADE_LABELS.map(() => TENDENCIA_META),
           borderColor: theme.textMuted,
           backgroundColor: theme.textMuted,
@@ -56,13 +59,13 @@ export function DsTrendLineChart({ loading = false, height = 300 }: DsTrendLineC
       ],
     }),
     [theme, brand],
-  )
+  );
 
   const options = useMemo(
     () =>
-      makeDsChartOptions<'line'>(theme, 'line', {
+      makeDsChartOptions<"line">(theme, "line", {
         seriesCount: 2,
-        ariaLabel: 'Tendência de conformidade',
+        ariaLabel: "Tendência de conformidade",
         overrides: {
           scales: {
             y: {
@@ -76,7 +79,7 @@ export function DsTrendLineChart({ loading = false, height = 300 }: DsTrendLineC
         },
       }),
     [theme],
-  )
+  );
 
   return (
     <ChartCard
@@ -91,5 +94,5 @@ export function DsTrendLineChart({ loading = false, height = 300 }: DsTrendLineC
     >
       <Line data={chartData} options={options} />
     </ChartCard>
-  )
+  );
 }

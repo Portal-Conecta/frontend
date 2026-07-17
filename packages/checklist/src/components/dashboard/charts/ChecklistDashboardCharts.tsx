@@ -1,26 +1,29 @@
-'use client'
+"use client";
 
 /**
  * Grade de gráficos do dashboard — todos consomem ChartCard + makeDsChartOptions (via Ds*Chart).
  */
-import { useMemo } from 'react'
+import { useMemo } from "react";
 
-import type { DashboardStats } from '../../../types/dashboard'
-import { DsBarChart } from './DsBarChart'
-import { DsDoughnutChart } from './DsDoughnutChart'
-import { DsLineChart } from './DsLineChart'
-import { taxaConclusaoToChartEntries } from './taxaConclusao'
+import type { DashboardStats } from "../../../types/dashboard";
+import { DsBarChart } from "./DsBarChart";
+import { DsDoughnutChart } from "./DsDoughnutChart";
+import { DsLineChart } from "./DsLineChart";
+import { taxaConclusaoToChartEntries } from "./taxaConclusao";
 
 export interface ChecklistDashboardChartsProps {
-  stats?: DashboardStats | null
-  loading?: boolean
+  stats?: DashboardStats | null;
+  loading?: boolean;
 }
 
-export function ChecklistDashboardCharts({ stats, loading = false }: ChecklistDashboardChartsProps) {
+export function ChecklistDashboardCharts({
+  stats,
+  loading = false,
+}: ChecklistDashboardChartsProps) {
   const taxaChart = useMemo(
     () => taxaConclusaoToChartEntries(stats?.taxaConclusao),
     [stats?.taxaConclusao],
-  )
+  );
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -63,5 +66,5 @@ export function ChecklistDashboardCharts({ stats, loading = false }: ChecklistDa
         datasetLabel="Pendências"
       />
     </div>
-  )
+  );
 }

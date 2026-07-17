@@ -1,26 +1,32 @@
-'use client'
+"use client";
 
-import { useMemo } from 'react'
-import { Bar } from 'react-chartjs-2'
+import { useMemo } from "react";
+import { Bar } from "react-chartjs-2";
 import {
   ChartCard,
   dsBarDatasetDefaults,
   makeDsChartOptions,
   registerBarCharts,
   useDsChartTheme,
-} from '@portal/ui'
+} from "@portal/ui";
 
-import { PERFORMANCE_TURNO_LABELS, PERFORMANCE_TURNO_SERIES } from '../data/dashboardDemoData'
+import {
+  PERFORMANCE_TURNO_LABELS,
+  PERFORMANCE_TURNO_SERIES,
+} from "../data/dashboardDemoData";
 
-registerBarCharts()
+registerBarCharts();
 
 export interface DsStackedBarChartProps {
-  loading?: boolean
-  height?: number
+  loading?: boolean;
+  height?: number;
 }
 
-export function DsStackedBarChart({ loading = false, height = 300 }: DsStackedBarChartProps) {
-  const theme = useDsChartTheme()
+export function DsStackedBarChart({
+  loading = false,
+  height = 300,
+}: DsStackedBarChartProps) {
+  const theme = useDsChartTheme();
 
   const chartData = useMemo(
     () => ({
@@ -30,18 +36,18 @@ export function DsStackedBarChart({ loading = false, height = 300 }: DsStackedBa
         data: [...series.data],
         backgroundColor: series.color,
         borderColor: series.color,
-        stack: 'turno',
+        stack: "turno",
         ...dsBarDatasetDefaults(),
       })),
     }),
     [],
-  )
+  );
 
   const options = useMemo(
     () =>
-      makeDsChartOptions<'bar'>(theme, 'bar', {
+      makeDsChartOptions<"bar">(theme, "bar", {
         seriesCount: PERFORMANCE_TURNO_SERIES.length,
-        ariaLabel: 'Performance por turno',
+        ariaLabel: "Performance por turno",
         overrides: {
           scales: {
             x: { stacked: true },
@@ -56,11 +62,11 @@ export function DsStackedBarChart({ loading = false, height = 300 }: DsStackedBa
         },
       }),
     [theme],
-  )
+  );
 
   return (
     <ChartCard title="Performance por Turno" height={height} loading={loading}>
       <Bar data={chartData} options={options} />
     </ChartCard>
-  )
+  );
 }

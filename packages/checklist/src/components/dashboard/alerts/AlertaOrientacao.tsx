@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import { Icon, Text } from '@portal/ui'
+import { Icon, Text } from "@portal/ui";
 
-import { ALERTAS_ORIENTACAO } from '../data/dashboardDemoData'
+import { ALERTAS_ORIENTACAO } from "../data/dashboardDemoData";
 
 export function AlertaOrientacao() {
   return (
@@ -15,7 +15,12 @@ export function AlertaOrientacao() {
           <Icon name="circle-alert" size="md" />
         </span>
         <div>
-          <Text as="h2" id="alerta-orientacao-title" variant="label-md-emphasis" tone="primary">
+          <Text
+            as="h2"
+            id="alerta-orientacao-title"
+            variant="label-md-emphasis"
+            tone="primary"
+          >
             Alerta de Orientação
           </Text>
           <Text variant="body-sm" tone="secondary" className="mt-1">
@@ -45,5 +50,5 @@ export function AlertaOrientacao() {
         ))}
       </ul>
     </section>
-  )
+  );
 }
