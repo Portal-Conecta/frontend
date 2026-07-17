@@ -23,6 +23,7 @@ export interface DsBarChartProps {
   datasetLabel?: string
   horizontal?: boolean
   statusSemantics?: boolean
+  prioritySemantics?: boolean
 }
 
 export function DsBarChart({
@@ -33,11 +34,12 @@ export function DsBarChart({
   datasetLabel = 'Total',
   horizontal = false,
   statusSemantics = false,
+  prioritySemantics = false,
 }: DsBarChartProps) {
   const theme = useDsChartTheme()
   const chart = useMemo(
-    () => statsToChartData(data, { statusSemantics }),
-    [data, statusSemantics],
+    () => statsToChartData(data, { statusSemantics, prioritySemantics }),
+    [data, statusSemantics, prioritySemantics],
   )
   const empty = !loading && isEmptyStats(data)
 

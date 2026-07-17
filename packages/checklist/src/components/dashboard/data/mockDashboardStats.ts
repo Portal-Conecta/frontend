@@ -1,6 +1,9 @@
 import type { DashboardStats } from '../../../types/dashboard'
 
-/** Dados de demonstração para Storybook e preview sem backend. */
+/**
+ * Fixture alinhada ao GET /api/checklist-stats/dashboard (backend real).
+ * `taxaConclusao`: submitted / total / ratePercent (não misturar no donut cru).
+ */
 export const MOCK_DASHBOARD_STATS: DashboardStats = {
   periodo: { from: '2026-06-01', to: '2026-06-30' },
   execucoesPorDia: [
@@ -18,8 +21,9 @@ export const MOCK_DASHBOARD_STATS: DashboardStats = {
     { label: 'CANCELED', value: 5 },
   ],
   taxaConclusao: [
-    { label: 'Concluídas', value: 78 },
-    { label: 'Pendentes', value: 22 },
+    { label: 'submitted', value: 42 },
+    { label: 'total', value: 54 },
+    { label: 'ratePercent', value: 77.8 },
   ],
   issuesPorStatus: [
     { label: 'OPEN', value: 15 },

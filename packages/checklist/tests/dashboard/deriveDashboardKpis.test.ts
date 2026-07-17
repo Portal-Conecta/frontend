@@ -3,9 +3,13 @@ import { describe, expect, it } from 'vitest'
 import { MOCK_DASHBOARD_STATS } from '../../src/components/dashboard/data/mockDashboardStats'
 import { deriveDashboardKpis } from '../../src/components/dashboard/kpis/deriveDashboardKpis'
 import { statsToChartData } from '../../src/components/dashboard/charts/statsToChartData'
+import {
+  parseTaxaConclusao,
+  taxaConclusaoToChartEntries,
+} from '../../src/components/dashboard/charts/taxaConclusao'
 
 describe('deriveDashboardKpis', () => {
-  it('deriva 4 KPIs a partir do payload do dashboard', () => {
+  it('deriva 4 KPIs a partir do payload do dashboard (ratePercent)', () => {
     const kpis = deriveDashboardKpis(MOCK_DASHBOARD_STATS)
     expect(kpis).toHaveLength(4)
     expect(kpis.map((k) => k.id)).toEqual([
@@ -14,10 +18,57 @@ describe('deriveDashboardKpis', () => {
       'pendencias',
       'prioridade-alta',
     ])
-    expect(kpis[0]!.value).toBe('78%')
+    // ratePercent 77.8 do mock
+    expect(kpis[0]!.value).toBe('77,8%')
+    expect(kpis[0]!.hint).toContain('42')
+    expect(kpis[0]!.hint).toContain('54')
+    // execuções por status: 42+12+5
     expect(kpis[1]!.value).toBe('59')
+    // issues: 15+8+21+3
     expect(kpis[2]!.value).toBe('47')
+    // HIGH: 9
     expect(kpis[3]!.value).toBe('9')
+  })
+
+  it('usa ratePercent 0 com total 0 (payload vazio real)', () => {
+    const kpis = deriveDashboardKpis({
+      ...MOCK_DASHBOARD_STATS,
+      execucoesPorStatus: [],
+      taxaConclusao: [
+        { label: 'submitted', value: 0 },
+        { label: 'total', value: 0 },
+        { label: 'ratePercent', value: 0 },
+      ],
+      issuesPorStatus: [],
+      issuesPorPrioridade: [],
+    })
+    expect(kpis[0]!.value).toBe('0%')
+    expect(kpis[1]!.value).toBe('0')
+  })
+})
+
+describe('taxaConclusao', () => {
+  it('parseTaxaConclusao lê labels do backend', () => {
+    const parsed = parseTaxaConclusao(MOCK_DASHBOARD_STATS.taxaConclusao)
+    expect(parsed).toEqual({ submitted: 42, total: 54, ratePercent: 77.8 })
+  })
+
+  it('taxaConclusaoToChartEntries não inclui ratePercent', () => {
+    const chart = taxaConclusaoToChartEntries(MOCK_DASHBOARD_STATS.taxaConclusao)
+    expect(chart).toEqual([
+      { label: 'Submetidas', value: 42 },
+      { label: 'Não submetidas', value: 12 },
+    ])
+  })
+
+  it('taxaConclusaoToChartEntries retorna vazio quando total=0', () => {
+    expect(
+      taxaConclusaoToChartEntries([
+        { label: 'submitted', value: 0 },
+        { label: 'total', value: 0 },
+        { label: 'ratePercent', value: 0 },
+      ]),
+    ).toEqual([])
   })
 })
 

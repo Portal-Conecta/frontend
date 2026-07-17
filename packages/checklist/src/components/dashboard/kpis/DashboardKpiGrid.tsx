@@ -12,9 +12,9 @@ const toneIcon: Record<DashboardKpiItem['tone'], string> = {
 }
 
 export interface DashboardKpiGridProps {
-  loading?: boolean
+  loading?: boolean | undefined
   /** KPIs calculados a partir do dashboard real; se omitido, usa demo. */
-  items?: readonly DashboardKpiItem[]
+  items?: readonly DashboardKpiItem[] | undefined
 }
 
 export function DashboardKpiGrid({ loading = false, items }: DashboardKpiGridProps) {

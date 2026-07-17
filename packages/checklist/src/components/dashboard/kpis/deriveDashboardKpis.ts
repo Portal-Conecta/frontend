@@ -1,6 +1,10 @@
 import type { IconName } from '@portal/ui'
 
 import type { DashboardStats, StatsEntry } from '../../../types/dashboard'
+import {
+  findStatsValue,
+  parseTaxaConclusao,
+} from '../charts/taxaConclusao'
 
 export interface DashboardKpiItem {
   id: string
@@ -15,55 +19,45 @@ function sum(entries: StatsEntry[]): number {
   return entries.reduce((acc, e) => acc + e.value, 0)
 }
 
-function findValue(entries: StatsEntry[], predicates: string[]): number {
-  const upper = predicates.map((p) => p.toUpperCase())
-  const hit = entries.find((e) => {
-    const label = e.label.toUpperCase()
-    return upper.some((p) => label.includes(p))
-  })
-  return hit?.value ?? 0
-}
-
-function formatPct(part: number, total: number): string {
-  if (total <= 0) return '0%'
-  const pct = Math.round((part / total) * 1000) / 10
-  return `${pct.toLocaleString('pt-BR')}%`
+function formatPct(pct: number): string {
+  const rounded = Math.round(pct * 10) / 10
+  return `${rounded.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 1 })}%`
 }
 
 /**
  * KPIs derivados do payload composto GET /api/checklist-stats/dashboard.
- * O backend não envia cards de KPI prontos — só séries/agregações.
+ *
+ * `taxaConclusao` no backend real:
+ *   [{ label: "submitted" }, { label: "total" }, { label: "ratePercent" }]
  */
 export function deriveDashboardKpis(stats: DashboardStats): DashboardKpiItem[] {
-  const taxaTotal = sum(stats.taxaConclusao)
-  const concluidas = findValue(stats.taxaConclusao, [
-    'CONCLU',
-    'SUBMIT',
-    'DONE',
-    'COMPLETED',
-  ])
-  // fallback: maior fatia se labels forem genéricos
-  const taxaPart =
-    concluidas > 0
-      ? concluidas
-      : stats.taxaConclusao.length
-        ? Math.max(...stats.taxaConclusao.map((e) => e.value))
-        : 0
+  const taxa = parseTaxaConclusao(stats.taxaConclusao)
 
-  const totalExec = sum(stats.execucoesPorStatus)
-  const submitted = findValue(stats.execucoesPorStatus, ['SUBMIT'])
+  const totalExec =
+    sum(stats.execucoesPorStatus) || taxa.total || 0
+  const submitted =
+    findStatsValue(stats.execucoesPorStatus, ['SUBMIT']) || taxa.submitted
   const totalIssues = sum(stats.issuesPorStatus)
   const openIssues =
-    findValue(stats.issuesPorStatus, ['OPEN']) +
-    findValue(stats.issuesPorStatus, ['IN_PROGRESS', 'PROGRESS', 'ANDAM'])
-  const highPriority = findValue(stats.issuesPorPrioridade, ['HIGH', 'ALTA', 'CRIT'])
+    findStatsValue(stats.issuesPorStatus, ['OPEN']) +
+    findStatsValue(stats.issuesPorStatus, ['IN_PROGRESS', 'PROGRESS', 'ANDAM'])
+  const highPriority = findStatsValue(stats.issuesPorPrioridade, [
+    'HIGH',
+    'ALTA',
+    'CRIT',
+  ])
+
+  const taxaHint =
+    taxa.total > 0
+      ? `${taxa.submitted.toLocaleString('pt-BR')} de ${taxa.total.toLocaleString('pt-BR')} submetidas`
+      : 'Execuções concluídas no recorte'
 
   return [
     {
       id: 'taxa-conclusao',
       label: 'Taxa de conclusão',
-      value: formatPct(taxaPart, taxaTotal || taxaPart),
-      hint: 'Execuções concluídas no recorte',
+      value: formatPct(taxa.ratePercent),
+      hint: taxaHint,
       icon: 'circle-check',
       tone: 'positive',
     },
@@ -93,7 +87,7 @@ export function deriveDashboardKpis(stats: DashboardStats): DashboardKpiItem[] {
       id: 'prioridade-alta',
       label: 'Prioridade alta',
       value: highPriority.toLocaleString('pt-BR'),
-      hint: 'Issues HIGH no recorte',
+      hint: 'Prioridade alta no recorte',
       icon: 'triangle-alert',
       tone: 'negative',
     },

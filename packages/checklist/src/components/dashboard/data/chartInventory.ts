@@ -37,7 +37,8 @@ export const DASHBOARD_CHART_INVENTORY: readonly DashboardChartSpec[] = [
     title: 'Taxa de conclusão',
     kind: 'doughnut',
     dataShape: 'ratio',
-    notes: 'Submetidas vs total — KPI em donut; sem dual-axis.',
+    notes:
+      'Backend: submitted/total/ratePercent. UI: donut só contagens (submetidas vs restante); % no card KPI.',
   },
   {
     id: 'issuesPorStatus',

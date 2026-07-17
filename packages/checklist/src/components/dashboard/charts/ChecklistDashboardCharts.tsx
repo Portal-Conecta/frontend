@@ -3,10 +3,13 @@
 /**
  * Grade de gráficos do dashboard — todos consomem ChartCard + makeDsChartOptions (via Ds*Chart).
  */
+import { useMemo } from 'react'
+
 import type { DashboardStats } from '../../../types/dashboard'
 import { DsBarChart } from './DsBarChart'
 import { DsDoughnutChart } from './DsDoughnutChart'
 import { DsLineChart } from './DsLineChart'
+import { taxaConclusaoToChartEntries } from './taxaConclusao'
 
 export interface ChecklistDashboardChartsProps {
   stats?: DashboardStats | null
@@ -14,6 +17,11 @@ export interface ChecklistDashboardChartsProps {
 }
 
 export function ChecklistDashboardCharts({ stats, loading = false }: ChecklistDashboardChartsProps) {
+  const taxaChart = useMemo(
+    () => taxaConclusaoToChartEntries(stats?.taxaConclusao),
+    [stats?.taxaConclusao],
+  )
+
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       <DsLineChart
@@ -30,9 +38,10 @@ export function ChecklistDashboardCharts({ stats, loading = false }: ChecklistDa
       />
       <DsDoughnutChart
         title="Taxa de conclusão"
-        data={stats?.taxaConclusao ?? []}
+        data={taxaChart}
         loading={loading}
         kpi
+        statusSemantics
       />
       <DsBarChart
         title="Pendências por status"
@@ -45,6 +54,7 @@ export function ChecklistDashboardCharts({ stats, loading = false }: ChecklistDa
         title="Pendências por prioridade"
         data={stats?.issuesPorPrioridade ?? []}
         loading={loading}
+        prioritySemantics
       />
       <DsLineChart
         title="Pendências por dia"
