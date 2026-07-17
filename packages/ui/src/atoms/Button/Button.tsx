@@ -10,7 +10,8 @@
  * `tone="overlay"` (botão sobre fundo de marca) ainda não existe — segue como
  * dívida no AGENTS e override pontual no PageLogin.
  */
-import type { ButtonHTMLAttributes, ReactNode } from 'react'
+import { cloneElement, isValidElement } from 'react'
+import type { ButtonHTMLAttributes, ReactElement, ReactNode } from 'react'
 
 import { Icon, type IconName } from '../Icon'
 
@@ -124,8 +125,18 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
   loading?: boolean
   /** Ocupa toda a largura disponível. */
   fullWidth?: boolean
+  /** Aplica comportamento e estilos ao elemento filho, como um `Link`. */
+  asChild?: boolean
   /** Opcional: quando ausente e `icon` presente, o botão é icon-only. */
   children?: ReactNode
+}
+
+type ButtonChildProps = {
+  'aria-busy'?: boolean | undefined
+  'aria-disabled'?: boolean | undefined
+  'aria-label'?: string | undefined
+  className?: string | undefined
+  onClick?: ButtonHTMLAttributes<HTMLButtonElement>['onClick'] | undefined
 }
 
 const base =
@@ -142,6 +153,7 @@ export function Button({
   iconRight,
   loading = false,
   fullWidth = false,
+  asChild = false,
   disabled = false,
   type = 'button',
   className,
@@ -174,6 +186,32 @@ export function Button({
   ]
     .filter(Boolean)
     .join(' ')
+
+  if (asChild) {
+    if (!isValidElement<ButtonChildProps>(children)) {
+      if (process.env.NODE_ENV !== 'production') {
+        // eslint-disable-next-line no-console
+        console.warn('Button: `asChild` exige um único elemento React como filho.')
+      }
+
+      return null
+    }
+
+    const child = children as ReactElement<ButtonChildProps>
+    const isDisabled = disabled || loading
+
+    return cloneElement(child, {
+      className: [classes, child.props.className].filter(Boolean).join(' '),
+      'aria-busy': loading || undefined,
+      'aria-disabled': isDisabled || undefined,
+      'aria-label': ariaLabel,
+      onClick: isDisabled
+        ? (event) => {
+            event.preventDefault()
+          }
+        : child.props.onClick,
+    })
+  }
 
   return (
     <button
