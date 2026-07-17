@@ -4,6 +4,12 @@
  * BFF de perfil: se `getMyProfile` falhar, a página inteira falha (não há o
  * que mostrar); se só `getMyCourses` falhar, degrada graciosamente — o resto
  * da página renderiza normal e a seção de turmas vira um Banner de erro.
+ *
+ * As duas chamadas disparam em paralelo (`Promise.allSettled`) — não há
+ * dependência entre elas, então evita-se o waterfall de dois awaits sequenciais
+ * (issue #407). A degradação graciosa é preservada tratando cada resultado
+ * separadamente: profile rejeitado derruba a página, courses rejeitado só
+ * marca `coursesFailed`.
  */
 import { redirect } from 'next/navigation'
 
@@ -26,10 +32,16 @@ export async function PageProfile() {
 
   const user = await getCurrentUser()
 
+  const [profileResult, coursesResult] = await Promise.allSettled([
+    getMyProfile(accessToken),
+    getMyCourses(accessToken),
+  ])
+
   let profile: MyProfile
-  try {
-    profile = await getMyProfile(accessToken)
-  } catch (err) {
+  if (profileResult.status === 'fulfilled') {
+    profile = profileResult.value
+  } else {
+    const err = profileResult.reason
     if (err instanceof HttpError && err.kind === 'unauthorized') {
       redirect('/login')
     }
@@ -38,10 +50,10 @@ export async function PageProfile() {
 
   let classes: ClassCardItem[] = []
   let coursesFailed = false
-  try {
-    const { courses } = await getMyCourses(accessToken)
-    classes = flattenClasses(courses)
-  } catch (err) {
+  if (coursesResult.status === 'fulfilled') {
+    classes = flattenClasses(coursesResult.value.courses)
+  } else {
+    const err = coursesResult.reason
     if (err instanceof HttpError && err.kind === 'unauthorized') {
       redirect('/login')
     }
