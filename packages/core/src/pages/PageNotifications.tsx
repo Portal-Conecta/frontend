@@ -51,7 +51,7 @@ export async function PageNotifications({ searchParams }: PageNotificationsProps
     status === 'UNREAD' ? data.content.map((notification) => notification.notificationId) : []
 
   return (
-    <AppShell user={user} activeKey="">
+    <AppShell user={user}>
     <div className="mx-auto flex w-full max-w-[1024px] flex-col p-6 md:p-8">
       {/* Cabeçalho */}
       <div className="mb-6 flex flex-col gap-4">
