@@ -64,7 +64,7 @@ export function ChecklistSubmissionCard({
         size="sm"
         iconLeft="eye"
         onClick={onView}
-        className="mt-3 w-full md:mt-0 md:w-24 md:shrink-0"
+        className="mt-3 w-full whitespace-nowrap md:mt-0 md:w-auto md:shrink-0"
       >
         Ver Envio
       </Button>
