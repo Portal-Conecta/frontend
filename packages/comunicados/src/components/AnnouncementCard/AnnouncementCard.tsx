@@ -67,6 +67,7 @@ export function AnnouncementCard({
           src={thumbnailUrl}
           alt=""
           loading="lazy"
+          draggable={false}
           className="absolute inset-0 h-full w-full object-cover"
           aria-hidden="true"
         />
