@@ -51,10 +51,6 @@ const meta = {
       control: 'boolean',
       description: 'Ocupa toda a largura disponível.',
     },
-    asChild: {
-      control: 'boolean',
-      description: 'Aplica o contrato visual e de estado ao elemento filho, como uma âncora ou Link.',
-    },
     disabled: {
       control: 'boolean',
       description: 'Desabilita o botão (atributo nativo).',
@@ -73,16 +69,6 @@ export const Solid: Story = { args: { variant: 'solid' } }
 export const Outlined: Story = { args: { variant: 'outlined' } }
 export const Ghost: Story = { args: { variant: 'ghost' } }
 export const Link: Story = { args: { variant: 'link' } }
-
-/** Elemento de navegação com aparência de botão, sem duplicar estilos do DS. */
-export const AsLink: Story = {
-  args: { children: undefined },
-  render: () => (
-    <Button asChild>
-      <a href="#button-as-link">Navegar</a>
-    </Button>
-  ),
-}
 
 /** Matriz completa: cada forma (`variant`) em cada cor (`tone`). */
 export const Matrix: Story = {
