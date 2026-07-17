@@ -45,16 +45,15 @@ export interface PageMapaSalasContentProps {
 type CrumbTarget = 'sala' | 'turma'
 
 /**
- * Sem linha permanente — só o sublinhado no hover, do tamanho do próprio
- * item (nada de faixa cheia atrás). Compartilhada pelos dois crumbs
- * (`<button>`) e pelo "Mapa de sala" (`<span>`, não interativo) — mesma
- * borda/padding/transição nos três, só o elemento muda conforme é ou não
- * clicável (docs/conventions/acessibilidade.md: "use o elemento HTML correto
- * antes de recorrer a `role`" — daí `<button>` de verdade, não `<span
- * role="button">`).
+ * Base de borda/padding/transição compartilhada pelos dois crumbs
+ * (`<button>`) e pelo "Mapa de sala" (`<span>`, não interativo) — só o
+ * elemento muda conforme é ou não clicável (docs/conventions/acessibilidade.md:
+ * "use o elemento HTML correto antes de recorrer a `role`" — daí `<button>`
+ * de verdade, não `<span role="button">`). Sem o hover aqui: o "Mapa de
+ * sala" não navega, então não deve ganhar affordance de clicável — o
+ * sublinhado no hover é só do `CRUMB_BUTTON_CLASSES`.
  */
-const CRUMB_ITEM_CLASSES =
-  'border-b-md border-transparent pb-1 transition-colors duration-150 hover:border-border-focus'
+const CRUMB_ITEM_CLASSES = 'border-b-md border-transparent pb-1 transition-colors duration-150'
 
 // Mesmo anel de foco do StepTab da RoomFilterBar — o crumb é o "modo compacto"
 // do mesmo stepper. `border-x-0 border-t-0 bg-transparent p-0`: zera o
@@ -62,7 +61,7 @@ const CRUMB_ITEM_CLASSES =
 // a caixa inteira, inclusive as pontas da borda de baixo do hover — virava uma
 // "pílula" em vez da linha reta simples do "Mapa de sala".
 const CRUMB_BUTTON_CLASSES = [
-  'cursor-pointer border-x-0 border-t-0 bg-transparent p-0',
+  'cursor-pointer border-x-0 border-t-0 bg-transparent p-0 hover:border-border-focus',
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-interactive-focus-ring',
   CRUMB_ITEM_CLASSES,
 ].join(' ')
@@ -155,7 +154,8 @@ export function PageMapaSalasContent({ user, rooms, turmas }: PageMapaSalasConte
           Os crumbs voltam à etapa correspondente do seletor. Mesma tipografia/
           cor/espaçamento da "Barra de progresso" do Figma (280-7150): os três
           segmentos em `body-md`/`brand`, `gap-14` (~60px). Sem linha permanente
-          — só o sublinhado no hover de cada item, ver `CRUMB_ITEM_CLASSES`. */}
+          — só o sublinhado no hover dos crumbs clicáveis, ver
+          `CRUMB_BUTTON_CLASSES` ("Mapa de sala" não navega, não ganha hover). */}
       <nav aria-label="Sala selecionada" className="flex items-center justify-center gap-14">
         {selectedRoom ? (
           <button type="button" className={CRUMB_BUTTON_CLASSES} onClick={() => handleCrumbClick('sala')}>
