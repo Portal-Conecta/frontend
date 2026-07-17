@@ -31,7 +31,7 @@ const links = [
 export function AppFooter({ sidebarExpanded = false, leftSlot, className }: AppFooterProps) {
   const sidebarWidth = sidebarExpanded ? SIDEBAR_WIDTH_EXPANDED : SIDEBAR_WIDTH_COLLAPSED
 
-  const footerClasses = ['flex min-h-[64px] lg:h-[64px] lg:bg-background-surface', className]
+  const footerClasses = ['flex min-h-[60px] lg:h-[60px] lg:bg-background-surface', className]
     .filter(Boolean)
     .join(' ')
 

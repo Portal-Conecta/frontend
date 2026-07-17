@@ -70,11 +70,10 @@ export function PageChecklistDashboardContent({
     [useMock],
   )
 
-  // Carga inicial (não reexecuta a cada tecla no date picker)
+  // Carga inicial: `load` só muda com useMock; período só no botão Filtrar.
   useEffect(() => {
     void load(period.from, period.to)
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount only
-  }, [])
+  }, [load])
 
   const kpis = useMemo(
     () => (stats ? deriveDashboardKpis(stats) : undefined),

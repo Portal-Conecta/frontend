@@ -12,8 +12,10 @@ A página do domínio nasce em `src/pages/` e é montada em uma rota do App Rout
 
 ```
 packages/checklist/src/pages/PageChecklist.tsx   ← componente de página (este pacote)
-apps/root/src/app/checklist/page.tsx             ← rota que importa de @portal/checklist
+apps/root/src/app/(authenticated)/checklist/page.tsx  ← rota que importa de @portal/checklist
 ```
+
+O padrão de página + rota segue o piloto de `@portal/comunicados`: a página renderiza o conteúdo e a rota fina vive no grupo `(authenticated)` do `apps/root` — o `AppShell` vem do layout do grupo (#405).
 
 ### Dashboard (organização)
 
@@ -30,8 +32,10 @@ src/
   types/dashboard/                ← StatsEntry / DashboardStats
 ```
 
-Rota shell: `apps/root/src/app/(authenticated)/checklist/dashboard/page.tsx`
+Rota shell: `apps/root/src/app/(authenticated)/checklist/dashboard/page.tsx`  
 Charts reutilizáveis do DS: `packages/ui/src/charts/` (`ChartCard`, `theme/`).
+
+BFF stats: `apps/root/src/app/api/checklist/stats/**` → `@portal/checklist/services/server/statsService` (reexport do módulo dashboard).
 
 ## Fronteiras
 

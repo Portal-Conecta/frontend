@@ -136,6 +136,76 @@ describe('mapDetailToEditForm', () => {
 
     expect(form.content.description).toBe('<p>Texto puro sem HTML</p>')
   })
+
+  it('GENERAL sem tag ROLE vira Público geral (broadcast), não Todos os Alunos', () => {
+    const form = mapDetailToEditForm(
+      makeDetail({
+        destinations: [
+          {
+            id: 'd-gen',
+            announcementId: 'a1',
+            type: ANNOUNCEMENT_DESTINATION_TYPE.GENERAL,
+            referenceId: null,
+          },
+        ],
+        tags: [],
+      }),
+    )
+
+    expect(form.recipients).toEqual([
+      { key: 'group:EVERYONE', kind: 'group', refId: 'EVERYONE', label: 'Público geral' },
+    ])
+  })
+
+  it.each([
+    ['Alunos', 'role-student', 'STUDENTS', 'Todos os Alunos'],
+    ['Professores', 'role-teacher', 'TEACHERS', 'Todos os Professores'],
+    ['Representantes', 'role-representative', 'REPRESENTATIVES', 'Todos os Representantes'],
+    ['SENAI', 'role-senai', 'SENAI', 'SENAI'],
+    ['WEG', 'role-weg', 'WEG', 'WEG'],
+    ['Administradores', 'role-admin', 'ADMIN', 'Administradores'],
+  ] as const)(
+    'GENERAL + tag ROLE %s reconstitui o grupo %s',
+    (tagName, tagId, group, label) => {
+      const form = mapDetailToEditForm(
+        makeDetail({
+          destinations: [
+            {
+              id: 'd-gen',
+              announcementId: 'a1',
+              type: ANNOUNCEMENT_DESTINATION_TYPE.GENERAL,
+              referenceId: null,
+            },
+          ],
+          tags: [{ announcementId: 'a1', tagId, tagName }],
+        }),
+      )
+
+      expect(form.recipients).toEqual([
+        { key: `group:${group}`, kind: 'group', refId: group, label },
+      ])
+    },
+  )
+
+  it('tag desconhecida (não ROLE nem turno) não vira chip de shift', () => {
+    const form = mapDetailToEditForm(
+      makeDetail({
+        destinations: [
+          {
+            id: 'd-gen',
+            announcementId: 'a1',
+            type: ANNOUNCEMENT_DESTINATION_TYPE.GENERAL,
+            referenceId: null,
+          },
+        ],
+        tags: [{ announcementId: 'a1', tagId: 'tag-weird', tagName: 'Algo desconhecido' }],
+      }),
+    )
+
+    expect(form.recipients).toEqual([
+      { key: 'group:EVERYONE', kind: 'group', refId: 'EVERYONE', label: 'Público geral' },
+    ])
+  })
 })
 
 describe('enrichRecipientsFromCatalog', () => {

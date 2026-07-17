@@ -19,6 +19,15 @@ import {
 import type { Tag } from '../types/tag'
 import type { UserSummary } from '../components/DestinationSelector/types'
 
+export interface UseDestinationCatalogOptions {
+  /**
+   * Busca o diretório completo de usuários (`/destinations/users`). Personas
+   * restritas (docente/representante — RN-COM-PA02/PA03) desligam e usam a
+   * lista escopada de `useMyClassStudents`.
+   */
+  includeDirectoryUsers?: boolean
+}
+
 export interface UsersPageState {
   items: UserSummary[]
   page: number
@@ -49,7 +58,10 @@ const USERS_SEARCH_FETCH_SIZE = 100
 /** Espera após a última tecla antes de buscar usuários (mesmo default do SearchBarAsync). */
 const USERS_SEARCH_DEBOUNCE_MS = 300
 
-export function useDestinationCatalog(): UseDestinationCatalogResult {
+export function useDestinationCatalog(
+  options: UseDestinationCatalogOptions = {},
+): UseDestinationCatalogResult {
+  const { includeDirectoryUsers = true } = options
   const [courses, setCourses] = useState<SelectOption[]>([])
   const [classes, setClasses] = useState<SelectOption[]>([])
   const [tags, setTags] = useState<Tag[]>([])
@@ -151,8 +163,9 @@ export function useDestinationCatalog(): UseDestinationCatalogResult {
   }, [])
 
   useEffect(() => {
+    if (!includeDirectoryUsers) return
     void loadUsers(usersPageIndex, debouncedUsersQuery)
-  }, [loadUsers, usersPageIndex, debouncedUsersQuery])
+  }, [includeDirectoryUsers, loadUsers, usersPageIndex, debouncedUsersQuery])
 
   function setUsersQuery(query: string) {
     setUsersQueryState(query)

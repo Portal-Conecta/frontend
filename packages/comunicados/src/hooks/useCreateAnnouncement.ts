@@ -10,6 +10,7 @@ import {
   ANNOUNCEMENT_ORIGIN,
   type AnnouncementOrigin,
   type AnnouncementResponse,
+  type AnnouncementRole,
   type CreateAnnouncementDestinationInput,
   type PublishAnnouncementRequest,
   type ScheduleAnnouncementRequest,
@@ -52,6 +53,8 @@ export interface CreateAnnouncementFormValues {
   pinned: boolean
   tagIds: string[]
   shiftCodes: HubShift[]
+  /** Papéis (`UserType`); vazio = sem restrição de papel no publish/schedule. */
+  roles: AnnouncementRole[]
 }
 
 export interface SubmitAnnouncementOptions {
@@ -80,6 +83,7 @@ const DEFAULT_VALUES: CreateAnnouncementFormValues = {
   pinned: false,
   tagIds: [],
   shiftCodes: [],
+  roles: [],
 }
 
 const GENERIC_ERROR = 'Serviço indisponível, tente novamente.'
@@ -228,6 +232,8 @@ export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}
       uploadedLocalIdsRef.current = new Set()
       if (redirectOnSuccess) {
         router.push(redirectTo)
+        // Mesma race do wizard: listagem do mural pode ver 5xx logo após create.
+        router.refresh()
       }
       return post
     },
@@ -375,5 +381,6 @@ function buildPublishBodyFrom(values: CreateAnnouncementFormValues): PublishAnno
     pinned: values.pinned,
     tagIds: values.tagIds,
     shiftCodes: values.shiftCodes,
+    roles: values.roles,
   })
 }

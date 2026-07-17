@@ -31,6 +31,22 @@ export const ANNOUNCEMENT_DESTINATION_TYPE = {
 export type AnnouncementDestinationType =
   (typeof ANNOUNCEMENT_DESTINATION_TYPE)[keyof typeof ANNOUNCEMENT_DESTINATION_TYPE]
 
+/**
+ * Papéis opcionais no publish/schedule (`roles`). Vazio/omitido = sem restrição
+ * de papel (visível a qualquer `UserType` no escopo espacial). Viram tag `ROLE`
+ * no back (`hub_entity_id` = nome do enum).
+ */
+export const ANNOUNCEMENT_ROLE = {
+  STUDENT: 'STUDENT',
+  REPRESENTATIVE: 'REPRESENTATIVE',
+  TEACHER: 'TEACHER',
+  SENAI: 'SENAI',
+  WEG: 'WEG',
+  ADMIN: 'ADMIN',
+} as const
+
+export type AnnouncementRole = (typeof ANNOUNCEMENT_ROLE)[keyof typeof ANNOUNCEMENT_ROLE]
+
 export const ANNOUNCEMENT_STATUS = {
   SCHEDULED: 'SCHEDULED',
   PUBLISHED: 'PUBLISHED',
@@ -60,6 +76,11 @@ export interface PublishAnnouncementRequest {
   tagIds?: string[]
   /** Turnos do Core (`FULL_AM_PM` / `FULL_PM_NT`). */
   shiftCodes?: HubShift[]
+  /**
+   * Papéis que podem ver o comunicado. Opcional; omitido/vazio = sem restrição
+   * de papel. Ex.: `["STUDENT"]` com destino GENERAL = “todos os alunos”.
+   */
+  roles?: AnnouncementRole[]
 }
 
 /**
@@ -146,8 +167,9 @@ export interface AnnouncementDetail {
  * Body parcial de `PUT /api/posts/{id}` (`UpdateAnnouncementRequest`).
  *
  * Limitação OpenAPI (#397): o PUT aceita `destinations`, mas **não** expõe
- * `tagIds` nem `shiftCodes`. Alterar turnos/tags na edição exige extensão do
- * contrato no comunicados-backend; até lá o front só atualiza campos listados.
+ * `tagIds`, `shiftCodes` nem `roles`. Alterar turnos/tags/papéis na edição
+ * exige extensão do contrato no comunicados-backend; até lá o front só
+ * atualiza campos listados (papéis ficam como na criação).
  */
 export interface AnnouncementUpdatePayload {
   title?: string

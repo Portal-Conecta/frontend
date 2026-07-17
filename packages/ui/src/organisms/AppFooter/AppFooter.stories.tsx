@@ -47,7 +47,7 @@ const meta: Meta<typeof AppFooter> = {
     sidebarExpanded: {
       control: 'boolean',
       description:
-        'Alinha a largura da coluna esquerda ao estado da sidebar (colapsada 96px / expandida 254px).',
+        'Alinha a largura da coluna esquerda ao estado da sidebar (colapsada 72px / expandida 248px).',
     },
     leftSlot: {
       control: false,

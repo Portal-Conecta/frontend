@@ -1,4 +1,4 @@
-/** @deprecated Prefer `@portal/checklist/types/dashboard`. Mantido por compat. */
+/** Compat: prefer `@portal/checklist/types/dashboard`. */
 export type {
   DashboardStats,
   DashboardStatsResponse,

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-import { getDashboardStats } from '@portal/checklist/services/dashboard'
+import { getDashboardStats } from '@portal/checklist/services/server/statsService'
 
 import { bffErrorResponse } from '../../_lib/bffError'
 

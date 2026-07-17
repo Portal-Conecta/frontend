@@ -1840,6 +1840,24 @@
                                 "FULL_PM_NT"
                             ]
                         }
+                    },
+                    "roles": {
+                        "type": "array",
+                        "description": "Papéis de usuário que podem ver o comunicado. Opcional; vazio = sem restrição de papel.",
+                        "example": [
+                            "STUDENT"
+                        ],
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "STUDENT",
+                                "REPRESENTATIVE",
+                                "TEACHER",
+                                "SENAI",
+                                "WEG",
+                                "ADMIN"
+                            ]
+                        }
                     }
                 },
                 "required": [
@@ -1902,6 +1920,24 @@
                             "enum": [
                                 "FULL_AM_PM",
                                 "FULL_PM_NT"
+                            ]
+                        }
+                    },
+                    "roles": {
+                        "type": "array",
+                        "description": "Papéis de usuário que podem ver o comunicado. Opcional; vazio = sem restrição de papel.",
+                        "example": [
+                            "STUDENT"
+                        ],
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "STUDENT",
+                                "REPRESENTATIVE",
+                                "TEACHER",
+                                "SENAI",
+                                "WEG",
+                                "ADMIN"
                             ]
                         }
                     }
