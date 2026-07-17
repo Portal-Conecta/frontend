@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-import { Button, ConfirmDialog, Icon, Text } from '@portal/ui'
+import { Button, ConfirmDialog, Icon, Text, revokeLocalFileUploadPreviews } from '@portal/ui'
 import { HttpError } from '@portal/core/http/errors'
 
 import type { AnnouncementStatus } from '../../types/announcement'
@@ -145,6 +145,16 @@ export function EditAnnouncementWizard({ announcementId }: EditAnnouncementWizar
     ANNOUNCEMENT_STATUS.PUBLISHED,
   )
   const [initialImageIds, setInitialImageIds] = useState<string[]>([])
+
+  // Blob URLs de imagens locais novas — limpa ao sair da página (não ao trocar etapa).
+  const imagesRef = useRef(content.images)
+  imagesRef.current = content.images
+  useEffect(() => {
+    return () => {
+      revokeLocalFileUploadPreviews(imagesRef.current)
+    }
+  }, [])
+
   const [contentErrors, setContentErrors] = useState<
     Partial<Record<keyof AnnouncementContentValue, string>>
   >({})
