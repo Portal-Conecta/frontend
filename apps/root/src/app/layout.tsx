@@ -5,6 +5,7 @@ import { ToastProvider } from '@portal/ui'
 import './globals.css'
 
 export const metadata: Metadata = {
+  title: 'Portal Conecta',
   icons: {
     icon: [{ url: '/favicon.png', type: 'image/png' }],
     apple: [{ url: '/favicon.png', type: 'image/png' }],
