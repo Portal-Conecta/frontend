@@ -17,7 +17,7 @@ const toneStyles: Record<InputTone, { box: string; input: string; suffix: string
   default: {
     box: 'bg-background-surface border-border-default focus-within:border-border-focus',
     input: 'text-text-primary placeholder:text-text-placeholder',
-    suffix: 'text-text-secondary transition-colors group-focus-within:text-border-focus',
+    suffix: 'text-text-secondary',
     message: 'text-feedback-error',
   },
   overlay: {
@@ -59,7 +59,7 @@ export function Input({
   const styles = toneStyles[tone]
 
   const boxClasses = [
-    'group flex items-center gap-2 h-11 px-3 py-2.5 rounded-md border-sm transition-colors',
+    'flex items-center gap-2 h-11 px-3 py-2.5 rounded-md border-sm transition-colors',
     disabled ? 'bg-background-default border-border-disabled' : styles.box,
   ].join(' ')
 
