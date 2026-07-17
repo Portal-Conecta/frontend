@@ -1,13 +1,12 @@
 "use client";
 
-import { Icon, Text } from "@portal/ui";
+import { Icon, Text, useFocusTrap } from "@portal/ui";
 import {
   useEffect,
   useId,
   useRef,
   useState,
   type ComponentProps,
-  type KeyboardEvent as ReactKeyboardEvent,
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
@@ -25,9 +24,6 @@ export interface BaseFeedbackModalProps {
   children: ReactNode;
 }
 
-const FOCUSABLE_SELECTOR =
-  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
-
 export function BaseFeedbackModal({
   open = false,
   message,
@@ -39,7 +35,6 @@ export function BaseFeedbackModal({
   children,
 }: BaseFeedbackModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
-  const lastFocusedRef = useRef<HTMLElement | null>(null);
   const [mounted, setMounted] = useState(false);
   const generatedId = useId();
 
@@ -47,59 +42,21 @@ export function BaseFeedbackModal({
     setMounted(true);
   }, []);
 
+  useFocusTrap(dialogRef, {
+    active: open && mounted,
+    onClose: dismissible ? onDismiss : undefined,
+  });
+
   useEffect(() => {
     if (!open) return;
-
-    lastFocusedRef.current = document.activeElement as HTMLElement | null;
-
-    const focusable =
-      dialogRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
-    if (focusable && focusable.length > 0) {
-      focusable[0]?.focus();
-    } else {
-      dialogRef.current?.focus();
-    }
-
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-
     return () => {
       document.body.style.overflow = previousOverflow;
-      lastFocusedRef.current?.focus?.();
     };
-  }, [open, mounted]);
-
-  useEffect(() => {
-    if (!open || !dismissible) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onDismiss?.();
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [open, dismissible, onDismiss]);
+  }, [open]);
 
   if (!open || !mounted) return null;
-
-  const trapFocus = (e: ReactKeyboardEvent<HTMLDivElement>) => {
-    if (e.key !== "Tab" || !dialogRef.current) return;
-
-    const focusable =
-      dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
-    if (focusable.length === 0) return;
-
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-
-    if (!first || !last) return;
-
-    if (e.shiftKey && document.activeElement === first) {
-      e.preventDefault();
-      last.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
-      e.preventDefault();
-      first.focus();
-    }
-  };
 
   const messageId = message ? generatedId : undefined;
 
@@ -116,7 +73,6 @@ export function BaseFeedbackModal({
         aria-label={messageId ? undefined : ariaLabel}
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
-        onKeyDown={trapFocus}
         className="flex w-full max-w-sm flex-col items-center gap-10 rounded-md bg-background-surface px-6 py-8 text-center shadow-xl outline-none"
       >
         <Icon
