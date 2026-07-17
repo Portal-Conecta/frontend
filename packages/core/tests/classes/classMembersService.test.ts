@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   addClassMember,
   listClassMembers,
+  listMyClassStudents,
   removeClassMember,
   setClassRepresentative,
 } from '@portal/core/classes/classMembersService'
@@ -77,6 +78,62 @@ describe('listClassMembers', () => {
     await expect(listClassMembers(CLASS_ID, 'STUDENT', TOKEN)).rejects.toMatchObject({
       kind: 'not_found',
     })
+  })
+})
+
+describe('listMyClassStudents', () => {
+  it('chama GET /hub/me/classes/students e mapeia classRole → role', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(
+      response(200, [
+        { id: 'a1', name: 'Ana Souza', classRole: 'STUDENT', active: true },
+        { id: 'b2', name: 'Bruno Dias', classRole: 'REPRESENTATIVE', active: true },
+      ]),
+    )
+
+    await expect(listMyClassStudents(TOKEN)).resolves.toEqual([
+      { id: 'a1', name: 'Ana Souza', role: 'STUDENT' },
+      { id: 'b2', name: 'Bruno Dias', role: 'REPRESENTATIVE' },
+    ])
+
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe(`${API_GATEWAY_URL}/hub/me/classes/students`)
+    expect(init?.method).toBe('GET')
+    expect(init?.headers).toMatchObject({ Authorization: `Bearer ${TOKEN}` })
+  })
+
+  it('exclui TEACHER e contas inativas/bloqueadas (RN-COM-PA02/PA03)', async () => {
+    stubFetch().mockResolvedValue(
+      response(200, [
+        { id: 'ok', name: 'Aluno Ok', classRole: 'STUDENT', active: true },
+        { id: 'rep', name: 'Rep Ok', classRole: 'REPRESENTATIVE' },
+        { id: 'tea', name: 'Prof', classRole: 'TEACHER', active: true },
+        { id: 'off', name: 'Inativo', classRole: 'STUDENT', active: false },
+        {
+          id: 'blk',
+          name: 'Bloqueado',
+          classRole: 'STUDENT',
+          active: true,
+          accountStatus: 'BLOCKED',
+        },
+        {
+          id: 'sus',
+          name: 'Suspenso',
+          classRole: 'REPRESENTATIVE',
+          accountStatus: 'suspended',
+        },
+      ]),
+    )
+
+    await expect(listMyClassStudents(TOKEN)).resolves.toEqual([
+      { id: 'ok', name: 'Aluno Ok', role: 'STUDENT' },
+      { id: 'rep', name: 'Rep Ok', role: 'REPRESENTATIVE' },
+    ])
+  })
+
+  it('lista vazia quando o Core devolve array vazio', async () => {
+    stubFetch().mockResolvedValue(response(200, []))
+    await expect(listMyClassStudents(TOKEN)).resolves.toEqual([])
   })
 })
 

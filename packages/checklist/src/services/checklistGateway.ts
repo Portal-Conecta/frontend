@@ -8,6 +8,8 @@ export const CHECKLIST_GATEWAY_PREFIX = "/checklist";
 
 /** Path público no gateway a partir do caminho interno do serviço de checklist. */
 export function checklistGatewayPath(servicePath: string): string {
-  const normalized = servicePath.startsWith('/') ? servicePath : `/${servicePath}`
-  return `${CHECKLIST_GATEWAY_PREFIX}${normalized}`
+  const normalized = servicePath.startsWith("/")
+    ? servicePath
+    : `/${servicePath}`;
+  return `${CHECKLIST_GATEWAY_PREFIX}${normalized}`;
 }

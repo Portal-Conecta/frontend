@@ -45,8 +45,6 @@ export interface AppLayoutProps {
   onNotificationsClick?: () => void
   /** Há notificação não lida — sobrepõe um dot vermelho no sino do header. */
   hasUnreadNotifications?: boolean
-  /** Clique em "mais opções" (header). */
-  onMoreOptionsClick?: () => void
 }
 
 export function AppLayout({
@@ -59,7 +57,6 @@ export function AppLayout({
   profileMenuOpen = false,
   onNotificationsClick,
   hasUnreadNotifications = false,
-  onMoreOptionsClick,
 }: AppLayoutProps) {
   const [expanded, setExpanded] = useState(defaultExpanded)
   // Estável: a Sidebar usa `onToggle` num efeito de focus-trap; uma identidade
@@ -72,7 +69,6 @@ export function AppLayout({
     ...(onLogoClick ? { onLogoClick } : {}),
     ...(onProfileClick ? { onProfileClick } : {}),
     ...(onNotificationsClick ? { onNotificationsClick } : {}),
-    ...(onMoreOptionsClick ? { onMoreOptionsClick } : {}),
   }
 
   return (
