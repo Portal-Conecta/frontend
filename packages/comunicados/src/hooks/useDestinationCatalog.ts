@@ -58,10 +58,6 @@ export interface UseDestinationCatalogResult {
 }
 
 const USERS_PAGE_SIZE = 6
-// TODO(#195): a busca baixa só os USERS_SEARCH_FETCH_SIZE primeiros usuários e
-// filtra no client — matches além desse teto nunca aparecem. Mover o termo de
-// busca para o back quando o BFF real de usuários/tags existir.
-const USERS_SEARCH_FETCH_SIZE = 100
 /** Espera após a última tecla antes de buscar usuários (mesmo default do SearchBarAsync). */
 const USERS_SEARCH_DEBOUNCE_MS = 300
 
@@ -147,28 +143,13 @@ export function useDestinationCatalog(
     try {
       const trimmed = query.trim()
       const res = await listDestinationUsersClient({
-        page: trimmed ? 0 : page - 1,
-        size: trimmed ? USERS_SEARCH_FETCH_SIZE : USERS_PAGE_SIZE,
+        page: page - 1,
+        size: USERS_PAGE_SIZE,
+        ...(trimmed ? { search: trimmed } : {}),
       })
 
-      let items = mapUsersToSummaries(res.content)
-      if (trimmed) {
-        const needle = trimmed.toLowerCase()
-        items = items.filter((user) => user.name.toLowerCase().includes(needle))
-        const totalPages = Math.max(1, Math.ceil(items.length / USERS_PAGE_SIZE))
-        const safePage = Math.min(page, totalPages)
-        const start = (safePage - 1) * USERS_PAGE_SIZE
-        setUsersPageState({
-          items: items.slice(start, start + USERS_PAGE_SIZE),
-          page: safePage,
-          totalPages,
-          totalElements: items.length,
-        })
-        return
-      }
-
       setUsersPageState({
-        items,
+        items: mapUsersToSummaries(res.content),
         page: res.page + 1,
         totalPages: Math.max(1, res.totalPages),
         totalElements: res.totalElements,
