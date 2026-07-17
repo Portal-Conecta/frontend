@@ -1,7 +1,5 @@
 import type { Metadata } from 'next'
 
-import { AppShell } from '@portal/core'
-import { getCurrentUser } from '@portal/core/auth/getCurrentUser'
 import { Icon, Text } from '@portal/ui'
 
 export const metadata: Metadata = {
@@ -36,11 +34,9 @@ const faqItems: readonly FaqItem[] = [
   },
 ]
 
-export default async function AjudaPage() {
-  const user = await getCurrentUser()
-
+export default function AjudaPage() {
   return (
-    <AppShell user={user} activeKey="">
+    <>
       <Text
         as="h1"
         variant="heading-h3"
@@ -96,6 +92,6 @@ export default async function AjudaPage() {
           ))}
         </div>
       </div>
-    </AppShell>
+    </>
   )
 }
