@@ -1,3 +1,5 @@
+'use client'
+
 import { Button, Text } from "@portal/ui";
 import { useEffect, useRef, useState } from "react";
 
@@ -68,8 +70,8 @@ export function ChecklistManagerItem({
     onCancel?.();
   }
 
-  // padding varia conforme o modo: leitura = px 12px / py 20px, edição = py 12px
-  const paddingClass = isEditing ? "py-3" : "px-3 py-5";
+  // padding varia conforme o modo: leitura = px 12px / py 16px, edição = py 12px
+  const paddingClass = isEditing ? "py-3" : "px-3 py-4";
 
   // coluna no mobile e tablet (botões pra baixo), linha só no desktop (lg)
   const containerClass = [
@@ -89,7 +91,7 @@ export function ChecklistManagerItem({
   const inputBase =
     "rounded-lg border border-border-default bg-transparent px-3 py-2 " +
     "text-text-secondary placeholder:text-text-secondary " +
-    "focus:border-interactive-default focus:text-text-brand focus:outline-none " +
+    "focus:border-border-focus focus:text-text-brand focus:outline-none " +
     "transition-colors duration-200 [field-sizing:content]";
 
   if (isEditing) {
