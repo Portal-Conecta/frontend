@@ -6,7 +6,6 @@ import { canCreateAnnouncement } from '../auth/canCreateAnnouncement'
 import { listHubClasses, listHubCourses } from '../services/server/hubCatalogService'
 import { listTags } from '../services/server/tagsService'
 import {
-  getShiftOptions,
   mapClassesToFilterOptions,
   mapCoursesToSelectOptions,
 } from '../services/destinationCatalogMappers'
@@ -31,10 +30,12 @@ async function loadMuralFilterCatalogSeed(): Promise<MuralFilterCatalogSeed | un
     return {
       courses: mapCoursesToSelectOptions(coursesRes.courses),
       classes: mapClassesToFilterOptions(classesRes.items),
-      shifts: getShiftOptions(),
       tags: tagsRes.filter((tag) => tag.active !== false),
     }
-  } catch {
+  } catch (error) {
+    // Prefetch é otimização, não caminho crítico — mas loga pra não confundir
+    // "backend fora do ar" com um bug de verdade escondido atrás do fallback.
+    console.error('[PageMural] prefetch do catálogo de filtros falhou', error)
     return undefined
   }
 }

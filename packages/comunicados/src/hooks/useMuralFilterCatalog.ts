@@ -27,11 +27,13 @@ export interface UseMuralFilterCatalogResult {
   error: string
 }
 
-/** Dados de catálogo já resolvidos (ex.: prefetch no Server Component `PageMural`, #406). */
+/**
+ * Dados de catálogo já resolvidos (ex.: prefetch no Server Component `PageMural`, #406).
+ * `shifts` fica de fora — é constante local (`getShiftOptions()`), não vem de fetch.
+ */
 export interface MuralFilterCatalogSeed {
   courses: SelectOption[]
   classes: ClassFilterOption[]
-  shifts: SelectOption[]
   tags: Tag[]
 }
 
@@ -48,7 +50,7 @@ export function useMuralFilterCatalog(seed?: MuralFilterCatalogSeed): UseMuralFi
   const [courses, setCourses] = useState<SelectOption[]>(seed?.courses ?? [])
   const [classes, setClasses] = useState<ClassFilterOption[]>(seed?.classes ?? [])
   const [tags, setTags] = useState<Tag[]>(seed?.tags ?? [])
-  const shifts = seed?.shifts ?? getShiftOptions()
+  const shifts = getShiftOptions()
   const [loading, setLoading] = useState(!seed)
   const [error, setError] = useState('')
 
