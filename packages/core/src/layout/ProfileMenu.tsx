@@ -8,11 +8,12 @@
  * ícone de perfil no `AppHeader`), sem acoplar via ref ao organismo do DS.
  *
  * Nome e e-mail vêm de `GET /api/me`, buscado sob demanda na primeira
- * abertura (não no `AppShell`, que roda em toda página autenticada) — evita
- * pagar uma chamada `/me` extra em navegações que nunca abrem o menu. Cacheado
- * num módulo (não em estado do componente): o `AppShell` remonta a cada
- * navegação, mas o módulo persiste enquanto a aba não recarrega — cache vale
- * pro resto da sessão, não só pro mount atual.
+ * abertura (não no mount do shell) — evita pagar uma chamada `/me` extra em
+ * sessões que nunca abrem o menu. Cacheado num módulo: desde a #405 o
+ * `AppShell` vive no layout `(authenticated)` e não remonta mais por
+ * navegação, então estado de componente bastaria — o cache de módulo fica
+ * pela simplicidade e por sobreviver a qualquer remonte residual do shell
+ * (ex.: cruzar o boundary do grupo e voltar).
  *
  * Fechar: clique fora (`pointerdown` fora do painel) ou `Esc` — via
  * `useFocusTrap`, mesmo hook do `ConfirmDialog`/`Sidebar`. O clique-fora

@@ -44,7 +44,6 @@ const meta: Meta<typeof AppLayout> = {
       control: 'boolean',
       description: 'Há notificação não lida — sobrepõe um dot vermelho no sino do header.',
     },
-    onMoreOptionsClick: { control: false, description: 'Clique em "mais opções" (header).' },
   },
   args: {
     items,

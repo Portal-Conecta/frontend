@@ -45,3 +45,16 @@ export const NAV_REGISTRY: readonly NavEntry[] = [
 export function visibleNavFor(user: CurrentUser | null): NavEntry[] {
   return filterByPermission(NAV_REGISTRY, user)
 }
+
+/**
+ * Resolve a key ativa da nav a partir do pathname — match exato ou por prefixo
+ * de segmento (`/comunicados/criar` ativa `comunicados`; `/comunicadosx` não
+ * ativa nada). Rota fora do registry (perfil, ajuda, 404…) resolve `''`,
+ * nenhum item ativo. Contrato travado por teste (`tests/layout/navRegistry`).
+ */
+export function activeKeyFromPathname(pathname: string): string {
+  const entry = NAV_REGISTRY.find(
+    ({ href }) => pathname === href || pathname.startsWith(href + '/'),
+  )
+  return entry?.key ?? ''
+}

@@ -1,10 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-import { Button, ConfirmDialog, Icon, Text } from '@portal/ui'
+import { Button, ConfirmDialog, Icon, Text, revokeLocalFileUploadPreviews } from '@portal/ui'
 import { useCurrentUser } from '@portal/core'
 
 import { ANNOUNCEMENT_ORIGIN } from '../../types/announcement'
@@ -105,6 +105,16 @@ export function CreateAnnouncementWizard() {
   const [contentErrors, setContentErrors] = useState<Partial<Record<keyof AnnouncementContentValue, string>>>({})
   const [destinationsError, setDestinationsError] = useState<string | undefined>()
   const [confirmOpen, setConfirmOpen] = useState(false)
+
+  // Blob URLs vivem no estado do wizard (o FileUpload não revoga no unmount de
+  // etapa). Ao sair da página, libera as object URLs locais.
+  const imagesRef = useRef(content.images)
+  imagesRef.current = content.images
+  useEffect(() => {
+    return () => {
+      revokeLocalFileUploadPreviews(imagesRef.current)
+    }
+  }, [])
 
   const { fieldErrors, formError, submitting, pendingImageUpload, publishFrom, scheduleFrom } =
     useCreateAnnouncement({
@@ -231,7 +241,11 @@ export function CreateAnnouncementWizard() {
       : await publishFrom(formValues, submitOptions)
 
     if (created) {
+      // Soft-nav ao mural: o list do feed pode pegar 5xx transitório logo após
+      // publish/upload. `refresh` invalida o cache RSC; o retry do usePostsList
+      // cobre a listagem client.
       router.push('/comunicados')
+      router.refresh()
     }
   }
 

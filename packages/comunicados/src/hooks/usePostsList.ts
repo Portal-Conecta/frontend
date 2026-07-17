@@ -2,10 +2,9 @@
 
 import { useCallback, useEffect, useState } from 'react'
 
-import { HttpError } from '@portal/core/http/errors'
-
 import { listPostsClient } from '../services/client/postsClient'
 import type { ListAnnouncementsResponse, ListPostsParams } from '../types'
+import { withListRetry } from '../utils/listRetry'
 
 interface UsePostsListResult {
   data: ListAnnouncementsResponse | null
@@ -16,44 +15,6 @@ interface UsePostsListResult {
   setPage: (page: number) => void
   setFilters: (filters: ListPostsParams | ((current: ListPostsParams) => ListPostsParams)) => void
   refetch: () => Promise<void>
-}
-
-const LIST_RETRY_ATTEMPTS = 3
-const LIST_RETRY_BASE_DELAY_MS = 350
-
-function isRetryableListError(error: unknown): boolean {
-  return error instanceof HttpError && (error.kind === 'server' || error.kind === 'network')
-}
-
-function wait(ms: number): Promise<void> {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms)
-  })
-}
-
-/** Lista com retry curto — o gateway às vezes responde 500 logo após publish/upload. */
-async function listPostsWithRetry(
-  filters: ListPostsParams,
-  signal: AbortSignal,
-): Promise<ListAnnouncementsResponse> {
-  let lastError: unknown
-
-  for (let attempt = 1; attempt <= LIST_RETRY_ATTEMPTS; attempt += 1) {
-    try {
-      return await listPostsClient(filters, signal)
-    } catch (error) {
-      // Request abortada (filtro trocou/desmontou) não é falha de rede — não vale retry.
-      if (signal.aborted) throw error
-
-      lastError = error
-      if (!isRetryableListError(error) || attempt === LIST_RETRY_ATTEMPTS) {
-        throw error
-      }
-      await wait(LIST_RETRY_BASE_DELAY_MS * attempt)
-    }
-  }
-
-  throw lastError instanceof Error ? lastError : new Error('posts_list_error')
 }
 
 export function usePostsList(initialFilters: ListPostsParams = {}): UsePostsListResult {
@@ -82,7 +43,7 @@ export function usePostsList(initialFilters: ListPostsParams = {}): UsePostsList
       setError(null)
 
       try {
-        const result = await listPostsWithRetry(filters, controller.signal)
+        const result = await withListRetry(() => listPostsClient(filters, controller.signal), controller.signal)
         if (active) setData(result)
       } catch (err) {
         if (active) setError(err instanceof Error ? err : new Error('posts_list_error'))

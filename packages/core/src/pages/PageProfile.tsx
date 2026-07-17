@@ -9,10 +9,8 @@ import { redirect } from 'next/navigation'
 
 import { Avatar, Banner, ClassCard, Text, type ClassCardItem } from '@portal/ui'
 
-import { getCurrentUser } from '../auth/getCurrentUser'
 import { getSession } from '../auth/session'
 import { HttpError } from '../http/errors'
-import { AppShell } from '../layout/AppShell'
 import { flattenClasses } from '../profile/flattenClasses'
 import { getMyCourses, getMyProfile } from '../profile/profileService'
 import { ROLE_LABELS } from '../profile/roleLabels'
@@ -23,8 +21,6 @@ export async function PageProfile() {
   if (!accessToken) {
     redirect('/login')
   }
-
-  const user = await getCurrentUser()
 
   let profile: MyProfile
   try {
@@ -49,45 +45,43 @@ export async function PageProfile() {
   }
 
   return (
-    <AppShell user={user} activeKey="">
-      <div className="flex flex-col gap-6 p-6 md:p-8">
-        {/* Escala responsiva (h3 mobile → h2 tablet/desktop): fora do variant fixo do
-        Text, mesmo padrão de token empilhado por breakpoint do ErrorPage (display-*). */}
-        <h1 className="text-heading-h3 font-inter text-text-brand md:text-heading-h2">Meu Perfil</h1>
+    <div className="flex flex-col gap-6 p-6 md:p-8">
+      {/* Escala responsiva (h3 mobile → h2 tablet/desktop): fora do variant fixo do
+      Text, mesmo padrão de token empilhado por breakpoint do ErrorPage (display-*). */}
+      <h1 className="text-heading-h3 font-inter text-text-brand md:text-heading-h2">Meu Perfil</h1>
 
-        <div className="mx-auto flex w-full max-w-xl flex-col items-center gap-6 md:items-start">
-          <div className="flex flex-col items-center gap-6 text-center md:flex-row md:text-left">
-            <Avatar />
-            <div className="flex flex-col items-center gap-2 md:items-start">
-              <Text variant="label-md-emphasis" tone="brand">
-                {profile.name}
-              </Text>
-              <Text variant="label-sm" tone="secondary">
-                {profile.email}
-              </Text>
-              <Text variant="label-sm" tone="secondary">
-                {ROLE_LABELS[profile.typeUser]}
-              </Text>
-            </div>
+      <div className="mx-auto flex w-full max-w-xl flex-col items-center gap-6 md:items-start">
+        <div className="flex flex-col items-center gap-6 text-center md:flex-row md:text-left">
+          <Avatar />
+          <div className="flex flex-col items-center gap-2 md:items-start">
+            <Text variant="label-md-emphasis" tone="brand">
+              {profile.name}
+            </Text>
+            <Text variant="label-sm" tone="secondary">
+              {profile.email}
+            </Text>
+            <Text variant="label-sm" tone="secondary">
+              {ROLE_LABELS[profile.typeUser]}
+            </Text>
           </div>
-
-          {coursesFailed ? (
-            <Banner variant="error" className="w-full">
-              Não foi possível carregar suas turmas.
-            </Banner>
-          ) : classes.length === 1 ? (
-            <ClassCard variant="list" title="Turma" items={classes} className="w-full" />
-          ) : classes.length > 1 ? (
-            <ClassCard variant="list" items={classes} className="w-full" />
-          ) : null}
-
-          <Banner variant="info" className="w-full">
-            Sua conta é gerenciada por um administrador. Caso precise alterar algum dado, procure alguém com este
-            acesso.
-          </Banner>
         </div>
+
+        {coursesFailed ? (
+          <Banner variant="error" className="w-full">
+            Não foi possível carregar suas turmas.
+          </Banner>
+        ) : classes.length === 1 ? (
+          <ClassCard variant="list" title="Turma" items={classes} className="w-full" />
+        ) : classes.length > 1 ? (
+          <ClassCard variant="list" items={classes} className="w-full" />
+        ) : null}
+
+        <Banner variant="info" className="w-full">
+          Sua conta é gerenciada por um administrador. Caso precise alterar algum dado, procure alguém com este
+          acesso.
+        </Banner>
       </div>
-    </AppShell>
+    </div>
   )
 }
 
