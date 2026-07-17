@@ -226,7 +226,11 @@ export function CreateAnnouncementWizard() {
       : await publishFrom(formValues, submitOptions)
 
     if (created) {
+      // Soft-nav ao mural: o list do feed pode pegar 5xx transitório logo após
+      // publish/upload. `refresh` invalida o cache RSC; o retry do usePostsList
+      // cobre a listagem client.
       router.push('/comunicados')
+      router.refresh()
     }
   }
 

@@ -19,6 +19,39 @@ import type {
 const http = createHttpClient('API_GATEWAY_URL')
 
 /**
+ * Lista alunos e representantes das turmas do usuário autenticado
+ * (`GET /hub/me/classes/students`) — uma chamada, escopo do JWT no Core.
+ * Não usa fan-out em `/classes/{id}/members` (que exige a turma existir e
+ * costuma devolver 404 para persona restrita / turma inconsistente).
+ */
+export async function listMyClassStudents(token?: string): Promise<ClassMember[]> {
+  const raw = await http.get<HubClassMemberResponse[]>(hubGatewayPath('/me/classes/students'), {
+    ...(token ? { token } : {}),
+  })
+
+  if (!Array.isArray(raw)) {
+    return []
+  }
+
+  return raw
+    .filter((member): member is HubClassMemberResponse => Boolean(member?.id && member?.name))
+    .map((member) => ({
+      id: member.id,
+      name: member.name,
+      role: member.classRole,
+    }))
+}
+
+/** Resposta bruta do Core (`ClassMemberResponse`). */
+interface HubClassMemberResponse {
+  id: string
+  name: string
+  classRole: ClassRole
+  active?: boolean
+  accountStatus?: string
+}
+
+/**
  * Lista os membros de uma turma (`GET /hub/classes/{classId}/members`),
  * opcionalmente filtrados por papel (`?role=STUDENT | TEACHER | REPRESENTATIVE`).
  * Sem `role`, retorna todos os membros; cada item traz o papel (`role`).
