@@ -8,6 +8,7 @@ import {
   rescheduleAnnouncementClient,
   updateAnnouncementClient,
 } from '../services/client'
+import { assertPublishedAtAfterScheduleToPublish } from '../utils/assertPublishTransition'
 
 export interface UseEditAnnouncementResult {
   announcementId: string | null
@@ -53,7 +54,13 @@ export function useEditAnnouncement(initialId?: string | null): UseEditAnnouncem
     setError(null)
 
     try {
-      const result = await updateAnnouncementClient(announcementId, payload)
+      const previousStatus = detail?.announcement.status
+      // PUT devolve AnnouncementResponse — recarrega o detalhe completo.
+      await updateAnnouncementClient(announcementId, payload)
+      const result = await loadAnnouncementClient(announcementId)
+      if (previousStatus) {
+        assertPublishedAtAfterScheduleToPublish(previousStatus, payload, result)
+      }
       setDetail(result)
       return result
     } catch (err) {
@@ -62,7 +69,7 @@ export function useEditAnnouncement(initialId?: string | null): UseEditAnnouncem
     } finally {
       setSaving(false)
     }
-  }, [announcementId])
+  }, [announcementId, detail])
 
   const reschedule = useCallback(async (scheduledFor: string): Promise<AnnouncementDetail> => {
     if (!announcementId) {
@@ -73,7 +80,8 @@ export function useEditAnnouncement(initialId?: string | null): UseEditAnnouncem
     setError(null)
 
     try {
-      const result = await rescheduleAnnouncementClient(announcementId, scheduledFor)
+      await rescheduleAnnouncementClient(announcementId, scheduledFor)
+      const result = await loadAnnouncementClient(announcementId)
       setDetail(result)
       return result
     } catch (err) {

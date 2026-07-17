@@ -1,4 +1,5 @@
 import type { AnnouncementFilters } from '../components/AnnouncementFiltersBar'
+import { addCalendarDays, brasiliaDayBoundaryIso, formatBrasiliaDate } from './datetime'
 import type {
   AnnouncementOrigin,
   AnnouncementSummary,
@@ -12,42 +13,34 @@ export function createDefaultFeedFilters(): ListPostsParams {
   return { page: 0, size: PAGE_SIZE }
 }
 
-function startOfLocalDay(date: Date): Date {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate())
-}
-
-function endOfLocalDay(date: Date): Date {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999)
-}
-
 function toDateTimeParam(dateValue: string, endOfDay: boolean): string {
-  const [year, month, day] = dateValue.split('-').map(Number)
-  if (!year || !month || !day) return dateValue
-
-  const date = endOfDay
-    ? new Date(year, month - 1, day, 23, 59, 59, 999)
-    : new Date(year, month - 1, day, 0, 0, 0, 0)
-
-  return date.toISOString()
+  return brasiliaDayBoundaryIso(dateValue, endOfDay) ?? dateValue
 }
 
-function resolvePeriodoRange(periodo: string): { from: string; to: string } {
-  const now = new Date()
-  const to = endOfLocalDay(now).toISOString()
+/**
+ * Janela `publishedFrom`/`publishedTo` para atalhos de período do mural,
+ * sempre no calendário de Brasília (#397).
+ */
+export function resolvePeriodoRange(
+  periodo: string,
+  now: Date = new Date(),
+): { from: string; to: string } {
+  const today = formatBrasiliaDate(now)
+  const to = toDateTimeParam(today, true)
 
   if (periodo === 'hoje') {
-    return { from: startOfLocalDay(now).toISOString(), to }
+    return { from: toDateTimeParam(today, false), to }
   }
 
   if (periodo === 'semana') {
-    const from = startOfLocalDay(now)
-    from.setDate(from.getDate() - 6)
-    return { from: from.toISOString(), to }
+    const fromDay = addCalendarDays(today, -6)
+    return { from: toDateTimeParam(fromDay, false), to }
   }
 
-  const from = startOfLocalDay(now)
-  from.setDate(1)
-  return { from: from.toISOString(), to }
+  // mês: do dia 1 até hoje (Brasília)
+  const [year, month] = today.split('-')
+  const monthStart = `${year}-${month}-01`
+  return { from: toDateTimeParam(monthStart, false), to }
 }
 
 function tagMatchesHubEntity(tag: Tag, entityType: TagEntityType, hubEntityId: string): boolean {
@@ -119,11 +112,15 @@ export function announcementMatchesMuralFilters(
 /**
  * Monta a query do mural. `tagIds` no wire são UUIDs internos da tabela tag
  * (não `hub_entity_id`). Curso/turno resolvem via catálogo de tags quando possível.
+ * Intervalos de data usam o calendário de Brasília (não o fuso local do browser).
+ *
+ * @param now — instante de referência dos atalhos `periodo` (injetável em teste).
  */
 export function toListPostsParams(
   filters: AnnouncementFilters,
   searchQuery: string,
   tags: readonly Tag[] = [],
+  now: Date = new Date(),
 ): ListPostsParams {
   const params = createDefaultFeedFilters()
   const search = searchQuery.trim()
@@ -148,7 +145,7 @@ export function toListPostsParams(
   }
 
   if (!filters.dataInicio && !filters.dataFim && filters.periodo) {
-    const range = resolvePeriodoRange(filters.periodo)
+    const range = resolvePeriodoRange(filters.periodo, now)
     params.publishedFrom = range.from
     params.publishedTo = range.to
   }

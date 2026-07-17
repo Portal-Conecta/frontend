@@ -1,10 +1,11 @@
 import type { SelectOption } from '@portal/ui'
 
+import type { TypeUser } from '@portal/core/rbac'
+
 import { HUB_SHIFT_OPTIONS } from '../constants/hubShifts'
-import type { HubUserType } from '../types/hub'
 import type { UserSummary } from '../components/DestinationSelector/types'
 
-const USER_TYPE_LABELS: Record<HubUserType, string> = {
+const USER_TYPE_LABELS: Record<TypeUser, string> = {
   STUDENT: 'Aluno',
   REPRESENTATIVE: 'Representante',
   TEACHER: 'Professor',
@@ -52,7 +53,7 @@ export function mapClassesToFilterOptions(
 }
 
 export function mapUsersToSummaries(
-  users: readonly { id: string; name: string; typeUser: HubUserType }[],
+  users: readonly { id: string; name: string; typeUser: TypeUser }[],
 ): UserSummary[] {
   return users.map((user) => ({
     id: user.id,

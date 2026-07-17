@@ -9,12 +9,18 @@ vi.mock('@portal/core/auth/session', () => ({
 
 import {
   archiveRoomMap,
+  createRoomMap,
   getRoomMapView,
   listRoomMaps,
   moveStudent,
   updateAllocations,
 } from '../../src/services/server/roomMapService'
-import type { RoomMapGrid, RoomMapPageResponse, RoomMapView } from '../../src/types'
+import type {
+  CreateRoomMapRequest,
+  RoomMapGrid,
+  RoomMapPageResponse,
+  RoomMapView,
+} from '../../src/types'
 
 const API_GATEWAY_URL = 'https://gateway.test'
 const MAP_ID = 'm1'
@@ -169,6 +175,47 @@ describe('getRoomMapView', () => {
   it('mapeia erro de rede para HttpError network', async () => {
     stubFetch().mockRejectedValue(new TypeError('Failed to fetch'))
     await expect(getRoomMapView('sala-1', 'turma-1')).rejects.toMatchObject({ kind: 'network' })
+  })
+})
+
+describe('createRoomMap', () => {
+  const request: CreateRoomMapRequest = {
+    classId: 'turma-1',
+    roomId: 'sala-1',
+    layoutTemplateId: 'lt1',
+    locations: [{ studentId: 's1', layoutPositionId: 'p1' }],
+  }
+
+  it('faz POST em /api/mapas com Bearer e o body JSON, retornando a view criada', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(response(201, savedView))
+
+    await expect(createRoomMap(request)).resolves.toEqual(savedView)
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe(`${API_GATEWAY_URL}/mapa/api/mapas`)
+    expect(init?.method).toBe('POST')
+    expect((init?.headers as Record<string, string>).Authorization).toBe('Bearer jwt-token')
+    expect(JSON.parse(init?.body as string)).toEqual(request)
+  })
+
+  it('mapeia 403 (sem role TEACHER na turma) para HttpError forbidden', async () => {
+    stubFetch().mockResolvedValue(response(403, {}))
+    await expect(createRoomMap(request)).rejects.toMatchObject({ kind: 'forbidden' })
+  })
+
+  it('mapeia 400 para HttpError validation preservando o body de erro', async () => {
+    const errorBody = {
+      message: 'Validação falhou',
+      errors: [{ field: 'layoutTemplateId', message: 'não encontrado' }],
+    }
+    stubFetch().mockResolvedValue(response(400, errorBody))
+
+    await expect(createRoomMap(request)).rejects.toMatchObject({
+      kind: 'validation',
+      body: errorBody,
+    })
   })
 })
 

@@ -8,6 +8,11 @@ import { Field, FileUpload, Input, Skeleton, type FileUploadItem } from '@portal
 
 import type { AnnouncementContentErrors, AnnouncementContentValue } from './types'
 import { ANNOUNCEMENT_TITLE_MAX_LENGTH } from '../../constants/announcementFieldLimits'
+import {
+  ANNOUNCEMENT_IMAGE_ACCEPT,
+  ANNOUNCEMENT_IMAGE_MAX_BYTES,
+  ANNOUNCEMENT_MAX_IMAGES,
+} from '../../constants/announcementImageLimits'
 
 /**
  * TipTap só é usado aqui (etapa de conteúdo do wizard de criar) — mural, "meus
@@ -71,7 +76,9 @@ export function AnnouncementContentStep({
         value={value.images}
         onChange={setImages}
         disabled={disabled}
-        {...(maxImages != null ? { maxFiles: maxImages } : {})}
+        accept={ANNOUNCEMENT_IMAGE_ACCEPT}
+        maxSize={ANNOUNCEMENT_IMAGE_MAX_BYTES}
+        maxFiles={maxImages ?? ANNOUNCEMENT_MAX_IMAGES}
         {...(errors?.images ? { error: errors.images } : {})}
       />
 
