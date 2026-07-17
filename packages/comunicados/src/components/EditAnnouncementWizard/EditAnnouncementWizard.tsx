@@ -375,8 +375,10 @@ export function EditAnnouncementWizard({ announcementId }: EditAnnouncementWizar
         return
       }
 
+      // `/comunicados/meus` busca os próprios dados via `useMyAnnouncements`
+      // (client-side, sem RSC/cache de servidor) — `router.refresh()` depois
+      // do `push` só duplicaria o fetch à toa (#399).
       router.push('/comunicados/meus')
-      router.refresh()
     } catch (err) {
       setFormError(messageFromHttpError(err))
     } finally {

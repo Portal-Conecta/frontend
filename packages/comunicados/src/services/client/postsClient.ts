@@ -16,12 +16,14 @@ import { buildQuery, type QueryParams } from '@portal/core/http/query'
  * (`/api/comunicados/posts/*`); o JWT nunca sai do server.
  */
 
-/** Lista o mural via BFF (`GET /api/comunicados/posts`). */
+/** Lista o mural via BFF (`GET /api/comunicados/posts`). `signal` aborta requests stale (troca de filtro). */
 export async function listPostsClient(
   params: ListPostsParams = {},
+  signal?: AbortSignal,
 ): Promise<ListAnnouncementsResponse> {
   return bffFetch<ListAnnouncementsResponse>(
     `/api/comunicados/posts${buildQuery(params as QueryParams)}`,
+    signal ? { signal } : undefined,
   )
 }
 
