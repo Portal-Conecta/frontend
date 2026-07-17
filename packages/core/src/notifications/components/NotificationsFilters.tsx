@@ -1,9 +1,8 @@
 'use client'
-import Link from 'next/link'
 
 import type { NotificationStatus } from '../types'
 import { useRouter } from 'next/navigation'
-import { Section } from '@portal/ui' // Ajuste para o caminho real de importação do seu DS
+import { Section } from '@portal/ui'
 
 interface NotificationsFiltersProps {
   activeStatus: NotificationStatus
