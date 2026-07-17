@@ -3,7 +3,7 @@
 /**
  * Grade de gráficos do dashboard — todos consomem ChartCard + makeDsChartOptions (via Ds*Chart).
  */
-import type { DashboardStats } from '../../types/dashboard'
+import type { DashboardStats } from '../../../types/dashboard'
 import { DsBarChart } from './DsBarChart'
 import { DsDoughnutChart } from './DsDoughnutChart'
 import { DsLineChart } from './DsLineChart'

@@ -2,7 +2,7 @@
 
 import type { CSSProperties, ReactNode } from 'react'
 
-import { Skeleton, Text } from '../atoms'
+import { Skeleton, Text } from '../../atoms'
 
 export interface ChartCardProps {
   title: string

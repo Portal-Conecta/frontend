@@ -1,17 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react'
 
-import { AlertaOrientacao } from './AlertaOrientacao'
-import { DashboardKpiGrid } from './DashboardKpiGrid'
-import { DsBarChart } from './DsBarChart'
-import { DsStackedBarChart } from './DsStackedBarChart'
-import { DsTrendLineChart } from './DsTrendLineChart'
-import { FALHAS_POR_CATEGORIA } from './dashboardDemoData'
-import { ZonaVermelhaTable } from './ZonaVermelhaTable'
-import { PageChecklistDashboardContent } from '../../pages/PageChecklistDashboardContent'
+import { PageChecklistDashboardContent } from '../../pages/PageChecklistDashboard'
+import { AlertaOrientacao } from './alerts'
+import { DsBarChart, DsStackedBarChart, DsTrendLineChart } from './charts'
+import { FALHAS_POR_CATEGORIA } from './data'
+import { DashboardKpiGrid } from './kpis'
+import { ZonaVermelhaTable } from './tables'
 
 /**
- * Stories do layout corporativo do dashboard (mesmos dados da referência de produto).
- *
+ * Stories do layout corporativo do dashboard.
  * Menu Storybook: Checklist → Dashboard → Layout
  */
 const meta: Meta = {

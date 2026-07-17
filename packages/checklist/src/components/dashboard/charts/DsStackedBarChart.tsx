@@ -10,7 +10,7 @@ import {
   useDsChartTheme,
 } from '@portal/ui'
 
-import { PERFORMANCE_TURNO_LABELS, PERFORMANCE_TURNO_SERIES } from './dashboardDemoData'
+import { PERFORMANCE_TURNO_LABELS, PERFORMANCE_TURNO_SERIES } from '../data/dashboardDemoData'
 
 registerBarCharts()
 

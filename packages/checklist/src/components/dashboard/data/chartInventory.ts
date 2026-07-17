@@ -4,7 +4,7 @@
  *
  * kind: tipo Chart.js | dataShape: labels + valores (StatsEntry[]).
  */
-import type { DashboardStats } from '../../types/dashboard'
+import type { DashboardStats } from '../../../types/dashboard'
 
 export type DashboardChartKind = 'line' | 'bar' | 'doughnut' | 'kpi'
 

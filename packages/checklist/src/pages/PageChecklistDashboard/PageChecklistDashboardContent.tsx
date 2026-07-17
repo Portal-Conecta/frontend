@@ -3,14 +3,16 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Button, Text } from '@portal/ui'
 
-import { AlertaOrientacao } from '../components/dashboard/AlertaOrientacao'
-import { DashboardKpiGrid } from '../components/dashboard/DashboardKpiGrid'
-import { DsBarChart } from '../components/dashboard/DsBarChart'
-import { DsStackedBarChart } from '../components/dashboard/DsStackedBarChart'
-import { DsTrendLineChart } from '../components/dashboard/DsTrendLineChart'
-import { FALHAS_POR_CATEGORIA } from '../components/dashboard/dashboardDemoData'
-import { ZonaVermelhaTable } from '../components/dashboard/ZonaVermelhaTable'
-import { fetchDashboardStats } from '../services/dashboardClient'
+import {
+  AlertaOrientacao,
+  DashboardKpiGrid,
+  DsBarChart,
+  DsStackedBarChart,
+  DsTrendLineChart,
+  FALHAS_POR_CATEGORIA,
+  ZonaVermelhaTable,
+} from '../../components/dashboard'
+import { fetchDashboardStats } from '../../services/dashboard'
 
 function defaultPeriod(): { from: string; to: string } {
   const to = new Date()
@@ -40,7 +42,6 @@ export function PageChecklistDashboardContent({ useMock = false }: PageChecklist
     setLoading(true)
     try {
       await fetchDashboardStats({ from: period.from, to: period.to })
-      // KPIs/gráficos principais usam dataset de produto; API enriquece quando disponível.
       setDemoNote(false)
     } catch {
       setDemoNote(true)
@@ -55,7 +56,6 @@ export function PageChecklistDashboardContent({ useMock = false }: PageChecklist
 
   return (
     <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-8">
-      {/* Header da página */}
       <header className="flex flex-col gap-4 border-b border-border-default pb-6 lg:flex-row lg:items-end lg:justify-between">
         <div className="flex flex-col gap-2">
           <Text as="p" variant="label-xs" tone="secondary" className="uppercase tracking-wide">
@@ -104,10 +104,8 @@ export function PageChecklistDashboardContent({ useMock = false }: PageChecklist
         </Text>
       ) : null}
 
-      {/* KPIs */}
       <DashboardKpiGrid loading={loading} />
 
-      {/* Gráficos principais */}
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <div className="xl:col-span-2">
           <DsTrendLineChart loading={loading} height={320} />
@@ -128,10 +126,8 @@ export function PageChecklistDashboardContent({ useMock = false }: PageChecklist
         <AlertaOrientacao />
       </div>
 
-      {/* Tabela */}
       <ZonaVermelhaTable
         onCorrigir={(id) => {
-          // Placeholder: navegação para issue no futuro
           console.info('Corrigir issue', id)
         }}
       />

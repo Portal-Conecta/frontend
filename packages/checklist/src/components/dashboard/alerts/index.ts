@@ -1,0 +1,1 @@
+export { AlertaOrientacao } from './AlertaOrientacao'

@@ -1,12 +1,14 @@
-export { AlertaOrientacao } from './AlertaOrientacao'
-export { DASHBOARD_CHART_INVENTORY, type DashboardChartKind, type DashboardChartSpec } from './chartInventory'
-export { ChecklistDashboardCharts, type ChecklistDashboardChartsProps } from './ChecklistDashboardCharts'
-export { DashboardKpiGrid, type DashboardKpiGridProps } from './DashboardKpiGrid'
-export { DsBarChart, type DsBarChartProps } from './DsBarChart'
-export { DsDoughnutChart, type DsDoughnutChartProps } from './DsDoughnutChart'
-export { DsLineChart, type DsLineChartProps } from './DsLineChart'
-export { DsStackedBarChart, type DsStackedBarChartProps } from './DsStackedBarChart'
-export { DsTrendLineChart, type DsTrendLineChartProps } from './DsTrendLineChart'
-export { MOCK_DASHBOARD_STATS } from './mockDashboardStats'
-export { ZonaVermelhaTable, type ZonaVermelhaTableProps } from './ZonaVermelhaTable'
-export { isEmptyStats, statsToChartData, type ChartJsData } from './statsToChartData'
+/**
+ * Dashboard de Checklist — componentes de domínio.
+ *
+ * charts/  wrappers Chart.js (DS)
+ * kpis/    cards de indicador
+ * tables/  zona vermelha e listagens
+ * alerts/  orientações
+ * data/    mocks, inventário, fixtures
+ */
+export * from './alerts'
+export * from './charts'
+export * from './data'
+export * from './kpis'
+export * from './tables'

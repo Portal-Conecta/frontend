@@ -2,7 +2,7 @@
 
 import { Button, Tag, Text } from '@portal/ui'
 
-import { ZONA_VERMELHA, type ZonaVermelhaIssue } from './dashboardDemoData'
+import { ZONA_VERMELHA, type ZonaVermelhaIssue } from '../data/dashboardDemoData'
 
 const prioridadeTone: Record<ZonaVermelhaIssue['prioridade'], 'negative' | 'warning' | 'neutral'> = {
   HIGH: 'negative',

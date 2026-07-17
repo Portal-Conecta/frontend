@@ -1,4 +1,4 @@
-import type { StatsEntry } from '../../types/dashboard'
+import type { StatsEntry } from '../../../types/dashboard'
 import { DS_STATUS_COLORS } from '@portal/ui'
 
 /** KPIs do topo — valores da referência de produto. */

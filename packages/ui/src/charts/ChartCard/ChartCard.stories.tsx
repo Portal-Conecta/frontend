@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react'
 
+import { Text } from '../../atoms'
+
 import { ChartCard } from './ChartCard'
-import { Text } from '../atoms'
 
 const meta: Meta<typeof ChartCard> = {
   title: 'UI/Charts/ChartCard',

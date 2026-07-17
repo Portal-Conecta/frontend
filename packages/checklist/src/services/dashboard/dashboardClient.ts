@@ -1,6 +1,6 @@
 import { bffFetch } from '@portal/core/http/bffClient'
 
-import type { DashboardStatsResponse } from '../types/stats'
+import type { DashboardStatsResponse } from '../../types/dashboard'
 
 /**
  * Cliente browser → BFF Next (`/api/checklist/stats/dashboard`).

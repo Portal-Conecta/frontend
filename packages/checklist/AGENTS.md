@@ -15,7 +15,23 @@ packages/checklist/src/pages/PageChecklist.tsx   ← componente de página (este
 apps/root/src/app/checklist/page.tsx             ← rota que importa de @portal/checklist
 ```
 
-Este pacote ainda é scaffolding (`src/pages/` vazio, sem rota em `apps/root`). O padrão de página + rota já foi fechado no piloto de `@portal/comunicados` (`PageAnnouncements` + `AppShell` de `@portal/core`) — espelhe esse pacote como referência ao implementar a primeira página aqui.
+### Dashboard (organização)
+
+```
+src/
+  pages/PageChecklistDashboard/   ← página + content + stories
+  components/dashboard/
+    charts/   ← wrappers Chart.js (DS)
+    kpis/     ← cards de indicador
+    tables/   ← zona vermelha
+    alerts/   ← orientação
+    data/     ← mocks, inventário, fixtures
+  services/dashboard/             ← client BFF + server stats
+  types/dashboard/                ← StatsEntry / DashboardStats
+```
+
+Rota shell: `apps/root/src/app/(authenticated)/checklist/dashboard/page.tsx`
+Charts reutilizáveis do DS: `packages/ui/src/charts/` (`ChartCard`, `theme/`).
 
 ## Fronteiras
 

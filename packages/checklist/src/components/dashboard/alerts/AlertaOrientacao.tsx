@@ -2,7 +2,7 @@
 
 import { Icon, Text } from '@portal/ui'
 
-import { ALERTAS_ORIENTACAO } from './dashboardDemoData'
+import { ALERTAS_ORIENTACAO } from '../data/dashboardDemoData'
 
 export function AlertaOrientacao() {
   return (

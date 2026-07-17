@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react'
 
 import { ChecklistDashboardCharts } from './ChecklistDashboardCharts'
-import { MOCK_DASHBOARD_STATS } from './mockDashboardStats'
+import { MOCK_DASHBOARD_STATS } from '../data/mockDashboardStats'
 
 const meta: Meta<typeof ChecklistDashboardCharts> = {
   title: 'Checklist/Dashboard/Charts',

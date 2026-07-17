@@ -2,7 +2,7 @@
 
 import { Icon, Skeleton, Text, type IconName } from '@portal/ui'
 
-import { DASHBOARD_KPIS } from './dashboardDemoData'
+import { DASHBOARD_KPIS } from '../data/dashboardDemoData'
 
 const toneIcon: Record<(typeof DASHBOARD_KPIS)[number]['tone'], string> = {
   positive: 'text-feedback-success',

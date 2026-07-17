@@ -1,4 +1,4 @@
-import type { DashboardStats } from '../../types/dashboard'
+import type { DashboardStats } from '../../../types/dashboard'
 
 /** Dados de demonstração para Storybook e preview sem backend. */
 export const MOCK_DASHBOARD_STATS: DashboardStats = {

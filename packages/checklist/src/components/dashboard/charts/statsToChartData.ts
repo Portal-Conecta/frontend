@@ -5,7 +5,7 @@ import {
   colorForEntity,
 } from '@portal/ui'
 
-import type { StatsEntry } from '../../types/dashboard'
+import type { StatsEntry } from '../../../types/dashboard'
 
 export interface ChartJsData {
   labels: string[]

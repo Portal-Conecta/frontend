@@ -10,7 +10,7 @@ import {
   useDsChartTheme,
 } from '@portal/ui'
 
-import type { StatsEntry } from '../../types/dashboard'
+import type { StatsEntry } from '../../../types/dashboard'
 import { isEmptyStats, statsToChartData } from './statsToChartData'
 
 registerDoughnutCharts()

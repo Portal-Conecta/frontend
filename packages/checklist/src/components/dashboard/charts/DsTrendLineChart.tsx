@@ -15,7 +15,7 @@ import {
   TENDENCIA_CONFORMIDADE_LABELS,
   TENDENCIA_CONFORMIDADE_VALUES,
   TENDENCIA_META,
-} from './dashboardDemoData'
+} from '../data/dashboardDemoData'
 
 registerLineCharts()
 

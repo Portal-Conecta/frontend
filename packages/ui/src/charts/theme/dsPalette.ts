@@ -1,4 +1,4 @@
-import { colorPrimitives, colors } from '../tokens/colors'
+import { colorPrimitives, colors } from '../../tokens/colors'
 
 /**
  * Paleta categórica do DS — ordem fixa, nunca ciclada.
