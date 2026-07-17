@@ -25,6 +25,37 @@ export interface FileUploadItem {
   name?: string
 }
 
+function isBlobPreviewUrl(url: string): boolean {
+  return url.startsWith('blob:')
+}
+
+/** Revoga object URLs (`blob:`) da lista. Use ao descartar (ex.: unmount do wizard). */
+export function revokeLocalFileUploadPreviews(items: readonly FileUploadItem[]): void {
+  for (const item of items) {
+    if (isBlobPreviewUrl(item.previewUrl)) {
+      URL.revokeObjectURL(item.previewUrl)
+    }
+  }
+}
+
+/**
+ * Revoga só as blob URLs de itens que saíram de `value`.
+ * Mantém as que ainda estão na lista — necessário em wizards multi-etapa: o
+ * FileUpload desmonta ao trocar de passo, mas o pai ainda guarda os itens;
+ * revogar no unmount quebrava a preview ao voltar.
+ */
+export function revokeRemovedFileUploadPreviews(
+  previous: readonly FileUploadItem[],
+  next: readonly FileUploadItem[],
+): void {
+  const nextIds = new Set(next.map((item) => item.id))
+  for (const item of previous) {
+    if (isBlobPreviewUrl(item.previewUrl) && !nextIds.has(item.id)) {
+      URL.revokeObjectURL(item.previewUrl)
+    }
+  }
+}
+
 export interface FileUploadProps {
   /** Arquivos selecionados (controlado). */
   value: FileUploadItem[]
@@ -47,9 +78,13 @@ export interface FileUploadProps {
  *
  * Célula principal grande (clique ou arraste para enviar) + coluna de miniaturas.
  * Controlado: o dono guarda `FileUploadItem[]`. O componente cria as object URLs
- * de preview ao adicionar e as revoga ao remover/desmontar. Por ora só imagens
- * (`accept` default `'image/*'`) — o DS cresce para outros tipos de arquivo
- * conforme a necessidade aparecer.
+ * de preview ao adicionar e as revoga quando o item sai de `value` (remoção ou
+ * troca pelo pai). **Não** revoga no unmount: em wizards multi-etapa o FileUpload
+ * desmonta ao trocar de passo, mas o pai ainda guarda os itens — revogar no
+ * unmount quebrava as miniaturas ao voltar (blob URL inválida).
+ *
+ * Por ora só imagens (`accept` default `'image/*'`) — o DS cresce para outros
+ * tipos de arquivo conforme a necessidade aparecer.
  */
 export function FileUpload({
   value,
@@ -69,16 +104,13 @@ export function FileUpload({
   const [dragOver, setDragOver] = useState(false)
   const [rejectionMessage, setRejectionMessage] = useState<string | null>(null)
 
-  // Revoga as object URLs locais ao desmontar (evita vazamento de memória).
-  const itemsRef = useRef(value)
-  itemsRef.current = value
+  // Revoga object URLs só dos itens que saíram de `value` (não no unmount).
+  const previousValueRef = useRef(value)
   useEffect(() => {
-    return () => {
-      itemsRef.current.forEach((item) => {
-        if (item.file) URL.revokeObjectURL(item.previewUrl)
-      })
-    }
-  }, [])
+    const previous = previousValueRef.current
+    previousValueRef.current = value
+    revokeRemovedFileUploadPreviews(previous, value)
+  }, [value])
 
   const remaining = maxFiles - value.length
   const canAcceptFiles = !disabled && remaining > 0
@@ -141,8 +173,7 @@ export function FileUpload({
   }
 
   function removeItem(id: string) {
-    const item = value.find((current) => current.id === id)
-    if (item?.file) URL.revokeObjectURL(item.previewUrl)
+    // A revogação do blob fica no effect de `value` (item sai da lista).
     onChange(value.filter((current) => current.id !== id))
   }
 

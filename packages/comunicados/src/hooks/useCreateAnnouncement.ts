@@ -232,6 +232,8 @@ export function useCreateAnnouncement(options: UseCreateAnnouncementOptions = {}
       uploadedLocalIdsRef.current = new Set()
       if (redirectOnSuccess) {
         router.push(redirectTo)
+        // Mesma race do wizard: listagem do mural pode ver 5xx logo após create.
+        router.refresh()
       }
       return post
     },
