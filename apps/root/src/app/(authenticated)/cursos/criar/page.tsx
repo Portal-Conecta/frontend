@@ -41,7 +41,7 @@ export default async function CriarCursoPage() {
               tone="secondary"
               className="mt-1 md:text-body-md"
             >
-              Preencha os campos abaixo para cadastrar um novo curso.
+              Adicione os cursos à lista de rascunho e salve todos de uma vez.
             </Text>
           </div>
 

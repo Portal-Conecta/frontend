@@ -1,102 +1,84 @@
-"use client"
+'use client'
 
-import React, { useState } from 'react';
-import { Button, Input, Text, Field } from '@portal/ui';
+import { useState, type ChangeEvent, type FormEvent } from 'react'
 
-interface CreateCourseFormProps {
-  onSubmit?: (data: { code: string; name: string }) => void;
-  onCancel?: () => void;
-  isSaving?: boolean;
+import { Button, Field, Input } from '@portal/ui'
+
+export interface CreateCourseFormProps {
+  /**
+   * Adiciona o curso à lista de rascunho. Retorna uma mensagem de erro para o
+   * campo código (ex.: código duplicado na lista) ou `null` quando aceito.
+   */
+  onAdd: (data: { code: string; name: string }) => string | null
+  disabled?: boolean
 }
 
-export const CreateCourseForm: React.FC<CreateCourseFormProps> = ({
-  onCancel,
-  onSubmit,
-  isSaving = false,
-}) => {
-  const [code, setCode] = useState('');
-  const [name, setName] = useState('');
-  
-  const [errors, setErrors] = useState({ code: '', name: '' });
+/** Formulário "adicionar curso à lista de rascunho" (#358). */
+export function CreateCourseForm({ onAdd, disabled = false }: CreateCourseFormProps) {
+  const [code, setCode] = useState('')
+  const [name, setName] = useState('')
+  const [errors, setErrors] = useState({ code: '', name: '' })
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    let hasError = false;
-    const newErrors = { code: '', name: '' };
+  function handleSubmit(event: FormEvent) {
+    event.preventDefault()
 
-    if (!code.trim()) {
-      newErrors.code = 'Código é obrigatório.';
-      hasError = true;
-    }
-    
-    if (!name.trim()) {
-      newErrors.name = 'Nome é obrigatório.';
-      hasError = true;
+    const trimmedCode = code.trim()
+    const trimmedName = name.trim()
+
+    const newErrors = {
+      code: trimmedCode ? '' : 'Código é obrigatório.',
+      name: trimmedName ? '' : 'Nome é obrigatório.',
     }
 
-    setErrors(newErrors);
-
-    if (!hasError && onSubmit) {
-      onSubmit({ code, name });
+    if (newErrors.code || newErrors.name) {
+      setErrors(newErrors)
+      return
     }
-  };
+
+    const addError = onAdd({ code: trimmedCode, name: trimmedName })
+    if (addError) {
+      setErrors({ code: addError, name: '' })
+      return
+    }
+
+    setErrors({ code: '', name: '' })
+    setCode('')
+    setName('')
+  }
 
   return (
-    <form onSubmit={handleSubmit} className="flex w-full flex-col gap-6">
-     <div className="flex flex-col">
-          <Field label="Código do curso">
-            <Input
-              value={code}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                setCode(e.target.value);
-                if (errors.code) setErrors((prev) => ({ ...prev, code: '' }));
-              }}
-            />
-          </Field>
-          {errors.code && (
-            <Text variant="body-sm" className="mt-1 text-feedback-error">
-              {errors.code}
-            </Text>
-          )}
-        </div>
+    <form onSubmit={handleSubmit} className="flex w-full flex-col gap-4">
+      <Field label="Código do curso">
+        <Input
+          value={code}
+          disabled={disabled}
+          {...(errors.code ? { error: errors.code } : {})}
+          placeholder="Ex: DS"
+          onChange={(event: ChangeEvent<HTMLInputElement>) => {
+            setCode(event.target.value)
+            if (errors.code) setErrors((prev) => ({ ...prev, code: '' }))
+          }}
+        />
+      </Field>
 
-        <div className="flex flex-col">
-          <Field label="Nome do curso">
-            <Input
-              value={name}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                setName(e.target.value);
-                if (errors.name) setErrors((prev) => ({ ...prev, name: '' }));
-              }}
-              placeholder="Ex: Desenvolvimento de Sistema"
-            />
-          </Field>
-          {errors.name && (
-            <Text variant="body-sm" className="mt-1 text-feedback-error">
-              {errors.name}
-            </Text>
-          )}
-        </div>
+      <Field label="Nome do curso">
+        <Input
+          value={name}
+          disabled={disabled}
+          {...(errors.name ? { error: errors.name } : {})}
+          placeholder="Ex: Desenvolvimento de Sistema"
+          onChange={(event: ChangeEvent<HTMLInputElement>) => {
+            setName(event.target.value)
+            if (errors.name) setErrors((prev) => ({ ...prev, name: '' }))
+          }}
+        />
+      </Field>
 
-      <div className="mt-2 flex gap-4">
-        <Button
-          type="button"
-          variant="outlined"
-          onClick={onCancel}
-          className="flex-1 font-normal text-label-xs md:text-label-sm lg:text-label-sm"
-        >
-          Descartar alterações
-        </Button>
-        <Button
-          type="submit"
-          variant="solid"
-          disabled={isSaving}
-          className="flex-1 font-normal text-label-xs md:text-label-sm lg:text-label-sm"
-        >
-          {isSaving ? 'Salvando...' : 'Salvar e criar curso'}
+      <div className="mt-2">
+        <Button type="submit" variant="outlined" iconLeft="plus" disabled={disabled}>
+          Adicionar Curso
         </Button>
       </div>
     </form>
-  );
-};
+  )
+}
