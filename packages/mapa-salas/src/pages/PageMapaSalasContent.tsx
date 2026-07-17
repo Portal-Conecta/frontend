@@ -26,7 +26,7 @@
  * componente oficial). Aluno e gerência usam o mesmo seletor; muda só a etapa
  * de turma (`showTurma`).
  */
-import { useState, type KeyboardEvent } from 'react'
+import { useState } from 'react'
 
 import type { CurrentUser } from '@portal/core'
 import { ConfirmDialog, Text } from '@portal/ui'
@@ -46,33 +46,26 @@ type CrumbTarget = 'sala' | 'turma'
 
 /**
  * Sem linha permanente — só o sublinhado no hover, do tamanho do próprio
- * item (nada de faixa cheia atrás). Os três segmentos usam o mesmo elemento
- * (`<span role="button">`, não `<button>` nativo) e as mesmas classes: um
- * `<button>` real embute padding/box model próprios do navegador que fazem a
- * borda de baixo não bater com a de um `<span>` puro, mesmo zerando padding —
- * pra Sala/Turma ficarem idênticos ao "Mapa de sala" (não interativo), os
- * três precisam ser o mesmo tipo de elemento.
+ * item (nada de faixa cheia atrás). Compartilhada pelos dois crumbs
+ * (`<button>`) e pelo "Mapa de sala" (`<span>`, não interativo) — mesma
+ * borda/padding/transição nos três, só o elemento muda conforme é ou não
+ * clicável (docs/conventions/acessibilidade.md: "use o elemento HTML correto
+ * antes de recorrer a `role`" — daí `<button>` de verdade, não `<span
+ * role="button">`).
  */
 const CRUMB_ITEM_CLASSES =
-  'border-b-2 border-transparent pb-1 transition-colors duration-150 hover:border-border-focus'
+  'border-b-md border-transparent pb-1 transition-colors duration-150 hover:border-border-focus'
 
 // Mesmo anel de foco do StepTab da RoomFilterBar — o crumb é o "modo compacto"
-// do mesmo stepper, mas via `span role="button"` (ver comentário acima).
-// Sem `rounded-sm`: arredonda a caixa inteira, inclusive as pontas da borda
-// de baixo do hover — virava uma "pílula" em vez da linha reta simples do
-// "Mapa de sala". O anel de foco fica com cantos retos, sem problema.
+// do mesmo stepper. `border-x-0 border-t-0 bg-transparent p-0`: zera o
+// padding/borda padrão de `<button>` do navegador. Sem `rounded-sm`: arredonda
+// a caixa inteira, inclusive as pontas da borda de baixo do hover — virava uma
+// "pílula" em vez da linha reta simples do "Mapa de sala".
 const CRUMB_BUTTON_CLASSES = [
-  'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-interactive-focus-ring',
+  'cursor-pointer border-x-0 border-t-0 bg-transparent p-0',
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-interactive-focus-ring',
   CRUMB_ITEM_CLASSES,
 ].join(' ')
-
-/** Enter/Espaço ativam `span role="button"` — teclado não dispara `click` sozinho nele. */
-function handleCrumbKeyDown(event: KeyboardEvent, onActivate: () => void) {
-  if (event.key === 'Enter' || event.key === ' ') {
-    event.preventDefault()
-    onActivate()
-  }
-}
 
 export function PageMapaSalasContent({ user, rooms, turmas }: PageMapaSalasContentProps) {
   const isStudent = user?.userType === 'STUDENT'
@@ -165,34 +158,21 @@ export function PageMapaSalasContent({ user, rooms, turmas }: PageMapaSalasConte
           — só o sublinhado no hover de cada item, ver `CRUMB_ITEM_CLASSES`. */}
       <nav aria-label="Sala selecionada" className="flex items-center justify-center gap-14">
         {selectedRoom ? (
-          <span
-            role="button"
-            tabIndex={0}
-            className={CRUMB_BUTTON_CLASSES}
-            onClick={() => handleCrumbClick('sala')}
-            onKeyDown={(event) => handleCrumbKeyDown(event, () => handleCrumbClick('sala'))}
-          >
+          <button type="button" className={CRUMB_BUTTON_CLASSES} onClick={() => handleCrumbClick('sala')}>
             <Text as="span" variant="body-md" tone="brand">
               Sala {selectedRoom.code}
             </Text>
-          </span>
+          </button>
         ) : null}
         {!isStudent && selectedTurma ? (
-          <span
-            role="button"
-            tabIndex={0}
-            className={CRUMB_BUTTON_CLASSES}
-            onClick={() => handleCrumbClick('turma')}
-            onKeyDown={(event) => handleCrumbKeyDown(event, () => handleCrumbClick('turma'))}
-          >
+          <button type="button" className={CRUMB_BUTTON_CLASSES} onClick={() => handleCrumbClick('turma')}>
             <Text as="span" variant="body-md" tone="brand">
               {selectedTurma.code}
             </Text>
-          </span>
+          </button>
         ) : null}
-        {/* Não interativo (já é a etapa atual) — mesmo `<span>` dos outros
-            dois, sem `role="button"`/handlers, pra a borda de baixo ficar
-            com a mesma metragem/posição dos crumbs. */}
+        {/* Não interativo (já é a etapa atual) — `<span>`, não `<button>`:
+            não navega pra lugar nenhum, então não é um controle. */}
         <span className={CRUMB_ITEM_CLASSES}>
           <Text as="span" variant="body-md" tone="brand">
             Mapa de sala
