@@ -1,11 +1,12 @@
 import { redirect } from 'next/navigation'
 
-import { Banner, Button, Text } from '@portal/ui'
+import { Banner, Text } from '@portal/ui'
 
 import { getCurrentUser } from '../auth/getCurrentUser'
 import { getSession } from '../auth/session'
 import { HttpError } from '../http/errors'
 import { AppShell } from '../layout/AppShell'
+import { CreateTurmaButton } from './CreateTurmaButton'
 import { listTurmas } from './turmasService'
 import { TurmaList } from './TurmaList'
 import type { TurmaRow } from './turmaRows'
@@ -30,15 +31,13 @@ export async function PageTurma() {
   }
 
   return (
-    <AppShell user={user} activeKey="turma">
+    <AppShell user={user}>
       <div className="px-8 py-6">
         <div className="flex justify-between">
           <Text tone="brand" variant="heading-h2">
             Turmas
           </Text>
-          <Button iconLeft="plus" size="xs">
-            Criar Nova Turma
-          </Button>
+          <CreateTurmaButton />
         </div>
 
         {loadFailed ? (
