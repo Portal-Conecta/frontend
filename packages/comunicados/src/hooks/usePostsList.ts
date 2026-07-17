@@ -33,13 +33,17 @@ export function usePostsList(initialFilters: ListPostsParams = {}): UsePostsList
 
   useEffect(() => {
     let active = true
+    // Aborta a request em voo (não só ignora o resultado) quando o filtro troca de
+    // novo antes da resposta anterior chegar — evita gastar rede/back numa lista
+    // que não vai mais ser exibida.
+    const controller = new AbortController()
 
     async function loadPosts() {
       setLoading(true)
       setError(null)
 
       try {
-        const result = await withListRetry(() => listPostsClient(filters))
+        const result = await withListRetry(() => listPostsClient(filters, controller.signal), controller.signal)
         if (active) setData(result)
       } catch (err) {
         if (active) setError(err instanceof Error ? err : new Error('posts_list_error'))
@@ -52,6 +56,7 @@ export function usePostsList(initialFilters: ListPostsParams = {}): UsePostsList
 
     return () => {
       active = false
+      controller.abort()
     }
   }, [filters, reloadKey])
 

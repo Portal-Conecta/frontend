@@ -22,6 +22,7 @@ export async function GET(req: Request) {
 
   const { searchParams } = new URL(req.url)
   const typeUserParam = searchParams.get('typeUser')
+  const search = searchParams.get('search')?.trim()
 
   // Mesma normalização do `GET /api/users` (ambos proxiam o `searchUsers` do
   // core): `typeUser` inválido é 400 e `size` tem teto — sem drift entre as duas.
@@ -41,6 +42,7 @@ export async function GET(req: Request) {
         page: Number.isFinite(page) && page >= 0 ? Math.floor(page) : 0,
         size: Number.isFinite(size) ? Math.min(Math.max(Math.floor(size), 1), 100) : 20,
         ...(typeUserParam ? { typeUser: typeUserParam as TypeUser } : {}),
+        ...(search ? { name: search } : {}),
       },
       token,
     )

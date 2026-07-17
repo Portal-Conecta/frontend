@@ -127,7 +127,13 @@ export function CreateAnnouncementWizard() {
   const restricted = isTeacher || isRepresentative
   const modes = isTeacher ? TEACHER_MODES : isRepresentative ? REPRESENTATIVE_MODES : ALL_MODES
 
-  const catalog = useDestinationCatalog({ includeDirectoryUsers: !restricted })
+  const step = STEPS[stepIndex]!.key
+  // Só busca cursos/turmas/tags/usuários quando o step de destinatários abre
+  // pela primeira vez — evita o request no mount do wizard inteiro (#399).
+  const catalog = useDestinationCatalog({
+    enabled: step === 'destinations',
+    includeDirectoryUsers: !restricted,
+  })
   const myStudents = useMyClassStudents(restricted)
 
   const myClassIds = useMemo(
@@ -160,7 +166,6 @@ export function CreateAnnouncementWizard() {
     setRecipients(next)
   }
 
-  const step = STEPS[stepIndex]!.key
   const confirmCopy = getPublishConfirmCopy(scheduledFor)
 
   function handleNext() {

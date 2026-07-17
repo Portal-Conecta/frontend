@@ -21,7 +21,8 @@ import type { AnnouncementDetail, AnnouncementTag } from '../../types'
 
 import Link from 'next/link'
 
-import { RichTextContent, Tag, Text } from '@portal/ui'
+import { Tag, Text } from '@portal/ui'
+import { RichTextContent } from '@portal/ui/organisms/RichTextEditor/RichTextContent'
 
 import { resolveAnnouncementDisplayDate } from '../../utils/announcement'
 import { AnnouncementDetailDocuments } from './AnnouncementDetailDocuments'
