@@ -2,6 +2,8 @@ import { HUB_SHIFT, type HubShift } from '@portal/shared'
 
 import {
   ANNOUNCEMENT_DESTINATION_TYPE,
+  ANNOUNCEMENT_ROLE,
+  type AnnouncementRole,
   type CreateAnnouncementDestinationInput,
 } from '../../types/announcement'
 import type { Tag } from '../../types/tag'
@@ -15,19 +17,46 @@ export interface RecipientsPayload {
   tagIds: string[]
   /** Enums `Shift` do Core (`FULL_AM_PM` / `FULL_PM_NT`). */
   shiftCodes: HubShift[]
+  /**
+   * Papéis (`UserType`) enviados em `roles` no publish/schedule.
+   * Vazio = sem restrição de papel (GENERAL sozinho = broadcast a todos).
+   */
+  roles: AnnouncementRole[]
   /** Mensagens de campo quando algum destinatário não pôde ser mapeado. */
   errors: string[]
 }
 
 const HUB_SHIFT_VALUES = new Set<string>(Object.values(HUB_SHIFT))
 
+/**
+ * Chip `group.refId` → `UserType`. Inclui os 3 do `GroupTypePanel` e SENAI/WEG/ADMIN
+ * (tags ROLE reconstituídas na edição; a UI de criação não gera esses chips).
+ */
+const GROUP_TO_ROLE: Readonly<Record<string, AnnouncementRole>> = {
+  STUDENTS: ANNOUNCEMENT_ROLE.STUDENT,
+  TEACHERS: ANNOUNCEMENT_ROLE.TEACHER,
+  REPRESENTATIVES: ANNOUNCEMENT_ROLE.REPRESENTATIVE,
+  SENAI: ANNOUNCEMENT_ROLE.SENAI,
+  WEG: ANNOUNCEMENT_ROLE.WEG,
+  ADMIN: ANNOUNCEMENT_ROLE.ADMIN,
+}
+
 function isHubShift(value: string): value is HubShift {
   return HUB_SHIFT_VALUES.has(value)
 }
 
+function roleFromGroupRef(value: string): AnnouncementRole | undefined {
+  return GROUP_TO_ROLE[value]
+}
+
 /**
  * Reduz o `Recipient[]` expressivo (#195) ao contrato de publicação do back:
- * `destinations[]` + `tagIds[]` (tag.id interno) + `shiftCodes[]`.
+ * `destinations[]` + `tagIds[]` + `shiftCodes[]` + `roles[]`.
+ *
+ * Destinos = escopo espacial (GENERAL/COURSE/CLASS/USER).
+ * `roles` = restrição de papel (tag ROLE). Grupos da UI (`STUDENTS`/`TEACHERS`/
+ * `REPRESENTATIVES`) só contribuem para `roles` — GENERAL só entra como fallback
+ * quando não há destino espacial (curso/turma/usuário).
  *
  * Turnos vão em `shiftCodes` (não em `tagIds`). Curso/turma resolvem `tag.id`
  * via catálogo (`findTagIdByHubEntity`) — o `referenceId` do destino continua
@@ -40,10 +69,12 @@ export function mapRecipientsToPayload(
   const destinations: CreateAnnouncementDestinationInput[] = []
   const tagIds: string[] = []
   const shiftCodes: HubShift[] = []
+  const roles: AnnouncementRole[] = []
   const errors: string[] = []
   const destKeys = new Set<string>()
   const tagSet = new Set<string>()
   const shiftSet = new Set<HubShift>()
+  const roleSet = new Set<AnnouncementRole>()
 
   function addDestination(type: CreateAnnouncementDestinationInput['type'], referenceId?: string) {
     const key = referenceId ? `${type}:${referenceId}` : type
@@ -63,6 +94,13 @@ export function mapRecipientsToPayload(
     if (!shiftSet.has(code)) {
       shiftSet.add(code)
       shiftCodes.push(code)
+    }
+  }
+
+  function addRole(role: AnnouncementRole) {
+    if (!roleSet.has(role)) {
+      roleSet.add(role)
+      roles.push(role)
     }
   }
 
@@ -99,9 +137,12 @@ export function mapRecipientsToPayload(
       case 'user':
         addDestination(ANNOUNCEMENT_DESTINATION_TYPE.USER, recipient.refId)
         break
-      case 'group':
-        addDestination(ANNOUNCEMENT_DESTINATION_TYPE.GENERAL)
+      case 'group': {
+        // `EVERYONE` (broadcast) e grupos desconhecidos: sem restrição de papel.
+        const role = roleFromGroupRef(recipient.refId)
+        if (role) addRole(role)
         break
+      }
     }
   }
 
@@ -109,5 +150,5 @@ export function mapRecipientsToPayload(
     addDestination(ANNOUNCEMENT_DESTINATION_TYPE.GENERAL)
   }
 
-  return { destinations, tagIds, shiftCodes, errors }
+  return { destinations, tagIds, shiftCodes, roles, errors }
 }

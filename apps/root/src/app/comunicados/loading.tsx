@@ -25,7 +25,8 @@ export default function LoadingComunicadosPage() {
           </div>
 
           <div className="grid gap-6 xl:grid-cols-3 xl:items-start">
-            <aside className="w-full max-w-lg bg-background-surface px-8 py-6 xl:order-2 xl:col-span-1">
+            {/* Painel de filtros só existe no desktop (xl) — igual ao AnnouncementFeedContent. */}
+            <aside className="hidden w-full max-w-lg bg-background-surface px-8 py-6 xl:order-2 xl:col-span-1 xl:block">
               <Skeleton variant="text" width={96} height={20} />
 
               <div className="mt-7 flex flex-col gap-4">

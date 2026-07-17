@@ -1,10 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 import { Button, ConfirmDialog, Icon, Text } from '@portal/ui'
+import { useCurrentUser } from '@portal/core'
 
 import { ANNOUNCEMENT_ORIGIN } from '../../types/announcement'
 import {
@@ -17,12 +18,13 @@ import {
   validateAnnouncementContent,
   type AnnouncementContentValue,
 } from '../AnnouncementForm'
-import { DestinationSelector } from '../DestinationSelector'
-import type { Recipient } from '../DestinationSelector/types'
+import { DestinationSelector, type DestinationMode } from '../DestinationSelector'
+import { addRecipient, makeRecipient, type Recipient } from '../DestinationSelector/types'
 import { ScheduleDatePicker } from '../ScheduleDatePicker'
 import { BRASILIA_TIMEZONE } from '../../utils/datetime'
 import { StepProgressBar } from '../StepProgressBar'
 import { useDestinationCatalog } from '../../hooks/useDestinationCatalog'
+import { useMyClassStudents } from '../../hooks/useMyClassStudents'
 import { mapRecipientsToPayload, type RecipientsPayload } from './mapRecipientsToPayload'
 
 const STEPS = [
@@ -31,13 +33,22 @@ const STEPS = [
   { key: 'schedule', label: 'Publicação' },
 ] as const
 
+/**
+ * Modos de seleção por persona (RN-COM-PA02/PA03). Docente e representante não
+ * têm "Selecionar usuários por tipo" (grupos amplos) nem acesso ao diretório
+ * completo — só o próprio escopo de turmas/alunos.
+ */
+const ALL_MODES: readonly DestinationMode[] = ['filter', 'group', 'user']
+const TEACHER_MODES: readonly DestinationMode[] = ['filter', 'user']
+const REPRESENTATIVE_MODES: readonly DestinationMode[] = ['user']
+
 function validateContent(content: AnnouncementContentValue) {
   return validateAnnouncementContent(content)
 }
 
 function buildFormValues(
   content: AnnouncementContentValue,
-  mapped: Pick<RecipientsPayload, 'destinations' | 'tagIds' | 'shiftCodes'>,
+  mapped: Pick<RecipientsPayload, 'destinations' | 'tagIds' | 'shiftCodes' | 'roles'>,
   scheduledFor: string | null,
 ): CreateAnnouncementFormValues {
   return {
@@ -47,6 +58,7 @@ function buildFormValues(
     destinations: mapped.destinations,
     tagIds: mapped.tagIds,
     shiftCodes: mapped.shiftCodes,
+    roles: mapped.roles,
     scheduledFor: scheduledFor ?? '',
     pinned: false,
   }
@@ -99,7 +111,44 @@ export function CreateAnnouncementWizard() {
       redirectOnSuccess: false,
     })
 
-  const catalog = useDestinationCatalog()
+  const user = useCurrentUser()
+  const isTeacher = user?.userType === 'TEACHER'
+  const isRepresentative = user?.userType === 'REPRESENTATIVE'
+  const restricted = isTeacher || isRepresentative
+  const modes = isTeacher ? TEACHER_MODES : isRepresentative ? REPRESENTATIVE_MODES : ALL_MODES
+
+  const catalog = useDestinationCatalog({ includeDirectoryUsers: !restricted })
+  const myStudents = useMyClassStudents(restricted)
+
+  const myClassIds = useMemo(
+    () => new Set((user?.classes ?? []).map((membership) => membership.classId)),
+    [user],
+  )
+
+  /** Docente só enxerga as turmas em que leciona (claims do JWT). */
+  const visibleClasses = useMemo(
+    () =>
+      restricted
+        ? catalog.classes.filter((option) => myClassIds.has(option.value))
+        : catalog.classes,
+    [restricted, catalog.classes, myClassIds],
+  )
+
+  function handleSelectAllMyClasses() {
+    let next = recipients
+    for (const option of visibleClasses) {
+      next = addRecipient(next, makeRecipient('class', option.value, option.label))
+    }
+    setRecipients(next)
+  }
+
+  function handleSelectAllMyStudents() {
+    let next = recipients
+    for (const student of myStudents.students) {
+      next = addRecipient(next, makeRecipient('user', student.id, student.name))
+    }
+    setRecipients(next)
+  }
 
   const step = STEPS[stepIndex]!.key
   const confirmCopy = getPublishConfirmCopy(scheduledFor)
@@ -144,6 +193,17 @@ export function CreateAnnouncementWizard() {
     setConfirmOpen(false)
   }
 
+  function clearUploadedLocalFile(localId: string) {
+    setContent((previous) => ({
+      ...previous,
+      images: previous.images.map((item) =>
+        item.id === localId
+          ? { id: item.id, previewUrl: item.previewUrl, ...(item.name != null ? { name: item.name } : {}) }
+          : item,
+      ),
+    }))
+  }
+
   async function handleSubmit() {
     setConfirmOpen(false)
 
@@ -156,7 +216,10 @@ export function CreateAnnouncementWizard() {
 
     const formValues = buildFormValues(content, mapped, scheduledFor)
 
-    const submitOptions = { images: content.images }
+    const submitOptions = {
+      images: content.images,
+      onImageUploaded: clearUploadedLocalFile,
+    }
 
     const created = scheduledFor
       ? await scheduleFrom({ ...formValues, scheduledFor }, submitOptions)
@@ -199,20 +262,62 @@ export function CreateAnnouncementWizard() {
         ) : null}
 
         {step === 'destinations' ? (
-          <DestinationSelector
-            value={recipients}
-            onChange={setRecipients}
-            disabled={submitting}
-            courses={catalog.courses}
-            classes={catalog.classes}
-            shifts={catalog.shifts}
-            usersPage={catalog.usersPage}
-            usersQuery={catalog.usersQuery}
-            onUsersQueryChange={catalog.setUsersQuery}
-            onUsersPageChange={catalog.setUsersPage}
-            usersLoading={catalog.usersLoading}
-            catalogLoading={catalog.loading}
-          />
+          <>
+            <DestinationSelector
+              value={recipients}
+              onChange={setRecipients}
+              disabled={submitting}
+              courses={restricted ? [] : catalog.courses}
+              classes={visibleClasses}
+              shifts={restricted ? [] : catalog.shifts}
+              modes={modes}
+              {...(restricted
+                ? {
+                    users: myStudents.students,
+                    usersLoading: myStudents.loading,
+                  }
+                : {
+                    usersPage: catalog.usersPage,
+                    usersQuery: catalog.usersQuery,
+                    onUsersQueryChange: catalog.setUsersQuery,
+                    onUsersPageChange: catalog.setUsersPage,
+                    usersLoading: catalog.usersLoading,
+                  })}
+              // Representante não tem modo com curso/turma — sem aviso de catálogo.
+              catalogLoading={isRepresentative ? false : catalog.loading}
+            />
+
+            {isTeacher || isRepresentative ? (
+              <div className="mt-6 flex flex-wrap gap-4">
+                {isTeacher ? (
+                  <Button
+                    variant="outlined"
+                    iconLeft="users"
+                    onClick={handleSelectAllMyClasses}
+                    disabled={submitting || catalog.loading || visibleClasses.length === 0}
+                  >
+                    Selecionar todas as minhas turmas
+                  </Button>
+                ) : null}
+                {isRepresentative ? (
+                  <Button
+                    variant="outlined"
+                    iconLeft="user"
+                    onClick={handleSelectAllMyStudents}
+                    disabled={submitting || myStudents.loading || myStudents.students.length === 0}
+                  >
+                    Selecionar todos os alunos da minha turma
+                  </Button>
+                ) : null}
+              </div>
+            ) : null}
+
+            {myStudents.error ? (
+              <Text as="p" variant="label-xs" className="mt-4 text-feedback-error">
+                {myStudents.error}
+              </Text>
+            ) : null}
+          </>
         ) : null}
 
         {step === 'destinations' && destinationsError ? (
