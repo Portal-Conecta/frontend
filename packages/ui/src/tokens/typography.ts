@@ -17,9 +17,14 @@
  */
 
 export const typography = {
+  // As famílias vêm de CSS vars definidas pelo next/font (modo `variable`): o
+  // layout de apps/root as define no <html> em runtime; o decorator do Storybook
+  // (.storybook/preview.tsx) as define no iframe do canvas. O fallback do
+  // next/font (com métricas ajustadas) já está embutido no valor da var; o
+  // `sans-serif` aqui é a última rede de segurança. Issue #407.
   fontFamily: {
-    inter:  ['Inter', 'sans-serif'],
-    afacad: ['Afacad', 'sans-serif'],
+    inter:  ['var(--font-inter)',  'sans-serif'],
+    afacad: ['var(--font-afacad)', 'sans-serif'],
   },
 
   fontSize: {
