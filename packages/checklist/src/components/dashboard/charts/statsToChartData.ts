@@ -15,25 +15,31 @@ export interface ChartJsData {
 
 /**
  * Converte StatsEntry[] em datasets Chart.js.
- * 8+ categorias: top 7 + "Outros".
+ * 8+ categorias: top 7 + "Outros" (exceto preserveOrder — séries temporais).
  * Cor estável por label (entidade), não por posição no ranking.
  */
 export function statsToChartData(
   entries: StatsEntry[],
-  options?: { statusSemantics?: boolean },
+  options?: { statusSemantics?: boolean; preserveOrder?: boolean },
 ): ChartJsData {
   if (!entries.length) {
     return { labels: [], values: [], colors: [] }
   }
 
-  const sorted = [...entries].sort((a, b) => b.value - a.value)
-  let working = sorted
+  let working: StatsEntry[]
 
-  if (sorted.length > DS_MAX_CATEGORIES) {
-    const head = sorted.slice(0, DS_MAX_CATEGORIES - 1)
-    const rest = sorted.slice(DS_MAX_CATEGORIES - 1)
-    const othersValue = rest.reduce((sum, e) => sum + e.value, 0)
-    working = [...head, { label: 'Outros', value: othersValue }]
+  if (options?.preserveOrder) {
+    working = [...entries]
+  } else {
+    const sorted = [...entries].sort((a, b) => b.value - a.value)
+    if (sorted.length > DS_MAX_CATEGORIES) {
+      const head = sorted.slice(0, DS_MAX_CATEGORIES - 1)
+      const rest = sorted.slice(DS_MAX_CATEGORIES - 1)
+      const othersValue = rest.reduce((sum, e) => sum + e.value, 0)
+      working = [...head, { label: 'Outros', value: othersValue }]
+    } else {
+      working = sorted
+    }
   }
 
   const labels = working.map((e) => e.label)

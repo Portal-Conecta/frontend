@@ -33,4 +33,17 @@ describe('statsToChartData', () => {
     expect(isEmptyStats([{ label: 'x', value: 0 }])).toBe(true)
     expect(isEmptyStats([{ label: 'x', value: 2 }])).toBe(false)
   })
+
+  it('preserveOrder mantém ordem cronológica da série temporal', () => {
+    const chart = statsToChartData(
+      [
+        { label: '01/06', value: 1 },
+        { label: '02/06', value: 9 },
+        { label: '03/06', value: 3 },
+      ],
+      { preserveOrder: true },
+    )
+    expect(chart.labels).toEqual(['01/06', '02/06', '03/06'])
+    expect(chart.values).toEqual([1, 9, 3])
+  })
 })

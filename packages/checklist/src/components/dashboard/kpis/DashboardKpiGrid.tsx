@@ -3,8 +3,9 @@
 import { Icon, Skeleton, Text, type IconName } from '@portal/ui'
 
 import { DASHBOARD_KPIS } from '../data/dashboardDemoData'
+import type { DashboardKpiItem } from './deriveDashboardKpis'
 
-const toneIcon: Record<(typeof DASHBOARD_KPIS)[number]['tone'], string> = {
+const toneIcon: Record<DashboardKpiItem['tone'], string> = {
   positive: 'text-feedback-success',
   brand: 'text-text-brand',
   negative: 'text-feedback-error',
@@ -12,9 +13,22 @@ const toneIcon: Record<(typeof DASHBOARD_KPIS)[number]['tone'], string> = {
 
 export interface DashboardKpiGridProps {
   loading?: boolean
+  /** KPIs calculados a partir do dashboard real; se omitido, usa demo. */
+  items?: readonly DashboardKpiItem[]
 }
 
-export function DashboardKpiGrid({ loading = false }: DashboardKpiGridProps) {
+export function DashboardKpiGrid({ loading = false, items }: DashboardKpiGridProps) {
+  const kpis: readonly DashboardKpiItem[] =
+    items ??
+    DASHBOARD_KPIS.map((k) => ({
+      id: k.id,
+      label: k.label,
+      value: k.value,
+      hint: k.hint,
+      icon: k.icon as IconName,
+      tone: k.tone,
+    }))
+
   if (loading) {
     return (
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -33,7 +47,7 @@ export function DashboardKpiGrid({ loading = false }: DashboardKpiGridProps) {
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      {DASHBOARD_KPIS.map((kpi) => (
+      {kpis.map((kpi) => (
         <article
           key={kpi.id}
           className="flex flex-col gap-3 rounded-md border border-border-default bg-background-surface p-5 shadow-sm"
@@ -49,7 +63,7 @@ export function DashboardKpiGrid({ loading = false }: DashboardKpiGridProps) {
               ].join(' ')}
               aria-hidden
             >
-              <Icon name={kpi.icon as IconName} size="sm" />
+              <Icon name={kpi.icon} size="sm" />
             </span>
           </div>
           <Text as="p" variant="heading-h1" tone="primary" className="tracking-tight">

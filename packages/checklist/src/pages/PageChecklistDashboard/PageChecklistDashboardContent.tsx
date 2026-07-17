@@ -1,18 +1,16 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button, Text } from '@portal/ui'
 
 import {
-  AlertaOrientacao,
+  ChecklistDashboardCharts,
   DashboardKpiGrid,
-  DsBarChart,
-  DsStackedBarChart,
-  DsTrendLineChart,
-  FALHAS_POR_CATEGORIA,
-  ZonaVermelhaTable,
+  MOCK_DASHBOARD_STATS,
+  deriveDashboardKpis,
 } from '../../components/dashboard'
 import { fetchDashboardStats } from '../../services/dashboard'
+import type { DashboardStats } from '../../types/dashboard'
 
 function defaultPeriod(): { from: string; to: string } {
   const to = new Date()
@@ -23,28 +21,38 @@ function defaultPeriod(): { from: string; to: string } {
 }
 
 export interface PageChecklistDashboardContentProps {
-  /** Força modo demo (Storybook). */
+  /** Força modo demo (Storybook) com MOCK_DASHBOARD_STATS. */
   useMock?: boolean
 }
 
-export function PageChecklistDashboardContent({ useMock = false }: PageChecklistDashboardContentProps) {
+export function PageChecklistDashboardContent({
+  useMock = false,
+}: PageChecklistDashboardContentProps) {
   const [loading, setLoading] = useState(!useMock)
   const [period, setPeriod] = useState(defaultPeriod)
-  const [demoNote, setDemoNote] = useState(useMock)
+  const [stats, setStats] = useState<DashboardStats | null>(
+    useMock ? MOCK_DASHBOARD_STATS : null,
+  )
+  const [error, setError] = useState<string | null>(null)
 
   const load = useCallback(async () => {
     if (useMock) {
+      setStats(MOCK_DASHBOARD_STATS)
+      setError(null)
       setLoading(false)
-      setDemoNote(true)
       return
     }
 
     setLoading(true)
+    setError(null)
     try {
-      await fetchDashboardStats({ from: period.from, to: period.to })
-      setDemoNote(false)
+      const data = await fetchDashboardStats({ from: period.from, to: period.to })
+      setStats(data)
     } catch {
-      setDemoNote(true)
+      setStats(null)
+      setError(
+        'Não foi possível carregar o dashboard. Verifique permissão (gestão SENAI/WEG) e se o backend está disponível.',
+      )
     } finally {
       setLoading(false)
     }
@@ -53,6 +61,16 @@ export function PageChecklistDashboardContent({ useMock = false }: PageChecklist
   useEffect(() => {
     void load()
   }, [load])
+
+  const kpis = useMemo(
+    () => (stats ? deriveDashboardKpis(stats) : undefined),
+    [stats],
+  )
+
+  const periodLabel =
+    stats?.periodo != null
+      ? `${stats.periodo.from} → ${stats.periodo.to}`
+      : `${period.from} → ${period.to}`
 
   return (
     <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-8">
@@ -65,7 +83,11 @@ export function PageChecklistDashboardContent({ useMock = false }: PageChecklist
             Dashboard dos Checklists
           </Text>
           <Text variant="body-md" tone="secondary">
-            Visão gerencial de conformidade, cumprimento e não conformidades das turmas.
+            Visão gerencial de execuções e pendências no período selecionado.
+          </Text>
+          <Text variant="label-xs" tone="secondary">
+            Período efetivo: {periodLabel}
+            {useMock ? ' · demo' : ''}
           </Text>
         </div>
 
@@ -92,45 +114,38 @@ export function PageChecklistDashboardContent({ useMock = false }: PageChecklist
               className="min-w-[140px] rounded-sm border border-border-default bg-background-surface px-3 py-2 text-body-sm text-text-primary focus:border-border-focus focus:outline-none"
             />
           </label>
-          <Button variant="solid" tone="brand" size="md" onClick={() => void load()} iconLeft="funnel">
+          <Button
+            variant="solid"
+            tone="brand"
+            size="md"
+            onClick={() => void load()}
+            iconLeft="funnel"
+            disabled={loading}
+          >
             Filtrar
           </Button>
         </div>
       </header>
 
-      {demoNote && !loading ? (
-        <Text variant="label-xs" tone="secondary">
-          Exibindo indicadores de referência do produto (demo). Conecte o backend para sincronizar o período.
-        </Text>
+      {error ? (
+        <div
+          role="alert"
+          className="rounded-md border border-feedback-error/40 bg-background-surface px-4 py-3"
+        >
+          <Text variant="body-sm" tone="primary">
+            {error}
+          </Text>
+          <div className="mt-3">
+            <Button variant="outline" tone="neutral" size="sm" onClick={() => void load()}>
+              Tentar novamente
+            </Button>
+          </div>
+        </div>
       ) : null}
 
-      <DashboardKpiGrid loading={loading} />
+      <DashboardKpiGrid loading={loading} items={kpis} />
 
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <div className="xl:col-span-2">
-          <DsTrendLineChart loading={loading} height={320} />
-        </div>
-        <div className="xl:col-span-1">
-          <DsBarChart
-            title="Falhas por categoria"
-            data={FALHAS_POR_CATEGORIA}
-            loading={loading}
-            height={320}
-            datasetLabel="Falhas"
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <DsStackedBarChart loading={loading} height={300} />
-        <AlertaOrientacao />
-      </div>
-
-      <ZonaVermelhaTable
-        onCorrigir={(id) => {
-          console.info('Corrigir issue', id)
-        }}
-      />
+      <ChecklistDashboardCharts stats={stats} loading={loading} />
     </div>
   )
 }

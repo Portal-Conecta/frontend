@@ -31,7 +31,8 @@ export function DsLineChart({
   datasetLabel = 'Total',
 }: DsLineChartProps) {
   const theme = useDsChartTheme()
-  const chart = useMemo(() => statsToChartData(data), [data])
+  // Séries temporais do backend (por dia) mantêm ordem cronológica.
+  const chart = useMemo(() => statsToChartData(data, { preserveOrder: true }), [data])
   const empty = !loading && isEmptyStats(data)
 
   const chartData = useMemo(
