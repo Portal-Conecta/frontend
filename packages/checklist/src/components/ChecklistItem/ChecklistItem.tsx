@@ -3,8 +3,8 @@
 import { Text, Textarea } from "@portal/ui";
 import { useState } from "react";
 
-import { StatusToggle } from "../../atoms/StatusToggle/StatusToggle";
-import type { StatusValue } from "../../atoms/StatusToggle/StatusToggle";
+import { StatusToggle } from "../StatusToggle/StatusToggle";
+import type { StatusValue } from "../StatusToggle/StatusToggle";
 
 export interface ChecklistItemProps {
   title: string;
