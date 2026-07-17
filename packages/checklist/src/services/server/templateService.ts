@@ -1,40 +1,44 @@
-import { createHttpClient } from '@portal/core/http/httpClient'
-import { checklistGatewayPath } from '../checklistGateway'
+import { createHttpClient } from "@portal/core/http/httpClient";
+import { checklistGatewayPath } from "../checklistGateway";
 import type {
   ChecklistTemplateResponse,
   ChecklistTemplateCreateRequest,
   ChecklistTemplateEditRequest,
   ChecklistItemSearchResult,
   ChecklistItemByCategorySearchResult,
-} from '../../types/template'
+} from "../../types/template";
 
-const http = createHttpClient('API_GATEWAY_URL')
+const http = createHttpClient("API_GATEWAY_URL");
 
 export async function createTemplate(
   body: ChecklistTemplateCreateRequest,
 ): Promise<ChecklistTemplateResponse> {
   return http.post<ChecklistTemplateResponse>(
-    checklistGatewayPath('/api/checklist-templates'),
+    checklistGatewayPath("/api/checklist-templates"),
     { body },
-  )
+  );
 }
 
-export async function activateTemplate(templateId: string): Promise<ChecklistTemplateResponse> {
+export async function activateTemplate(
+  templateId: string,
+): Promise<ChecklistTemplateResponse> {
   return http.patch<ChecklistTemplateResponse>(
     checklistGatewayPath(`/api/checklist-templates/${templateId}/activate`),
-  )
+  );
 }
 
-export async function findTemplateById(templateId: string): Promise<ChecklistTemplateResponse> {
+export async function findTemplateById(
+  templateId: string,
+): Promise<ChecklistTemplateResponse> {
   return http.get<ChecklistTemplateResponse>(
     checklistGatewayPath(`/api/checklist-templates/${templateId}`),
-  )
+  );
 }
 
 export async function listTemplates(): Promise<ChecklistTemplateResponse[]> {
   return http.get<ChecklistTemplateResponse[]>(
-    checklistGatewayPath('/api/checklist-templates'),
-  )
+    checklistGatewayPath("/api/checklist-templates"),
+  );
 }
 
 export async function editTemplate(
@@ -44,7 +48,7 @@ export async function editTemplate(
   return http.patch<ChecklistTemplateResponse>(
     checklistGatewayPath(`/api/checklist-templates/${templateId}`),
     { body },
-  )
+  );
 }
 
 export async function createNewTemplateVersion(
@@ -52,23 +56,23 @@ export async function createNewTemplateVersion(
 ): Promise<ChecklistTemplateResponse> {
   return http.post<ChecklistTemplateResponse>(
     checklistGatewayPath(`/api/checklist-templates/${templateId}/new-version`),
-  )
+  );
 }
 
 export async function searchTemplateItems(
   query: string,
 ): Promise<ChecklistItemSearchResult[]> {
   return http.get<ChecklistItemSearchResult[]>(
-    checklistGatewayPath('/api/checklist-templates/items/search'),
+    checklistGatewayPath("/api/checklist-templates/items/search"),
     { params: { query } },
-  )
+  );
 }
 
 export async function searchTemplateItemsByCategory(
   category: string,
 ): Promise<ChecklistItemByCategorySearchResult[]> {
   return http.get<ChecklistItemByCategorySearchResult[]>(
-    checklistGatewayPath('/api/checklist-templates/items/search'),
+    checklistGatewayPath("/api/checklist-templates/items/search"),
     { params: { category } },
-  )
+  );
 }

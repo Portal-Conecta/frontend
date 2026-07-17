@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { Button, Text } from "@portal/ui";
 import { useEffect, useRef, useState } from "react";
