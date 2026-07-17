@@ -4,6 +4,13 @@ import { Button } from '../../atoms/Button'
 import { Icon } from '../../atoms/Icon'
 import { EmptyState } from './EmptyState'
 
+const linkClassName = [
+  'inline-flex items-center justify-center rounded-md bg-interactive-default px-4 py-2',
+  'text-label-md-emphasis font-inter text-text-inverse',
+  'hover:bg-interactive-hover active:bg-interactive-pressed',
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive-focus-ring focus-visible:ring-offset-2',
+].join(' ')
+
 const meta = {
   title: 'Componentes/Feedback/EmptyState',
   component: EmptyState,
@@ -22,9 +29,9 @@ export const WithoutAction: Story = {}
 export const WithLinkAction: Story = {
   args: {
     action: (
-      <Button asChild>
-        <a href="#empty-state-link-action">Criar item</a>
-      </Button>
+      <a href="#empty-state-link-action" className={linkClassName}>
+        Criar item
+      </a>
     ),
   },
 }

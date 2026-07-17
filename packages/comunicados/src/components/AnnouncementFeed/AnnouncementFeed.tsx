@@ -229,9 +229,12 @@ export function AnnouncementFeedContent({
               illustration={<AnnouncementEmptyIllustration className="h-60 w-60" aria-hidden="true" />}
               action={
                 canCreate ? (
-                  <Button asChild>
-                    <Link href="/comunicados/criar">Criar comunicado</Link>
-                  </Button>
+                  <Link
+                    href="/comunicados/criar"
+                    className="inline-flex items-center justify-center rounded-md bg-interactive-default px-4 py-2 text-label-md-emphasis font-inter text-text-inverse hover:bg-interactive-hover active:bg-interactive-pressed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive-focus-ring focus-visible:ring-offset-2"
+                  >
+                    Criar comunicado
+                  </Link>
                 ) : undefined
               }
             />
