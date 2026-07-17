@@ -24,7 +24,7 @@ interface RouteContext {
 
 /**
  * BFF — remove imagem de um post (`DELETE /api/posts/{postId}/images/{imageId}`).
- * Delega ao gateway com o JWT do cookie httpOnly.
+ * 404 do gateway vira 204 (no-op) para retries idempotentes (#398).
  */
 export async function DELETE(_req: Request, context: RouteContext) {
   const token = await getSession()

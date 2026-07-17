@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { Text, colors } from '@portal/ui'
 
 import {
-  formatAnnouncementDate,
+  formatAnnouncementDisplayDate,
   formatAnnouncementStatusLine,
   getAnnouncementOriginLabel,
 } from '../../utils/announcement'
@@ -45,11 +45,10 @@ export function AnnouncementCard({
 }: AnnouncementCardProps) {
   const href = from ? `/comunicados/${announcement.id}?from=${from}` : `/comunicados/${announcement.id}`
   const isHighlighted = highlighted ?? announcement.pinned
-  const date = announcement.publishedAt ?? announcement.scheduledFor ?? announcement.createdAt
   const thumbnailUrl = announcement.thumbnailUrl
   const metaLabel = showStatus
     ? formatAnnouncementStatusLine(announcement)
-    : formatAnnouncementDate(date)
+    : formatAnnouncementDisplayDate(announcement)
 
   const classes = [
     'group relative flex aspect-video w-full overflow-hidden rounded-md bg-interactive-disabled',

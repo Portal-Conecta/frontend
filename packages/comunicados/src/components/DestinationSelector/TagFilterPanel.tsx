@@ -21,6 +21,9 @@ export interface TagFilterPanelProps {
  * correspondente à lista e devolve o campo ao placeholder, permitindo empilhar
  * várias seleções. Curso e turma vêm das tags (`COURSE`/`CLASS`); turno é lista
  * fixa (ver `mockData.ts`).
+ *
+ * Selects sem opções não são renderizados — personas restritas
+ * (docente, RN-COM-PA02) recebem só as próprias turmas, sem curso/turno.
  */
 export function TagFilterPanel({
   courses,
@@ -31,9 +34,15 @@ export function TagFilterPanel({
 }: TagFilterPanelProps) {
   return (
     <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-      <AddSelect kind="course" label="Curso" options={courses} onAdd={onAdd} disabled={disabled} />
-      <AddSelect kind="class" label="Turma" options={classes} onAdd={onAdd} disabled={disabled} />
-      <AddSelect kind="shift" label="Turno" options={shifts} onAdd={onAdd} disabled={disabled} />
+      {courses.length > 0 ? (
+        <AddSelect kind="course" label="Curso" options={courses} onAdd={onAdd} disabled={disabled} />
+      ) : null}
+      {classes.length > 0 ? (
+        <AddSelect kind="class" label="Turma" options={classes} onAdd={onAdd} disabled={disabled} />
+      ) : null}
+      {shifts.length > 0 ? (
+        <AddSelect kind="shift" label="Turno" options={shifts} onAdd={onAdd} disabled={disabled} />
+      ) : null}
     </div>
   )
 }
