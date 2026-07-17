@@ -2,10 +2,30 @@
 
 import { type ChangeEvent } from 'react'
 
-import { Field, FileUpload, Input, RichTextEditor, type FileUploadItem } from '@portal/ui'
+import dynamic from 'next/dynamic'
+
+import { Field, FileUpload, Input, Skeleton, type FileUploadItem } from '@portal/ui'
 
 import type { AnnouncementContentErrors, AnnouncementContentValue } from './types'
 import { ANNOUNCEMENT_TITLE_MAX_LENGTH } from '../../constants/announcementFieldLimits'
+
+/**
+ * TipTap só é usado aqui (etapa de conteúdo do wizard de criar) — mural, "meus
+ * comunicados" e detalhe do post só leem o HTML salvo (`RichTextContent`, sem
+ * TipTap). Import direto do arquivo (não do barrel `@portal/ui`/`organisms`):
+ * o barrel raiz já é importado estaticamente em toda rota (`layout.tsx` usa
+ * `ToastProvider` de lá), então um `import('@portal/ui')` dinâmico só resolve
+ * um módulo que o webpack já colocou no chunk síncrono — não isola nada. Só
+ * apontar direto pro arquivo do editor garante um chunk assíncrono de verdade.
+ */
+const RichTextEditor = dynamic(
+  () =>
+    import('@portal/ui/organisms/RichTextEditor/RichTextEditor').then((mod) => mod.RichTextEditor),
+  {
+    ssr: false,
+    loading: () => <Skeleton variant="rect" height={160 + 44} />,
+  },
+)
 
 export interface AnnouncementContentStepProps {
   /** Conteúdo da etapa 1 (controlado). */
