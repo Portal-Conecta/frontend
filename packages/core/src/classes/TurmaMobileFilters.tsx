@@ -32,7 +32,7 @@ export function TurmaMobileFilters({
       <Button
         iconLeft="funnel"
         variant="outlined"
-        size='xs'
+        size="xs"
         className="shrink-0 lg:hidden"
         onClick={() => setOpen(true)}
       >

@@ -8,7 +8,7 @@
  */
 import { useMemo, useState } from 'react'
 
-import { Button, Input, ListItem, Text, ClassCard, ClassCardSingleProps } from '@portal/ui'
+import { Button, ClassCard, Input, ListItem, Text } from '@portal/ui'
 
 import { TurmaFiltersForm } from './TurmaFiltersForm'
 import { TurmaMobileFilters } from './TurmaMobileFilters'
@@ -84,18 +84,12 @@ export function TurmaList({ turmas }: TurmaListProps) {
 
 /** Uma turma na lista — no mobile o curso e o turno empilham; no `md+` viram colunas. */
 function TurmaRowItem({ turma }: { turma: TurmaRow }) {
-  const itens : ClassCardSingleProps = {
-    variant:'single',
-    item:{
-      code:turma.code,
-      course:turma.course,
-      shift:turma.shift
-    }
-  }
-  
   return (
     <ListItem className="flex items-center justify-between gap-2 md:gap-4">
-      <ClassCard {...itens}/>
+      <ClassCard
+        variant="single"
+        item={{ code: turma.code, course: turma.course, shift: turma.shift }}
+      />
       <span className="hidden md:inline-flex">
         <Button size="sm" variant="outlined" iconLeft="chevron-right">
           Gerenciar

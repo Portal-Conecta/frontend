@@ -36,7 +36,7 @@ export async function PageTurma() {
           <Text tone="brand" variant="heading-h2">
             Turmas
           </Text>
-          <Button iconLeft="plus" size='xs'>
+          <Button iconLeft="plus" size="xs">
             Criar Nova Turma
           </Button>
         </div>

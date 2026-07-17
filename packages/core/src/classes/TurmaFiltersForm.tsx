@@ -91,10 +91,10 @@ export function TurmaFiltersForm({
       </Field>
 
       <div className="flex gap-3">
-        <Button fullWidth variant="outlined" size='xs' onClick={handleReset}>
+        <Button fullWidth variant="outlined" size="xs" onClick={handleReset}>
           Restaurar
         </Button>
-        <Button fullWidth size='xs' onClick={handleApply}>
+        <Button fullWidth size="xs" onClick={handleApply}>
           Aplicar
         </Button>
       </div>
