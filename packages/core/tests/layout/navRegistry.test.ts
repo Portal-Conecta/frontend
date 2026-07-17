@@ -19,9 +19,9 @@ const EXPECTED: Record<TypeUser, string[]> = {
   STUDENT: ['comunicados', 'mapa-salas'],
   REPRESENTATIVE: ['comunicados', 'mapa-salas', 'checklist'],
   TEACHER: ['comunicados', 'mapa-salas', 'checklist'],
-  SENAI: ['comunicados', 'mapa-salas', 'checklist', 'config'],
-  WEG: ['comunicados', 'mapa-salas', 'checklist', 'config'],
-  ADMIN: ['comunicados', 'mapa-salas', 'checklist', 'config'],
+  SENAI: ['comunicados', 'mapa-salas', 'checklist', 'config', 'cursos'],
+  WEG: ['comunicados', 'mapa-salas', 'checklist', 'config', 'cursos'],
+  ADMIN: ['comunicados', 'mapa-salas', 'checklist', 'config', 'cursos'],
 }
 
 const ROLES = Object.keys(EXPECTED) as TypeUser[]
