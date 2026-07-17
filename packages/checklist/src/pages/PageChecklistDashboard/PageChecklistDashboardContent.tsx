@@ -13,7 +13,7 @@ import {
   isDashboardEmpty,
   validateDashboardPeriod,
 } from '../../components/dashboard'
-import { fetchDashboardStats } from '../../services/dashboard'
+import { fetchDashboardStats } from '../../services/dashboard/dashboardClient'
 import type { DashboardStats } from '../../types/dashboard'
 
 export interface PageChecklistDashboardContentProps {
