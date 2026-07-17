@@ -55,7 +55,10 @@ export function PageMuralContent({ canCreate, userType }: PageMuralContentProps)
   )
   const [searchQuery, setSearchQuery] = useState(() => readStoredMuralFilters().search)
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(() => readStoredMuralFilters().search)
-  const [feedFilters, setFeedFilters] = useState<ListPostsParams>(() => createDefaultFeedFilters())
+  const [feedFilters, setFeedFilters] = useState<ListPostsParams>(() => {
+    const stored = readStoredMuralFilters()
+    return toListPostsParams(stored.filters, stored.search)
+  })
   const [filtersOpen, setFiltersOpen] = useState(false)
 
   useEffect(() => {
