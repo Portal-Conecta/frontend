@@ -16,12 +16,14 @@ import { buildQuery, type QueryParams } from '@portal/core/http/query'
  * (`/api/comunicados/posts/*`); o JWT nunca sai do server.
  */
 
-/** Lista o mural via BFF (`GET /api/comunicados/posts`). */
+/** Lista o mural via BFF (`GET /api/comunicados/posts`). `signal` aborta requests stale (troca de filtro). */
 export async function listPostsClient(
   params: ListPostsParams = {},
+  signal?: AbortSignal,
 ): Promise<ListAnnouncementsResponse> {
   return bffFetch<ListAnnouncementsResponse>(
     `/api/comunicados/posts${buildQuery(params as QueryParams)}`,
+    signal ? { signal } : undefined,
   )
 }
 
@@ -39,12 +41,14 @@ export async function loadAnnouncementClient(id: string): Promise<AnnouncementDe
   return bffFetch<AnnouncementDetail>(`/api/comunicados/posts/${id}`)
 }
 
-/** Atualiza um comunicado via BFF (`PUT /api/comunicados/posts/:id`). */
+/** Atualiza um comunicado via BFF (`PUT /api/comunicados/posts/:id`).
+ * O back devolve `AnnouncementResponse` (não o detalhe completo).
+ */
 export async function updateAnnouncementClient(
   id: string,
   payload: AnnouncementUpdatePayload,
-): Promise<AnnouncementDetail> {
-  return bffFetch<AnnouncementDetail>(`/api/comunicados/posts/${id}`, {
+): Promise<AnnouncementResponse> {
+  return bffFetch<AnnouncementResponse>(`/api/comunicados/posts/${id}`, {
     method: 'PUT',
     body: JSON.stringify(payload),
   })
@@ -54,8 +58,8 @@ export async function updateAnnouncementClient(
 export async function rescheduleAnnouncementClient(
   id: string,
   scheduledFor: string,
-): Promise<AnnouncementDetail> {
-  return bffFetch<AnnouncementDetail>(`/api/comunicados/posts/${id}/schedule`, {
+): Promise<AnnouncementResponse> {
+  return bffFetch<AnnouncementResponse>(`/api/comunicados/posts/${id}/schedule`, {
     method: 'PATCH',
     body: JSON.stringify({ scheduledFor }),
   })

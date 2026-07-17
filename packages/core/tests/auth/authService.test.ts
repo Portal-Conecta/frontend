@@ -107,7 +107,7 @@ describe('login', () => {
 })
 
 describe('refresh', () => {
-  it('retorna a sessão e envia refresh_token para /auth/refresh', async () => {
+  it('retorna a sessão e envia refreshToken para /auth/refresh', async () => {
     const fetchMock = stubFetch()
     fetchMock.mockResolvedValue(response(200, session))
 
@@ -115,7 +115,7 @@ describe('refresh', () => {
 
     const [url, init] = fetchMock.mock.calls[0]!
     expect(url).toBe(`${API_URL}/auth/refresh`)
-    expect(JSON.parse(init?.body as string)).toEqual({ refresh_token: 'token-antigo' })
+    expect(JSON.parse(init?.body as string)).toEqual({ refreshToken: 'token-antigo' })
   })
 
   it('mapeia 401 para AuthError invalid_credentials', async () => {

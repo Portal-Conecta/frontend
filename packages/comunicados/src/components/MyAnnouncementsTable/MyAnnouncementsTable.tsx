@@ -13,7 +13,7 @@ import type { PendingAnnouncementAction } from '../AnnouncementActionsMenu'
 import { AnnouncementActionsMenu } from '../AnnouncementActionsMenu'
 import { ComunicadosEmptyState } from '../ComunicadosEmptyState'
 import { getAnnouncementPlainDescription } from '../../utils/announcementDescription'
-import { formatMyAnnouncementDate, originLabel } from './myAnnouncementsTableModel'
+import { formatAnnouncementStatusLine, originLabel } from './myAnnouncementsTableModel'
 
 export interface MyAnnouncementsTableContentProps {
   items: AnnouncementSummary[]
@@ -103,7 +103,7 @@ export function MyAnnouncementsTableContent({
         {items.map((post) => {
           const { id, title, origin, pinned, thumbnailUrl } = post
           const description = getAnnouncementPlainDescription(post)
-          const dateLabel = formatMyAnnouncementDate(post.publishedAt ?? post.scheduledFor)
+          const statusLine = formatAnnouncementStatusLine(post)
           const rowPending = pendingAction?.id === id ? pendingAction.action : null
 
           return (
@@ -133,12 +133,12 @@ export function MyAnnouncementsTableContent({
 
                   <Text as="p" variant="label-xs" tone="disabled">
                     {originLabel[origin]}
-                    {dateLabel ? (
+                    {statusLine ? (
                       <>
                         <span className="px-2" aria-hidden="true">
                           |
                         </span>
-                        {dateLabel}
+                        {statusLine}
                       </>
                     ) : null}
                   </Text>
@@ -177,7 +177,7 @@ export function MyAnnouncementsTableContent({
                 className="relative pointer-events-none aspect-[132/116] w-[38%] shrink-0 overflow-hidden rounded-md bg-interactive-disabled sm:aspect-[485/273] sm:w-[45%] sm:max-w-[485px]"
               >
                 {thumbnailUrl ? (
-                  <img src={thumbnailUrl} alt="" className="h-full w-full object-cover" />
+                  <img src={thumbnailUrl} alt="" loading="lazy" className="h-full w-full object-cover" />
                 ) : null}
               </div>
             </li>

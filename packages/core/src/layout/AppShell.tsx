@@ -13,29 +13,32 @@
  * contagem de notificações não lidas (issue #324, `useUnreadNotificationsCount`),
  * repassada ao `AppHeader` via `hasUnreadNotifications`.
  *
- * Provisório: o padrão final de página/rota (Route Group consumindo a page do
- * domínio) fecha com o piloto de Comunicados — ver docs/conventions/layout-e-paginas.md.
+ * Montado uma única vez em `apps/root/src/app/(authenticated)/layout.tsx` (#405):
+ * como subárvore de layout, persiste entre navegações — header/sidebar/menu não
+ * remontam, o estado `expanded` sobrevive e o unread-count não refetcha por rota.
+ * O item ativo da nav é derivado do pathname (`activeKeyFromPathname`), não é
+ * mais responsabilidade da página — ver docs/conventions/layout-e-paginas.md.
  */
 import { useState, type ReactNode } from 'react'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 import { AppLayout, PermissionsProvider, type CurrentUser } from '@portal/core'
 import type { SidebarItem } from '@portal/ui'
 
 import { useUnreadNotificationsCount } from '../notifications/useUnreadNotificationsCount'
-import { visibleNavFor } from './navRegistry'
+import { activeKeyFromPathname, visibleNavFor } from './navRegistry'
 import { clearProfileMenuCache, ProfileMenu } from './ProfileMenu'
 
 export function AppShell({
   user,
-  activeKey,
   children,
 }: {
   user: CurrentUser | null
-  activeKey: string
   children: ReactNode
 }) {
   const router = useRouter()
+  const pathname = usePathname()
+  const activeKey = activeKeyFromPathname(pathname ?? '')
   const [menuOpen, setMenuOpen] = useState(false)
   const hasUnreadNotifications = useUnreadNotificationsCount()
 

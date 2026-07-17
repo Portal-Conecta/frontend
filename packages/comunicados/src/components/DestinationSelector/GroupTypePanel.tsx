@@ -24,8 +24,9 @@ const GROUPS: readonly GroupDef[] = [
 
 /**
  * Modo "Selecionar usuários por tipo". Três cards que alternam grupos amplos por
- * papel. Seleção múltipla (pode marcar mais de um). O mapeamento desses grupos
- * para o payload de destinos fica a cargo do formulário (#197).
+ * papel. Seleção múltipla (pode marcar mais de um). No publish/schedule viram
+ * `roles` (`STUDENT` / `TEACHER` / `REPRESENTATIVE`) — não confundir com destino
+ * GENERAL (escopo espacial sem restrição de papel).
  */
 export function GroupTypePanel({ recipients, onToggle, disabled = false }: GroupTypePanelProps) {
   return (

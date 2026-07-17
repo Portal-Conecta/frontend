@@ -1,12 +1,13 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-import { Button, ConfirmDialog, Icon, Text } from '@portal/ui'
+import { Button, ConfirmDialog, Icon, Text, revokeLocalFileUploadPreviews } from '@portal/ui'
+import { useCurrentUser } from '@portal/core'
 
-import { ANNOUNCEMENT_ORIGIN } from '../../types/announcement'
+import { resolveAnnouncementOrigin } from '../../auth/resolveAnnouncementOrigin'
 import {
   useCreateAnnouncement,
   type CreateAnnouncementFormValues,
@@ -17,13 +18,14 @@ import {
   validateAnnouncementContent,
   type AnnouncementContentValue,
 } from '../AnnouncementForm'
-import { DestinationSelector } from '../DestinationSelector'
-import type { Recipient } from '../DestinationSelector/types'
+import { DestinationSelector, type DestinationMode } from '../DestinationSelector'
+import { addRecipient, makeRecipient, type Recipient } from '../DestinationSelector/types'
 import { ScheduleDatePicker } from '../ScheduleDatePicker'
-import { BRASILIA_TIMEZONE } from '../ScheduleDatePicker/datetime'
+import { BRASILIA_TIMEZONE } from '../../utils/datetime'
 import { StepProgressBar } from '../StepProgressBar'
 import { useDestinationCatalog } from '../../hooks/useDestinationCatalog'
-import { mapRecipientsToPayload } from './mapRecipientsToPayload'
+import { useMyClassStudents } from '../../hooks/useMyClassStudents'
+import { mapRecipientsToPayload, type RecipientsPayload } from './mapRecipientsToPayload'
 
 const STEPS = [
   { key: 'content', label: 'Conteúdo' },
@@ -31,22 +33,33 @@ const STEPS = [
   { key: 'schedule', label: 'Publicação' },
 ] as const
 
+/**
+ * Modos de seleção por persona (RN-COM-PA02/PA03). Docente e representante não
+ * têm "Selecionar usuários por tipo" (grupos amplos) nem acesso ao diretório
+ * completo — só o próprio escopo de turmas/alunos.
+ */
+const ALL_MODES: readonly DestinationMode[] = ['filter', 'group', 'user']
+const TEACHER_MODES: readonly DestinationMode[] = ['filter', 'user']
+const REPRESENTATIVE_MODES: readonly DestinationMode[] = ['user']
+
 function validateContent(content: AnnouncementContentValue) {
   return validateAnnouncementContent(content)
 }
 
 function buildFormValues(
   content: AnnouncementContentValue,
-  recipients: Recipient[],
+  mapped: Pick<RecipientsPayload, 'destinations' | 'tagIds' | 'shiftCodes' | 'roles'>,
   scheduledFor: string | null,
+  origin: CreateAnnouncementFormValues['origin'],
 ): CreateAnnouncementFormValues {
-  const { destinations, tagIds } = mapRecipientsToPayload(recipients)
   return {
     title: content.title,
     description: content.description,
-    origin: ANNOUNCEMENT_ORIGIN.BOTH,
-    destinations,
-    tagIds,
+    origin,
+    destinations: mapped.destinations,
+    tagIds: mapped.tagIds,
+    shiftCodes: mapped.shiftCodes,
+    roles: mapped.roles,
     scheduledFor: scheduledFor ?? '',
     pinned: false,
   }
@@ -69,7 +82,7 @@ function getPublishConfirmCopy(scheduledFor: string | null) {
       subTitle: 'Comunicados',
       title: 'Confirmar agendamento?',
       content: `O comunicado será publicado em ${formatScheduledForLabel(scheduledFor)} (horário de Brasília). Você pode editá-lo depois.`,
-      labelConfirm: 'Agendar publicação',
+      labelConfirm: 'Confirmar',
     }
   }
 
@@ -94,14 +107,66 @@ export function CreateAnnouncementWizard() {
   const [destinationsError, setDestinationsError] = useState<string | undefined>()
   const [confirmOpen, setConfirmOpen] = useState(false)
 
+  // Blob URLs vivem no estado do wizard (o FileUpload não revoga no unmount de
+  // etapa). Ao sair da página, libera as object URLs locais.
+  const imagesRef = useRef(content.images)
+  imagesRef.current = content.images
+  useEffect(() => {
+    return () => {
+      revokeLocalFileUploadPreviews(imagesRef.current)
+    }
+  }, [])
+
   const { fieldErrors, formError, submitting, pendingImageUpload, publishFrom, scheduleFrom } =
     useCreateAnnouncement({
       redirectOnSuccess: false,
     })
 
-  const catalog = useDestinationCatalog()
+  const user = useCurrentUser()
+  const isTeacher = user?.userType === 'TEACHER'
+  const isRepresentative = user?.userType === 'REPRESENTATIVE'
+  const restricted = isTeacher || isRepresentative
+  const modes = isTeacher ? TEACHER_MODES : isRepresentative ? REPRESENTATIVE_MODES : ALL_MODES
 
   const step = STEPS[stepIndex]!.key
+  // Só busca cursos/turmas/tags/usuários quando o step de destinatários abre
+  // pela primeira vez — evita o request no mount do wizard inteiro (#399).
+  const catalog = useDestinationCatalog({
+    enabled: step === 'destinations',
+    includeDirectoryUsers: !restricted,
+  })
+  const myStudents = useMyClassStudents(restricted)
+
+  const myClassIds = useMemo(
+    () => new Set((user?.classes ?? []).map((membership) => membership.classId)),
+    [user],
+  )
+
+  /** Docente só enxerga as turmas em que leciona (claims do JWT). */
+  const visibleClasses = useMemo(
+    () =>
+      restricted
+        ? catalog.classes.filter((option) => myClassIds.has(option.value))
+        : catalog.classes,
+    [restricted, catalog.classes, myClassIds],
+  )
+
+  function handleSelectAllMyClasses() {
+    let next = recipients
+    for (const option of visibleClasses) {
+      next = addRecipient(next, makeRecipient('class', option.value, option.label))
+    }
+    setRecipients(next)
+  }
+
+  function handleSelectAllMyStudents() {
+    let next = recipients
+    for (const student of myStudents.students) {
+      next = addRecipient(next, makeRecipient('user', student.id, student.name))
+    }
+    setRecipients(next)
+  }
+
   const confirmCopy = getPublishConfirmCopy(scheduledFor)
 
   function handleNext() {
@@ -117,6 +182,11 @@ export function CreateAnnouncementWizard() {
     if (step === 'destinations') {
       if (recipients.length === 0) {
         setDestinationsError('Selecione ao menos um destinatário.')
+        return
+      }
+      const mapped = mapRecipientsToPayload(recipients, catalog.tags)
+      if (mapped.errors.length > 0) {
+        setDestinationsError(mapped.errors.join(' '))
         return
       }
       setDestinationsError(undefined)
@@ -139,19 +209,49 @@ export function CreateAnnouncementWizard() {
     setConfirmOpen(false)
   }
 
+  function clearUploadedLocalFile(localId: string) {
+    setContent((previous) => ({
+      ...previous,
+      images: previous.images.map((item) =>
+        item.id === localId
+          ? { id: item.id, previewUrl: item.previewUrl, ...(item.name != null ? { name: item.name } : {}) }
+          : item,
+      ),
+    }))
+  }
+
   async function handleSubmit() {
     setConfirmOpen(false)
 
-    const formValues = buildFormValues(content, recipients, scheduledFor)
+    const mapped = mapRecipientsToPayload(recipients, catalog.tags)
+    if (mapped.errors.length > 0) {
+      setDestinationsError(mapped.errors.join(' '))
+      setStepIndex(1)
+      return
+    }
 
-    const submitOptions = { images: content.images }
+    const formValues = buildFormValues(
+      content,
+      mapped,
+      scheduledFor,
+      resolveAnnouncementOrigin(user?.userType),
+    )
+
+    const submitOptions = {
+      images: content.images,
+      onImageUploaded: clearUploadedLocalFile,
+    }
 
     const created = scheduledFor
       ? await scheduleFrom({ ...formValues, scheduledFor }, submitOptions)
       : await publishFrom(formValues, submitOptions)
 
     if (created) {
+      // Soft-nav ao mural: o list do feed pode pegar 5xx transitório logo após
+      // publish/upload. `refresh` invalida o cache RSC; o retry do usePostsList
+      // cobre a listagem client.
       router.push('/comunicados')
+      router.refresh()
     }
   }
 
@@ -187,20 +287,62 @@ export function CreateAnnouncementWizard() {
         ) : null}
 
         {step === 'destinations' ? (
-          <DestinationSelector
-            value={recipients}
-            onChange={setRecipients}
-            disabled={submitting}
-            courses={catalog.courses}
-            classes={catalog.classes}
-            shifts={catalog.shifts}
-            usersPage={catalog.usersPage}
-            usersQuery={catalog.usersQuery}
-            onUsersQueryChange={catalog.setUsersQuery}
-            onUsersPageChange={catalog.setUsersPage}
-            usersLoading={catalog.usersLoading}
-            catalogLoading={catalog.loading}
-          />
+          <>
+            <DestinationSelector
+              value={recipients}
+              onChange={setRecipients}
+              disabled={submitting}
+              courses={restricted ? [] : catalog.courses}
+              classes={visibleClasses}
+              shifts={restricted ? [] : catalog.shifts}
+              modes={modes}
+              {...(restricted
+                ? {
+                    users: myStudents.students,
+                    usersLoading: myStudents.loading,
+                  }
+                : {
+                    usersPage: catalog.usersPage,
+                    usersQuery: catalog.usersQuery,
+                    onUsersQueryChange: catalog.setUsersQuery,
+                    onUsersPageChange: catalog.setUsersPage,
+                    usersLoading: catalog.usersLoading,
+                  })}
+              // Representante não tem modo com curso/turma — sem aviso de catálogo.
+              catalogLoading={isRepresentative ? false : catalog.loading}
+            />
+
+            {isTeacher || isRepresentative ? (
+              <div className="mt-6 flex flex-wrap gap-4">
+                {isTeacher ? (
+                  <Button
+                    variant="outlined"
+                    iconLeft="users"
+                    onClick={handleSelectAllMyClasses}
+                    disabled={submitting || catalog.loading || visibleClasses.length === 0}
+                  >
+                    Selecionar todas as minhas turmas
+                  </Button>
+                ) : null}
+                {isRepresentative ? (
+                  <Button
+                    variant="outlined"
+                    iconLeft="user"
+                    onClick={handleSelectAllMyStudents}
+                    disabled={submitting || myStudents.loading || myStudents.students.length === 0}
+                  >
+                    Selecionar todos os alunos da minha turma
+                  </Button>
+                ) : null}
+              </div>
+            ) : null}
+
+            {myStudents.error ? (
+              <Text as="p" variant="label-xs" className="mt-4 text-feedback-error">
+                {myStudents.error}
+              </Text>
+            ) : null}
+          </>
         ) : null}
 
         {step === 'destinations' && destinationsError ? (

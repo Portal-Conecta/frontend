@@ -18,6 +18,60 @@ import type {
 
 const http = createHttpClient('API_GATEWAY_URL')
 
+/** Papéis de “aluno da turma” (RN-COM-PA02/PA03) — TEACHER fica de fora. */
+const STUDENT_CLASS_ROLES: ReadonlySet<ClassRole> = new Set(['STUDENT', 'REPRESENTATIVE'])
+
+/** Status de conta que não entram no público de destinatários. */
+const INACTIVE_ACCOUNT_STATUSES: ReadonlySet<string> = new Set([
+  'INACTIVE',
+  'BLOCKED',
+  'DISABLED',
+  'SUSPENDED',
+])
+
+/**
+ * Lista alunos e representantes das turmas do usuário autenticado
+ * (`GET /hub/me/classes/students`) — uma chamada, escopo do JWT no Core.
+ * Não usa fan-out em `/classes/{id}/members` (que exige a turma existir e
+ * costuma devolver 404 para persona restrita / turma inconsistente).
+ *
+ * Filtro defensivo no front (mesmo se o Core devolver a mais): só STUDENT/
+ * REPRESENTATIVE, conta ativa (`active !== false`) e sem status inativo.
+ */
+export async function listMyClassStudents(token?: string): Promise<ClassMember[]> {
+  const raw = await http.get<HubClassMemberResponse[]>(hubGatewayPath('/me/classes/students'), {
+    ...(token ? { token } : {}),
+  })
+
+  if (!Array.isArray(raw)) {
+    return []
+  }
+
+  return raw.filter(isEligibleClassStudent).map((member) => ({
+    id: member.id,
+    name: member.name,
+    role: member.classRole,
+  }))
+}
+
+/** Resposta bruta do Core (`ClassMemberResponse`). */
+interface HubClassMemberResponse {
+  id: string
+  name: string
+  classRole: ClassRole
+  active?: boolean
+  accountStatus?: string
+}
+
+function isEligibleClassStudent(member: HubClassMemberResponse | null | undefined): boolean {
+  if (!member?.id || !member.name) return false
+  if (!STUDENT_CLASS_ROLES.has(member.classRole)) return false
+  if (member.active === false) return false
+  const status = member.accountStatus?.trim().toUpperCase()
+  if (status && INACTIVE_ACCOUNT_STATUSES.has(status)) return false
+  return true
+}
+
 /**
  * Lista os membros de uma turma (`GET /hub/classes/{classId}/members`),
  * opcionalmente filtrados por papel (`?role=STUDENT | TEACHER | REPRESENTATIVE`).

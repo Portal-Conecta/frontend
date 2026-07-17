@@ -35,6 +35,8 @@ export interface AnnouncementFiltersBarProps {
   variant?: 'sidebar' | 'sheet'
   /** id do título para `aria-labelledby` no sheet. */
   titleId?: string
+  /** Filtros já aplicados (ex.: restaurados do sessionStorage) — semeia o estado local dos campos no mount. */
+  initialFilters?: AnnouncementFilters
 }
 
 const todosOption: SelectOption = { value: 'todos', label: 'Todos' }
@@ -73,14 +75,15 @@ export function AnnouncementFiltersBar({
   onRestore,
   variant = 'sidebar',
   titleId,
+  initialFilters,
 }: AnnouncementFiltersBarProps) {
-  const [curso, setCurso] = useState<string | null>('todos')
-  const [origem, setOrigem] = useState<string | null>('todos')
-  const [turma, setTurma] = useState<string | null>('todos')
-  const [turno, setTurno] = useState<string | null>('todos')
-  const [periodo, setPeriodo] = useState<string | null>('todos')
-  const [dataInicio, setDataInicio] = useState('')
-  const [dataFim, setDataFim] = useState('')
+  const [curso, setCurso] = useState<string | null>(initialFilters?.curso ?? 'todos')
+  const [origem, setOrigem] = useState<string | null>(initialFilters?.origem ?? 'todos')
+  const [turma, setTurma] = useState<string | null>(initialFilters?.turma ?? 'todos')
+  const [turno, setTurno] = useState<string | null>(initialFilters?.turno ?? 'todos')
+  const [periodo, setPeriodo] = useState<string | null>(initialFilters?.periodo ?? 'todos')
+  const [dataInicio, setDataInicio] = useState(initialFilters?.dataInicio ?? '')
+  const [dataFim, setDataFim] = useState(initialFilters?.dataFim ?? '')
 
   const isStudent = userType === 'STUDENT'
   const isSheet = variant === 'sheet'
@@ -210,10 +213,7 @@ export function AnnouncementFiltersBar({
               value={curso}
               onChange={handleCursoChange}
             />
-            {/* Origem fica no painel desktop; o modal mobile do Figma não inclui esse campo. */}
-            {!isSheet ? (
-              <FilterSelect label="Origem" options={origemOptions} value={origem} onChange={setOrigem} />
-            ) : null}
+            <FilterSelect label="Origem" options={origemOptions} value={origem} onChange={setOrigem} />
             <FilterSelect
               label="Turma"
               options={filteredTurmaOptions}

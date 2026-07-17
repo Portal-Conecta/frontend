@@ -21,8 +21,10 @@ import type { AnnouncementDetail, AnnouncementTag } from '../../types'
 
 import Link from 'next/link'
 
-import { RichTextContent, Tag, Text } from '@portal/ui'
+import { Tag, Text } from '@portal/ui'
+import { RichTextContent } from '@portal/ui/organisms/RichTextEditor/RichTextContent'
 
+import { resolveAnnouncementDisplayDate } from '../../utils/announcement'
 import { AnnouncementDetailDocuments } from './AnnouncementDetailDocuments'
 import { AnnouncementDetailImages } from './AnnouncementDetailImages'
 
@@ -68,7 +70,7 @@ function Header({
   creatorName?: string
 }) {
   const { announcement } = detail
-  const dateLabel = formatDate(announcement.publishedAt ?? announcement.scheduledFor)
+  const dateLabel = formatDate(resolveAnnouncementDisplayDate(announcement))
 
   return (
     <header className="flex flex-col gap-3">

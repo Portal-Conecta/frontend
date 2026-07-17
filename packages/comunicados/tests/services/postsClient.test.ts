@@ -55,6 +55,17 @@ describe('listPostsClient / listMyPostsClient', () => {
     expect(init?.method).toBeUndefined()
   })
 
+  it('repassa o AbortSignal ao fetch quando informado', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(response(200, listResponse))
+    const controller = new AbortController()
+
+    await listPostsClient({ page: 0 }, controller.signal)
+
+    const [, init] = fetchMock.mock.calls[0]!
+    expect(init?.signal).toBe(controller.signal)
+  })
+
   it('lista os próprios em GET /api/comunicados/posts/mine', async () => {
     const fetchMock = stubFetch()
     fetchMock.mockResolvedValue(response(200, listResponse))
