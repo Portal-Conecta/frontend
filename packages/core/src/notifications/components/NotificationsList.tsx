@@ -1,12 +1,5 @@
 import { NotificationListItem } from '@portal/ui/molecules/NotificationListItem/NotificationListItem'
-import type { Notification, NotificationType } from '../types'
-
-const ICON_BY_TYPE: Record<NotificationType, string> = {
-  CHECKLIST: 'checklist',
-  MAPA: 'mapa',
-  COMUNICADO: 'comunicado',
-  OUTRO: 'outro',
-}
+import type { Notification } from '../types'
 
 interface NotificationsListProps {
   notifications: Notification[]
