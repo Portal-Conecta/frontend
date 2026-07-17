@@ -1,3 +1,7 @@
+'use client'
+
+import type { MouseEvent } from 'react'
+
 import { StudentListItem } from '../StudentListItem'
 import type { UnassignedStudent } from '../../types/student'
 
@@ -20,14 +24,20 @@ export type StudentSidebarProps = {
    * este componente não guarda estado próprio.
    */
   onStudentClick?: (studentId: string) => void
+  /**
+   * Disparado ao clicar na área vazia da lista (fora de qualquer item),
+   * em modo edição. Usado pelo `useMapaDeSala.handleBenchClick` para
+   * devolver ao banco o aluno selecionado que estava sentado num assento.
+   */
+  onEmptyAreaClick?: () => void
   className?: string
 }
 
 /**
- * StudentSidebar não usa hooks e não é 'use client' por si só,
- * mas recebe `onStudentClick` como função via prop — precisa ser
- * renderizado dentro de uma árvore Client Component, ou o Next
- * vai falhar em runtime ao tentar serializar a função.
+ * StudentSidebar não usa hooks, mas anexa `onClick` diretamente no <ul>
+ * (para distinguir clique na área vazia de clique num item via
+ * `event.target === event.currentTarget`) — isso exige 'use client'
+ * (AGENTS.md: define handler de evento direto em elemento DOM).
  *
  * Nota de acessibilidade: o <ul> usa aria-label como rótulo mínimo.
  * Migração completa para role="listbox" (conforme comentário do
@@ -38,12 +48,20 @@ export function StudentSidebar({
   selectedStudentId,
   isEditing,
   onStudentClick,
+  onEmptyAreaClick,
   className,
 }: StudentSidebarProps) {
   const classes = ['h-full overflow-y-auto', className].filter(Boolean).join(' ')
 
+  // Clique num <li> borbulha até aqui — só dispara onEmptyAreaClick quando o
+  // alvo é o próprio <ul> (área vazia), não um item da lista.
+  function handleContainerClick(event: MouseEvent<HTMLUListElement>) {
+    if (!isEditing) return
+    if (event.target === event.currentTarget) onEmptyAreaClick?.()
+  }
+
   return (
-    <ul className={classes} aria-label="Alunos não alocados">
+    <ul className={classes} aria-label="Alunos não alocados" onClick={handleContainerClick}>
       {unassignedStudents.map((student) => (
         <StudentListItem
           key={student.id}

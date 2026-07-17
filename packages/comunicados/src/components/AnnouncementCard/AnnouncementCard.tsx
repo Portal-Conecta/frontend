@@ -5,7 +5,11 @@ import Link from 'next/link'
 
 import { Text, colors } from '@portal/ui'
 
-import { formatAnnouncementDate, getAnnouncementOriginLabel } from '../../utils/announcement'
+import {
+  formatAnnouncementDisplayDate,
+  formatAnnouncementStatusLine,
+  getAnnouncementOriginLabel,
+} from '../../utils/announcement'
 
 export interface AnnouncementCardProps {
   announcement: AnnouncementSummary
@@ -13,6 +17,16 @@ export interface AnnouncementCardProps {
   /** Ações (fixar/editar/excluir) sobrepostas ao gradiente — só quem gerencia o comunicado. */
   actions?: ReactNode
   className?: string
+  /**
+   * Origem da navegação (ex.: `"meus"`) — vai como `?from=` na URL do detalhe pra
+   * ele saber pra onde voltar (painel de gestão x mural público).
+   */
+  from?: string
+  /**
+   * No painel de gestão, troca a meta de data por
+   * "Publicado em …" / "Agendado para …" ao lado da origem (separados por `|`).
+   */
+  showStatus?: boolean
 }
 
 const cardGradient =
@@ -26,11 +40,15 @@ export function AnnouncementCard({
   highlighted,
   actions,
   className,
+  from,
+  showStatus = false,
 }: AnnouncementCardProps) {
-  const href = `/comunicados/${announcement.id}`
+  const href = from ? `/comunicados/${announcement.id}?from=${from}` : `/comunicados/${announcement.id}`
   const isHighlighted = highlighted ?? announcement.pinned
-  const date = announcement.publishedAt ?? announcement.scheduledFor ?? announcement.createdAt
   const thumbnailUrl = announcement.thumbnailUrl
+  const metaLabel = showStatus
+    ? formatAnnouncementStatusLine(announcement)
+    : formatAnnouncementDisplayDate(announcement)
 
   const classes = [
     'group relative flex aspect-video w-full overflow-hidden rounded-md bg-interactive-disabled',
@@ -70,10 +88,14 @@ export function AnnouncementCard({
 
           <Text as="p" variant="label-xs" tone="inverse" className="truncate">
             {getAnnouncementOriginLabel(announcement.origin)}
-            <span className="px-2" aria-hidden="true">
-              |
-            </span>
-            {formatAnnouncementDate(date)}
+            {metaLabel ? (
+              <>
+                <span className="px-2" aria-hidden="true">
+                  |
+                </span>
+                {metaLabel}
+              </>
+            ) : null}
           </Text>
 
           {actions ? <div className="pointer-events-auto">{actions}</div> : null}
