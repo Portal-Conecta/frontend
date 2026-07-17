@@ -9,7 +9,7 @@ import type {
 
 const http = createHttpClient('API_GATEWAY_URL')
 
-/** Catálogos quase estáticos (cursos/turmas do Hub) — convenção padrão da comunidade (#406). */
+/** Catálogos quase estáticos (cursos/turmas do Hub) — TTL adotado pelo time, sem alinhamento formal com o backend ainda (#406). */
 const CATALOG_REVALIDATE_SECONDS = 120
 
 export function listHubCourses(token: string): Promise<ListHubCoursesResponse> {

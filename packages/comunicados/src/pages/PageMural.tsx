@@ -1,5 +1,5 @@
-import { getCurrentUser } from '@portal/core/auth/getCurrentUser'
 import { getSession } from '@portal/core/auth/session'
+import { parseUserFromToken } from '@portal/core/rbac'
 import { Text } from '@portal/ui'
 
 import { canCreateAnnouncement } from '../auth/canCreateAnnouncement'
@@ -16,11 +16,9 @@ import { PageMuralContent } from './PageMuralContent'
  * Prefetch do catálogo de filtros do mural (#406) — evita que `PageMuralContent`
  * dispare os 3 fetches de novo no client (cursos/turmas/tags já vêm prontos).
  * Falha aqui não derruba a página: sem seed, o hook cai no fetch client de sempre.
+ * Recebe `token` já resolvido por `PageMural` — evita ler a sessão 2x no mesmo request.
  */
-async function loadMuralFilterCatalogSeed(): Promise<MuralFilterCatalogSeed | undefined> {
-  const token = await getSession()
-  if (!token) return undefined
-
+async function loadMuralFilterCatalogSeed(token: string): Promise<MuralFilterCatalogSeed | undefined> {
   try {
     const [coursesRes, classesRes, tagsRes] = await Promise.all([
       listHubCourses(token),
@@ -42,9 +40,10 @@ async function loadMuralFilterCatalogSeed(): Promise<MuralFilterCatalogSeed | un
 
 export async function PageMural() {
 
-  const user = await getCurrentUser()
+  const token = await getSession()
+  const user = parseUserFromToken(token)
   const canCreate = canCreateAnnouncement(user)
-  const catalogSeed = await loadMuralFilterCatalogSeed()
+  const catalogSeed = token ? await loadMuralFilterCatalogSeed(token) : undefined
 
   return (
     <div className="p-6 md:p-8">
