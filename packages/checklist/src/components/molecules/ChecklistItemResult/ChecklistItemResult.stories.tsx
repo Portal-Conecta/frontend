@@ -53,3 +53,18 @@ export const Lista: Story = {
     </div>
   ),
 };
+
+/** Compara side-by-side: badges Conforme e Não Conforme com a mesma largura. */
+export const BadgesMesmoTamanho: Story = {
+  args: { title: "", status: "conforme" },
+  render: () => (
+    <div className="flex max-w-5xl flex-col gap-0">
+      <ChecklistItemResult title="Item conforme" status="conforme" description={desc} />
+      <ChecklistItemResult
+        title="Item não conforme"
+        status="nao-conforme"
+        observation="Observação de exemplo."
+      />
+    </div>
+  ),
+};

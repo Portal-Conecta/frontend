@@ -51,3 +51,9 @@ export const Mobile: Story = {
   args: { defaultValue: "nao-conforme" },
   parameters: { viewport: { defaultViewport: "mobile1" } },
 };
+
+/** Confere no desktop que os dois botões têm a mesma caixa (md:w-30). */
+export const BotoesMesmoTamanho: Story = {
+  args: { defaultValue: "conforme" },
+  parameters: { layout: "centered" },
+};

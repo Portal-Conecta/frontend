@@ -1,7 +1,7 @@
 "use client";
 
-import { Icon } from "@portal/ui";
-import { useState } from "react";
+import { Icon, spacing } from "@portal/ui";
+import { useState, type CSSProperties } from "react";
 
 export type StatusValue = "conforme" | "nao-conforme";
 export interface StatusToggleProps {
@@ -12,11 +12,29 @@ export interface StatusToggleProps {
   className?: string;
 }
 
+/**
+ * Caixa idêntica nos dois botões — tokens de spacing do DS:
+ * width 36 = 144px · height 10 = 40px · py 1 = 4px · px 3 = 12px · gap 1 = 4px
+ *
+ * Dimensões via style + token (não só class) para os dois ocuparem exatamente
+ * o mesmo espaço, independente do comprimento do rótulo.
+ */
+const buttonBoxStyle: CSSProperties = {
+  boxSizing: "border-box",
+  width: spacing[36],
+  minWidth: spacing[36],
+  maxWidth: spacing[36],
+  height: spacing[10],
+  minHeight: spacing[10],
+  maxHeight: spacing[10],
+  flex: `0 0 ${spacing[36]}`,
+};
+
 const base =
-  "inline-flex items-center border-sm bg-background-surface " +
-  "font-inter text-label-sm cursor-pointer transition-colors " +
-  "h-8 w-10 justify-center rounded-md " +
-  "md:w-auto md:justify-start md:gap-1 md:pl-3 md:pr-3 md:whitespace-nowrap " +
+  "inline-flex items-center justify-center gap-1 " +
+  "rounded-md border-sm bg-background-surface " +
+  "px-3 py-1 font-inter text-label-sm leading-none " +
+  "whitespace-nowrap overflow-hidden cursor-pointer transition-colors " +
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 " +
   "disabled:cursor-not-allowed disabled:opacity-50";
 
@@ -28,9 +46,9 @@ const selectedClass: Record<StatusValue, string> = {
 };
 
 const options = [
-  { value: "nao-conforme", label: "Não Conforme", icon: "x" },
-  { value: "conforme", label: "Conforme", icon: "check-check" },
-] as const;
+  { value: "nao-conforme" as const, label: "Não Conforme", icon: "x" as const },
+  { value: "conforme" as const, label: "Conforme", icon: "check-check" as const },
+];
 
 export function StatusToggle({
   value,
@@ -54,7 +72,9 @@ export function StatusToggle({
     <div
       role="group"
       aria-label="Status do item"
-      className={["inline-flex gap-3", className].filter(Boolean).join(" ")}
+      className={["inline-flex items-stretch gap-3", className]
+        .filter(Boolean)
+        .join(" ")}
     >
       {options.map(({ value: optValue, label, icon }) => {
         const isSelected = selected === optValue;
@@ -77,9 +97,11 @@ export function StatusToggle({
             disabled={disabled}
             onClick={() => handleSelect(optValue)}
             className={classes}
+            style={buttonBoxStyle}
           >
-            <Icon name={icon} size="sm" decorative />
-            <span className="hidden md:flex md:flex-1 md:justify-center">
+            <Icon name={icon} size="sm" decorative className="size-4 shrink-0" />
+            {/* flex-1: a área do texto tem a mesma largura nos dois botões */}
+            <span className="flex-1 text-center leading-none whitespace-nowrap">
               {label}
             </span>
           </button>

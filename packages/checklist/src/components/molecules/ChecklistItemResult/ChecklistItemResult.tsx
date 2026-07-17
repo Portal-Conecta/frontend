@@ -1,4 +1,5 @@
-import { Icon, Text } from "@portal/ui";
+import { Icon, Text, spacing } from "@portal/ui";
+import type { CSSProperties } from "react";
 
 export interface ChecklistItemResultProps {
   title: string;
@@ -8,6 +9,23 @@ export interface ChecklistItemResultProps {
   className?: string;
 }
 
+/**
+ * Chip de status — largura fixa em 136px para ambos os estados
+ */
+const chipBoxStyle: CSSProperties = {
+  boxSizing: "border-box",
+  width: "136px",
+  minWidth: "136px",
+  maxWidth: "136px",
+  flex: "0 0 136px",
+};
+
+// Classes base compartilhadas (Padding 12px nas laterais, 8px vertical e fonte 12px)
+const statusChipBase =
+  "inline-flex items-center " +
+  "rounded-md border-sm px-3 py-2 " +
+  "font-inter text-label-xs leading-none whitespace-nowrap overflow-hidden";
+
 export function ChecklistItemResult({
   title,
   description,
@@ -16,6 +34,7 @@ export function ChecklistItemResult({
   className,
 }: ChecklistItemResultProps) {
   const isConforme = status === "conforme";
+  const statusLabel = isConforme ? "Conforme" : "Não Conforme";
 
   return (
     <div
@@ -42,21 +61,38 @@ export function ChecklistItemResult({
 
         <div
           className={[
-            "flex h-8 w-10 shrink-0 items-center justify-center gap-2 rounded-md border-sm",
-            "md:h-auto md:w-30 md:px-3 md:py-2",
+            statusChipBase,
             isConforme
-              ? "border-feedback-success text-feedback-success"
-              : "border-feedback-error text-feedback-error",
+              ? "relative justify-center border-feedback-success text-feedback-success"
+              : "justify-start gap-1 border-feedback-error text-feedback-error",
           ].join(" ")}
+          style={chipBoxStyle}
+          aria-label={statusLabel}
         >
-          <Icon name={isConforme ? "check-check" : "x"} size="sm" decorative />
-
-          <Text
-            variant="label-xs"
-            className="whitespace-nowrap sr-only md:not-sr-only"
-          >
-            {isConforme ? "Conforme" : "Não Conforme"}
-          </Text>
+          {isConforme ? (
+            <>
+              {/* CONFORME: Ícone fixo na esquerda (12px) e texto no centro absoluto */}
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center size-4 shrink-0">
+                <Icon name="check-check" size="sm" decorative className="size-4" />
+              </div>
+              <span className="leading-none whitespace-nowrap">
+                {statusLabel}
+              </span>
+            </>
+          ) : (
+            <>
+              {/* NÃO CONFORME: Exatamente como estava antes (Alinhado à esquerda com gap de 4px) */}
+              <Icon
+                name="x"
+                size="sm"
+                decorative
+                className="size-4 shrink-0"
+              />
+              <span className="leading-none whitespace-nowrap">
+                {statusLabel}
+              </span>
+            </>
+          )}
         </div>
       </div>
 
