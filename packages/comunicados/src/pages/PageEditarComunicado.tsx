@@ -1,6 +1,5 @@
 import { redirect, notFound } from 'next/navigation'
 
-import { AppShell } from '@portal/core'
 import { getCurrentUser } from '@portal/core/auth/getCurrentUser'
 import { HttpError } from '@portal/core/http/errors'
 
@@ -45,11 +44,9 @@ export async function PageEditarComunicado({ id }: PageEditarComunicadoProps) {
   }
 
   return (
-    <AppShell user={user} activeKey="comunicados">
-      <div className="p-8">
-        <EditAnnouncementWizard announcementId={id} />
-      </div>
-    </AppShell>
+    <div className="p-8">
+      <EditAnnouncementWizard announcementId={id} />
+    </div>
   )
 }
 

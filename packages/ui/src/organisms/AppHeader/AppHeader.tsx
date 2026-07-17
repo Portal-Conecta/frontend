@@ -12,6 +12,12 @@
  * - Desktop (≥lg): bloco da logo alinhado à largura do rail (full quando
  *   `sidebarExpanded`, senão mark) + ações soltas à direita.
  * - Tablet/Mobile (<lg): logo-mark à esquerda + ações dentro de uma pílula.
+ *
+ * Botões de logo/ação são `inline-flex items-center justify-center`: um
+ * `<button>` nativo é `inline-block` e alinha o conteúdo por
+ * `vertical-align: baseline`, reservando espaço assimétrico abaixo do ícone
+ * (para descendentes de texto) e descentralizando-o verticalmente. Declarar
+ * flex no próprio botão remove essa dependência de baseline.
  */
 import { Icon, type IconName } from '../../atoms/Icon'
 import { Logo } from '../../atoms/Logo'
@@ -22,8 +28,6 @@ export interface AppHeaderProps {
   sidebarExpanded?: boolean
   /** Clique na logo — navegação para a home. */
   onLogoClick?: () => void
-  /** Clique no ícone "mais opções" (ellipsis). */
-  onMoreOptionsClick?: () => void
   /** Clique no ícone de notificações (bell). */
   onNotificationsClick?: () => void
   /** Há notificação não lida — sobrepõe um dot vermelho no sino. */
@@ -53,23 +57,14 @@ interface ActionItem {
 // quebra o clique-fora do menu e o aria-expanded/aria-controls.
 const PROFILE_TRIGGER_ICON: IconName = 'circle-user'
 
-// Ícone de ação por breakpoint: 24px (md) abaixo de lg, 32px (lg) no desktop,
-// espelhando o Figma. O `size` do átomo Icon é fixo, então o tamanho responsivo
-// vem de duas instâncias alternadas por visibilidade — ambas decorativas, então
-// não duplicam leitura para o leitor de tela (o rótulo vive no botão).
+// Ícone de ação: 24px (token `md` do átomo Icon) em todos os breakpoints.
 function ActionIcon({ name }: { name: IconName }) {
-  return (
-    <>
-      <Icon name={name} size="md" tone="primary" decorative className="lg:hidden" />
-      <Icon name={name} size="lg" tone="primary" decorative className="hidden lg:block lg:w-7 lg:h-7" />
-    </>
-  )
+  return <Icon name={name} size="md" tone="primary" decorative />
 }
 
 export function AppHeader({
   sidebarExpanded = false,
   onLogoClick,
-  onMoreOptionsClick,
   onNotificationsClick,
   hasUnreadNotifications = false,
   onProfileClick,
@@ -77,11 +72,10 @@ export function AppHeader({
   className,
 }: AppHeaderProps) {
   const sidebarWidth = sidebarExpanded ? SIDEBAR_WIDTH_EXPANDED : SIDEBAR_WIDTH_COLLAPSED
-  // Alinha a logo ao recuo dos itens de nav do rail (SidebarNavItem: pl-4 expandido / pl-8 colapsado).
-  const logoPadding = sidebarExpanded ? 'pl-4' : 'pl-8'
+  // Alinha a logo ao recuo dos itens de nav do rail (SidebarNavItem: pl-4 expandido / pl-6 colapsado).
+  const logoPadding = sidebarExpanded ? 'pl-4' : 'pl-6'
 
   const actions: ActionItem[] = [
-    { icon: 'ellipsis', label: 'Mais opções', onClick: onMoreOptionsClick },
     {
       icon: 'bell',
       // Comunica ao leitor de tela o mesmo que o dot vermelho comunica visualmente.
@@ -95,7 +89,7 @@ export function AppHeader({
   // Mobile/tablet: a sidebar é separada (drawer/FAB), então o header é branco.
   // Desktop: o header se conecta ao rail da sidebar — ambos em background/default.
   const headerClasses = [
-    'flex w-full items-center bg-background-surface lg:bg-background-default min-h-[64px] md:h-[64px]',
+    'flex w-full items-center bg-background-surface lg:bg-background-default min-h-[60px] md:h-[60px]',
     className,
   ]
     .filter(Boolean)
@@ -112,7 +106,7 @@ export function AppHeader({
           type="button"
           onClick={onLogoClick}
           aria-label="Página inicial"
-          className={`cursor-pointer rounded-md ${focusRing}`}
+          className={`inline-flex items-center justify-center cursor-pointer rounded-md ${focusRing}`}
         >
           <Logo variant={sidebarExpanded ? 'full' : 'mark'} tone="brand" size={54} decorative />
         </button>
@@ -124,7 +118,7 @@ export function AppHeader({
           type="button"
           onClick={onLogoClick}
           aria-label="Página inicial"
-          className={`cursor-pointer rounded-md lg:hidden ${focusRing}`}
+          className={`inline-flex items-center justify-center cursor-pointer rounded-md lg:hidden ${focusRing}`}
         >
           <Logo variant="mark" tone="brand" size={32} decorative className="md:hidden" />
           <Logo variant="mark" tone="brand" size={44} decorative className="hidden md:block" />
@@ -138,7 +132,7 @@ export function AppHeader({
               type="button"
               onClick={onClick}
               aria-label={label}
-              className={`cursor-pointer rounded-md ${focusRing}`}
+              className={`inline-flex items-center justify-center cursor-pointer rounded-md ${focusRing}`}
               // Deixa o `ProfileMenu` (@portal/core) reconhecer este botão como o
               // próprio gatilho: sem isso, o listener de "clique fora" que fecha o
               // menu dispara no `pointerdown` do mesmo clique que o reabre — o

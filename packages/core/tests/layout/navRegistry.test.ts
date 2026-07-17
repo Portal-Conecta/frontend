@@ -7,7 +7,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { resolvePermissions, type CurrentUser, type TypeUser } from '@portal/core/rbac'
-import { visibleNavFor } from '@portal/core/layout/navRegistry'
+import { activeKeyFromPathname, visibleNavFor } from '@portal/core/layout/navRegistry'
 
 /** Monta um `CurrentUser` mínimo para um papel, como faz o BFF a partir do JWT. */
 function userForRole(userType: TypeUser): CurrentUser {
@@ -40,5 +40,28 @@ describe('visibleNavFor — modelo de nav por papel', () => {
 
   it('usuário ausente (null) vê só os itens universais', () => {
     expect(visibleNavFor(null).map((item) => item.key)).toEqual(['comunicados', 'mapa-salas'])
+  })
+})
+
+describe('activeKeyFromPathname — item ativo derivado da rota (#405)', () => {
+  it.each([
+    ['/comunicados', 'comunicados'],
+    ['/comunicados/123', 'comunicados'],
+    ['/comunicados/criar', 'comunicados'],
+    ['/comunicados/meus', 'comunicados'],
+    ['/mapa-salas', 'mapa-salas'],
+  ])('%s ativa %s', (pathname, expected) => {
+    expect(activeKeyFromPathname(pathname)).toBe(expected)
+  })
+
+  it.each(['/perfil', '/notifications', '/ajuda', '/'])(
+    '%s não ativa item nenhum',
+    (pathname) => {
+      expect(activeKeyFromPathname(pathname)).toBe('')
+    },
+  )
+
+  it('match é por segmento, não por prefixo cru', () => {
+    expect(activeKeyFromPathname('/comunicadosx')).toBe('')
   })
 })

@@ -1,4 +1,3 @@
-import { AppShell } from '@portal/core'
 import { getCurrentUser } from '@portal/core/auth/getCurrentUser'
 import { Text } from '@portal/ui'
 
@@ -11,15 +10,13 @@ export async function PageMural() {
   const canCreate = canCreateAnnouncement(user)
 
   return (
-    <AppShell user={user} activeKey="comunicados">
-      <div className="p-6 md:p-8">
-        <Text as="h1" variant="heading-h2" tone="primary" className="sr-only">
-          Mural de Comunicados
-        </Text>
+    <div className="p-6 md:p-8">
+      <Text as="h1" variant="heading-h2" tone="primary" className="sr-only">
+        Mural de Comunicados
+      </Text>
 
-        <PageMuralContent canCreate={canCreate} userType={user?.userType} />
-      </div>
-    </AppShell>
+      <PageMuralContent canCreate={canCreate} userType={user?.userType} />
+    </div>
   )
 }
 

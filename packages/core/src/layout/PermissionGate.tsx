@@ -8,14 +8,13 @@ import { ERROR_PRESENTATION } from '../http/errorPresentation'
 /**
  * Guard de RBAC (server component). Nega → renderiza a `ErrorPage` de 403;
  * permite → renderiza os `children`. O 403 é decisão de render (não exceção),
- * então mora aqui e não no `error.tsx`. Uso: dentro do `AppShell`, para o 403
- * aparecer com a navegação do papel.
+ * então mora aqui e não no `error.tsx`. Uso: no conteúdo de uma página
+ * autenticada — o `AppShell` vem do layout `(authenticated)`, então o 403
+ * já aparece com a navegação do papel.
  *
- *   <AppShell user={user} activeKey="...">
- *     <PermissionGate user={user} permission="comunicados:criar">
- *       {conteúdo}
- *     </PermissionGate>
- *   </AppShell>
+ *   <PermissionGate user={user} permission="comunicados:criar">
+ *     {conteúdo}
+ *   </PermissionGate>
  */
 
 export interface PermissionGateProps {
