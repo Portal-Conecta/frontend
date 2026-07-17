@@ -124,7 +124,7 @@ export function PageCursosContent({ initialCourses, initialError = false }: Page
               ))}
             </div>
           ) : courses.length === 0 ? (
-            <div className="py-12 text-center">
+            <div className="py-14 text-center">
               <Text as="p" variant="body-md" tone="secondary">
                 {hasActiveFilter
                   ? 'Nenhum curso encontrado para a busca ou filtro selecionado.'

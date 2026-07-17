@@ -10,7 +10,7 @@ import { ShiftFilter } from './ShiftFilter'
  * ativo desmarca).
  */
 const meta: Meta<typeof ShiftFilter> = {
-  title: 'Cursos/Molecules/ShiftFilter',
+  title: 'Componentes/Ações/ShiftFilter',
   component: ShiftFilter,
   parameters: { layout: 'padded' },
 }

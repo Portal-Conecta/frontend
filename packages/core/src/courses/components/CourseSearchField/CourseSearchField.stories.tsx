@@ -7,7 +7,7 @@ import { CourseSearchField } from './CourseSearchField'
  * CourseSearchField — busca da lista de cursos (nome ou código), lupa à esquerda.
  */
 const meta: Meta<typeof CourseSearchField> = {
-  title: 'Cursos/Molecules/CourseSearchField',
+  title: 'Componentes/Inputs/CourseSearchField',
   component: CourseSearchField,
   parameters: { layout: 'padded' },
 }

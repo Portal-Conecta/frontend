@@ -9,7 +9,7 @@ import { CourseRow } from './CourseRow'
  * (fiel ao frame, sem botão na linha) a linha inteira vira o alvo tocável.
  */
 const meta: Meta<typeof CourseRow> = {
-  title: 'Cursos/Molecules/CourseRow',
+  title: 'Componentes/Data/CourseRow',
   component: CourseRow,
   parameters: { layout: 'padded' },
   args: {
