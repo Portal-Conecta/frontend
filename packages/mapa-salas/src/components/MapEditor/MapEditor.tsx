@@ -66,6 +66,13 @@ export type MapEditorProps = {
  * inteira da área de edição. Mobile não tem frame no protótipo; empilha a
  * lista completa abaixo do grid, sem a moldura (fallback simples = "seletor
  * de lista" citado na issue), virando coluna com moldura a partir do `lg`.
+ *
+ * A raiz deste componente espera receber `h-full` de quem o renderiza (hoje,
+ * `PageMapaSalasContent.tsx` via `[&>*]:h-full` numa cadeia de `h-full`/
+ * `flex-1`/`min-h-0` que nasce no `<main>` do AppLayout) — com isso definido,
+ * `lg:items-stretch` faz a coluna da `StudentSidebar` esticar sozinha até essa
+ * altura real, sem precisar de nenhum `h-[calc(100vh-Npx)]` chutando o tamanho
+ * do header/footer/breadcrumb da página.
  */
 export function MapEditor({
   grid,
@@ -91,30 +98,33 @@ export function MapEditor({
           selectedStudentId={selectedStudentId}
           isEditing={isEditing}
           onSeatClick={onSeatClick}
-          className={['flex-1', gridClassName].filter(Boolean).join(' ')}
+          {...(gridClassName ? { className: gridClassName } : {})}
         />
-        {footer}
+        {/* `mt-auto`: ancora o toolbar/alerta na base da coluna (Figma — fica
+            perto da borda inferior do frame, não colado na última fileira de
+            assentos). Só funciona porque a coluna tem altura definida — ela é
+            esticada por `items-stretch` até a altura fixa da StudentSidebar
+            (ver comentário na coluna direita). */}
+        {footer ? <div className="mt-auto">{footer}</div> : null}
       </div>
       <div
         className={[
-          'lg:shrink-0 lg:self-start lg:rounded-tl-lg lg:border-l-md lg:border-t-md lg:border-border-default',
+          'lg:shrink-0 lg:rounded-tl-lg lg:border-l-md lg:border-t-md lg:border-border-default',
           'lg:bg-background-default lg:p-6',
           // Largura de coluna sem token dedicado — aceitável por
           // docs/conventions/tokens-e-theming.md §5 ("valores arbitrários
           // aceitáveis" para largura de coluna), valor do frame do Figma.
           'lg:w-[398px]',
-          // Altura fixa contra o viewport, não contra o conteúdo: sem isso o
-          // wrapper herda `align-self: stretch` do pai e acompanha a altura do
-          // item mais alto da linha flex — como a StudentSidebar é esse item
-          // mais alto enquanto a turma inteira está no banco, a coluna
-          // "encolhe" a cada aluno alocado (ela deixa de ser a mais alta).
-          // 128px = header (64px) + footer (64px) do AppLayout, os únicos
-          // dois elementos fixos fora da área rolável de `<main>`
-          // (packages/ui/src/organisms/AppHeader e AppFooter, ambos
-          // `h-[64px]` a partir do breakpoint md/lg — mesmo precedente de
-          // altura literal usado lá). Com altura definida (não `auto`), o
-          // `h-full` + `overflow-y-auto` da StudentSidebar rola só ela.
-          'lg:h-[calc(100vh-128px)]',
+          // Cancela o `md:p-8` (32px) da página no lado direito — no Figma a
+          // coluna encosta na borda da viewport, mas o container da página tem
+          // padding nos quatro lados (mesmo padding serve pro conteúdo restante:
+          // breadcrumb, seletor, mensagens de erro/vazio).
+          'lg:-mr-8',
+          // Sem altura própria (nem `self-start`): herda `align-self: stretch`
+          // do pai (`lg:items-stretch`) e acompanha a altura real da coluna da
+          // esquerda — que por sua vez recebeu `h-full` de fora (ver JSDoc do
+          // componente). `h-full` + `overflow-y-auto` da própria `StudentSidebar`
+          // fazem só ela rolar dentro dessa altura.
         ].join(' ')}
       >
         <StudentSidebar

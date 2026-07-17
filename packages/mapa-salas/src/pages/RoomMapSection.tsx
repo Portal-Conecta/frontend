@@ -13,6 +13,11 @@
  * `suggested=true` NÃO é estado vazio: é o mapa alfabético não salvo,
  * renderizado normalmente (ambos os braços da união têm `grid`).
  *
+ * O `StudentSidebar` de não-alocados NUNCA aparece em modo visualização
+ * (Figma 280-7119 — só o grid + `MapToolbar`, mesmo com assentos
+ * "Disponível"): é exclusivo do `RoomMapEditMode`, onde serve pra
+ * arrastar/alocar.
+ *
  * A sessão de edição é remontada por `key` a cada entrada (o `useMapaDeSala`
  * lê o view inicial só na montagem); ao salvar, o fluxo volta pra cá via
  * `onSaved` → refetch + `mode` view.
@@ -22,7 +27,7 @@ import { useRef, useState } from 'react'
 import { HttpError } from '@portal/core/http/errors'
 import { Text, useToast } from '@portal/ui'
 
-import { MapEmptyState, MapGrid, MapGridSkeleton, MapToolbar, StudentSidebar } from '../components'
+import { MapEmptyState, MapGrid, MapGridSkeleton, MapToolbar } from '../components'
 import { useRoomMapView } from '../hooks/useRoomMapView'
 import { getRoomLayoutClient } from '../services/client/roomMapClient'
 import { MAP_GRID_GAP } from './mapGridLayout'
@@ -33,7 +38,7 @@ import {
   type MapEditSession,
 } from './roomMapEditModel'
 import { RoomMapEditMode } from './RoomMapEditMode'
-import { toDraftAllocations, toUnassignedStudents } from './roomMapViewModel'
+import { toDraftAllocations } from './roomMapViewModel'
 
 export interface RoomMapSectionProps {
   salaId: string
@@ -44,14 +49,6 @@ export interface RoomMapSectionProps {
   showFooter: boolean
   /** Mostra os controles de edição (toolbar/CTA de criação) — gate de UX, o real é o 403 do back. */
   canEdit: boolean
-  /**
-   * Mostra a coluna de alunos não alocados em modo visualização. `false` para
-   * `STUDENT` — privacidade: um aluno não deve ver a lista de colegas sem
-   * lugar, mesmo sem poder editar (gerência/professor sem `canEdit` continuam
-   * vendo, só quem edita muda). Modo edição nunca chega a um `STUDENT`
-   * (`canEditRoomMap` já bloqueia), então esse gate cobre só a view.
-   */
-  canSeeUnassignedList: boolean
   /** Sobe o `isDirty` do rascunho de edição — guard de descarte da página. */
   onDirtyChange?: (dirty: boolean) => void
 }
@@ -65,7 +62,6 @@ export function RoomMapSection({
   selectedStudentId,
   showFooter,
   canEdit,
-  canSeeUnassignedList,
   onDirtyChange,
 }: RoomMapSectionProps) {
   const { data, loading, error, refetch } = useRoomMapView(salaId, turmaId)
@@ -150,44 +146,39 @@ export function RoomMapSection({
   if (!data) return null
 
   const draftAllocations = toDraftAllocations(data.allocations)
-  const unassignedStudents = toUnassignedStudents(data.unassignedStudent)
 
   return (
-    <div className="flex flex-col gap-10">
-      <div className="flex gap-8">
+    <div className="flex flex-col gap-10 lg:h-full">
+      {/* `lg:flex-1 lg:min-h-0`: consome a altura repassada por
+          `PageMapaSalasContent` (`h-full` até aqui) — é o que deixa o botão
+          ancorado perto da base via `mt-auto` abaixo, na mesma altura do
+          toolbar do modo edição, sem precisar de nenhum `calc(100vh-Npx)`. */}
+      <div className="flex flex-col gap-10 lg:min-h-0 lg:flex-1">
         {/* Professor vem da posição TEACHER dentro do próprio grid (MapGrid) —
-            não renderizamos um professor à parte aqui para não duplicar. */}
-        <div className="flex flex-1 flex-col gap-10">
-          <MapGrid
-            grid={data.grid}
-            draftAllocations={draftAllocations}
-            selectedStudentId={selectedStudentId}
-            isEditing={false}
-            className={MAP_GRID_GAP}
-          />
+            não renderizamos um professor à parte aqui para não duplicar.
+            Sem StudentSidebar aqui: não-alocados só aparecem em edição
+            (Figma 280-7119). */}
+        <MapGrid
+          grid={data.grid}
+          draftAllocations={draftAllocations}
+          selectedStudentId={selectedStudentId}
+          isEditing={false}
+          className={MAP_GRID_GAP}
+        />
 
-          {canEdit ? (
-            // Toolbar centraliza na área do grid (frame do Figma 280-7901) —
-            // a coluna de não-alocados segue inteira à direita.
-            <div className="flex justify-center">
-              <MapToolbar
-                mode="view"
-                canSave={false}
-                onEdit={startEditFromView}
-                onClear={noop}
-                onSave={noop}
-              />
-            </div>
-          ) : null}
-        </div>
-
-        {canSeeUnassignedList && unassignedStudents.length > 0 ? (
-          <StudentSidebar
-            unassignedStudents={unassignedStudents}
-            selectedStudentId={null}
-            isEditing={false}
-            className="w-64 shrink-0"
-          />
+        {canEdit ? (
+          // `mt-auto`: ancora o botão perto da base do frame (mesma altura do
+          // toolbar em modo edição), não logo abaixo da última fileira de
+          // assentos. Centraliza na área do grid (frame do Figma 280-7901).
+          <div className="mt-auto flex justify-center">
+            <MapToolbar
+              mode="view"
+              canSave={false}
+              onEdit={startEditFromView}
+              onClear={noop}
+              onSave={noop}
+            />
+          </div>
         ) : null}
       </div>
 

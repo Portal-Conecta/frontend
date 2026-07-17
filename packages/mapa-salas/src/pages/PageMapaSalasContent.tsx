@@ -26,7 +26,7 @@
  * componente oficial). Aluno e gerência usam o mesmo seletor; muda só a etapa
  * de turma (`showTurma`).
  */
-import { useState } from 'react'
+import { useState, type KeyboardEvent } from 'react'
 
 import type { CurrentUser } from '@portal/core'
 import { ConfirmDialog, Text } from '@portal/ui'
@@ -44,10 +44,35 @@ export interface PageMapaSalasContentProps {
 
 type CrumbTarget = 'sala' | 'turma'
 
+/**
+ * Sem linha permanente — só o sublinhado no hover, do tamanho do próprio
+ * item (nada de faixa cheia atrás). Os três segmentos usam o mesmo elemento
+ * (`<span role="button">`, não `<button>` nativo) e as mesmas classes: um
+ * `<button>` real embute padding/box model próprios do navegador que fazem a
+ * borda de baixo não bater com a de um `<span>` puro, mesmo zerando padding —
+ * pra Sala/Turma ficarem idênticos ao "Mapa de sala" (não interativo), os
+ * três precisam ser o mesmo tipo de elemento.
+ */
+const CRUMB_ITEM_CLASSES =
+  'border-b-2 border-transparent pb-1 transition-colors duration-150 hover:border-border-focus'
+
 // Mesmo anel de foco do StepTab da RoomFilterBar — o crumb é o "modo compacto"
-// do mesmo stepper.
-const CRUMB_CLASSES =
-  'cursor-pointer rounded-sm hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-interactive-focus-ring'
+// do mesmo stepper, mas via `span role="button"` (ver comentário acima).
+// Sem `rounded-sm`: arredonda a caixa inteira, inclusive as pontas da borda
+// de baixo do hover — virava uma "pílula" em vez da linha reta simples do
+// "Mapa de sala". O anel de foco fica com cantos retos, sem problema.
+const CRUMB_BUTTON_CLASSES = [
+  'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-interactive-focus-ring',
+  CRUMB_ITEM_CLASSES,
+].join(' ')
+
+/** Enter/Espaço ativam `span role="button"` — teclado não dispara `click` sozinho nele. */
+function handleCrumbKeyDown(event: KeyboardEvent, onActivate: () => void) {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault()
+    onActivate()
+  }
+}
 
 export function PageMapaSalasContent({ user, rooms, turmas }: PageMapaSalasContentProps) {
   const isStudent = user?.userType === 'STUDENT'
@@ -123,41 +148,78 @@ export function PageMapaSalasContent({ user, rooms, turmas }: PageMapaSalasConte
   const selectedTurma = turmas.find((turma) => turma.id === selectedTurmaId)
 
   return (
-    <div className="flex flex-col gap-10 p-6 md:p-8">
+    // `lg:h-full`: 100% da altura real do `<main>` do AppLayout (definida por
+    // flexbox — `overflow-y-auto` lá). É a base da cadeia de altura que desce
+    // até a `StudentSidebar` em `MapEditor.tsx` — nada de `calc(100vh-Npx)`
+    // chutando o tamanho do header/footer/breadcrumb: cada nível só pede
+    // "100% do meu pai", e o pai já tem altura definida por flexbox. Sem essa
+    // cadeia, a `StudentSidebar` ficava um pouco mais alta do que o espaço
+    // real do `<main>` (a estimativa em px nunca bate 100%), e isso fazia o
+    // `<main>` ganhar rolagem própria — duas barras de rolagem lado a lado
+    // (a do `<main>` e a interna da sidebar).
+    <div className="flex flex-col gap-10 p-6 md:p-8 lg:h-full">
       {/* Breadcrumb (mock) — a RoomFilterBar real cobre seleção + breadcrumb.
-          Os crumbs voltam à etapa correspondente do seletor. */}
-      <nav aria-label="Sala selecionada" className="flex items-center justify-center gap-4">
+          Os crumbs voltam à etapa correspondente do seletor. Mesma tipografia/
+          cor/espaçamento da "Barra de progresso" do Figma (280-7150): os três
+          segmentos em `body-md`/`brand`, `gap-14` (~60px). Sem linha permanente
+          — só o sublinhado no hover de cada item, ver `CRUMB_ITEM_CLASSES`. */}
+      <nav aria-label="Sala selecionada" className="flex items-center justify-center gap-14">
         {selectedRoom ? (
-          <button type="button" className={CRUMB_CLASSES} onClick={() => handleCrumbClick('sala')}>
-            <Text as="span" variant="label-md-emphasis" tone="brand">
+          <span
+            role="button"
+            tabIndex={0}
+            className={CRUMB_BUTTON_CLASSES}
+            onClick={() => handleCrumbClick('sala')}
+            onKeyDown={(event) => handleCrumbKeyDown(event, () => handleCrumbClick('sala'))}
+          >
+            <Text as="span" variant="body-md" tone="brand">
               Sala {selectedRoom.code}
             </Text>
-          </button>
+          </span>
         ) : null}
         {!isStudent && selectedTurma ? (
-          <button type="button" className={CRUMB_CLASSES} onClick={() => handleCrumbClick('turma')}>
-            <Text as="span" variant="label-md-emphasis" tone="brand">
+          <span
+            role="button"
+            tabIndex={0}
+            className={CRUMB_BUTTON_CLASSES}
+            onClick={() => handleCrumbClick('turma')}
+            onKeyDown={(event) => handleCrumbKeyDown(event, () => handleCrumbClick('turma'))}
+          >
+            <Text as="span" variant="body-md" tone="brand">
               {selectedTurma.code}
             </Text>
-          </button>
+          </span>
         ) : null}
-        <Text as="span" variant="label-md" tone="secondary">
-          Mapa de sala
-        </Text>
+        {/* Não interativo (já é a etapa atual) — mesmo `<span>` dos outros
+            dois, sem `role="button"`/handlers, pra a borda de baixo ficar
+            com a mesma metragem/posição dos crumbs. */}
+        <span className={CRUMB_ITEM_CLASSES}>
+          <Text as="span" variant="body-md" tone="brand">
+            Mapa de sala
+          </Text>
+        </span>
       </nav>
 
-      <RoomMapSection
-        // Remonta a seção (e derruba qualquer sessão de edição) se a seleção
-        // mudar por qualquer caminho — o rascunho pertence ao par sala+turma.
-        key={`${selectedRoomId}:${turmaId}`}
-        salaId={selectedRoomId}
-        turmaId={turmaId}
-        selectedStudentId={isStudent ? (user?.id ?? null) : null}
-        showFooter={Boolean(isStudent)}
-        canEdit={canEditRoomMap(user, turmaId)}
-        canSeeUnassignedList={!isStudent}
-        onDirtyChange={setIsMapDirty}
-      />
+      {/* `lg:flex-1 lg:min-h-0`: consome o que sobrar da altura do container
+          `h-full` acima, depois do breadcrumb — vira a "altura real" que a
+          `RoomMapSection` (e, por baixo dela, a `StudentSidebar`) repassa via
+          `h-full`. `lg:[&>*]:h-full` força esse "100%" no único filho real
+          que a `RoomMapSection` renderiza em cada estado (skeleton, erro,
+          grade view ou `RoomMapEditMode`) sem precisar de uma prop de
+          className percorrendo cada branch dela. */}
+      <div className="lg:min-h-0 lg:flex-1 lg:[&>*]:h-full">
+        <RoomMapSection
+          // Remonta a seção (e derruba qualquer sessão de edição) se a seleção
+          // mudar por qualquer caminho — o rascunho pertence ao par sala+turma.
+          key={`${selectedRoomId}:${turmaId}`}
+          salaId={selectedRoomId}
+          turmaId={turmaId}
+          selectedStudentId={isStudent ? (user?.id ?? null) : null}
+          showFooter={Boolean(isStudent)}
+          canEdit={canEditRoomMap(user, turmaId)}
+          onDirtyChange={setIsMapDirty}
+        />
+      </div>
 
       <ConfirmDialog
         open={pendingCrumb !== null}
