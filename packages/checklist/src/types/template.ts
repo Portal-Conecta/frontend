@@ -1,5 +1,15 @@
 export type ChecklistTemplateStatus = 'DRAFT' | 'ACTIVE' | 'INACTIVE'
 
+/** Categoria (grupo de itens da sala) — espelha o enum ChecklistCategory do backend. */
+export type ChecklistCategory =
+  | 'ELETRONICOS'
+  | 'MOVEIS'
+  | 'ILUMINACAO'
+  | 'CLIMATIZACAO'
+  | 'INFRAESTRUTURA'
+  | 'HIGIENE'
+  | 'GERAL'
+
 /** Tipo de resposta esperado por item: conformidade (padrão), texto livre ou número. */
 export type AnswerType = 'CONFORMITY' | 'TEXT' | 'NUMBER'
 
@@ -36,6 +46,7 @@ export interface ChecklistTemplateResponse {
   roomId: string
   title: string
   description?: string
+  category: ChecklistCategory
   version: number
   status: ChecklistTemplateStatus
   active: boolean
@@ -49,12 +60,14 @@ export interface ChecklistTemplateCreateRequest {
   roomId: string
   title: string
   description?: string
+  category: ChecklistCategory
   schemaJson: ChecklistSchema
 }
 
 export interface ChecklistTemplateEditRequest {
   title?: string
   description?: string
+  category?: ChecklistCategory
   schemaJson?: ChecklistSchema
 }
 
