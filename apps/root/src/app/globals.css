@@ -1,7 +1,4 @@
-@import '@fontsource/inter/400.css';
-@import '@fontsource/inter/600.css';
-@import '@fontsource/afacad/400.css';
-@import '@fontsource/afacad/600.css';
-
+/* Fontes carregadas via next/font/google no layout (self-host + preload no
+   <head>) — ver apps/root/src/app/layout.tsx. Issue #407. */
 @import 'tailwindcss';
 @config '../../../../tailwind.config.ts';
