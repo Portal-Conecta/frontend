@@ -10,7 +10,10 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Button, Text } from '@portal/ui'
 
 import { usePostsList } from '../../hooks/usePostsList'
-import { formatAnnouncementDate, getAnnouncementOriginLabel } from '../../utils/announcement'
+import {
+  formatAnnouncementDisplayDate,
+  getAnnouncementOriginLabel,
+} from '../../utils/announcement'
 import { getAnnouncementPlainDescription } from '../../utils/announcementDescription'
 import { ComunicadosEmptyState } from '../ComunicadosEmptyState'
 import { PinnedPostsSection } from '../PinnedPostsSection'
@@ -257,7 +260,7 @@ export function AnnouncementFeedContent({
 }
 
 function AnnouncementFeedItem({ post }: { post: AnnouncementSummary }) {
-  const date = post.publishedAt ?? post.scheduledFor ?? post.createdAt
+  const dateLabel = formatAnnouncementDisplayDate(post)
   const thumbnailUrl = post.thumbnailUrl
 
   return (
@@ -284,7 +287,7 @@ function AnnouncementFeedItem({ post }: { post: AnnouncementSummary }) {
             <span className="px-2" aria-hidden="true">
               |
             </span>
-            {formatAnnouncementDate(date)}
+            {dateLabel ?? '—'}
           </Text>
         </div>
 

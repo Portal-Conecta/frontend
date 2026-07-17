@@ -1,5 +1,5 @@
 /** Espelha `TagEntityType` do comunicados-backend. */
-export type TagEntityType = 'COURSE' | 'CLASS' | 'USER' | 'GENERAL' | 'SHIFT'
+export type TagEntityType = 'COURSE' | 'CLASS' | 'USER' | 'GENERAL' | 'SHIFT' | 'ROLE'
 
 /** Espelha `TagResponse` do comunicados-backend. */
 export interface Tag {

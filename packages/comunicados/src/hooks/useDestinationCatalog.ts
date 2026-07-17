@@ -9,13 +9,24 @@ import {
   listDestinationCoursesClient,
   listDestinationUsersClient,
 } from '../services/client/destinationsClient'
+import { listTagsClient } from '../services/client/tagsClient'
 import {
   getShiftOptions,
   mapClassesToSelectOptions,
   mapCoursesToSelectOptions,
   mapUsersToSummaries,
 } from '../services/destinationCatalogMappers'
+import type { Tag } from '../types/tag'
 import type { UserSummary } from '../components/DestinationSelector/types'
+
+export interface UseDestinationCatalogOptions {
+  /**
+   * Busca o diretório completo de usuários (`/destinations/users`). Personas
+   * restritas (docente/representante — RN-COM-PA02/PA03) desligam e usam a
+   * lista escopada de `useMyClassStudents`.
+   */
+  includeDirectoryUsers?: boolean
+}
 
 export interface UsersPageState {
   items: UserSummary[]
@@ -28,6 +39,8 @@ export interface UseDestinationCatalogResult {
   courses: SelectOption[]
   classes: SelectOption[]
   shifts: SelectOption[]
+  /** Tags ativas — resolve hub entity → `tag.id` no publish (#397). */
+  tags: Tag[]
   usersPage: UsersPageState
   usersQuery: string
   setUsersQuery: (query: string) => void
@@ -45,9 +58,13 @@ const USERS_SEARCH_FETCH_SIZE = 100
 /** Espera após a última tecla antes de buscar usuários (mesmo default do SearchBarAsync). */
 const USERS_SEARCH_DEBOUNCE_MS = 300
 
-export function useDestinationCatalog(): UseDestinationCatalogResult {
+export function useDestinationCatalog(
+  options: UseDestinationCatalogOptions = {},
+): UseDestinationCatalogResult {
+  const { includeDirectoryUsers = true } = options
   const [courses, setCourses] = useState<SelectOption[]>([])
   const [classes, setClasses] = useState<SelectOption[]>([])
+  const [tags, setTags] = useState<Tag[]>([])
   const shifts = getShiftOptions()
 
   const [usersPage, setUsersPageState] = useState<UsersPageState>({
@@ -83,16 +100,18 @@ export function useDestinationCatalog(): UseDestinationCatalogResult {
       setLoading(true)
       setError('')
       try {
-        const [coursesRes, classesRes] = await Promise.all([
+        const [coursesRes, classesRes, tagsRes] = await Promise.all([
           listDestinationCoursesClient(),
           listDestinationClassesClient({ page: 0, size: 100 }),
+          listTagsClient(),
         ])
         if (cancelled) return
         setCourses(mapCoursesToSelectOptions(coursesRes.courses))
         setClasses(mapClassesToSelectOptions(classesRes.items))
+        setTags(tagsRes.filter((tag) => tag.active !== false))
       } catch {
         if (!cancelled) {
-          setError('Não foi possível carregar cursos e turmas. Tente novamente.')
+          setError('Não foi possível carregar cursos, turmas e tags. Tente novamente.')
         }
       } finally {
         if (!cancelled) setLoading(false)
@@ -144,8 +163,9 @@ export function useDestinationCatalog(): UseDestinationCatalogResult {
   }, [])
 
   useEffect(() => {
+    if (!includeDirectoryUsers) return
     void loadUsers(usersPageIndex, debouncedUsersQuery)
-  }, [loadUsers, usersPageIndex, debouncedUsersQuery])
+  }, [includeDirectoryUsers, loadUsers, usersPageIndex, debouncedUsersQuery])
 
   function setUsersQuery(query: string) {
     setUsersQueryState(query)
@@ -159,6 +179,7 @@ export function useDestinationCatalog(): UseDestinationCatalogResult {
     courses,
     classes,
     shifts,
+    tags,
     usersPage,
     usersQuery,
     setUsersQuery,

@@ -1,11 +1,13 @@
 import type { AnnouncementDetail } from '../types'
 
+import { getCurrentUser } from '@portal/core/auth/getCurrentUser'
 import { HttpError } from '@portal/core/http/errors'
 import { getUserById } from '@portal/core/profile/profileService'
 import { Text } from '@portal/ui'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
+import { canEditAnnouncement } from '../auth/canEditAnnouncement'
 import { AnnouncementDetailView } from '../components/AnnouncementDetailView'
 import { getAnnouncement } from '../services'
 
@@ -47,6 +49,8 @@ async function resolveCreatorName(userId: string): Promise<string | undefined> {
 }
 
 export async function PageAnnouncementDetail({ id, from }: PageAnnouncementDetailProps) {
+  const user = await getCurrentUser()
+
   let detail: AnnouncementDetail | undefined
   let creatorName: string | undefined
   let errorMessage: string | undefined
@@ -61,6 +65,8 @@ export async function PageAnnouncementDetail({ id, from }: PageAnnouncementDetai
     }
     errorMessage = resolveFetchError(error)
   }
+
+  const canEdit = canEditAnnouncement(user, detail)
 
   return (
     <div className="p-8">
@@ -86,7 +92,7 @@ export async function PageAnnouncementDetail({ id, from }: PageAnnouncementDetai
         {detail ? (
           <AnnouncementDetailView
             detail={detail}
-            canEdit={false}
+            canEdit={canEdit}
             {...(creatorName ? { creatorName } : {})}
           />
         ) : null}
