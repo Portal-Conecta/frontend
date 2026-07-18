@@ -74,6 +74,26 @@ describe('searchUsers', () => {
     expect(new URL(url as string).searchParams.has('typeUser')).toBe(false)
   })
 
+  it('repassa name (busca por nome) como query pro core', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(response(200, page))
+
+    await searchUsers({ page: 0, size: 20, name: 'Ana' }, TOKEN)
+
+    const [url] = fetchMock.mock.calls[0]!
+    expect(new URL(url as string).searchParams.get('name')).toBe('Ana')
+  })
+
+  it('omite name da query quando não informado', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(response(200, page))
+
+    await searchUsers({ page: 0, size: 20 }, TOKEN)
+
+    const [url] = fetchMock.mock.calls[0]!
+    expect(new URL(url as string).searchParams.has('name')).toBe(false)
+  })
+
   it('mapeia 403 (sem permissão para listar) para HttpError forbidden', async () => {
     stubFetch().mockResolvedValue(response(403, {}))
 

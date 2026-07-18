@@ -95,3 +95,42 @@ export const LimiteAtingido: Story = {
 export const ComTamanhoMaximo: Story = {
   render: () => <Demo maxSize={1024} />,
 }
+
+/**
+ * Wizard multi-etapa (#326): o FileUpload desmonta ao sair do passo, mas o pai
+ * mantém `value`. Remonte não deve invalidar as blob URLs — use "Simular troca
+ * de etapa" e volte; as miniaturas continuam válidas.
+ */
+function WizardRemountDemo() {
+  const [files, setFiles] = useState<FileUploadItem[]>([])
+  const [step, setStep] = useState<'upload' | 'next'>('upload')
+
+  return (
+    <div className="flex flex-col gap-4">
+      <p className="text-body-sm text-text-secondary">
+        Passo atual: <strong>{step === 'upload' ? '1 — Upload' : '2 — Destinatários (FileUpload desmontado)'}</strong>
+      </p>
+      <div className="flex gap-2">
+        <button
+          type="button"
+          className="rounded-md bg-interactive-default px-3 py-2 text-body-sm text-text-inverse"
+          onClick={() => setStep((current) => (current === 'upload' ? 'next' : 'upload'))}
+        >
+          {step === 'upload' ? 'Simular avanço de etapa' : 'Voltar para upload'}
+        </button>
+      </div>
+      {step === 'upload' ? (
+        <FileUpload value={files} onChange={setFiles} />
+      ) : (
+        <p className="text-body-sm text-text-secondary">
+          {files.length} arquivo(s) guardado(s) no estado do wizard — volte e confira as previews.
+        </p>
+      )}
+    </div>
+  )
+}
+
+export const WizardRemontaMantemPreview: Story = {
+  name: 'Wizard — remonte mantém preview',
+  render: () => <WizardRemountDemo />,
+}

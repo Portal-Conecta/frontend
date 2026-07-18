@@ -1,8 +1,9 @@
 /**
  * PageCursos — tela de lista de cursos (rota `/cursos`, issue #357). Server
  * Component, espelhando `PageMapaSalas`/`PageProfile`: resolve a sessão e o
- * `CurrentUser`, gateia por RBAC, faz o SSR da lista inicial e monta o
- * `AppShell`, delegando busca/filtro/interação ao `PageCursosContent` (client).
+ * `CurrentUser`, gateia por RBAC e faz o SSR da lista inicial, delegando
+ * busca/filtro/interação ao `PageCursosContent` (client). O AppShell vem do
+ * layout `(authenticated)` (#405), não da página.
  *
  * RBAC: `cursos:gerenciar` (SENAI, WEG, ADMIN). A Sidebar já esconde o item para
  * os demais; aqui é o gate de página para acesso direto pela URL. O gate real
@@ -14,7 +15,6 @@
  */
 import { redirect } from 'next/navigation'
 
-import { AppShell } from '../layout/AppShell'
 import { getCurrentUser } from '../auth/getCurrentUser'
 import { getSession } from '../auth/session'
 import { can } from '../rbac/can'
@@ -42,11 +42,7 @@ export async function PageCursos() {
     failed = true
   }
 
-  return (
-    <AppShell user={user} activeKey="cursos">
-      <PageCursosContent initialCourses={courses} initialError={failed} />
-    </AppShell>
-  )
+  return <PageCursosContent initialCourses={courses} initialError={failed} />
 }
 
 export default PageCursos

@@ -30,13 +30,15 @@ function normalizeSize(raw: string | null): number {
 
 /**
  * BFF — busca paginada de usuários do sistema (tela "adicionar usuários").
- * Proxy de `GET /hub/users`; `typeUser` desconhecido é erro explícito (400) e
- * `page`/`size` são normalizados (`size` limitado a `MAX_SIZE`). Sessão ausente
- * cai em 401 pelo http client do service.
+ * Proxy de `GET /hub/users`; `typeUser` desconhecido é erro explícito (400),
+ * `page`/`size` são normalizados (`size` limitado a `MAX_SIZE`) e `search`
+ * filtra por nome (substring, case-insensitive — repassado como `name` pro
+ * core). Sessão ausente cai em 401 pelo http client do service.
  */
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
   const typeUserParam = searchParams.get('typeUser')
+  const search = searchParams.get('search')?.trim()
 
   if (typeUserParam && !USER_TYPES.has(typeUserParam as TypeUser)) {
     return NextResponse.json(
@@ -49,6 +51,7 @@ export async function GET(req: Request) {
     page: normalizePage(searchParams.get('page')),
     size: normalizeSize(searchParams.get('size')),
     ...(typeUserParam ? { typeUser: typeUserParam as TypeUser } : {}),
+    ...(search ? { name: search } : {}),
   }
 
   try {
