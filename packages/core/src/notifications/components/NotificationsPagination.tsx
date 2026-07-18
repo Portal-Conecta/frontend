@@ -1,10 +1,12 @@
-import Link from 'next/link'
+'use client'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Pagination } from '@portal/ui/molecules'
 
 interface NotificationsPaginationProps {
-  page: number
-  totalPages: number
-  totalElements: number
-  size: number
+  page?: number
+  totalPages?: number
+  totalElements?: number
+  size?: number
 }
 
 /**
@@ -16,39 +18,32 @@ interface NotificationsPaginationProps {
  */
 export function NotificationsPagination({
   page,
-  totalPages,
   totalElements,
   size,
 }: NotificationsPaginationProps) {
-  const start = totalElements === 0 ? 0 : page * size + 1
-  const end = Math.min((page + 1) * size, totalElements)
+  const router = useRouter()
+  const searchParams = useSearchParams()
 
-  const hasPrevious = page > 0
-  const hasNext = page < totalPages - 1
+  // Fallbacks de segurança para evitar NaN
+  const safePage = Number(page) || 0
+  const safeTotal = Number(totalElements) || 0
+  const safeSize = Number(size) || 20
 
-  const href = (target: number) => `/notifications?status=read&page=${target}&size=${size}`
+  const handlePageChange = (newPage: number) => {
+    const params = new URLSearchParams(searchParams.toString())
+    // Subtrai 1 porque a API espera base 0, mas a UI retorna base 1
+    params.set('page', (newPage - 1).toString()) 
+    router.push(`/notifications?${params.toString()}`)
+  }
 
   return (
-    <div>
-      <span>
-        {start}-{end} de {totalElements}
-      </span>
-      <div>
-        {hasPrevious ? (
-          <Link href={href(page - 1)} aria-label="Página anterior">
-            ‹
-          </Link>
-        ) : (
-          <span aria-disabled="true">‹</span>
-        )}
-        {hasNext ? (
-          <Link href={href(page + 1)} aria-label="Próxima página">
-            ›
-          </Link>
-        ) : (
-          <span aria-disabled="true">›</span>
-        )}
-      </div>
+    <div className="flex w-full justify-end">
+      <Pagination
+        currentPage={safePage + 1}
+        pageSize={safeSize}
+        totalItems={safeTotal}
+        onPageChange={handlePageChange}
+      />
     </div>
   )
 }
