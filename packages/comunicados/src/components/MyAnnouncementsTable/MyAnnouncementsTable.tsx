@@ -184,7 +184,7 @@ export function MyAnnouncementsTableContent({
                 className="relative pointer-events-none aspect-[132/116] w-[38%] shrink-0 overflow-hidden rounded-md bg-interactive-disabled sm:aspect-[485/273] sm:w-[45%] sm:max-w-[485px]"
               >
                 {thumbnailUrl ? (
-                  <img src={thumbnailUrl} alt="" className="h-full w-full object-cover" />
+                  <img src={thumbnailUrl} alt="" loading="lazy" className="h-full w-full object-cover" />
                 ) : null}
               </div>
             </li>

@@ -16,6 +16,26 @@ export function mergeAnnouncementFeedItems(
   return Array.from(posts.values())
 }
 
+/**
+ * O back só faz OR em `tagIds` — o AND real (curso+turno) roda no client contra
+ * `post.tags` (`announcementMatchesMuralFilters`), rodando *depois* da paginação.
+ * Isso pode encolher (ou esvaziar) uma página cheia no back. Decide se vale a
+ * pena buscar a próxima página do back pra completar `targetFill` itens
+ * filtrados, em vez de mostrar uma página capenga pro usuário.
+ */
+export function needsAutoFillNextPage(params: {
+  /** Itens que já passaram no filtro local nesta operação de carregamento. */
+  filledCount: number
+  /** Quantos itens filtrados essa operação deveria entregar (tamanho de página). */
+  targetFill: number
+  /** Página (0-based) que acabou de chegar do back. */
+  currentPage: number
+  totalPages: number
+}): boolean {
+  const hasMorePages = params.currentPage + 1 < params.totalPages
+  return hasMorePages && params.filledCount < params.targetFill
+}
+
 export function isAnnouncementFeedUnauthorizedError(error: Error | null): boolean {
   return error instanceof HttpError && error.kind === 'unauthorized'
 }

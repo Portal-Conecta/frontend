@@ -22,22 +22,30 @@ export async function PageProfile() {
     redirect('/login')
   }
 
-  let profile: MyProfile
-  try {
-    profile = await getMyProfile(accessToken)
-  } catch (err) {
+  // Dispara as duas chamadas do BFF em paralelo (elimina o waterfall — #407).
+  // `allSettled` nunca rejeita, então cada resultado é tratado pelo seu próprio
+  // status, preservando a degradação: `profile` é obrigatório (rejeição derruba
+  // a página inteira) e `courses` é opcional (rejeição vira Banner de erro).
+  const [profileResult, coursesResult] = await Promise.allSettled([
+    getMyProfile(accessToken),
+    getMyCourses(accessToken),
+  ])
+
+  if (profileResult.status === 'rejected') {
+    const err = profileResult.reason
     if (err instanceof HttpError && err.kind === 'unauthorized') {
       redirect('/login')
     }
     throw err
   }
+  const profile: MyProfile = profileResult.value
 
   let classes: ClassCardItem[] = []
   let coursesFailed = false
-  try {
-    const { courses } = await getMyCourses(accessToken)
-    classes = flattenClasses(courses)
-  } catch (err) {
+  if (coursesResult.status === 'fulfilled') {
+    classes = flattenClasses(coursesResult.value.courses)
+  } else {
+    const err = coursesResult.reason
     if (err instanceof HttpError && err.kind === 'unauthorized') {
       redirect('/login')
     }

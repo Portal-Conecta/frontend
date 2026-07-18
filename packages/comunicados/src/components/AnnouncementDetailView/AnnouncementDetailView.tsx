@@ -21,7 +21,8 @@ import type { AnnouncementDetail, AnnouncementTag } from '../../types'
 
 import Link from 'next/link'
 
-import { RichTextContent, Tag, Text } from '@portal/ui'
+import { Tag, Text } from '@portal/ui'
+import { RichTextContent } from '@portal/ui/organisms/RichTextEditor/RichTextContent'
 
 import { resolveAnnouncementDisplayDate } from '../../utils/announcement'
 import { AnnouncementDetailDocuments } from './AnnouncementDetailDocuments'
@@ -74,7 +75,7 @@ function Header({
   return (
     <header className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2">
-        <Tag tone="neutral" size="sm">
+        <Tag tone="info" size="sm">
           {originLabel[announcement.origin] ?? announcement.origin}
         </Tag>
         {announcement.pinned ? (

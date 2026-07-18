@@ -1,4 +1,6 @@
-import { seatIconSizeMap, type SeatIconSize } from '../SeatIcon'
+import type { CSSProperties } from 'react'
+
+import { MAP_GRID_MIN_SEAT_WIDTH, SEAT_ICON_DESKTOP_WIDTH, SEAT_ICON_FLUID_WIDTH } from '../seatSizing'
 
 export type MapGridSkeletonProps = {
   /** Linhas da grade genérica exibida durante o carregamento. Default 4. */
@@ -17,26 +19,30 @@ export type MapGridSkeletonProps = {
 const DEFAULT_ROWS = 4
 const DEFAULT_COLUMNS = 6
 
+/** Mesma fórmula fluida do `SeatCard` — skeleton e grade real não saltam no swap. */
+const seatSkeletonStyle: CSSProperties = {
+  width: SEAT_ICON_FLUID_WIDTH,
+  maxWidth: SEAT_ICON_DESKTOP_WIDTH,
+  aspectRatio: '99 / 58',
+  height: 'auto',
+}
+
 /**
  * Silhueta exata do ícone de assento fornecido pelo design (Aluno-icon.svg
  * do Figma) — corpo + encosto, sem os recortes internos do SeatIcon "real".
  * Cor vem do token do DS via `currentColor`; animação de pulse por cima.
- * Reusa `seatIconSizeMap` do SeatIcon (mesmo pacote @portal/mapa-salas) em
- * vez de duplicar números — se o SeatIcon mudar de tamanho, este skeleton
- * acompanha automaticamente.
+ * Largura fluida via `seatSizing` (igual ao `SeatCard`/`MapGrid`) — se o
+ * piso do assento mudar, este skeleton acompanha automaticamente (#427).
  */
-function SeatSkeletonShape({ size = 'md' }: { size?: SeatIconSize }) {
-  const { width, height } = seatIconSizeMap[size]
-
+function SeatSkeletonShape() {
   return (
     <svg
-      width={width}
-      height={height}
       viewBox="0 0 99 58"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
       className="animate-pulse text-border-default motion-reduce:animate-none"
+      style={seatSkeletonStyle}
     >
       <rect width="98" height="45" rx="4" fill="currentColor" />
       <path
@@ -99,16 +105,28 @@ export function MapGridSkeleton({
     }
   }
 
+  // Espelha o `MapGrid` (#427): piso fluido + scroll abaixo de `lg`, e
+  // `minmax(0, 1fr)` em `lg+` — evita reflow no swap loading → dados.
+  const gridStyle = {
+    ['--map-grid-cols' as string]: String(columns),
+    gridTemplateColumns: `repeat(${columns}, minmax(${MAP_GRID_MIN_SEAT_WIDTH}, 1fr))`,
+    gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
+  } satisfies CSSProperties
+
   return (
-    <div
-      aria-hidden="true"
-      className={classes}
-      style={{
-        gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
-        gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
-      }}
-    >
-      {cells}
+    <div className="overflow-x-auto [-webkit-overflow-scrolling:touch] lg:overflow-x-visible">
+      <div
+        aria-hidden="true"
+        className={[
+          classes,
+          'lg:[grid-template-columns:repeat(var(--map-grid-cols),minmax(0,1fr))]',
+        ]
+          .filter(Boolean)
+          .join(' ')}
+        style={gridStyle}
+      >
+        {cells}
+      </div>
     </div>
   )
 }

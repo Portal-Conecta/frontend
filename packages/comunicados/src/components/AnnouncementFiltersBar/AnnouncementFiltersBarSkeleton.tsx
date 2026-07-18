@@ -47,7 +47,7 @@ export function AnnouncementFiltersBarSkeleton({
         {!isStudent ? (
           <>
             <FieldSkeleton labelWidth={48} />
-            {isSheet ? null : <FieldSkeleton labelWidth={48} />}
+            <FieldSkeleton labelWidth={48} />
             <FieldSkeleton labelWidth={56} />
             <FieldSkeleton labelWidth={56} />
           </>

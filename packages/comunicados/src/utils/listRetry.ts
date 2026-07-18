@@ -24,14 +24,21 @@ function wait(ms: number): Promise<void> {
   })
 }
 
-/** Executa `load` com backoff linear em erros retryable. */
-export async function withListRetry<T>(load: () => Promise<T>): Promise<T> {
+/**
+ * Executa `load` com backoff linear em erros retryable.
+ *
+ * `signal` opcional (#399): quando a request foi abortada (filtro trocou/
+ * desmontou antes da resposta chegar), não vale a pena retentar.
+ */
+export async function withListRetry<T>(load: () => Promise<T>, signal?: AbortSignal): Promise<T> {
   let lastError: unknown
 
   for (let attempt = 1; attempt <= LIST_RETRY_ATTEMPTS; attempt += 1) {
     try {
       return await load()
     } catch (error) {
+      if (signal?.aborted) throw error
+
       lastError = error
       if (!isRetryableListError(error) || attempt === LIST_RETRY_ATTEMPTS) {
         throw error
