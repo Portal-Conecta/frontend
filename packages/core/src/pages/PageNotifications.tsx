@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation'
 
-import { AppShell } from '../layout/AppShell'
 import { getCurrentUser } from '../auth/getCurrentUser'
 import { getSession } from '../auth/session'
 import { HttpError } from '../http/errors'
