@@ -51,7 +51,7 @@ export function StudentSidebar({
   onEmptyAreaClick,
   className,
 }: StudentSidebarProps) {
-  const classes = ['h-full overflow-y-auto', className].filter(Boolean).join(' ')
+  const classes = ['h-full overflow-y-auto px-4 pt-4', className].filter(Boolean).join(' ')
 
   // Clique num <li> borbulha até aqui — só dispara onEmptyAreaClick quando o
   // alvo é o próprio <ul> (área vazia), não um item da lista.

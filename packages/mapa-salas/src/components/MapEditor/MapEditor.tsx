@@ -114,22 +114,22 @@ export function MapEditor({
       </div>
       <div
         className={[
-          'lg:shrink-0 lg:rounded-tl-lg lg:border-l-md lg:border-t-md lg:border-border-default',
-          'lg:bg-background-default lg:p-6',
-          // Largura de coluna sem token dedicado — aceitável por
-          // docs/conventions/tokens-e-theming.md §5 ("valores arbitrários
-          // aceitáveis" para largura de coluna), valor do frame do Figma.
-          'lg:w-[398px]',
-          // Cancela o `md:p-8` (32px) da página no lado direito — no Figma a
-          // coluna encosta na borda da viewport, mas o container da página tem
-          // padding nos quatro lados (mesmo padding serve pro conteúdo restante:
-          // breadcrumb, seletor, mensagens de erro/vazio).
-          'lg:-mr-8',
-          // Sem altura própria (nem `self-start`): herda `align-self: stretch`
-          // do pai (`lg:items-stretch`) e acompanha a altura real da coluna da
-          // esquerda — que por sua vez recebeu `h-full` de fora (ver JSDoc do
-          // componente). `h-full` + `overflow-y-auto` da própria `StudentSidebar`
-          // fazem só ela rolar dentro dessa altura.
+           'lg:shrink-0 lg:rounded-tl-lg lg:border-l-md lg:border-t-md lg:border-border-default',
+           'lg:bg-background-default',
+            // Largura escala continuamente via clamp — exceção do §5 p/ largura
+            // de coluna sem token dedicado (docs/conventions/tokens-e-theming.md).
+            'lg:w-[clamp(280px,26vw,398px)]',
+            // Padding não pode ser valor arbitrário (§3 — eslint
+            // no-restricted-syntax exige escala do DS). Aproxima o
+            // encolhimento gradual com steps da escala: p-4 (16px) enquanto
+            // a coluna está mais estreita, sobe pra p-6 (24px, valor do
+            // Figma) a partir de xl, quando já sobra espaço de viewport.
+            'lg:p-4 xl:p-6',
+            // Cancela o `md:p-8` (32px) da página no lado direito — no Figma a
+            // coluna encosta na borda da viewport, mas o container da página tem
+            // padding nos quatro lados (mesmo padding serve pro conteúdo restante:
+            // breadcrumb, seletor, mensagens de erro/vazio).
+            'lg:-mr-8',
         ].join(' ')}
       >
         <StudentSidebar
