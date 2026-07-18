@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation'
 
-import { getCurrentUser } from '../auth/getCurrentUser'
 import { getSession } from '../auth/session'
 import { HttpError } from '../http/errors'
 import { MarkPageAsRead } from '../notifications/components/MarkPageAsRead'
@@ -22,7 +21,6 @@ function parseIndex(raw: string | undefined, fallback: number): number {
 }
 
 export async function PageNotifications({ searchParams }: PageNotificationsProps) {
-  const user = await getCurrentUser()
   const params = await searchParams
   const status: NotificationStatus = params.status === 'read' ? 'READ' : 'UNREAD'
 
@@ -57,7 +55,7 @@ export async function PageNotifications({ searchParams }: PageNotificationsProps
           Notificações
         </h2>
         {/* Rodapé com controles/paginação */}
-      <div className="flex items-center place-content-between gap-4">
+      <div className="flex min-h-11 items-center place-content-between gap-4">
 
         <NotificationsFilters activeStatus={status} />
 

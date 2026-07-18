@@ -1,6 +1,6 @@
 'use client'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Pagination } from '@portal/ui/molecules' // Ajuste o import
+import { Pagination } from '@portal/ui/molecules'
 
 interface NotificationsPaginationProps {
   page?: number
