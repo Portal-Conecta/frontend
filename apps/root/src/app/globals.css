@@ -1,7 +1,2 @@
-@import '@fontsource/inter/400.css';
-@import '@fontsource/inter/600.css';
-@import '@fontsource/afacad/400.css';
-@import '@fontsource/afacad/600.css';
-
 @import 'tailwindcss';
 @config '../../../../tailwind.config.ts';

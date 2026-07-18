@@ -4,14 +4,14 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
-import { ConfirmDialog, Skeleton, Text, useToast } from '@portal/ui'
+import { Button, ConfirmDialog, EmptyState, Skeleton, Text, useToast } from '@portal/ui'
 
 import { ACTION_ERROR, useAnnouncementActions } from '../../hooks/useAnnouncementActions'
 import { useMyAnnouncements } from '../../hooks/useMyAnnouncements'
 import type { AnnouncementSummary } from '../../types/announcement'
 import type { PendingAnnouncementAction } from '../AnnouncementActionsMenu'
 import { AnnouncementActionsMenu } from '../AnnouncementActionsMenu'
-import { ComunicadosEmptyState } from '../ComunicadosEmptyState'
+import { AnnouncementEmptyIllustration } from '../AnnouncementEmptyIllustration'
 import { getAnnouncementPlainDescription } from '../../utils/announcementDescription'
 import { formatAnnouncementStatusLine, originLabel } from './myAnnouncementsTableModel'
 
@@ -79,20 +79,27 @@ export function MyAnnouncementsTableContent({
 
   if (error) {
     return (
-      <ComunicadosEmptyState
+      <EmptyState
         title="Comunicados não carregados"
         description={error}
-        actionLabel="Tentar novamente"
-        {...(onRetry ? { onAction: onRetry } : {})}
+        illustration={<AnnouncementEmptyIllustration className="h-60 w-60" aria-hidden="true" />}
+        action={
+          onRetry ? (
+            <Button variant="outlined" onClick={onRetry}>
+              Tentar novamente
+            </Button>
+          ) : undefined
+        }
       />
     )
   }
 
   if (items.length === 0) {
     return (
-      <ComunicadosEmptyState
+      <EmptyState
         title="Nenhum comunicado encontrado"
         description="Os comunicados que você publicar aparecerão aqui."
+        illustration={<AnnouncementEmptyIllustration className="h-60 w-60" aria-hidden="true" />}
       />
     )
   }

@@ -63,9 +63,14 @@ export type MapEditorProps = {
  * `qGo0ACyYHgWTYvenzzwSLG`): no desktop a `StudentSidebar` não é uma lista
  * solta ao lado do grid — é uma coluna direita com moldura própria (borda,
  * canto superior arredondado, fundo `background-default`), ocupando a altura
- * inteira da área de edição. Mobile não tem frame no protótipo; empilha a
- * lista completa abaixo do grid, sem a moldura (fallback simples = "seletor
- * de lista" citado na issue), virando coluna com moldura a partir do `lg`.
+ * inteira da área de edição. No mobile (#[MOBILE-HIST]) empilha a lista
+ * completa abaixo do grid, sem a moldura (fallback simples = "seletor de
+ * lista"), virando coluna com moldura a partir do `lg` — nesse breakpoint a
+ * `StudentSidebar` já come espaço da grade antes do layout ter largura de
+ * sobra, por isso o `MapGrid` mantém seu próprio scroll horizontal e piso de
+ * largura por assento fluido, sempre ativo (`MAP_GRID_MIN_SEAT_WIDTH`, ver
+ * `components/seatSizing.ts`). A coluna esquerda não precisa de tratamento
+ * adicional pra isso, já é `flex-col` full-width em qualquer largura.
  *
  * A raiz deste componente espera receber `h-full` de quem o renderiza (hoje,
  * `PageMapaSalasContent.tsx` via `[&>*]:h-full` numa cadeia de `h-full`/
