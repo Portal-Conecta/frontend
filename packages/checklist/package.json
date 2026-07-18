@@ -14,7 +14,8 @@
   "dependencies": {
     "@portal/core": "workspace:*",
     "@portal/shared": "workspace:*",
-    "@portal/ui": "workspace:*"
+    "@portal/ui": "workspace:*",
+    "lucide-react": "^1.17.0"
   },
   "peerDependencies": {
     "next": "^15.0.0",

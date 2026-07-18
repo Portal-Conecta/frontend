@@ -1,6 +1,6 @@
 'use client'
 
-import type { KeyboardEvent, MouseEvent, PointerEvent, ReactNode } from 'react'
+import type { DragEvent, KeyboardEvent, MouseEvent, PointerEvent, ReactNode } from 'react'
 import type { AnnouncementSummary } from '../../types/announcement'
 
 import { useRef, useState } from 'react'
@@ -167,6 +167,12 @@ export function PinnedPostsSection({
     }
   }
 
+  function handleDragStart(event: DragEvent<HTMLUListElement>) {
+    // Sem isso, o browser inicia o drag nativo de imagem/link (mostra o "fantasma"
+    // sendo arrastado) em vez de rolar — compete com o scroll por pointer acima.
+    event.preventDefault()
+  }
+
   function handleClickCapture(event: MouseEvent<HTMLUListElement>) {
     if (!dragRef.current.moved) return
 
@@ -226,6 +232,7 @@ export function PinnedPostsSection({
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
+        onDragStart={handleDragStart}
         onClickCapture={handleClickCapture}
         onKeyDown={handleKeyDown}
       >

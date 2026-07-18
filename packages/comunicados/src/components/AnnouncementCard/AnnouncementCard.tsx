@@ -51,8 +51,8 @@ export function AnnouncementCard({
     : formatAnnouncementDisplayDate(announcement)
 
   const classes = [
-    'group relative flex aspect-video w-full overflow-hidden rounded-md bg-interactive-disabled',
-    'items-end px-4 pb-4 pt-10 shadow-sm transition-opacity hover:opacity-95',
+    'relative flex aspect-video w-full overflow-hidden rounded-md bg-interactive-disabled',
+    'items-end px-4 pb-4 pt-10 shadow-sm opacity-95',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2',
     isHighlighted ? 'shadow-lg' : undefined,
     className,
@@ -67,6 +67,7 @@ export function AnnouncementCard({
           src={thumbnailUrl}
           alt=""
           loading="lazy"
+          draggable={false}
           className="absolute inset-0 h-full w-full object-cover"
           aria-hidden="true"
         />
@@ -79,7 +80,7 @@ export function AnnouncementCard({
         className="absolute inset-0 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
       />
 
-      <div className="pointer-events-none absolute inset-0 flex items-end p-3 transition-opacity group-hover:opacity-95 md:p-6">
+      <div className="pointer-events-none absolute inset-0 flex items-end p-3 opacity-95 md:p-6">
         <div className="absolute inset-0 -z-10" style={{ backgroundImage: cardGradient }} aria-hidden="true" />
 
         <div className="relative flex w-full flex-col gap-2 overflow-hidden text-text-inverse">

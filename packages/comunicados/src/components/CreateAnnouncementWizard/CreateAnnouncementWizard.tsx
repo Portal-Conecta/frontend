@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 import { Button, ConfirmDialog, Icon, Text, revokeLocalFileUploadPreviews } from '@portal/ui'
 import { useCurrentUser } from '@portal/core'
 
-import { ANNOUNCEMENT_ORIGIN } from '../../types/announcement'
+import { resolveAnnouncementOrigin } from '../../auth/resolveAnnouncementOrigin'
 import {
   useCreateAnnouncement,
   type CreateAnnouncementFormValues,
@@ -50,11 +50,12 @@ function buildFormValues(
   content: AnnouncementContentValue,
   mapped: Pick<RecipientsPayload, 'destinations' | 'tagIds' | 'shiftCodes' | 'roles'>,
   scheduledFor: string | null,
+  origin: CreateAnnouncementFormValues['origin'],
 ): CreateAnnouncementFormValues {
   return {
     title: content.title,
     description: content.description,
-    origin: ANNOUNCEMENT_ORIGIN.BOTH,
+    origin,
     destinations: mapped.destinations,
     tagIds: mapped.tagIds,
     shiftCodes: mapped.shiftCodes,
@@ -81,7 +82,7 @@ function getPublishConfirmCopy(scheduledFor: string | null) {
       subTitle: 'Comunicados',
       title: 'Confirmar agendamento?',
       content: `O comunicado será publicado em ${formatScheduledForLabel(scheduledFor)} (horário de Brasília). Você pode editá-lo depois.`,
-      labelConfirm: 'Agendar publicação',
+      labelConfirm: 'Confirmar',
     }
   }
 
@@ -229,7 +230,12 @@ export function CreateAnnouncementWizard() {
       return
     }
 
-    const formValues = buildFormValues(content, mapped, scheduledFor)
+    const formValues = buildFormValues(
+      content,
+      mapped,
+      scheduledFor,
+      resolveAnnouncementOrigin(user?.userType),
+    )
 
     const submitOptions = {
       images: content.images,
