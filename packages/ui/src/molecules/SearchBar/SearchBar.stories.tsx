@@ -164,6 +164,82 @@ export const SelecaoPersistente: Story = {
   },
 };
 
+/**
+ * Como `filtrar`, mas devolve **todos** os cursos quando a query está vazia — é o
+ * que alimenta a lista inicial do `openOnFocus`.
+ */
+function filtrarComListaInicial(query: string): SearchBarItem[] {
+  const needle = query.trim().toLowerCase();
+  if (!needle) return cursos;
+  return cursos.filter((c) =>
+    `${c.meta} ${c.label}`.toLowerCase().includes(needle),
+  );
+}
+
+/**
+ * `openOnFocus` — a lista abre **antes de digitar**, mostrando todos os cursos.
+ * Três efeitos para conferir: foque (abre já com a lista cheia), digite (filtra)
+ * e **apague tudo** (volta à lista cheia, em vez de fechar).
+ *
+ * A lista inicial é responsabilidade do consumidor: aqui o filtro devolve tudo
+ * quando a query está vazia.
+ */
+export const ListaInicial: Story = {
+  render: () => {
+    const [items, setItems] = useState<SearchBarItem[]>(cursos);
+    const [chosen, setChosen] = useState("");
+    return (
+      <div>
+        <SearchBar
+          openOnFocus
+          placeholder="Buscar curso"
+          aria-label="Buscar curso"
+          items={items}
+          onQueryChange={(q) => setItems(filtrarComListaInicial(q))}
+          onSelect={(item) => setChosen(item.label)}
+        />
+        {chosen ? (
+          <p className="mt-4 text-body-sm text-text-secondary">
+            Selecionado: <span className="text-text-primary">{chosen}</span>
+          </p>
+        ) : null}
+      </div>
+    );
+  },
+};
+
+/**
+ * Lista inicial + seleção persistente — o cenário do `RoomFilterBar` (mapa de
+ * salas). Ao focar, a lista completa aparece; o item escolhido fica fixado no
+ * topo como *pressed*, sem duplicar na lista abaixo.
+ */
+export const ListaInicialComSelecao: Story = {
+  render: () => {
+    const [items, setItems] = useState<SearchBarItem[]>(cursos);
+    const [selected, setSelected] = useState<SearchBarItem | null>(null);
+    return (
+      <div>
+        <SearchBar
+          openOnFocus
+          clearOnSelect={false}
+          placeholder="Buscar curso"
+          aria-label="Buscar curso"
+          items={items}
+          selectedItem={selected}
+          onQueryChange={(q) => setItems(filtrarComListaInicial(q))}
+          onSelect={(item) => setSelected(item)}
+        />
+        {selected ? (
+          <p className="mt-4 text-body-sm text-text-secondary">
+            Fixado no topo (pressed):{" "}
+            <span className="text-text-primary">{selected.label}</span>
+          </p>
+        ) : null}
+      </div>
+    );
+  },
+};
+
 const muitasSalas: SearchBarItem[] = Array.from({ length: 25 }, (_, i) => ({
   value: `s${i}`,
   meta: `SALA - ${101 + i}`,
