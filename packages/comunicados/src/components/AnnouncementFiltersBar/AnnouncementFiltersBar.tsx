@@ -8,6 +8,7 @@ import { Button, DateInput, Field, Select, Text, type SelectOption } from '@port
 import type { ClassFilterOption } from '../../services/destinationCatalogMappers'
 import { AnnouncementFiltersBarSkeleton } from './AnnouncementFiltersBarSkeleton'
 import { clampDataFim, clampDataInicio } from './dateRange'
+import { usesReducedMuralFilters } from './usesReducedMuralFilters'
 
 export interface AnnouncementFilters {
   curso?: string
@@ -21,7 +22,7 @@ export interface AnnouncementFilters {
 }
 
 export interface AnnouncementFiltersBarProps {
-  /** Papel do usuário autenticado — deriva a variante reduzida para `STUDENT`. */
+  /** Papel do usuário autenticado — deriva a variante reduzida para `STUDENT` e `REPRESENTATIVE` (sem curso/turma/turno). */
   userType?: TypeUser | undefined
   loading?: boolean
   cursoOptions?: SelectOption[]
@@ -85,7 +86,7 @@ export function AnnouncementFiltersBar({
   const [dataInicio, setDataInicio] = useState(initialFilters?.dataInicio ?? '')
   const [dataFim, setDataFim] = useState(initialFilters?.dataFim ?? '')
 
-  const isStudent = userType === 'STUDENT'
+  const reducedFilters = usesReducedMuralFilters(userType)
   const isSheet = variant === 'sheet'
 
   const resolvedCursoOptions = useMemo(
@@ -145,14 +146,15 @@ export function AnnouncementFiltersBar({
     const normalizedTurno = normalize(turno)
     const normalizedPeriodo = normalize(periodo)
 
-    // UX: aluno não envia curso/origem/turma/turno — autorização real continua no BFF/backend.
-    if (!isStudent) {
+    // UX: aluno/representante não enviam curso/turma/turno — autorização real continua no BFF/backend.
+    // Origem fica disponível para todos os papéis.
+    if (!reducedFilters) {
       if (normalizedCurso) filters.curso = normalizedCurso
-      if (normalizedOrigem) filters.origem = normalizedOrigem
       if (normalizedTurma) filters.turma = normalizedTurma
       if (normalizedTurno) filters.turno = normalizedTurno
     }
 
+    if (normalizedOrigem) filters.origem = normalizedOrigem
     if (normalizedPeriodo) filters.periodo = normalizedPeriodo
 
     // Rede: o clamp já roda no blur, mas "Aplicar" pode ser acionado sem o campo
@@ -205,15 +207,19 @@ export function AnnouncementFiltersBar({
       </Text>
 
       <div className={fieldsClass}>
-        {!isStudent ? (
+        {!reducedFilters ? (
+          <FilterSelect
+            label="Curso"
+            options={resolvedCursoOptions}
+            value={curso}
+            onChange={handleCursoChange}
+          />
+        ) : null}
+
+        <FilterSelect label="Origem" options={origemOptions} value={origem} onChange={setOrigem} />
+
+        {!reducedFilters ? (
           <>
-            <FilterSelect
-              label="Curso"
-              options={resolvedCursoOptions}
-              value={curso}
-              onChange={handleCursoChange}
-            />
-            <FilterSelect label="Origem" options={origemOptions} value={origem} onChange={setOrigem} />
             <FilterSelect
               label="Turma"
               options={filteredTurmaOptions}

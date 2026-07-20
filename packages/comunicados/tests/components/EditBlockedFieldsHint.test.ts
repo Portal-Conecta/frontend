@@ -18,5 +18,6 @@ describe('EditBlockedFieldsHint', () => {
   it('mensagem explica bloqueio após publicação', () => {
     expect(EDIT_BLOCKED_FIELDS_HINT_MESSAGE).toContain('bloqueados')
     expect(EDIT_BLOCKED_FIELDS_HINT_MESSAGE).toContain('publicação')
+    expect(EDIT_BLOCKED_FIELDS_HINT_MESSAGE).toContain('agendar')
   })
 })
