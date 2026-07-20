@@ -56,6 +56,13 @@ export interface DirectoryUser {
   createdAt: string
 }
 
+/** Status da conta aceitos pelo filtro de `GET /users`. */
+export type UserAccountStatus =
+  | 'PENDING_ACTIVATION'
+  | 'ACTIVE'
+  | 'DISABLED'
+  | 'PENDING_DELETION'
+
 /** Página de `GET /users`. */
 export interface ListUsersResponse {
   content: DirectoryUser[]
