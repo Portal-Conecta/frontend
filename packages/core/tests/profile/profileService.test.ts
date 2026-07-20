@@ -1,8 +1,20 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { HttpError } from '@portal/core/http/errors'
-import { getMyCourses, getMyProfile, getUserById } from '@portal/core/profile/profileService'
-import type { MyListCourseResponse, MyProfile, UserById } from '@portal/core/profile/types'
+import {
+  createUser,
+  getMyCourses,
+  getMyProfile,
+  getUserById,
+  updateUser,
+} from '@portal/core/profile/profileService'
+import type {
+  CreateUserPayload,
+  MyListCourseResponse,
+  MyProfile,
+  UpdateUserPayload,
+  UserById,
+} from '@portal/core/profile/types'
 
 const API_GATEWAY_URL = 'https://gateway.test'
 const TOKEN = 'jwt-token'
@@ -166,6 +178,16 @@ describe('getUserById', () => {
     expect(init?.cache).toBe('no-store')
   })
 
+  it('codifica o id antes de compor o caminho do gateway', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(response(200, userByIdResponse))
+
+    await getUserById('id?filter=admin', TOKEN)
+
+    const [url] = fetchMock.mock.calls[0]!
+    expect(url).toBe(`${API_GATEWAY_URL}/hub/users/id%3Ffilter%3Dadmin`)
+  })
+
   it('mapeia 404 para HttpError not_found', async () => {
     stubFetch().mockResolvedValue(response(404, {}))
 
@@ -180,5 +202,41 @@ describe('getUserById', () => {
     await expect(getUserById(userByIdResponse.id, TOKEN)).rejects.toMatchObject({
       kind: 'unauthorized',
     })
+  })
+})
+
+describe('createUser', () => {
+  it('envia a criação para /hub/users com o token e payload', async () => {
+    const fetchMock = stubFetch()
+    const payload: CreateUserPayload = {
+      name: 'Carlos Lima',
+      email: 'carlos.lima@example.com',
+      typeUser: 'TEACHER',
+    }
+    fetchMock.mockResolvedValue(response(201, userByIdResponse))
+
+    await expect(createUser(payload, TOKEN)).resolves.toEqual(userByIdResponse)
+
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe(`${API_GATEWAY_URL}/hub/users`)
+    expect(init?.method).toBe('POST')
+    expect(init?.headers).toMatchObject({ Authorization: `Bearer ${TOKEN}` })
+    expect(init?.body).toBe(JSON.stringify(payload))
+  })
+})
+
+describe('updateUser', () => {
+  it('envia somente os campos atualizados para /hub/users/{id}', async () => {
+    const fetchMock = stubFetch()
+    const payload: UpdateUserPayload = { name: 'Carlos Souza' }
+    fetchMock.mockResolvedValue(response(200, { ...userByIdResponse, ...payload }))
+
+    await expect(updateUser(userByIdResponse.id, payload, TOKEN)).resolves.toMatchObject(payload)
+
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe(`${API_GATEWAY_URL}/hub/users/${userByIdResponse.id}`)
+    expect(init?.method).toBe('PATCH')
+    expect(init?.headers).toMatchObject({ Authorization: `Bearer ${TOKEN}` })
+    expect(init?.body).toBe(JSON.stringify(payload))
   })
 })
