@@ -18,17 +18,17 @@ import { ACCESS_COOKIE, REFRESH_COOKIE } from '@portal/core/auth/cookies'
  * httpOnly, chama o back e regrava a sessão antes de redirecionar o usuário de
  * volta à rota original.
  *
- * Público: `/login`. Protegido: todo o resto (ver `matcher`).
+ * Públicas: `/login` e `/ativar-conta`. Protegido: todo o resto (ver `matcher`).
  */
 
-const LOGIN = '/login'
+const PUBLIC_PATHS = new Set(['/login', '/ativar-conta'])
 const HOME = '/comunicados'
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
   const hasAccess = Boolean(req.cookies.get(ACCESS_COOKIE)?.value)
   const hasRefresh = Boolean(req.cookies.get(REFRESH_COOKIE)?.value)
-  const isPublic = pathname === LOGIN
+  const isPublic = PUBLIC_PATHS.has(pathname)
 
   // Já autenticado tentando ver o login (ou a raiz) → área autenticada.
   if (hasAccess && (isPublic || pathname === '/')) {
@@ -45,7 +45,7 @@ export function middleware(req: NextRequest) {
 
   // Sem nenhuma sessão em rota protegida → login.
   if (!hasAccess && !isPublic) {
-    return NextResponse.redirect(new URL(LOGIN, req.url))
+    return NextResponse.redirect(new URL('/login', req.url))
    }
 
   return NextResponse.next()
