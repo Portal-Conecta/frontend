@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server'
 
-import { activateAccount, ActivationError, type ActivationErrorKind } from '@portal/core/auth/authService'
+import {
+  activateAccount,
+  ActivationError,
+  isValidActivationPassword,
+  type ActivationErrorKind,
+} from '@portal/core/auth/authService'
 
 const STATUS_BY_KIND: Record<ActivationErrorKind, number> = {
   activation_invalid: 400,
@@ -15,7 +20,7 @@ function isActivationRequest(body: unknown): body is { token: string; newPasswor
   if (typeof body !== 'object' || body === null) return false
 
   const { token, newPassword } = body as Record<string, unknown>
-  return typeof token === 'string' && token.length > 0 && typeof newPassword === 'string' && newPassword.length >= 6
+  return typeof token === 'string' && token.length > 0 && isValidActivationPassword(newPassword)
 }
 
 /** BFF público: não cria cookies nem expõe o token ou a senha na resposta. */
