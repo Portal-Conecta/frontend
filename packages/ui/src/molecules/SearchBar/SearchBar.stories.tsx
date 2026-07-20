@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react";
+import { expect, userEvent, waitFor, within } from "@storybook/test";
 
 import { SearchBar, type SearchBarItem } from "./SearchBar";
 
@@ -90,6 +91,30 @@ const render: Story["render"] = (args) => {
 export const Default: Story = {
   args: { placeholder: "Buscar curso", "aria-label": "Buscar curso" },
   render,
+  // Guarda de regressão do `openOnFocus` (#435): sem a prop, a SearchBar tem de
+  // continuar nascendo vazia e fechando ao apagar. É o contra-exemplo que prova
+  // que a prop nova é opt-in de verdade.
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole("combobox");
+
+    await step("focar NÃO abre (sem openOnFocus)", async () => {
+      await userEvent.click(input);
+      await expect(canvas.queryByRole("listbox")).not.toBeInTheDocument();
+    });
+
+    await step("digitar abre", async () => {
+      await userEvent.type(input, "des");
+      await expect(await canvas.findByRole("listbox")).toBeVisible();
+    });
+
+    await step("apagar fecha", async () => {
+      await userEvent.clear(input);
+      await waitFor(async () => {
+        await expect(canvas.queryByRole("listbox")).not.toBeInTheDocument();
+      });
+    });
+  },
 };
 
 /** `clearOnSelect: false` — ao escolher, o campo é preenchido com o label (espelha o Select). */
@@ -205,6 +230,34 @@ export const ListaInicial: Story = {
         ) : null}
       </div>
     );
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole("combobox");
+
+    await step("focar abre a lista já com todos os cursos", async () => {
+      await userEvent.click(input);
+      const listbox = await canvas.findByRole("listbox");
+      await expect(listbox).toBeVisible();
+      await expect(canvas.getAllByRole("option")).toHaveLength(cursos.length);
+    });
+
+    await step("digitar filtra", async () => {
+      await userEvent.type(input, "des");
+      await waitFor(async () => {
+        const encontrados = canvas.getAllByRole("option");
+        await expect(encontrados.length).toBeGreaterThan(0);
+        await expect(encontrados.length).toBeLessThan(cursos.length);
+      });
+    });
+
+    await step("apagar volta à lista cheia (não fecha)", async () => {
+      await userEvent.clear(input);
+      await waitFor(async () => {
+        await expect(canvas.getByRole("listbox")).toBeVisible();
+        await expect(canvas.getAllByRole("option")).toHaveLength(cursos.length);
+      });
+    });
   },
 };
 

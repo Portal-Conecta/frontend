@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react";
+import { expect, userEvent, waitFor, within } from "@storybook/test";
 
 import { SearchBarAsync } from "./SearchBarAsync";
 import type { SearchBarItem } from "./SearchBar";
@@ -137,6 +138,40 @@ export const ListaInicialComCorrida: Story = {
       onSelect={() => undefined}
     />
   ),
+  // Reproduz a corrida sem depender da mão do usuário. No instante do `clear`, o
+  // prefetch (1500ms) ainda não resolveu, então `loaded` é false e o caminho
+  // exercitado é o da auto-cura. Com o cache DENTRO da guarda de sequência (a
+  // cópia ingênua do SelectAsync), aqui apareceria "Nenhum resultado" e a lista
+  // ficaria presa assim — não há segunda abertura para se recuperar.
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole("combobox");
+
+    await step("focar dispara o prefetch", async () => {
+      await userEvent.click(input);
+      await expect(await canvas.findByRole("listbox")).toBeVisible();
+    });
+
+    await step("digitar por cima antes do prefetch resolver", async () => {
+      await userEvent.type(input, "des", { delay: 10 });
+    });
+
+    await step("apagar tudo ainda durante o voo", async () => {
+      await userEvent.clear(input);
+    });
+
+    await step("a lista inicial volta (não 'Nenhum resultado')", async () => {
+      await waitFor(
+        async () => {
+          await expect(canvas.getAllByRole("option")).toHaveLength(
+            cursos.length,
+          );
+        },
+        { timeout: 8000 },
+      );
+      await expect(canvas.queryByText(/Nenhum resultado/i)).not.toBeInTheDocument();
+    });
+  },
 };
 
 /**
