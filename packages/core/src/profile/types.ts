@@ -20,6 +20,20 @@ export interface UserById {
   createdAt: string
 }
 
+/** Corpo de `POST /users` — os três campos são obrigatórios. */
+export interface CreateUserPayload {
+  name: string
+  email: string
+  typeUser: TypeUser
+}
+
+/** Corpo de `PATCH /users/{id}` — ao menos um campo deve ser informado. */
+export interface UpdateUserPayload {
+  name?: string
+  email?: string
+  avatarUrl?: string
+}
+
 export interface MyClass {
   id: string
   name: string
