@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { Line } from "react-chartjs-2";
 import {
   ChartCard,
+  DS_CATEGORICAL_BLUE,
   dsLineDatasetDefaults,
   makeDsChartOptions,
   registerLineCharts,
@@ -38,6 +39,8 @@ export function DsLineChart({
   );
   const empty = !loading && isEmptyStats(data);
 
+  const brandBlue = DS_CATEGORICAL_BLUE[0] ?? theme.textBrand;
+
   const chartData = useMemo(
     () => ({
       labels: chart.labels,
@@ -45,13 +48,13 @@ export function DsLineChart({
         {
           label: datasetLabel,
           data: chart.values,
-          borderColor: chart.colors[0] ?? theme.textBrand,
-          backgroundColor: chart.colors[0] ?? theme.textBrand,
+          borderColor: brandBlue,
+          backgroundColor: brandBlue,
           ...dsLineDatasetDefaults(theme),
         },
       ],
     }),
-    [chart, datasetLabel, theme],
+    [chart, datasetLabel, theme, brandBlue],
   );
 
   const options = useMemo(

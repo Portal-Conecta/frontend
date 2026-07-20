@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Button, Text } from "@portal/ui";
+import { Button, DateInput, Text } from "@portal/ui";
 
 import {
   ChecklistDashboardCharts,
@@ -110,34 +110,41 @@ export function PageChecklistDashboardContent({
 
         <div className="flex flex-col items-stretch gap-2 sm:items-end">
           <div className="flex flex-wrap items-end gap-3">
-            <label className="flex flex-col gap-1">
-              <Text as="span" variant="label-xs" tone="secondary">
+            <div className="flex flex-col gap-1">
+              <Text
+                as="span"
+                id="dashboard-period-from-label"
+                variant="label-xs"
+                tone="secondary"
+              >
                 De
               </Text>
-              <input
-                type="date"
+              <DateInput
                 value={period.from}
-                max={period.to}
-                onChange={(e) =>
-                  setPeriod((p) => ({ ...p, from: e.target.value }))
-                }
-                className="min-w-[140px] rounded-sm border border-border-default bg-background-surface px-3 py-2 text-body-sm text-text-primary focus:border-border-focus focus:outline-none"
+                max={period.to || toLocalMax()}
+                onChange={(from) => setPeriod((p) => ({ ...p, from }))}
+                aria-labelledby="dashboard-period-from-label"
+                disabled={loading}
               />
-            </label>
-            <label className="flex flex-col gap-1">
-              <Text as="span" variant="label-xs" tone="secondary">
+            </div>
+            <div className="flex flex-col gap-1">
+              <Text
+                as="span"
+                id="dashboard-period-to-label"
+                variant="label-xs"
+                tone="secondary"
+              >
                 Até
               </Text>
-              <input
-                type="date"
+              <DateInput
                 value={period.to}
+                {...(period.from ? { min: period.from } : {})}
                 max={toLocalMax()}
-                onChange={(e) =>
-                  setPeriod((p) => ({ ...p, to: e.target.value }))
-                }
-                className="min-w-[140px] rounded-sm border border-border-default bg-background-surface px-3 py-2 text-body-sm text-text-primary focus:border-border-focus focus:outline-none"
+                onChange={(to) => setPeriod((p) => ({ ...p, to }))}
+                aria-labelledby="dashboard-period-to-label"
+                disabled={loading}
               />
-            </label>
+            </div>
             <Button
               variant="solid"
               tone="brand"

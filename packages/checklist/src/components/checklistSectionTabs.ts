@@ -6,6 +6,6 @@ import type { SectionTab } from './SectionTabs'
  */
 export const CHECKLIST_SECTION_TABS: readonly SectionTab[] = [
   { label: 'Dashboard', href: '/checklist/dashboard' },
-  { label: 'Itens', href: '/checklist/itens' },
-  { label: 'Histórico', href: '/checklist/historico' },
+  { label: 'Monitor de envios', href: '/checklist/monitor-envios' },
+  { label: 'Gestão de checklist', href: '/checklist/gestao' },
 ] as const

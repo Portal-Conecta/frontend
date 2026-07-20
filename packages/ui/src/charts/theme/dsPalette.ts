@@ -8,6 +8,10 @@ import { colorPrimitives, colors } from '../../tokens/colors'
  *
  * 8+ categorias no consumidor → agrupar em "Outros".
  */
+/**
+ * Paleta categórica padrão (blue + gray).
+ * Preferir {@link DS_CATEGORICAL_BLUE} em dashboards “brand”.
+ */
 export const DS_CATEGORICAL = [
   colorPrimitives.blue[500], // brand
   colorPrimitives.blue[300], // focus-ring / accent
@@ -19,6 +23,16 @@ export const DS_CATEGORICAL = [
   colorPrimitives.blue[100], // brand subtle (último slot / “Outros”)
 ] as const
 
+/**
+ * Rampa azul enxuta do DS — dashboards e séries brand (poucas cores).
+ * Ordem: brand → accent → subtle.
+ */
+export const DS_CATEGORICAL_BLUE = [
+  colorPrimitives.blue[500], // #01258F
+  colorPrimitives.blue[300], // #0035D4
+  colorPrimitives.blue[100], // #D6E0F7
+] as const
+
 export type DsCategoricalColor = (typeof DS_CATEGORICAL)[number]
 
 /** Cores de status — só para estados, nunca para série ordinal. */
@@ -27,6 +41,16 @@ export const DS_STATUS_COLORS = {
   warning: colors.feedback.warning,
   error: colors.feedback.error,
   info: colors.feedback.info,
+} as const
+
+/**
+ * Status em tom azul simples do DS (3 tons).
+ */
+export const DS_STATUS_COLORS_BLUE = {
+  success: colorPrimitives.blue[500],
+  warning: colorPrimitives.blue[300],
+  error: colorPrimitives.blue[500],
+  info: colorPrimitives.blue[100],
 } as const
 
 /**

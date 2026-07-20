@@ -1,5 +1,5 @@
 import type { StatsEntry } from "../../../types/dashboard";
-import { DS_STATUS_COLORS } from "@portal/ui";
+import { DS_STATUS_COLORS_BLUE } from "@portal/ui";
 
 /** KPIs do topo — valores da referência de produto. */
 export const DASHBOARD_KPIS = [
@@ -65,19 +65,19 @@ export const PERFORMANCE_TURNO_SERIES = [
   {
     key: "ok",
     label: "Conforme",
-    color: DS_STATUS_COLORS.success,
+    color: DS_STATUS_COLORS_BLUE.success,
     data: [72, 65, 58],
   },
   {
     key: "atencao",
     label: "Atenção",
-    color: DS_STATUS_COLORS.warning,
+    color: DS_STATUS_COLORS_BLUE.warning,
     data: [18, 22, 24],
   },
   {
     key: "critico",
     label: "Crítico",
-    color: DS_STATUS_COLORS.error,
+    color: DS_STATUS_COLORS_BLUE.info,
     data: [10, 13, 18],
   },
 ] as const;
