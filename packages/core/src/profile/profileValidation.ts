@@ -57,6 +57,12 @@ export function parseUpdateUser(input: unknown): ParseResult<UpdateUserPayload> 
   const errors: ApiFieldError[] = []
   const payload: UpdateUserPayload = {}
 
+  for (const field of Object.keys(obj)) {
+    if (field !== 'name') {
+      errors.push({ field, message: `Campo não suportado na atualização: ${field}.` })
+    }
+  }
+
   if (obj.name !== undefined) {
     const name = trimmedString(obj.name)
     if (!name) errors.push({ field: 'name', message: 'Nome não pode ser vazio.' })

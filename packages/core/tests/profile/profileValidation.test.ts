@@ -51,4 +51,11 @@ describe('parseUpdateUser', () => {
     })
     expect(parseUpdateUser({ name: ' ' }).ok).toBe(false)
   })
+
+  it('rejeita campos que o Hub não suporta, mesmo com nome válido', () => {
+    expect(parseUpdateUser({ name: 'Ana', email: 'ana@weg.net' })).toEqual({
+      ok: false,
+      errors: [{ field: 'email', message: 'Campo não suportado na atualização: email.' }],
+    })
+  })
 })
