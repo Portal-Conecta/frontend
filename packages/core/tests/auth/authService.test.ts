@@ -12,7 +12,16 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { activateAccount, ActivationError, AuthError, login, refresh } from '@portal/core/auth/authService'
+import {
+  activateAccount,
+  ActivationError,
+  AuthError,
+  isActivationErrorKind,
+  isValidActivationPassword,
+  login,
+  MIN_ACTIVATION_PASSWORD_LENGTH,
+  refresh,
+} from '@portal/core/auth/authService'
 
 const API_URL = 'https://api.test'
 
@@ -149,8 +158,11 @@ describe('activateAccount', () => {
 
   it.each([
     ['Token de ativacao invalido.', 'activation_invalid'],
+    ['Token de ativação inválido.', 'activation_invalid'],
     ['Token de ativacao expirado.', 'activation_expired'],
+    ['Token de ativação expirado.', 'activation_expired'],
     ['Token de ativacao ja utilizado.', 'activation_used'],
+    ['Token de ativação já utilizado.', 'activation_used'],
     ['Conta ja foi ativada anteriormente.', 'activation_used'],
   ] as const)('mapeia erro de ativação para %s', async (message, kind) => {
     stubFetch().mockResolvedValue(response(400, { message }))
@@ -174,5 +186,17 @@ describe('activateAccount', () => {
     stubFetch().mockResolvedValue(response(404, {}))
 
     await expect(activateAccount('token', 'nova-senha')).rejects.toBeInstanceOf(ActivationError)
+  })
+
+  it.each([
+    [MIN_ACTIVATION_PASSWORD_LENGTH - 1, false],
+    [MIN_ACTIVATION_PASSWORD_LENGTH, true],
+    [MIN_ACTIVATION_PASSWORD_LENGTH + 1, true],
+  ])('valida senha de ativação com %i caracteres', (length, expected) => {
+    expect(isValidActivationPassword('a'.repeat(length))).toBe(expected)
+  })
+
+  it('rejeita código de ativação desconhecido', () => {
+    expect(isActivationErrorKind('unexpected')).toBe(false)
   })
 })

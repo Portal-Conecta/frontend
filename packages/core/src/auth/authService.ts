@@ -94,6 +94,25 @@ export type ActivationErrorKind =
     | 'server'
     | 'network'
 
+const ACTIVATION_ERROR_KINDS: readonly ActivationErrorKind[] = [
+    'activation_invalid',
+    'activation_expired',
+    'activation_used',
+    'validation',
+    'server',
+    'network',
+]
+
+export const MIN_ACTIVATION_PASSWORD_LENGTH = 6
+
+export function isValidActivationPassword(value: unknown): value is string {
+    return typeof value === 'string' && value.length >= MIN_ACTIVATION_PASSWORD_LENGTH
+}
+
+export function isActivationErrorKind(value: unknown): value is ActivationErrorKind {
+    return typeof value === 'string' && ACTIVATION_ERROR_KINDS.includes(value as ActivationErrorKind)
+}
+
 export class ActivationError extends Error {
     constructor(public readonly kind: ActivationErrorKind) {
         super(kind)
@@ -108,7 +127,9 @@ interface ApiErrorBody {
 async function getErrorMessage(res: Response): Promise<string> {
     try {
         const body = (await res.json()) as ApiErrorBody
-        return typeof body.message === 'string' ? body.message.toLocaleLowerCase('pt-BR') : ''
+        return typeof body.message === 'string'
+            ? body.message.toLocaleLowerCase('pt-BR').normalize('NFD').replace(/\p{Diacritic}/gu, '')
+            : ''
     } catch {
         return ''
     }
