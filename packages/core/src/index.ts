@@ -1,6 +1,7 @@
 export * from './layout/AppLayout'
 export * from './layout/AppShell'
 export * from './pages/AuthLayout'
+export * from './pages/PageCreatePassword'
 export * from './pages/PageLogin'
 export * from './rbac'
 export * from './layout/PermissionGate'
