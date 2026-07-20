@@ -1,13 +1,14 @@
 "use client";
 
 import { HttpError } from "@portal/core/http/errors";
-import { DefaultModal, Select, Text } from "@portal/ui";
+import { Field, Select, Text, useToast } from "@portal/ui";
 import { useState } from "react";
 
 import { ChecklistActions } from "../../../components/ChecklistActions";
 import { ChecklistItem } from "../../../components/ChecklistItem";
 import { ChecklistProgressBar } from "../../../components/ChecklistProgressBar";
 import { ChecklistWindowClosedState } from "../../../components/ChecklistWindowClosedState";
+import { SuccessModal } from "../../../components/SuccessModal";
 import { useClassChecklistType } from "../../../hooks/useClassChecklistType";
 import { useFillChecklist } from "../../../hooks/useFillChecklist";
 import { useSelectableClasses } from "../../../hooks/useSelectableClasses";
@@ -74,18 +75,16 @@ export function FillChecklistPage({
         </Text>
 
         <div className="mt-4 max-w-xs">
-          <Text variant="label-sm-emphasis" tone="brand" className="mb-1 block font-inter">
-            Turma
-          </Text>
-          <Select
-            options={classOptions}
-            value={selectedClassId}
-            onChange={setSelectedClassId}
-            disabled={isFixed}
-            loading={!isFixed && loadingClasses}
-            placeholder="Selecione a turma"
-            aria-label="Turma"
-          />
+          <Field label="Turma">
+            <Select
+              options={classOptions}
+              value={selectedClassId}
+              onChange={setSelectedClassId}
+              disabled={isFixed}
+              loading={!isFixed && loadingClasses}
+              placeholder="Selecione a turma"
+            />
+          </Field>
         </div>
 
         <Text variant="body-sm" tone="secondary" className="mt-4 font-inter">
@@ -176,7 +175,8 @@ function ChecklistForm({ classId, checklistType, template, onSubmitted }: Checkl
       createParams: { templateId: template.id, roomId: template.roomId, classId, checklistType },
     });
 
-  const [submitErrorMessage, setSubmitErrorMessage] = useState<string | null>(null);
+  const { toast } = useToast();
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const items = flattenItems(template);
   const answeredCount = Object.keys(answers).length;
@@ -191,15 +191,19 @@ function ChecklistForm({ classId, checklistType, template, onSubmitted }: Checkl
   const isSubmitted = execution?.status === "SUBMITTED";
 
   const handleSubmit = async () => {
+    const wasSubmitted = isSubmitted;
     try {
       const updated = await submit();
-      if (updated) onSubmitted?.(updated);
+      if (updated) {
+        onSubmitted?.(updated);
+        if (!wasSubmitted && updated.status === "SUBMITTED") setShowSuccessModal(true);
+      }
     } catch (err) {
       const message =
         err instanceof HttpError && err.body?.message
           ? err.body.message
           : "Não foi possível enviar o checklist. Tente novamente.";
-      setSubmitErrorMessage(message);
+      toast.error(message, { title: "Não foi possível enviar o checklist" });
     }
   };
 
@@ -268,11 +272,10 @@ function ChecklistForm({ classId, checklistType, template, onSubmitted }: Checkl
         />
       </div>
 
-      <DefaultModal
-        isOpen={submitErrorMessage !== null}
-        onClose={() => setSubmitErrorMessage(null)}
-        title="Não foi possível enviar o checklist"
-        body={submitErrorMessage ?? ""}
+      <SuccessModal
+        open={showSuccessModal}
+        message="Checklist preenchida e enviada com sucesso"
+        onClose={() => setShowSuccessModal(false)}
       />
     </>
   );
