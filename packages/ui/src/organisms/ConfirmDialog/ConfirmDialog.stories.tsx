@@ -12,7 +12,7 @@ import { ConfirmDialog, type ConfirmDialogConfirmProps } from './ConfirmDialog'
  * fecha. Nas stories, um wrapper com `useState` provê o gatilho e o estado.
  */
 const meta: Meta<typeof ConfirmDialog> = {
-  title: 'Componentes/Sobreposição/ConfirmDialog',
+  title: 'Componentes/Overlay/ConfirmDialog',
   component: ConfirmDialog,
   parameters: { layout: 'padded' },
 }
