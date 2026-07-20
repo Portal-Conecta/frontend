@@ -30,7 +30,8 @@ export function middleware(req: NextRequest) {
   const hasRefresh = Boolean(req.cookies.get(REFRESH_COOKIE)?.value)
   const isPublic = PUBLIC_PATHS.has(pathname)
 
-  // Já autenticado tentando ver o login (ou a raiz) → área autenticada.
+  // Já autenticado tentando ver rota pública (inclusive ativação) ou a raiz →
+  // área autenticada. Assim não permitimos ativar uma conta enquanto há sessão ativa.
   if (hasAccess && (isPublic || pathname === '/')) {
     return NextResponse.redirect(new URL(HOME, req.url))
   }

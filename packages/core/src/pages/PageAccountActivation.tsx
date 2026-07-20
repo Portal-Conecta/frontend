@@ -1,21 +1,19 @@
 'use client'
 
-import { useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 
 import { Alert, Button, Input, Text } from '@portal/ui'
 
+import {
+    isActivationErrorKind,
+    isValidActivationPassword,
+    MIN_ACTIVATION_PASSWORD_LENGTH,
+    type ActivationErrorKind,
+} from '../auth/authService'
 import { AuthLayout } from './AuthLayout'
 
-type ActivationCode =
-    | 'activation_invalid'
-    | 'activation_expired'
-    | 'activation_used'
-    | 'validation'
-    | 'server'
-    | 'network'
-
-const messageByCode: Record<ActivationCode, string> = {
+const messageByCode: Record<ActivationErrorKind, string> = {
     activation_invalid: 'Este link de ativação é inválido.',
     activation_expired: 'Este link de ativação expirou.',
     activation_used: 'Este link de ativação já foi utilizado.',
@@ -37,12 +35,17 @@ export function PageAccountActivation({ token }: PageAccountActivationProps) {
     const [apiError, setApiError] = useState('')
     const [loading, setLoading] = useState(false)
     const [activated, setActivated] = useState(false)
+    const successRef = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        if (activated) successRef.current?.focus()
+    }, [activated])
 
     function validate(): boolean {
         let valid = true
 
-        if (password.length < 6) {
-            setPasswordError('A senha deve ter pelo menos 6 caracteres.')
+        if (!isValidActivationPassword(password)) {
+            setPasswordError(`A senha deve ter pelo menos ${MIN_ACTIVATION_PASSWORD_LENGTH} caracteres.`)
             valid = false
         } else {
             setPasswordError('')
@@ -82,8 +85,9 @@ export function PageAccountActivation({ token }: PageAccountActivationProps) {
                 return
             }
 
-            const body = (await response.json()) as { code?: ActivationCode }
-            setApiError(messageByCode[body.code ?? 'server'])
+            const body = (await response.json()) as { code?: unknown }
+            const code = isActivationErrorKind(body.code) ? body.code : 'server'
+            setApiError(messageByCode[code])
         } catch {
             setApiError(messageByCode.network)
         } finally {
@@ -94,8 +98,13 @@ export function PageAccountActivation({ token }: PageAccountActivationProps) {
     if (activated) {
         return (
             <AuthLayout>
-                <div className="flex flex-col items-center lg:items-start w-full max-w-[468px] text-center lg:text-left">
-                    <Text as="h1" variant="label-xl-emphasis" tone="inverse" className="lg:text-heading-h1">
+                <div
+                    ref={successRef}
+                    tabIndex={-1}
+                    aria-labelledby="activation-success-title"
+                    className="flex flex-col items-center lg:items-start w-full max-w-[468px] text-center lg:text-left"
+                >
+                    <Text id="activation-success-title" as="h1" variant="label-xl-emphasis" tone="inverse" className="lg:text-heading-h1">
                         Conta ativada!
                     </Text>
                     <Text variant="body-sm" tone="inverse" className="mt-2 lg:text-body-md">
