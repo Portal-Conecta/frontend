@@ -27,11 +27,13 @@ export interface CreateUserPayload {
   typeUser: TypeUser
 }
 
-/** Corpo de `PATCH /users/{id}` — ao menos um campo deve ser informado. */
+/**
+ * Corpo de `PATCH /users/{id}`. O Hub atual aceita somente `name`.
+ * Alterações de ciclo de vida da conta usam endpoints dedicados
+ * (`/deactivate` e `/reactivate`), não este PATCH.
+ */
 export interface UpdateUserPayload {
   name?: string
-  email?: string
-  avatarUrl?: string
 }
 
 export interface MyClass {

@@ -37,10 +37,10 @@ describe('parseCreateUser', () => {
 })
 
 describe('parseUpdateUser', () => {
-  it('aceita atualização parcial e normaliza os textos', () => {
-    expect(parseUpdateUser({ name: '  Ana  ', email: ' ana@weg.net ' })).toEqual({
+  it('aceita apenas o nome e normaliza o texto', () => {
+    expect(parseUpdateUser({ name: '  Ana  ' })).toEqual({
       ok: true,
-      value: { name: 'Ana', email: 'ana@weg.net' },
+      value: { name: 'Ana' },
     })
   })
 
@@ -49,6 +49,6 @@ describe('parseUpdateUser', () => {
       ok: false,
       errors: [{ field: 'body', message: 'Informe ao menos um campo para atualizar.' }],
     })
-    expect(parseUpdateUser({ name: ' ', email: 'invalido' }).ok).toBe(false)
+    expect(parseUpdateUser({ name: ' ' }).ok).toBe(false)
   })
 })

@@ -62,15 +62,6 @@ export function parseUpdateUser(input: unknown): ParseResult<UpdateUserPayload> 
     if (!name) errors.push({ field: 'name', message: 'Nome não pode ser vazio.' })
     else payload.name = name
   }
-  if (obj.email !== undefined) {
-    const email = validateEmail(obj.email, errors, false)
-    if (email) payload.email = email
-  }
-  if (obj.avatarUrl !== undefined) {
-    const avatarUrl = trimmedString(obj.avatarUrl)
-    if (!avatarUrl) errors.push({ field: 'avatarUrl', message: 'Avatar não pode ser vazio.' })
-    else payload.avatarUrl = avatarUrl
-  }
   if (Object.keys(payload).length === 0 && errors.length === 0) {
     errors.push({ field: 'body', message: 'Informe ao menos um campo para atualizar.' })
   }

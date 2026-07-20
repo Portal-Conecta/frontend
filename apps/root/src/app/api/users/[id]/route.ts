@@ -30,7 +30,7 @@ export async function GET(_req: Request, context: RouteContext) {
   }
 }
 
-/** BFF — atualiza parcialmente nome, e-mail e/ou avatar de um usuário. */
+/** BFF — atualiza o nome de um usuário; ciclo de vida tem endpoints próprios no Hub. */
 export async function PATCH(req: Request, context: RouteContext) {
   const token = await getSession()
   if (!token) return NextResponse.json({ code: 'unauthorized' }, { status: 401 })
