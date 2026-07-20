@@ -1,55 +1,55 @@
 import type { Meta, StoryObj } from '@storybook/react'
 
-import { ClassCard, type ClassCardItem } from './ClassCard'
-
-const sampleItem: ClassCardItem = {
-  code: 'MIDS - 78',
-  course: 'Desenvolvimento de Sistemas',
-  shift: 'Tarde/Noite',
-}
-
-const sampleItems: ClassCardItem[] = Array.from({ length: 7 }, () => sampleItem)
+import { ClassCard } from './ClassCard'
 
 const meta: Meta<typeof ClassCard> = {
   title: 'Componentes/Conteúdo/ClassCard',
   component: ClassCard,
   parameters: { layout: 'padded' },
-  decorators: [
-    (Story) => (
-      <div className="max-w-xl">
-        <Story />
-      </div>
-    ),
-  ],
+  argTypes: {
+    variant: {
+      control: 'inline-radio',
+      options: ['withBackground', 'withoutBackground'],
+      description:
+        'Fundo do card: `withBackground` (superfície clara com cantos arredondados) ou `withoutBackground` (sem fundo). Default `withoutBackground`.',
+    },
+    principal: {
+      control: 'inline-radio',
+      options: ['tag', 'title'],
+      description:
+        'Campo destacado no mobile/tablet (brand + emphasis); os demais viram secondary. Sem efeito no desktop (`lg+`). Default `tag`.',
+    },
+  },
+  args: {
+    variant: 'withBackground',
+    tag: 'MIDS - 1',
+    title: 'Análise e Desenvolvimento de Sistemas',
+    meta: 'Manhã e Tarde',
+  },
 }
 
 export default meta
 type Story = StoryObj<typeof ClassCard>
 
-/** Variante Estudante — um único card. */
-export const Single: Story = {
-  args: {
-    variant: 'single',
-    item: sampleItem,
-  },
-}
+/** Card com fundo — usado na página de perfil. */
+export const WithBackground: Story = {}
 
-/** Variante Professor — lista de turmas sob o título "Turmas". */
-export const List: Story = {
-  args: {
-    variant: 'list',
-    items: sampleItems,
-  },
+/** Card sem fundo — para compor dentro de outra superfície. */
+export const WithoutBackground: Story = {
+  args: { variant: 'withoutBackground' },
 }
 
 /** Curso mais longo que o exemplo do Figma — quebra linha em vez de truncar. */
 export const LongCourseName: Story = {
   args: {
-    variant: 'single',
-    item: {
-      code: 'MIDS - 78',
-      course: 'Análise e Desenvolvimento de Sistemas de Informação Corporativos',
-      shift: 'Tarde/Noite',
-    },
+    title: 'Análise e Desenvolvimento de Sistemas de Informação Corporativos',
   },
+}
+
+/**
+ * `principal="title"` — no mobile/tablet o curso vira o campo em destaque
+ * (brand + emphasis) e a tag/turno ficam secondary. Reduza a viewport para ver.
+ */
+export const PrincipalTitle: Story = {
+  args: { principal: 'title' },
 }

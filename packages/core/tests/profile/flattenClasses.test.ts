@@ -21,7 +21,7 @@ describe('flattenClasses', () => {
     ]
 
     expect(flattenClasses(courses)).toEqual([
-      { code: 'MIDS - 78', course: 'Desenvolvimento de Sistemas', shift: 'Tarde e noite' },
+      { tag: 'MIDS - 78', title: 'Desenvolvimento de Sistemas', meta: 'Tarde e noite' },
     ])
   })
 
@@ -47,9 +47,9 @@ describe('flattenClasses', () => {
     ]
 
     expect(flattenClasses(courses)).toEqual([
-      { code: 'MIDS - 78', course: 'Desenvolvimento de Sistemas', shift: 'Tarde e noite' },
-      { code: 'MIDS - 79', course: 'Desenvolvimento de Sistemas', shift: 'Manhã e tarde' },
-      { code: 'MEC - 12', course: 'Mecatrônica', shift: 'Manhã e tarde' },
+      { tag: 'MIDS - 78', title: 'Desenvolvimento de Sistemas', meta: 'Tarde e noite' },
+      { tag: 'MIDS - 79', title: 'Desenvolvimento de Sistemas', meta: 'Manhã e tarde' },
+      { tag: 'MEC - 12', title: 'Mecatrônica', meta: 'Manhã e tarde' },
     ])
   })
 })
