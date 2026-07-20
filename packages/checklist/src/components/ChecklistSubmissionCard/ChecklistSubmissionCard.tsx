@@ -20,8 +20,8 @@ export function ChecklistSubmissionCard({
   return (
     <div
       className={[
-        "border-b border-border-default p-3 md:p-4",
-        "flex flex-col gap-2 md:flex-row md:items-center md:justify-between md:gap-4",
+        "border-t border-border-default p-3 md:p-4",
+        "flex flex-col gap-3 md:grid md:grid-cols-4 md:items-center md:gap-4",
         className,
       ]
         .filter(Boolean)
@@ -34,15 +34,15 @@ export function ChecklistSubmissionCard({
       <Text
         variant="label-xs"
         tone="brand"
-        className="hidden md:block md:w-24 md:shrink-0 md:text-label-md"
+        className="hidden md:block md:truncate md:text-left md:text-label-md"
       >
         {room}
       </Text>
 
       <Text
         variant="label-xs"
-        tone="secondary"
-        className="md:flex-1 md:text-center md:text-label-md"
+        tone="brand"
+        className="md:text-left md:text-label-md"
       >
         <span className="md:hidden">envio: {submittedAt}</span>
         <span className="hidden md:inline">
@@ -52,8 +52,8 @@ export function ChecklistSubmissionCard({
 
       <Text
         variant="label-xs"
-        tone="secondary"
-        className="md:flex-1 md:text-center md:text-label-md"
+        tone="brand"
+        className="md:text-left md:text-label-md"
       >
         Preenchido por: {filledBy} | {group}
       </Text>
@@ -64,7 +64,7 @@ export function ChecklistSubmissionCard({
         size="sm"
         iconLeft="eye"
         onClick={onView}
-        className="mt-3 w-full whitespace-nowrap md:mt-0 md:w-auto md:shrink-0"
+        className="mt-3 w-full whitespace-nowrap md:mt-0 md:w-auto md:justify-self-end"
       >
         Ver Envio
       </Button>

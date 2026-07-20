@@ -26,6 +26,7 @@ export type Permission =
   | 'comunicados:ver'
   | 'mapa:ver'
   | 'checklist:ver'
+  | 'checklist:gerenciar'
   | 'usuarios:listar'
   | 'usuarios:gerenciar'
   | 'salas:gerenciar'

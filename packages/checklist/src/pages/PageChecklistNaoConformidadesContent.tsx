@@ -1,0 +1,359 @@
+"use client";
+
+import { useId, useMemo, useState, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
+
+import { bffFetch } from "@portal/core/http/bffClient";
+import { HttpError } from "@portal/core/http/errors";
+import { Banner, Icon, Text, type SelectOption } from "@portal/ui";
+
+import { SectionTabs } from "../components/SectionTabs";
+import {
+  ChecklistFilters,
+  type ChecklistFiltersValues,
+} from "../components/ChecklistFilters";
+import { ChecklistNonConformityCard } from "../components/ChecklistNonConformityCard";
+import { ChecklistSubmissionCard } from "../components/ChecklistSubmissionCard";
+import type { NonConformityItem } from "../types/nonConformity";
+import type { ChecklistIssueResponse } from "../types/issue";
+import type { ChecklistExecutionResponse } from "../types/execution";
+
+export interface PageChecklistNaoConformidadesContentProps {
+  initialItems: NonConformityItem[];
+  /** Todas as execuções da página — seção "Envios" (conforme ou não). */
+  initialSubmissions: ChecklistExecutionResponse[];
+  /** `classId -> nome da turma`, resolvido no servidor (`listClasses`). */
+  classNames: Record<string, string>;
+  /** Só o coordenador SENAI vê "Validar"/"Reabrir" (backend rejeita os demais). */
+  canValidate: boolean;
+  initialError?: boolean;
+  /** TEMPORÁRIO: com dados mockados as ações só atualizam o estado local, sem chamar a API. */
+  mockMode?: boolean;
+}
+
+/** Espelha a máquina de estados do issueService.ts pro modo mock (sem backend). */
+const MOCK_TRANSITIONS: Record<string, ChecklistIssueResponse["status"]> = {
+  start: "IN_PROGRESS",
+  resolve: "RESOLVED",
+  validate: "VALIDATED",
+  reopen: "REOPENED",
+  "restart-progress": "IN_PROGRESS",
+  cancel: "CANCELED",
+};
+
+const CHECKLIST_TABS = [
+  { label: "Preenchimento", href: "/checklist" },
+  { label: "Não Conformidades", href: "/checklist/nao-conformidades" },
+];
+
+const CHECKLIST_TYPE_LABEL: Record<string, string> = {
+  ARRIVAL: "Checklist de chegada",
+  POST_BREAK: "Checklist pós-intervalo",
+};
+
+const PERIOD_TO_DAYS: Record<string, number> = {
+  ontem: 1,
+  "3-dias": 3,
+  "7-dias": 7,
+  "1-mes": 30,
+  "3-meses": 90,
+};
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("pt-BR");
+}
+
+function formatTime(iso: string): string {
+  return new Date(iso).toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function formatDateTime(iso: string): string {
+  return `${formatDate(iso)} às ${formatTime(iso)}`;
+}
+
+/** Ação de transição de status de uma issue (`start`, `resolve`, `validate`...). */
+async function transitionIssue(
+  issueId: string,
+  action: string,
+): Promise<ChecklistIssueResponse> {
+  return bffFetch<ChecklistIssueResponse>(
+    `/api/checklist/issues/${issueId}/${action}`,
+    {
+      method: "PATCH",
+    },
+  );
+}
+
+interface CollapsibleSectionProps {
+  title: string;
+  defaultOpen?: boolean;
+  children: ReactNode;
+}
+
+/** Título clicável que expande/recolhe o conteúdo — mesma animação de grid-rows do ChecklistNonConformityCard. */
+function CollapsibleSection({
+  title,
+  defaultOpen = true,
+  children,
+}: CollapsibleSectionProps) {
+  const [open, setOpen] = useState(defaultOpen);
+  const panelId = useId();
+
+  return (
+    <section>
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        aria-expanded={open}
+        aria-controls={panelId}
+        className="flex items-center gap-2"
+      >
+        <Icon
+          name={open ? "chevron-down" : "chevron-up"}
+          size="lg"
+          tone="primary"
+          decorative
+        />
+        <Text
+          as="span"
+          variant="label-md-emphasis"
+          tone="brand"
+          className="lg:text-heading-h2"
+        >
+          {title}
+        </Text>
+      </button>
+
+      <div
+        id={panelId}
+        className="grid overflow-hidden transition-[grid-template-rows] duration-300 ease-in-out motion-reduce:transition-none"
+        style={{ gridTemplateRows: open ? "1fr" : "0fr" }}
+      >
+        <div className="min-h-0 overflow-hidden pt-4">{children}</div>
+      </div>
+    </section>
+  );
+}
+
+export function PageChecklistNaoConformidadesContent({
+  initialItems,
+  initialSubmissions,
+  classNames,
+  canValidate,
+  initialError = false,
+  mockMode = false,
+}: PageChecklistNaoConformidadesContentProps) {
+  const router = useRouter();
+
+  const [items, setItems] = useState(initialItems);
+  const [submissions] = useState(initialSubmissions);
+  const [error, setError] = useState(initialError);
+  const [filters, setFilters] = useState<ChecklistFiltersValues>({});
+  const [submissionFilters, setSubmissionFilters] =
+    useState<ChecklistFiltersValues>({});
+
+  const roomOptions = useMemo<SelectOption[]>(() => {
+    const uniqueRoomIds = [
+      ...new Set(items.map((item) => item.execution.roomId)),
+    ];
+    return uniqueRoomIds.map((roomId) => ({
+      value: roomId,
+      label: `Sala ${roomId.slice(0, 8)}`,
+    }));
+  }, [items]);
+
+  const groupOptions = useMemo<SelectOption[]>(() => {
+    const uniqueClassIds = [
+      ...new Set(items.map((item) => item.execution.classId)),
+    ];
+    return uniqueClassIds.map((classId) => ({
+      value: classId,
+      label: classNames[classId] ?? classId,
+    }));
+  }, [items, classNames]);
+
+  const filteredItems = useMemo(() => {
+    const minDays = filters.period ? PERIOD_TO_DAYS[filters.period] : undefined;
+    const cutoff = minDays
+      ? Date.now() - minDays * 24 * 60 * 60 * 1000
+      : undefined;
+
+    return items.filter(({ execution }) => {
+      if (filters.room && execution.roomId !== filters.room) return false;
+      if (filters.group && execution.classId !== filters.group) return false;
+      if (cutoff && new Date(execution.startedAt).getTime() < cutoff)
+        return false;
+      return true;
+    });
+  }, [items, filters]);
+
+  const submissionRoomOptions = useMemo<SelectOption[]>(() => {
+    const uniqueRoomIds = [
+      ...new Set(submissions.map((execution) => execution.roomId)),
+    ];
+    return uniqueRoomIds.map((roomId) => ({
+      value: roomId,
+      label: `Sala ${roomId.slice(0, 8)}`,
+    }));
+  }, [submissions]);
+
+  const submissionGroupOptions = useMemo<SelectOption[]>(() => {
+    const uniqueClassIds = [
+      ...new Set(submissions.map((execution) => execution.classId)),
+    ];
+    return uniqueClassIds.map((classId) => ({
+      value: classId,
+      label: classNames[classId] ?? classId,
+    }));
+  }, [submissions, classNames]);
+
+  const filteredSubmissions = useMemo(() => {
+    const minDays = submissionFilters.period
+      ? PERIOD_TO_DAYS[submissionFilters.period]
+      : undefined;
+    const cutoff = minDays
+      ? Date.now() - minDays * 24 * 60 * 60 * 1000
+      : undefined;
+
+    return submissions.filter((execution) => {
+      if (submissionFilters.room && execution.roomId !== submissionFilters.room)
+        return false;
+      if (
+        submissionFilters.group &&
+        execution.classId !== submissionFilters.group
+      )
+        return false;
+      if (cutoff && new Date(execution.startedAt).getTime() < cutoff)
+        return false;
+      return true;
+    });
+  }, [submissions, submissionFilters]);
+
+  function updateIssue(issueId: string, updated: ChecklistIssueResponse) {
+    setItems((prev) =>
+      prev.map((item) =>
+        item.issue.id === issueId ? { ...item, issue: updated } : item,
+      ),
+    );
+  }
+
+  function handleAction(issueId: string, action: string) {
+    if (mockMode) {
+      const nextStatus = MOCK_TRANSITIONS[action];
+      const current = items.find((item) => item.issue.id === issueId)?.issue;
+      if (nextStatus && current)
+        updateIssue(issueId, { ...current, status: nextStatus });
+      return;
+    }
+
+    transitionIssue(issueId, action)
+      .then((updated) => updateIssue(issueId, updated))
+      .catch((err) => {
+        if (err instanceof HttpError && err.kind === "unauthorized") {
+          router.replace("/login");
+          return;
+        }
+        setError(true);
+      });
+  }
+
+  return (
+    <div className="flex flex-col gap-6 p-6 md:p-8">
+      <SectionTabs tabs={CHECKLIST_TABS} />
+
+      <Text as="h1" variant="heading-h2" tone="brand" className="sr-only">
+        Não Conformidades
+      </Text>
+
+      {error && (
+        <Banner variant="error">
+          Não foi possível carregar os dados do checklist.
+        </Banner>
+      )}
+
+      <CollapsibleSection title="Envios">
+        <ChecklistFilters
+          roomOptions={submissionRoomOptions}
+          groupOptions={submissionGroupOptions}
+          onApply={setSubmissionFilters}
+          onReset={() => setSubmissionFilters({})}
+          className="mb-4"
+        />
+
+        {filteredSubmissions.length === 0 ? (
+          <Text variant="body-md" tone="secondary">
+            Nenhum envio encontrado para os filtros selecionados.
+          </Text>
+        ) : (
+          <div>
+            {filteredSubmissions.map((execution) => (
+              <ChecklistSubmissionCard
+                key={execution.id}
+                room={`Sala ${execution.roomId.slice(0, 8)}`}
+                checklistType={
+                  CHECKLIST_TYPE_LABEL[execution.checklistType] ??
+                  execution.checklistType
+                }
+                submittedAt={
+                  execution.submittedAt
+                    ? formatDateTime(execution.submittedAt)
+                    : formatDateTime(execution.startedAt)
+                }
+                filledBy={execution.filledBy}
+                group={classNames[execution.classId] ?? execution.classId}
+                hasNonConformity={execution.issues.length > 0}
+              />
+            ))}
+          </div>
+        )}
+      </CollapsibleSection>
+
+      <CollapsibleSection title="Não conformidades registradas">
+        <ChecklistFilters
+          roomOptions={roomOptions}
+          groupOptions={groupOptions}
+          onApply={setFilters}
+          onReset={() => setFilters({})}
+          className="mb-4"
+        />
+
+        {filteredItems.length === 0 ? (
+          <Text variant="body-md" tone="secondary">
+            Nenhuma não conformidade encontrada para os filtros selecionados.
+          </Text>
+        ) : (
+          <div>
+            {filteredItems.map(({ issue, execution }) => (
+              <ChecklistNonConformityCard
+                key={issue.id}
+                room={`Sala ${execution.roomId.slice(0, 8)}`}
+                category={issue.itemTitleSnapshot}
+                checklistType={
+                  CHECKLIST_TYPE_LABEL[execution.checklistType] ??
+                  execution.checklistType
+                }
+                submittedDate={formatDate(execution.startedAt)}
+                submittedTime={formatTime(execution.startedAt)}
+                filledBy={execution.filledBy}
+                group={classNames[execution.classId] ?? execution.classId}
+                nonConformity={issue.description}
+                status={issue.status}
+                canValidate={canValidate}
+                onStart={() => handleAction(issue.id, "start")}
+                onResolve={() => handleAction(issue.id, "resolve")}
+                onValidate={() => handleAction(issue.id, "validate")}
+                onReopen={() => handleAction(issue.id, "reopen")}
+                onRestartProgress={() =>
+                  handleAction(issue.id, "restart-progress")
+                }
+              />
+            ))}
+          </div>
+        )}
+      </CollapsibleSection>
+    </div>
+  );
+}
