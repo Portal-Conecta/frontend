@@ -72,14 +72,15 @@ export function CreateClassForm({ courses, onSubmitClass, onCancel }: CreateClas
 
             if (response && response.success === false) {
                 setShowErrorModal(true)
+                setIsSubmitting(false)
             }
         } catch (error) {
             const isRedirectError = error instanceof Error && error.message.includes('NEXT_REDIRECT')
-            
+
             if (!isRedirectError) {
                 setShowErrorModal(true)
+                setIsSubmitting(false)
             }
-        } finally {
         }
     }
 
@@ -109,15 +110,17 @@ export function CreateClassForm({ courses, onSubmitClass, onCancel }: CreateClas
                                         setSelectedCourseId(course.id)
                                         setErrors((prev) => ({ ...prev, course: false }))
                                     }}
-                                    className={`flex items-center gap-4 rounded-lg border p-4 text-left transition-colors hover:bg-surface-hover ${selectedCourseId === course.id
-                                        ? 'border-border-focus bg-surface-selected'
-                                        : 'border-transparent bg-surface-base'
+                                    className={`flex w-full items-center gap-4 rounded-lg border p-4 text-left transition-colors hover:bg-surface-hover ${selectedCourseId === course.id
+                                            ? 'border-border-focus bg-surface-selected'
+                                            : 'border-transparent bg-surface-base'
                                         }`}
                                 >
-                                    <Text variant="label-md-emphasis" tone="brand" className="w-16">
+                                    <Text variant="label-md-emphasis" tone="brand" className="w-20 shrink-0 whitespace-nowrap">
                                         {course.code}
                                     </Text>
-                                    <span className="text-text-brand">|</span>
+
+                                    <span className="shrink-0 text-text-brand">|</span>
+
                                     <Text variant="body-sm" tone="brand" className="flex-1 truncate">
                                         {course.name}
                                     </Text>
