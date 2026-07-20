@@ -57,11 +57,19 @@ export interface DirectoryUser {
 }
 
 /** Status da conta aceitos pelo filtro de `GET /users`. */
-export type UserAccountStatus =
-  | 'PENDING_ACTIVATION'
-  | 'ACTIVE'
-  | 'DISABLED'
-  | 'PENDING_DELETION'
+export const USER_ACCOUNT_STATUS_VALUES = [
+  'PENDING_ACTIVATION',
+  'ACTIVE',
+  'DISABLED',
+  'PENDING_DELETION',
+] as const
+
+export type UserAccountStatus = (typeof USER_ACCOUNT_STATUS_VALUES)[number]
+
+/** Type guard para valores recebidos pela URL. */
+export function isUserAccountStatus(value: unknown): value is UserAccountStatus {
+  return typeof value === 'string' && (USER_ACCOUNT_STATUS_VALUES as readonly string[]).includes(value)
+}
 
 /** Página de `GET /users`. */
 export interface ListUsersResponse {

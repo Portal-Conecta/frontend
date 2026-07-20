@@ -2,18 +2,11 @@ import { NextResponse } from 'next/server'
 
 import { getSession } from '@portal/core/auth/session'
 import { searchUsers, type ListUsersParams } from '@portal/core/classes/userDirectoryService'
-import type { UserAccountStatus } from '@portal/core/classes/types'
+import { isUserAccountStatus, USER_ACCOUNT_STATUS_VALUES, type UserAccountStatus } from '@portal/core/classes/types'
 import { bffErrorResponse } from '@portal/core/http/bffError'
 import { createUser } from '@portal/core/profile/profileService'
 import { parseCreateUser } from '@portal/core/profile/profileValidation'
 import { isTypeUser, TYPE_USER_VALUES } from '@portal/core/rbac'
-const USER_STATUSES = new Set<UserAccountStatus>([
-  'PENDING_ACTIVATION',
-  'ACTIVE',
-  'DISABLED',
-  'PENDING_DELETION',
-])
-
 const DEFAULT_SIZE = 20
 const MAX_SIZE = 100
 
@@ -50,10 +43,10 @@ export async function GET(req: Request) {
     )
   }
 
-  const invalidStatus = statuses.find((status) => !USER_STATUSES.has(status as UserAccountStatus))
+  const invalidStatus = statuses.find((status) => !isUserAccountStatus(status))
   if (invalidStatus) {
     return NextResponse.json(
-      { code: 'validation', message: `status inválido: ${invalidStatus}.` },
+      { code: 'validation', message: `status deve ser um de: ${USER_ACCOUNT_STATUS_VALUES.join(', ')}.` },
       { status: 400 },
     )
   }
