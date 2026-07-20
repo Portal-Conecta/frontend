@@ -1,15 +1,23 @@
 /**
  * Página do dashboard de checklists.
- * AppShell vem do layout `(authenticated)` (#405) — a página só renderiza o conteúdo.
+ * AppShell vem do layout `(authenticated)` (#405).
+ * Acesso: permissão `checklist:dashboard` (SENAI / WEG / ADMIN).
  */
-import { PageChecklistDashboardContent } from "./PageChecklistDashboardContent";
+import { PermissionGate } from '@portal/core'
+import { getCurrentUser } from '@portal/core/auth/getCurrentUser'
+
+import { PageChecklistDashboardContent } from './PageChecklistDashboardContent'
 
 export async function PageChecklistDashboard() {
+  const user = await getCurrentUser()
+
   return (
-    <div className="min-h-full bg-background-default p-6 md:p-8 lg:p-10">
-      <PageChecklistDashboardContent />
-    </div>
-  );
+    <PermissionGate user={user} permission="checklist:dashboard">
+      <div className="min-h-full bg-background-default p-6 md:p-8 lg:p-10">
+        <PageChecklistDashboardContent />
+      </div>
+    </PermissionGate>
+  )
 }
 
-export default PageChecklistDashboard;
+export default PageChecklistDashboard

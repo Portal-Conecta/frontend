@@ -17,8 +17,8 @@ function userForRole(userType: TypeUser): CurrentUser {
 /** Nav esperada por papel — fonte de verdade do teste, espelha a tabela do registry. */
 const EXPECTED: Record<TypeUser, string[]> = {
   STUDENT: ['comunicados', 'mapa-salas'],
-  REPRESENTATIVE: ['comunicados', 'mapa-salas', 'checklist'],
-  TEACHER: ['comunicados', 'mapa-salas', 'checklist'],
+  REPRESENTATIVE: ['comunicados', 'mapa-salas'],
+  TEACHER: ['comunicados', 'mapa-salas'],
   SENAI: ['comunicados', 'mapa-salas', 'checklist', 'config'],
   WEG: ['comunicados', 'mapa-salas', 'checklist', 'config'],
   ADMIN: ['comunicados', 'mapa-salas', 'checklist', 'config'],
@@ -50,6 +50,7 @@ describe('activeKeyFromPathname — item ativo derivado da rota (#405)', () => {
     ['/comunicados/criar', 'comunicados'],
     ['/comunicados/meus', 'comunicados'],
     ['/mapa-salas', 'mapa-salas'],
+    ['/checklist/dashboard', 'checklist'],
   ])('%s ativa %s', (pathname, expected) => {
     expect(activeKeyFromPathname(pathname)).toBe(expected)
   })

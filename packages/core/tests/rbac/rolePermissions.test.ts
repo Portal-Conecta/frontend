@@ -21,6 +21,15 @@ describe('resolvePermissions', () => {
     }
   })
 
+  it('dashboard de checklist é só SENAI, WEG e ADMIN', () => {
+    for (const role of ['STUDENT', 'REPRESENTATIVE', 'TEACHER'] as const) {
+      expect(resolvePermissions(role)).not.toContain('checklist:dashboard')
+    }
+    for (const role of ['SENAI', 'WEG', 'ADMIN'] as const) {
+      expect(resolvePermissions(role)).toContain('checklist:dashboard')
+    }
+  })
+
   it('gestão (usuarios/salas/cursos/turmas) é só da equipe', () => {
     for (const role of ['STUDENT', 'REPRESENTATIVE', 'TEACHER'] as const) {
       expect(resolvePermissions(role)).not.toContain('salas:gerenciar')

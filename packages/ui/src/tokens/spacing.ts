@@ -25,6 +25,8 @@ export const spacing = {
   20: '5rem',    // 80px
   24: '6rem',    // 96px
   30: '7.5rem',  // 120px
+  /** Largura fixa de chips/botões de status (ex.: Conforme / Não Conforme). */
+  36: '9rem',    // 144px
 } as const
 
 export type Spacing = typeof spacing

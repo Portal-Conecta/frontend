@@ -4,7 +4,7 @@ import { useState } from "react";
 import { StatusToggle, type StatusValue } from "./StatusToggle";
 
 const meta = {
-  title: "Checklist/Atoms/StatusToggle",
+  title: "Checklist/StatusToggle",
   component: StatusToggle,
   parameters: { layout: "centered" },
   argTypes: {
@@ -50,4 +50,10 @@ export const Controlado: Story = {
 export const Mobile: Story = {
   args: { defaultValue: "nao-conforme" },
   parameters: { viewport: { defaultViewport: "mobile1" } },
+};
+
+/** Confere que Conforme e Não Conforme têm a mesma caixa (144×40). */
+export const BotoesMesmoTamanho: Story = {
+  args: { defaultValue: "conforme" },
+  parameters: { layout: "centered" },
 };

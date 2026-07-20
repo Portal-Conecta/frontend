@@ -21,7 +21,13 @@ export interface NavEntry {
 export const NAV_REGISTRY: readonly NavEntry[] = [
   { key: 'comunicados', icon: 'newspaper', label: 'Comunicados', href: '/comunicados' },
   { key: 'mapa-salas', icon: 'map', label: 'Mapa de Sala', href: '/mapa-salas' },
-  { key: 'checklist', icon: 'clipboard-list', label: 'Checklist', href: '/checklist/dashboard', requires: 'checklist:ver' },
+  {
+    key: 'checklist',
+    icon: 'clipboard-list',
+    label: 'Checklist',
+    href: '/checklist/dashboard',
+    requires: 'checklist:dashboard',
+  },
   { key: 'config', icon: 'settings', label: 'Configurações', href: '/configuracoes', requires: 'usuarios:gerenciar' },
 ]
 
@@ -29,12 +35,12 @@ export const NAV_REGISTRY: readonly NavEntry[] = [
  * Modelo de nav por papel — resultado do `NAV_REGISTRY` cruzado com a matriz
  * `rolePermissions` do RBAC. Contrato travado por teste (`tests/layout/navRegistry`).
  *
- * | Item        | requires           | STUDENT | REPRES. | TEACHER | SENAI | WEG | ADMIN |
- * |-------------|--------------------|:-------:|:-------:|:-------:|:-----:|:---:|:-----:|
- * | comunicados | - (universal)      |   sim   |   sim   |   sim   |  sim  | sim |  sim  |
- * | mapa-salas  | - (universal)      |   sim   |   sim   |   sim   |  sim  | sim |  sim  |
- * | checklist   | checklist:ver      |   nao   |   sim   |   sim   |  sim  | sim |  sim  |
- * | config      | usuarios:gerenciar |   nao   |   nao   |   nao   |  sim  | sim |  sim  |
+ * | Item        | requires              | STUDENT | REPRES. | TEACHER | SENAI | WEG | ADMIN |
+ * |-------------|-----------------------|:-------:|:-------:|:-------:|:-----:|:---:|:-----:|
+ * | comunicados | - (universal)         |   sim   |   sim   |   sim   |  sim  | sim |  sim  |
+ * | mapa-salas  | - (universal)         |   sim   |   sim   |   sim   |  sim  | sim |  sim  |
+ * | checklist   | checklist:dashboard   |   nao   |   nao   |   nao   |  sim  | sim |  sim  |
+ * | config      | usuarios:gerenciar    |   nao   |   nao   |   nao   |  sim  | sim |  sim  |
  *
  * Invariante: comunicados + mapa são universais, então todo papel autenticado vê
  * >= 2 itens — a nav nunca fica vazia (decisão do "A decidir" da #173).
