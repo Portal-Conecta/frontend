@@ -26,6 +26,13 @@ export interface UseDestinationCatalogOptions {
    * lista escopada de `useMyClassStudents`.
    */
   includeDirectoryUsers?: boolean
+  /**
+   * Controla quando o catálogo (cursos/turmas/tags/usuários) começa a
+   * carregar. Passar `false` até o step de destinatários abrir evita a
+   * chamada no mount do wizard inteiro (issue #399) — quem nunca chega
+   * nesse step não paga o request à toa.
+   */
+  enabled?: boolean
 }
 
 export interface UsersPageState {
@@ -51,17 +58,13 @@ export interface UseDestinationCatalogResult {
 }
 
 const USERS_PAGE_SIZE = 6
-// TODO(#195): a busca baixa só os USERS_SEARCH_FETCH_SIZE primeiros usuários e
-// filtra no client — matches além desse teto nunca aparecem. Mover o termo de
-// busca para o back quando o BFF real de usuários/tags existir.
-const USERS_SEARCH_FETCH_SIZE = 100
 /** Espera após a última tecla antes de buscar usuários (mesmo default do SearchBarAsync). */
 const USERS_SEARCH_DEBOUNCE_MS = 300
 
 export function useDestinationCatalog(
   options: UseDestinationCatalogOptions = {},
 ): UseDestinationCatalogResult {
-  const { includeDirectoryUsers = true } = options
+  const { includeDirectoryUsers = true, enabled = true } = options
   const [courses, setCourses] = useState<SelectOption[]>([])
   const [classes, setClasses] = useState<SelectOption[]>([])
   const [tags, setTags] = useState<Tag[]>([])
@@ -77,6 +80,15 @@ export function useDestinationCatalog(
   const [debouncedUsersQuery, setDebouncedUsersQuery] = useState('')
   const [usersPageIndex, setUsersPageIndex] = useState(1)
   const debouncedUsersQueryRef = useRef(debouncedUsersQuery)
+
+  // Trava em `true` na primeira vez que `enabled` liga — mantém o catálogo já
+  // buscado em memória se o usuário sair do step de destinatários e voltar
+  // (sem isso, `enabled` viraria `false` de novo e um novo `useEffect` abaixo
+  // teria que decidir se refaz o fetch; travado, ele nunca refaz à toa).
+  const [activated, setActivated] = useState(enabled)
+  useEffect(() => {
+    if (enabled && !activated) setActivated(true)
+  }, [enabled, activated])
 
   const [loading, setLoading] = useState(true)
   const [usersLoading, setUsersLoading] = useState(false)
@@ -94,6 +106,8 @@ export function useDestinationCatalog(
   }, [usersQuery])
 
   useEffect(() => {
+    if (!activated) return
+
     let cancelled = false
 
     async function loadCatalog() {
@@ -122,35 +136,20 @@ export function useDestinationCatalog(
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [activated])
 
   const loadUsers = useCallback(async (page: number, query: string) => {
     setUsersLoading(true)
     try {
       const trimmed = query.trim()
       const res = await listDestinationUsersClient({
-        page: trimmed ? 0 : page - 1,
-        size: trimmed ? USERS_SEARCH_FETCH_SIZE : USERS_PAGE_SIZE,
+        page: page - 1,
+        size: USERS_PAGE_SIZE,
+        ...(trimmed ? { search: trimmed } : {}),
       })
 
-      let items = mapUsersToSummaries(res.content)
-      if (trimmed) {
-        const needle = trimmed.toLowerCase()
-        items = items.filter((user) => user.name.toLowerCase().includes(needle))
-        const totalPages = Math.max(1, Math.ceil(items.length / USERS_PAGE_SIZE))
-        const safePage = Math.min(page, totalPages)
-        const start = (safePage - 1) * USERS_PAGE_SIZE
-        setUsersPageState({
-          items: items.slice(start, start + USERS_PAGE_SIZE),
-          page: safePage,
-          totalPages,
-          totalElements: items.length,
-        })
-        return
-      }
-
       setUsersPageState({
-        items,
+        items: mapUsersToSummaries(res.content),
         page: res.page + 1,
         totalPages: Math.max(1, res.totalPages),
         totalElements: res.totalElements,
@@ -163,9 +162,9 @@ export function useDestinationCatalog(
   }, [])
 
   useEffect(() => {
-    if (!includeDirectoryUsers) return
+    if (!activated || !includeDirectoryUsers) return
     void loadUsers(usersPageIndex, debouncedUsersQuery)
-  }, [includeDirectoryUsers, loadUsers, usersPageIndex, debouncedUsersQuery])
+  }, [activated, includeDirectoryUsers, loadUsers, usersPageIndex, debouncedUsersQuery])
 
   function setUsersQuery(query: string) {
     setUsersQueryState(query)

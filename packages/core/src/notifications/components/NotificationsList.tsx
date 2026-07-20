@@ -1,11 +1,5 @@
-import type { Notification, NotificationType } from '../types'
-
-const ICON_BY_TYPE: Record<NotificationType, string> = {
-  CHECKLIST: 'checklist',
-  MAPA: 'mapa',
-  COMUNICADO: 'comunicado',
-  OUTRO: 'outro',
-}
+import { NotificationListItem } from '@portal/ui/molecules/NotificationListItem/NotificationListItem'
+import type { Notification } from '../types'
 
 interface NotificationsListProps {
   notifications: Notification[]
@@ -23,22 +17,25 @@ function formatTimestamp(timestamp: string): string {
 export function NotificationsList({ notifications }: NotificationsListProps) {
   if (notifications.length === 0) {
     return (
-      <div>
-        <p>Nenhuma notificação encontrada.</p>
+      <div className="flex w-full items-center justify-center text-body-md text-text-subtle">
+        Nenhuma notificação encontrada.
       </div>
     )
   }
 
   return (
-    <ul>
+    <div className="flex flex-col divide-y divide-border-default rounded-md">
       {notifications.map((notification) => (
-        <li key={notification.id} data-icon={ICON_BY_TYPE[notification.type]}>
-          <div>
-            <p>{notification.title}</p>
-            <span>{formatTimestamp(notification.timestamp)}</span>
-          </div>
-        </li>
+        <NotificationListItem
+          key={notification.id}
+          title={notification.title}
+          body={notification.body}
+          type={notification.type}
+          isRead={notification.read} 
+          
+          dateText={formatTimestamp(notification.timestamp)}
+        />
       ))}
-    </ul>
+    </div>
   )
 }

@@ -1,6 +1,8 @@
 import { Skeleton } from '@portal/ui'
 import type { TypeUser } from '@portal/core'
 
+import { usesReducedMuralFilters } from './usesReducedMuralFilters'
+
 export interface AnnouncementFiltersBarSkeletonProps {
   userType?: TypeUser | undefined
   variant?: 'sidebar' | 'sheet'
@@ -23,7 +25,7 @@ export function AnnouncementFiltersBarSkeleton({
   userType,
   variant = 'sidebar',
 }: AnnouncementFiltersBarSkeletonProps) {
-  const isStudent = userType === 'STUDENT'
+  const reducedFilters = usesReducedMuralFilters(userType)
   const isSheet = variant === 'sheet'
 
   return (
@@ -44,10 +46,10 @@ export function AnnouncementFiltersBarSkeleton({
       </div>
 
       <div className={isSheet ? 'flex flex-col gap-3' : 'flex flex-col gap-4'} aria-hidden="true">
-        {!isStudent ? (
+        {!reducedFilters ? <FieldSkeleton labelWidth={48} /> : null}
+        <FieldSkeleton labelWidth={48} />
+        {!reducedFilters ? (
           <>
-            <FieldSkeleton labelWidth={48} />
-            {isSheet ? null : <FieldSkeleton labelWidth={48} />}
             <FieldSkeleton labelWidth={56} />
             <FieldSkeleton labelWidth={56} />
           </>

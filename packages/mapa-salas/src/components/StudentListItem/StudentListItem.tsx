@@ -60,10 +60,10 @@ export function StudentListItem({
 
   return (
     <li className={classes} {...interactiveProps}>
-      <span aria-hidden="true" className="text-label-sm">
+      <span aria-hidden="true" className="text-body-md">
         {isHighlighted ? '●' : '○'}
       </span>
-      <Text as="span" variant={isHighlighted ? 'label-sm-emphasis' : 'label-sm'}>
+      <Text as="span" variant={isHighlighted ? 'body-md-emphasis' : 'body-md'}>
         {name}
       </Text>
     </li>

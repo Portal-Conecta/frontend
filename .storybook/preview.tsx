@@ -1,15 +1,39 @@
 import type { Preview } from '@storybook/react'
-
-import '@fontsource/inter/400.css'
-import '@fontsource/inter/600.css'
-import '@fontsource/afacad/400.css'
-import '@fontsource/afacad/600.css'
+import { Inter, Afacad } from 'next/font/google'
 
 import './tailwind.generated.css'
+
+// Mesma config do RootLayout (apps/root/src/app/layout.tsx): o Storybook não
+// renderiza o RootLayout, então as CSS vars --font-inter / --font-afacad não
+// existiriam no canvas e as stories cairiam em fallback do sistema.
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['400', '600'],
+  display: 'swap',
+  variable: '--font-inter',
+})
+
+const afacad = Afacad({
+  subsets: ['latin'],
+  weight: ['400', '600'],
+  display: 'swap',
+  variable: '--font-afacad',
+})
 
 const preview: Preview = {
   // Gera uma página de Docs por componente (autodocs) sem marcar story a story.
   tags: ['autodocs'],
+  // Aplica as vars de fonte no <html> do iframe do canvas — não num wrapper.
+  // Motivo: conteúdo que faz portal pra fora da árvore da story (ToastProvider,
+  // AnnouncementImageLightbox, drawer da Sidebar, dropdowns) renderiza no body,
+  // fora de qualquer <div> wrapper, e não enxergaria as vars. Espelha onde o app
+  // coloca as vars (no <html> do RootLayout).
+  decorators: [
+    (Story) => {
+      document.documentElement.classList.add(inter.variable, afacad.variable)
+      return <Story />
+    },
+  ],
   parameters: {
     controls: {
       matchers: {

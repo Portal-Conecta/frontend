@@ -4,7 +4,6 @@ import type {
 } from '../../types/hub'
 
 import type { ClassMember, ListUsersResponse } from '@portal/core/classes/types'
-import type { ListUsersParams } from '@portal/core/classes/userDirectoryService'
 import { bffFetch } from '@portal/core/http/bffClient'
 import { buildQuery, type QueryParams } from '@portal/core/http/query'
 import type { UserById } from '@portal/core/profile/types'
@@ -22,8 +21,15 @@ export function listDestinationClassesClient(params?: {
   )
 }
 
+export interface ListDestinationUsersParams {
+  page?: number
+  size?: number
+  /** Busca por nome (substring, case-insensitive) — o BFF repassa como `name` pro core. */
+  search?: string
+}
+
 export function listDestinationUsersClient(
-  params: ListUsersParams = {},
+  params: ListDestinationUsersParams = {},
 ): Promise<ListUsersResponse> {
   return bffFetch<ListUsersResponse>(
     `/api/comunicados/destinations/users${buildQuery(params as QueryParams)}`,
