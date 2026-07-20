@@ -3947,6 +3947,23 @@
                             "WEG",
                             "ADMIN"
                         ]
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Filtra usuários ativos cujo nome contenha o valor informado, sem diferenciar maiúsculas de minúsculas."
+                    },
+                    "status": {
+                        "type": "array",
+                        "description": "Filtra por um ou mais status da conta. Quando ausente, retorna somente usuários ACTIVE.",
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "PENDING_ACTIVATION",
+                                "ACTIVE",
+                                "DISABLED",
+                                "PENDING_DELETION"
+                            ]
+                        }
                     }
                 }
             },
