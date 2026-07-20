@@ -30,8 +30,12 @@ export function StudentListItem({
 }: StudentListItemProps) {
   const colorClass = isHighlighted ? 'text-interactive-default' : 'text-text-secondary'
 
+  // Hover só faz sentido quando o item é clicável (isEditing) — usa
+  // `interactive-focus-ring` (blue/300), mesmo tom do hover do SeatCard.
+  // `currentColor` no bullet e no `Text` (sem `tone` prop) faz os dois
+  // seguirem a cor do `<li>` — não precisa hover em cada um.
   const interactiveClass = isEditing
-    ? 'cursor-pointer rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus'
+    ? 'cursor-pointer rounded-sm transition-colors hover:text-interactive-focus-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus'
     : 'cursor-default'
 
   const classes = ['flex items-center gap-2 py-1 select-none', colorClass, interactiveClass, className]

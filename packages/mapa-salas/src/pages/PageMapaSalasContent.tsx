@@ -140,16 +140,19 @@ export function PageMapaSalasContent({ user, rooms, turmas }: PageMapaSalasConte
   const selectedTurma = turmas.find((turma) => turma.id === selectedTurmaId)
 
   return (
-    // `lg:h-full`: 100% da altura real do `<main>` do AppLayout (definida por
-    // flexbox — `overflow-y-auto` lá). É a base da cadeia de altura que desce
-    // até a `StudentSidebar` em `MapEditor.tsx` — nada de `calc(100vh-Npx)`
-    // chutando o tamanho do header/footer/breadcrumb: cada nível só pede
-    // "100% do meu pai", e o pai já tem altura definida por flexbox. Sem essa
-    // cadeia, a `StudentSidebar` ficava um pouco mais alta do que o espaço
-    // real do `<main>` (a estimativa em px nunca bate 100%), e isso fazia o
-    // `<main>` ganhar rolagem própria — duas barras de rolagem lado a lado
-    // (a do `<main>` e a interna da sidebar).
-    <div className="flex flex-col gap-10 p-6 md:p-8 lg:h-full">
+    // `map-lg:h-full`: 100% da altura real do `<main>` do AppLayout (definida
+    // por flexbox — `overflow-y-auto` lá). É a base da cadeia de altura que
+    // desce até a `StudentSidebar` em `MapEditor.tsx` — nada de
+    // `calc(100vh-Npx)` chutando o tamanho do header/footer/breadcrumb: cada
+    // nível só pede "100% do meu pai", e o pai já tem altura definida por
+    // flexbox. Sem essa cadeia, a `StudentSidebar` ficava um pouco mais alta
+    // do que o espaço real do `<main>` (a estimativa em px nunca bate 100%), e
+    // isso fazia o `<main>` ganhar rolagem própria — duas barras de rolagem
+    // lado a lado (a do `<main>` e a interna da sidebar). Breakpoint
+    // customizado `map-lg` (1440px, #429, ver `tailwind.config.ts`) em vez do
+    // `lg` padrão — abaixo dele a `StudentSidebar` empilha (sem essa cadeia de
+    // altura fazer sentido) e só passa a coluna à direita a partir de 1440px.
+    <div className="flex flex-col gap-10 p-6 md:p-8 map-lg:h-full">
       {/* Breadcrumb (mock) — a RoomFilterBar real cobre seleção + breadcrumb.
           Os crumbs voltam à etapa correspondente do seletor. Mesma tipografia/
           cor/espaçamento da "Barra de progresso" do Figma (280-7150): os três
@@ -180,14 +183,14 @@ export function PageMapaSalasContent({ user, rooms, turmas }: PageMapaSalasConte
         </span>
       </nav>
 
-      {/* `lg:flex-1 lg:min-h-0`: consome o que sobrar da altura do container
-          `h-full` acima, depois do breadcrumb — vira a "altura real" que a
-          `RoomMapSection` (e, por baixo dela, a `StudentSidebar`) repassa via
-          `h-full`. `lg:[&>*]:h-full` força esse "100%" no único filho real
-          que a `RoomMapSection` renderiza em cada estado (skeleton, erro,
-          grade view ou `RoomMapEditMode`) sem precisar de uma prop de
-          className percorrendo cada branch dela. */}
-      <div className="lg:min-h-0 lg:flex-1 lg:[&>*]:h-full">
+      {/* `map-lg:flex-1 map-lg:min-h-0`: consome o que sobrar da altura do
+          container `h-full` acima, depois do breadcrumb — vira a "altura
+          real" que a `RoomMapSection` (e, por baixo dela, a `StudentSidebar`)
+          repassa via `h-full`. `map-lg:[&>*]:h-full` força esse "100%" no
+          único filho real que a `RoomMapSection` renderiza em cada estado
+          (skeleton, erro, grade view ou `RoomMapEditMode`) sem precisar de
+          uma prop de className percorrendo cada branch dela. */}
+      <div className="map-lg:min-h-0 map-lg:flex-1 map-lg:[&>*]:h-full">
         <RoomMapSection
           // Remonta a seção (e derruba qualquer sessão de edição) se a seleção
           // mudar por qualquer caminho — o rascunho pertence ao par sala+turma.
