@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { Text } from "@portal/ui";
 
-import { findTemplateByIdClient } from "../../../services/client/templateClient";
+import { findActiveTemplateByRoomClient } from "../../../services/client/templateClient";
 import type { ClassSelection } from "../../../services/resolveClassSelection";
 import type { ChecklistTemplateResponse } from "../../../types/template";
 import { FillChecklistPage } from "../FillChecklistPage";
@@ -50,13 +50,14 @@ export function ChecklistFlow({ selection, fixedClassName, filledByLabel }: Chec
   if (!target) {
     return (
       <SelectRoomPage
-        onRoomSelected={async ({ templateId }) => {
+        onRoomSelected={async ({ roomId, roomLabel }) => {
           try {
-            const template = await findTemplateByIdClient(templateId);
-            setTarget({
-              template,
-              roomLabel: template.room ? `${template.room.number}` : template.title,
-            });
+            const template = await findActiveTemplateByRoomClient(roomId);
+            if (!template) {
+              setError("Nenhum checklist configurado para esta sala.");
+              return;
+            }
+            setTarget({ template, roomLabel });
           } catch {
             setError("Não foi possível carregar o template desta sala. Tente novamente.");
           }

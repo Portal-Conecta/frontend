@@ -6,7 +6,7 @@ import { RoomSelector } from "../../../components/RoomSelector";
 import { useAvailableRooms } from "../../../hooks/useAvailableRooms";
 
 export interface SelectRoomPageProps {
-  onRoomSelected: (params: { templateId: string; roomId: string }) => void;
+  onRoomSelected: (params: { roomId: string; roomLabel: string }) => void;
 }
 
 export function SelectRoomPage({ onRoomSelected }: SelectRoomPageProps) {
@@ -37,9 +37,7 @@ export function SelectRoomPage({ onRoomSelected }: SelectRoomPageProps) {
       <RoomSelector
         rooms={rooms}
         onSelect={(room) => {
-          const selected = rooms.find((r) => r.id === room.id);
-          if (!selected) return;
-          onRoomSelected({ templateId: selected.templateId, roomId: selected.id });
+          onRoomSelected({ roomId: room.id, roomLabel: `${room.number}` });
         }}
       />
     </div>
