@@ -1,35 +1,35 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
+import { useState } from "react";
 
-import { Button, Select, type SelectOption } from '@portal/ui'
+import { Button, Select, type SelectOption } from "@portal/ui";
 
-import { ChecklistFiltersSkeleton } from './ChecklistFiltersSkeleton'
+import { ChecklistFiltersSkeleton } from "./ChecklistFiltersSkeleton";
 
 export interface ChecklistFiltersValues {
-  period?: string
-  group?: string
-  room?: string
+  period?: string;
+  group?: string;
+  room?: string;
 }
 
 export interface ChecklistFiltersProps {
-  loading?: boolean
-  periodOptions?: SelectOption[]
-  groupOptions?: SelectOption[]
-  roomOptions?: SelectOption[]
-  onApply?: (filters: ChecklistFiltersValues) => void
-  onReset?: () => void
-  className?: string
+  loading?: boolean;
+  periodOptions?: SelectOption[];
+  groupOptions?: SelectOption[];
+  roomOptions?: SelectOption[];
+  onApply?: (filters: ChecklistFiltersValues) => void;
+  onReset?: () => void;
+  className?: string;
 }
 
 /** Período: janelas relativas fixas — sem intervalo de data customizado. */
 const defaultPeriodOptions: SelectOption[] = [
-  { value: 'ontem', label: 'Ontem' },
-  { value: '3-dias', label: 'Últimos 3 dias' },
-  { value: '7-dias', label: 'Últimos 7 dias' },
-  { value: '1-mes', label: 'Último mês' },
-  { value: '3-meses', label: 'Últimos 3 meses' },
-]
+  { value: "ontem", label: "Ontem" },
+  { value: "3-dias", label: "Últimos 3 dias" },
+  { value: "7-dias", label: "Últimos 7 dias" },
+  { value: "1-mes", label: "Último mês" },
+  { value: "3-meses", label: "Últimos 3 meses" },
+];
 
 export function ChecklistFilters({
   loading = false,
@@ -44,33 +44,33 @@ export function ChecklistFilters({
   // três (placeholder cinza, texto preto só depois de escolher, "x" pra limpar).
   // Sem opção "Todos" na lista: evita ter duas formas de limpar (opção da lista
   // + botão "x") e mantém a cor do texto padronizada entre os três selects.
-  const [period, setPeriod] = useState<string | null>(null)
-  const [group, setGroup] = useState<string | null>(null)
-  const [room, setRoom] = useState<string | null>(null)
+  const [period, setPeriod] = useState<string | null>(null);
+  const [group, setGroup] = useState<string | null>(null);
+  const [room, setRoom] = useState<string | null>(null);
 
   if (loading) {
-    return <ChecklistFiltersSkeleton className={className} />
+    return <ChecklistFiltersSkeleton className={className} />;
   }
 
   function buildFilters(): ChecklistFiltersValues {
-    const filters: ChecklistFiltersValues = {}
+    const filters: ChecklistFiltersValues = {};
 
-    if (period) filters.period = period
-    if (group) filters.group = group
-    if (room) filters.room = room
+    if (period) filters.period = period;
+    if (group) filters.group = group;
+    if (room) filters.room = room;
 
-    return filters
+    return filters;
   }
 
   function handleApply() {
-    onApply?.(buildFilters())
+    onApply?.(buildFilters());
   }
 
   function handleReset() {
-    setPeriod(null)
-    setGroup(null)
-    setRoom(null)
-    onReset?.()
+    setPeriod(null);
+    setGroup(null);
+    setRoom(null);
+    onReset?.();
   }
 
   return (
@@ -122,7 +122,11 @@ export function ChecklistFilters({
             nunca empilham. No desktop, empurra pro canto direito (ml-auto)
             pra usar a largura toda: filtros na esquerda, acoes na direita. */}
         <div className="flex gap-3 md:ml-auto md:shrink-0">
-          <Button variant="outlined" className="flex-1 md:flex-none" onClick={handleReset}>
+          <Button
+            variant="outlined"
+            className="flex-1 md:flex-none"
+            onClick={handleReset}
+          >
             Restaurar
           </Button>
           <Button className="flex-1 md:flex-none" onClick={handleApply}>
@@ -131,5 +135,5 @@ export function ChecklistFilters({
         </div>
       </div>
     </div>
-  )
+  );
 }
