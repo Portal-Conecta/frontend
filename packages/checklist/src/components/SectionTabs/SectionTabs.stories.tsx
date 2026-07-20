@@ -2,24 +2,20 @@ import type { Meta, StoryObj } from "@storybook/react";
 
 import { SectionTabs } from "./SectionTabs";
 
-const tabs = [
-  { label: "Visão geral", href: "/checklist" },
-  { label: "Itens", href: "/checklist/itens" },
-  { label: "Histórico", href: "/checklist/historico" },
-];
+import { CHECKLIST_SECTION_TABS } from "../checklistSectionTabs";
 
 const meta: Meta<typeof SectionTabs> = {
-  title: "Checklist/Molecules/SectionTabs",
+  title: "Checklist/SectionTabs",
   component: SectionTabs,
   parameters: {
     layout: "padded",
     nextjs: {
       appDirectory: true,
-      navigation: { pathname: "/checklist" },
+      navigation: { pathname: "/checklist/dashboard" },
     },
   },
   args: {
-    tabs,
+    tabs: [...CHECKLIST_SECTION_TABS],
   },
 };
 
@@ -44,6 +40,14 @@ export const UltimaAbaAtiva: Story = {
   parameters: {
     nextjs: {
       navigation: { pathname: "/checklist/historico" },
+    },
+  },
+};
+
+export const DashboardAtivo: Story = {
+  parameters: {
+    nextjs: {
+      navigation: { pathname: "/checklist/dashboard" },
     },
   },
 };

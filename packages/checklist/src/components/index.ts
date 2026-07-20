@@ -8,4 +8,6 @@ export * from "./ChecklistSubmissionCard";
 export * from "./RoomSelector";
 export * from "./RoomListItem";
 export * from "./SuccessModal";
+export * from "./SectionTabs";
+export * from "./ChecklistFilters";
 export * from "./dashboard";

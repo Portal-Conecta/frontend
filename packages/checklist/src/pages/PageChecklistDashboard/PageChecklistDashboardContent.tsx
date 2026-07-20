@@ -13,6 +13,8 @@ import {
   isDashboardEmpty,
   validateDashboardPeriod,
 } from "../../components/dashboard";
+import { CHECKLIST_SECTION_TABS } from "../../components/checklistSectionTabs";
+import { SectionTabs } from "../../components/SectionTabs";
 import { fetchDashboardStats } from "../../services/dashboard/dashboardClient";
 import type { DashboardStats } from "../../types/dashboard";
 
@@ -89,16 +91,11 @@ export function PageChecklistDashboardContent({
 
   return (
     <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-8">
-      <header className="flex flex-col gap-4 border-b border-border-default pb-6 lg:flex-row lg:items-end lg:justify-between">
+      {/* Abas do módulo — acima do título do dashboard */}
+      <SectionTabs tabs={[...CHECKLIST_SECTION_TABS]} />
+
+      <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="flex flex-col gap-2">
-          <Text
-            as="p"
-            variant="label-xs"
-            tone="secondary"
-            className="uppercase tracking-wide"
-          >
-            Portal Conecta WEG
-          </Text>
           <Text as="h1" variant="heading-h1" tone="primary">
             Dashboard dos Checklists
           </Text>

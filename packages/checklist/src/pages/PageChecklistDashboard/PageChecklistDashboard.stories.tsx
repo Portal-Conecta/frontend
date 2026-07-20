@@ -12,10 +12,14 @@ const meta: Meta<typeof PageChecklistDashboardContent> = {
   component: PageChecklistDashboardContent,
   parameters: {
     layout: "fullscreen",
+    nextjs: {
+      appDirectory: true,
+      navigation: { pathname: "/checklist/dashboard" },
+    },
     docs: {
       description: {
         component:
-          "Dashboard dos Checklists | Portal Conecta WEG — KPIs derivados + 6 gráficos do GET /api/checklist-stats/dashboard (via BFF).",
+          "Dashboard dos Checklists | Portal Conecta WEG — SectionTabs + KPIs + gráficos do GET /api/checklist-stats/dashboard (via BFF).",
       },
     },
   },
