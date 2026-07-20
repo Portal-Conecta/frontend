@@ -1,3 +1,4 @@
+// packages/checklist/src/services/server/templateService.ts
 import { createHttpClient } from "@portal/core/http/httpClient";
 import { checklistGatewayPath } from "../checklistGateway";
 import type {
@@ -6,6 +7,8 @@ import type {
   ChecklistTemplateEditRequest,
   ChecklistItemSearchResult,
   ChecklistItemByCategorySearchResult,
+  ChecklistTemplateStatus,
+  ChecklistCategory,
 } from "../../types/template";
 
 const http = createHttpClient("API_GATEWAY_URL");
@@ -35,9 +38,18 @@ export async function findTemplateById(
   );
 }
 
-export async function listTemplates(): Promise<ChecklistTemplateResponse[]> {
+export interface ListTemplatesParams {
+  roomId?: string;
+  status?: ChecklistTemplateStatus;
+  category?: ChecklistCategory;
+}
+
+export async function listTemplates(
+  params?: ListTemplatesParams,
+): Promise<ChecklistTemplateResponse[]> {
   return http.get<ChecklistTemplateResponse[]>(
     checklistGatewayPath("/api/checklist-templates"),
+    { params },
   );
 }
 
