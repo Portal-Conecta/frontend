@@ -6,16 +6,7 @@ import type { UserAccountStatus } from '@portal/core/classes/types'
 import { bffErrorResponse } from '@portal/core/http/bffError'
 import { createUser } from '@portal/core/profile/profileService'
 import { parseCreateUser } from '@portal/core/profile/profileValidation'
-import type { TypeUser } from '@portal/core/rbac'
-
-const USER_TYPES = new Set<TypeUser>([
-  'STUDENT',
-  'REPRESENTATIVE',
-  'TEACHER',
-  'SENAI',
-  'WEG',
-  'ADMIN',
-])
+import { isTypeUser, TYPE_USER_VALUES } from '@portal/core/rbac'
 const USER_STATUSES = new Set<UserAccountStatus>([
   'PENDING_ACTIVATION',
   'ACTIVE',
@@ -51,9 +42,9 @@ export async function GET(req: Request) {
   const search = searchParams.get('search')?.trim()
   const statuses = searchParams.getAll('status').filter(Boolean)
 
-  if (typeUserParam && !USER_TYPES.has(typeUserParam as TypeUser)) {
+  if (typeUserParam && !isTypeUser(typeUserParam)) {
     return NextResponse.json(
-      { code: 'validation', message: `typeUser deve ser um de: ${[...USER_TYPES].join(', ')}.` },
+      { code: 'validation', message: `typeUser deve ser um de: ${TYPE_USER_VALUES.join(', ')}.` },
       { status: 400 },
     )
   }
@@ -69,7 +60,7 @@ export async function GET(req: Request) {
   const params: ListUsersParams = {
     page: normalizePage(searchParams.get('page')),
     size: normalizeSize(searchParams.get('size')),
-    ...(typeUserParam ? { typeUser: typeUserParam as TypeUser } : {}),
+    ...(typeUserParam ? { typeUser: typeUserParam } : {}),
     ...(search ? { name: search } : {}),
     ...(statuses.length > 0 ? { status: statuses as UserAccountStatus[] } : {}),
   }

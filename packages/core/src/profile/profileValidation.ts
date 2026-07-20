@@ -1,18 +1,9 @@
 import type { ApiFieldError } from '@portal/shared'
 
-import type { TypeUser } from '../rbac'
+import { isTypeUser, TYPE_USER_VALUES } from '../rbac'
 import type { CreateUserPayload, UpdateUserPayload } from './types'
 
 export type ParseResult<T> = { ok: true; value: T } | { ok: false; errors: ApiFieldError[] }
-
-const USER_TYPES = new Set<TypeUser>([
-  'STUDENT',
-  'REPRESENTATIVE',
-  'TEACHER',
-  'SENAI',
-  'WEG',
-  'ADMIN',
-])
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -49,14 +40,15 @@ export function parseCreateUser(input: unknown): ParseResult<CreateUserPayload> 
 
   const email = validateEmail(obj.email, errors, true)
   const typeUser = obj.typeUser
+  const validTypeUser = isTypeUser(typeUser) ? typeUser : undefined
   if (!typeUser) {
     errors.push({ field: 'typeUser', message: 'Tipo é obrigatório.' })
-  } else if (!USER_TYPES.has(typeUser as TypeUser)) {
-    errors.push({ field: 'typeUser', message: `Tipo deve ser um de: ${[...USER_TYPES].join(', ')}.` })
+  } else if (!validTypeUser) {
+    errors.push({ field: 'typeUser', message: `Tipo deve ser um de: ${TYPE_USER_VALUES.join(', ')}.` })
   }
 
   if (errors.length > 0) return { ok: false, errors }
-  return { ok: true, value: { name: name!, email: email!, typeUser: typeUser as TypeUser } }
+  return { ok: true, value: { name: name!, email: email!, typeUser: validTypeUser! } }
 }
 
 /** Valida e normaliza a edição parcial antes de chamar `PATCH /hub/users/{id}`. */
