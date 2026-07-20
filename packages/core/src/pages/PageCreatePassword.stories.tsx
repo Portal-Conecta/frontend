@@ -11,7 +11,7 @@ import { PageCreatePassword } from './PageCreatePassword'
  * story `Mobile` (abaixo de 1024px o painel direito nem é montado).
  */
 const meta: Meta<typeof PageCreatePassword> = {
-  title: 'Componentes/Páginas/PageCreatePassword',
+  title: 'Componentes/Layout/PageCreatePassword',
   component: PageCreatePassword,
   parameters: { layout: 'fullscreen' },
   argTypes: {
