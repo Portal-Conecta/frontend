@@ -37,6 +37,8 @@ export interface CoursesListParams {
 }
 
 export interface CoursesListResult {
+  content: any[]
+  data: any[]
   courses: Course[]
 }
 
