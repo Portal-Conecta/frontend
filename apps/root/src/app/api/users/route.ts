@@ -39,10 +39,11 @@ function normalizeSize(raw: string | null): number {
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
   const typeUserParam = searchParams.get('typeUser')
+  const typeUser = typeUserParam && isTypeUser(typeUserParam) ? typeUserParam : undefined
   const search = searchParams.get('search')?.trim()
   const statuses = searchParams.getAll('status').filter(Boolean)
 
-  if (typeUserParam && !isTypeUser(typeUserParam)) {
+  if (typeUserParam && !typeUser) {
     return NextResponse.json(
       { code: 'validation', message: `typeUser deve ser um de: ${TYPE_USER_VALUES.join(', ')}.` },
       { status: 400 },
@@ -60,7 +61,7 @@ export async function GET(req: Request) {
   const params: ListUsersParams = {
     page: normalizePage(searchParams.get('page')),
     size: normalizeSize(searchParams.get('size')),
-    ...(typeUserParam ? { typeUser: typeUserParam } : {}),
+    ...(typeUser ? { typeUser } : {}),
     ...(search ? { name: search } : {}),
     ...(statuses.length > 0 ? { status: statuses as UserAccountStatus[] } : {}),
   }
