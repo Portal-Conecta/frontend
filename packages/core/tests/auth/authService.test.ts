@@ -12,7 +12,7 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { AuthError, login, refresh } from '@portal/core/auth/authService'
+import { activateAccount, ActivationError, AuthError, login, refresh } from '@portal/core/auth/authService'
 
 const API_URL = 'https://api.test'
 
@@ -131,5 +131,48 @@ describe('refresh', () => {
   it('mapeia falha de rede para AuthError network', async () => {
     stubFetch().mockRejectedValue(new TypeError('Failed to fetch'))
     await expect(refresh('token')).rejects.toMatchObject({ kind: 'network' })
+  })
+})
+
+describe('activateAccount', () => {
+  it('envia token e nova senha para /auth/activate', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(response(204, undefined))
+
+    await expect(activateAccount('token-de-ativacao', 'nova-senha')).resolves.toBeUndefined()
+
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe(`${API_URL}/auth/activate`)
+    expect(init?.method).toBe('POST')
+    expect(JSON.parse(init?.body as string)).toEqual({ token: 'token-de-ativacao', newPassword: 'nova-senha' })
+  })
+
+  it.each([
+    ['Token de ativacao invalido.', 'activation_invalid'],
+    ['Token de ativacao expirado.', 'activation_expired'],
+    ['Token de ativacao ja utilizado.', 'activation_used'],
+    ['Conta ja foi ativada anteriormente.', 'activation_used'],
+  ] as const)('mapeia erro de ativação para %s', async (message, kind) => {
+    stubFetch().mockResolvedValue(response(400, { message }))
+
+    await expect(activateAccount('token', 'nova-senha')).rejects.toMatchObject({ kind })
+  })
+
+  it('mapeia 404 para token inválido sem expor o detalhe do back-end', async () => {
+    stubFetch().mockResolvedValue(response(404, {}))
+
+    await expect(activateAccount('token', 'nova-senha')).rejects.toMatchObject({ kind: 'activation_invalid' })
+  })
+
+  it('mapeia falha de rede', async () => {
+    stubFetch().mockRejectedValue(new TypeError('Failed to fetch'))
+
+    await expect(activateAccount('token', 'nova-senha')).rejects.toMatchObject({ kind: 'network' })
+  })
+
+  it('lança ActivationError para falhas de ativação', async () => {
+    stubFetch().mockResolvedValue(response(404, {}))
+
+    await expect(activateAccount('token', 'nova-senha')).rejects.toBeInstanceOf(ActivationError)
   })
 })
