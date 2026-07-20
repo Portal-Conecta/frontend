@@ -52,6 +52,13 @@ export const VarianteAluno: Story = {
   },
 }
 
+export const VarianteRepresentante: Story = {
+  args: {
+    userType: 'REPRESENTATIVE',
+    loading: false,
+  },
+}
+
 export const Loading: Story = {
   args: {
     userType: 'ADMIN',
