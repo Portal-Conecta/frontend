@@ -1,5 +1,3 @@
-'use client'
-
 import { Text } from '@portal/ui/atoms'
 
 export type ClassCardVariant = 'withBackground' | 'withoutBackground'
@@ -8,7 +6,7 @@ export type ClassCardVariant = 'withBackground' | 'withoutBackground'
 export type ClassCardPrincipal = 'tag' | 'title'
 
 const variantCard: Record<ClassCardVariant, string> = {
-  withBackground:'grid lg:grid-cols-[3.5vw_15vw_6vw] grid-cols-[1fr] md:grid-rows-[1fr_1fr] grid-rows-[1fr] lg:grid-rows-[1fr] gap-2 bg-text-inverse rounded-lg p-4',
+  withBackground:'grid lg:grid-cols-[3.5vw_15vw_6vw] grid-cols-[1fr] md:grid-rows-[1fr_1fr] grid-rows-[1fr] lg:grid-rows-[1fr] gap-2 bg-background-surface rounded-lg p-4',
   withoutBackground:'grid lg:grid-cols-[5vw_25vw_10vw] grid-cols-[1fr] md:grid-rows-[1fr_1fr] grid-rows-[1fr] lg:grid-rows-[1fr] gap-2 '
 }
 
@@ -85,10 +83,10 @@ export function ClassCard({tag,title,meta,variant,principal='tag'}:ClassCardItem
           value={title}
           mobile={principal === 'title' ? highlight : secondary}
           desktop={{ emphasis: false, tone: 'brand' }}
-          className='break-word lg:text-center lg:border-x-sm border-text-brand lg:px-2'
+          className='break-words lg:text-center lg:border-x-sm border-text-brand lg:px-2'
         />
       </div>
-      <div className='w-full lg:col-start-3 self-center lg:text-center md:row-start-2 lg:row-start-1 row-start-3'>
+      <div className='w-full lg:col-start-3 self-center lg:text-center md:row-start-3 lg:row-start-1 row-start-3'>
         <CardField
           value={meta}
           mobile={secondary}

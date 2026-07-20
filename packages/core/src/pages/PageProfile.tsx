@@ -79,12 +79,17 @@ export async function PageProfile() {
             Não foi possível carregar suas turmas.
           </Banner>
         ) : classes.length > 0 ? (
-          <div className="flex max-w-full flex-col gap-3 rounded-lg bg-background-default p-8">
-            <Text variant='label-sm-emphasis' tone='brand'>Turmas</Text>
+          <section
+            aria-labelledby="profile-classes-heading"
+            className="flex max-w-full flex-col gap-3 rounded-lg bg-background-default p-8"
+          >
+            <Text as="h2" id="profile-classes-heading" variant="label-sm-emphasis" tone="brand">
+              {classes.length === 1 ? 'Turma' : 'Turmas'}
+            </Text>
             {classes.map((turma) => (
               <ClassCard key={turma.tag} variant="withBackground" {...turma} />
             ))}
-          </div>
+          </section>
         ) : null}
 
         <Banner variant="info" className="w-full">
