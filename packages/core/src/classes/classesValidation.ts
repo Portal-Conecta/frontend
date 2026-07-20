@@ -51,6 +51,10 @@ export function parseCreateClass(input: unknown): ParseResult<CreateClassPayload
 
   return {
     ok: true,
-    value: { courseId: courseId!, number: number as number, shift: shift as HubShift },
+    value: { 
+      courseId: courseId!, 
+      number: String(number),
+      shift: shift as HubShift 
+    },
   }
 }

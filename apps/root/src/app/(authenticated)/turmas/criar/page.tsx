@@ -6,7 +6,7 @@ import { cookies } from 'next/headers'
 import { AppShell } from '@portal/core'
 import { getCurrentUser } from '@portal/core/auth/getCurrentUser'
 import { Text } from '@portal/ui'
-import { CreateClassForm } from '@portal/ui/molecules/Classes/CreateClassForm'
+import { CreateClassForm, type Course, type CreateClassPayload } from '@portal/ui/molecules/Classes/CreateClassForm'
 
 import { createClass } from '@portal/core/classes/classesService'
 import { listCourses } from '@portal/core/courses/coursesService' 
@@ -20,7 +20,9 @@ export default async function CriarTurmaPage() {
   
   const cookieStore = await cookies()
   const token = cookieStore.get('session')?.value || cookieStore.get('token')?.value || ''
-let realCourses: any[] = [] 
+  
+  // Tipagem ajustada de any[] para Course[]
+  let realCourses: Course[] = [] 
 
   try {
     const response = await listCourses(token)
@@ -35,7 +37,8 @@ let realCourses: any[] = []
     console.error('Erro ao buscar lista de cursos reais:', error)
   }
 
-  const handleSubmitClass = async (data: any) => {
+  // Tipagem ajustada de any para CreateClassPayloa
+  const handleSubmitClass = async (data: CreateClassPayload) => {
     'use server'
     
     try {
@@ -48,11 +51,10 @@ let realCourses: any[] = []
         shift: data.shift
       }
 
-      await createClass(payload as any, serverToken)
+      await createClass(payload as unknown as Parameters<typeof createClass>[0], serverToken)
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro na criação da turma:', error)
-      console.error('Detalhes do Erro:', JSON.stringify(error?.body || error, null, 2))
       return { success: false }
     }
 
