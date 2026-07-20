@@ -3,7 +3,7 @@ import { Icon, Text } from "@portal/ui";
 export interface ChecklistItemResultProps {
   title: string;
   description?: string;
-  status: "conforme" | "nao-conforme";
+  status: "COMPLIANT" | "NON_COMPLIANT";
   observation?: string;
   className?: string;
 }
@@ -15,7 +15,7 @@ export function ChecklistItemResult({
   observation,
   className,
 }: ChecklistItemResultProps) {
-  const isConforme = status === "conforme";
+  const isConforme = status === "COMPLIANT";
 
   return (
     <div

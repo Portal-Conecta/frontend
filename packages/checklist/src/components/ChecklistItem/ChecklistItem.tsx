@@ -51,7 +51,7 @@ export function ChecklistItem({
     onJustificationChange?.(text);
   };
 
-  const showJustification = selected === "nao-conforme";
+  const showJustification = selected === "NON_COMPLIANT";
 
   return (
     <div
