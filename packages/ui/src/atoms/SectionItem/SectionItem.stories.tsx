@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { SectionItem } from './SectionItem'
 
 const meta: Meta<typeof SectionItem> = {
-  title: 'Componentes/Navegação/Section/SectionItem',
+  title: 'Componentes/Navigation/Section/SectionItem',
   component: SectionItem,
   parameters: { layout: 'padded' },
   argTypes: {

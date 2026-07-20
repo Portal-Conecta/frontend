@@ -24,6 +24,7 @@ export const NAV_REGISTRY: readonly NavEntry[] = [
   { key: 'checklist', icon: 'clipboard-list', label: 'Checklist', href: '/checklist', requires: 'checklist:ver' },
   { key: 'config', icon: 'settings', label: 'Configurações', href: '/configuracoes', requires: 'usuarios:gerenciar' },
   { key: 'turma', icon: 'users', label: 'Geren. Turmas', href: '/turmas', requires: 'turmas:gerenciar' },
+  { key: 'cursos', icon: 'graduation-cap', label: 'Cursos', href: '/cursos', requires: 'cursos:gerenciar' },
 ]
 
 /**
@@ -36,6 +37,8 @@ export const NAV_REGISTRY: readonly NavEntry[] = [
  * | mapa-salas  | - (universal)      |   sim   |   sim   |   sim   |  sim  | sim |  sim  |
  * | checklist   | checklist:ver      |   nao   |   sim   |   sim   |  sim  | sim |  sim  |
  * | config      | usuarios:gerenciar |   nao   |   nao   |   nao   |  sim  | sim |  sim  |
+ * | turma       | turmas:gerenciar   |   nao   |   nao   |   nao   |  sim  | sim |  sim  |
+ * | cursos      | cursos:gerenciar   |   nao   |   nao   |   nao   |  sim  | sim |  sim  |
  *
  * Invariante: comunicados + mapa são universais, então todo papel autenticado vê
  * >= 2 itens — a nav nunca fica vazia (decisão do "A decidir" da #173).

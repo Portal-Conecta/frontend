@@ -292,13 +292,17 @@ export interface BuildEditUpdatePayloadInput {
  *
  * - SCHEDULED → publicar agora: `status: PUBLISHED` + `scheduledFor: null`
  * - SCHEDULED → nova data: mantém status e envia `scheduledFor` (ou PATCH depois)
- * - PUBLISHED → agendar: `status: SCHEDULED` + `scheduledFor`
- * - PUBLISHED → permanece agora: só conteúdo/destinos
+ * - PUBLISHED: só conteúdo/destinos (API não aceita PUBLISHED → SCHEDULED)
  */
 export function buildEditUpdatePayload(input: BuildEditUpdatePayloadInput): AnnouncementUpdatePayload {
   const title = input.title.trim()
   const description = input.description.trim()
   const destinations = input.destinations
+
+  // Publicado: ignora qualquer `scheduledFor` — transição inválida no back (409).
+  if (input.currentStatus === ANNOUNCEMENT_STATUS.PUBLISHED) {
+    return { title, description, destinations }
+  }
 
   if (input.scheduledFor == null) {
     if (input.currentStatus === ANNOUNCEMENT_STATUS.SCHEDULED) {
@@ -313,16 +317,6 @@ export function buildEditUpdatePayload(input: BuildEditUpdatePayloadInput): Anno
     }
 
     return { title, description, destinations }
-  }
-
-  if (input.currentStatus === ANNOUNCEMENT_STATUS.PUBLISHED) {
-    return {
-      title,
-      description,
-      destinations,
-      status: ANNOUNCEMENT_STATUS.SCHEDULED,
-      scheduledFor: input.scheduledFor,
-    }
   }
 
   return {
