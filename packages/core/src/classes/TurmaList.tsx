@@ -1,14 +1,14 @@
 'use client'
 
 /**
- * TurmaList — a linha de busca + a lista de turmas (client). Recebe as turmas já
- * buscadas no servidor pela `PageTurma` e detém só o estado da **busca de texto**,
- * filtrando no cliente (`filterTurmas`) — o back não filtra. Cada turma é um
+ * TurmaList - a linha de busca + a lista de turmas (client). Recebe as turmas ja
+ * buscadas no servidor pela `PageTurma` e detem so o estado da busca de texto,
+ * filtrando no cliente (`filterTurmas`) - o back nao filtra. Cada turma e um
  * `ListItem`; sem resultados, mostra um estado vazio.
  */
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { Button, ClassCard, Input, ListItem, Text } from '@portal/ui'
+import { Button, ClassCard, Icon, Input, ListItem, Text } from '@portal/ui'
 
 import {
   CLASS_REPRESENTATIVE_LIMIT,
@@ -27,6 +27,7 @@ import {
   type TurmaFilters,
   type TurmaRow,
 } from './turmaRows'
+import { HttpError } from '../http/errors'
 import type { ClassMember } from './types'
 
 export interface TurmaListProps {
@@ -38,8 +39,6 @@ export function TurmaList({ turmas }: TurmaListProps) {
   const [filters, setFilters] = useState<TurmaFilters>({})
   const [selectedTurma, setSelectedTurma] = useState<TurmaRow | null>(null)
 
-  // Opções derivadas da lista completa (não da filtrada) para ficarem estáveis
-  // enquanto se filtra.
   const { courses, shifts } = useMemo(() => turmaFilterOptions(turmas), [turmas])
 
   const filtered = useMemo(
@@ -47,7 +46,6 @@ export function TurmaList({ turmas }: TurmaListProps) {
     [turmas, filters, query],
   )
 
-  // "Restaurar" limpa o filtro aplicado na hora (não espera "Aplicar").
   const resetFilters = () => setFilters({})
 
   return (
@@ -101,7 +99,6 @@ export function TurmaList({ turmas }: TurmaListProps) {
   )
 }
 
-/** Uma turma na lista — no mobile o curso e o turno empilham; no `md+` viram colunas. */
 function TurmaRowItem({ turma, onManage }: { turma: TurmaRow; onManage: (turma: TurmaRow) => void }) {
   return (
     <ListItem className="flex items-center justify-between gap-2 md:gap-4">
@@ -127,77 +124,73 @@ function TurmaRowItem({ turma, onManage }: { turma: TurmaRow; onManage: (turma: 
   )
 }
 
+type RepresentativeTab = 'students' | 'teachers'
+
 function ClassRepresentativesPanel({ turma, onClose }: { turma: TurmaRow; onClose: () => void }) {
+  const [activeTab, setActiveTab] = useState<RepresentativeTab>('students')
   const [students, setStudents] = useState<ClassMember[]>([])
+  const [teachers, setTeachers] = useState<ClassMember[]>([])
   const [representatives, setRepresentatives] = useState<ClassMember[]>([])
   const [loading, setLoading] = useState(true)
   const [actionMemberId, setActionMemberId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const syncMembers = useCallback(
-    (studentMembers: ClassMember[], representativeMembers: ClassMember[]) => {
+    (
+      studentMembers: ClassMember[],
+      teacherMembers: ClassMember[],
+      representativeMembers: ClassMember[],
+    ) => {
       const currentRepresentatives = getRepresentativeMembers(representativeMembers)
 
       setRepresentatives(currentRepresentatives)
       setStudents(getRepresentativeCandidateStudents(studentMembers, currentRepresentatives))
+      setTeachers(teacherMembers.filter((member) => member.role === 'TEACHER'))
     },
     [],
   )
 
-  const loadMembers = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      const [studentMembers, representativeMembers] = await Promise.all([
-        listClassMembersClient(turma.id, 'STUDENT'),
-        listClassMembersClient(turma.id, 'REPRESENTATIVE'),
-      ])
-
-      syncMembers(studentMembers, representativeMembers)
-    } catch {
-      setError('Não foi possível carregar os representantes da turma.')
-    } finally {
-      setLoading(false)
-    }
-  }, [syncMembers, turma.id])
-
-  useEffect(() => {
-    let active = true
-
-    async function loadActiveMembers() {
+  const loadMembers = useCallback(
+    async (isActive: () => boolean = () => true) => {
       setLoading(true)
       setError(null)
 
       try {
-        const [studentMembers, representativeMembers] = await Promise.all([
+        const [studentMembers, teacherMembers, representativeMembers] = await Promise.all([
           listClassMembersClient(turma.id, 'STUDENT'),
+          listClassMembersClient(turma.id, 'TEACHER'),
           listClassMembersClient(turma.id, 'REPRESENTATIVE'),
         ])
 
-        if (active) {
-          syncMembers(studentMembers, representativeMembers)
+        if (isActive()) {
+          syncMembers(studentMembers, teacherMembers, representativeMembers)
         }
-      } catch {
-        if (active) {
-          setError('Não foi possível carregar os representantes da turma.')
+      } catch (err) {
+        if (isActive()) {
+          setError(getHttpErrorMessage(err, 'Não foi possível carregar os representantes da turma.'))
         }
       } finally {
-        if (active) {
+        if (isActive()) {
           setLoading(false)
         }
       }
-    }
+    },
+    [syncMembers, turma.id],
+  )
 
-    void loadActiveMembers()
+  useEffect(() => {
+    let active = true
+
+    void loadMembers(() => active)
 
     return () => {
       active = false
     }
-  }, [syncMembers, turma.id])
+  }, [loadMembers])
 
   const limitReached = hasRepresentativeLimitReached(representatives)
   const busy = loading || actionMemberId != null
+  const shownMembers = activeTab === 'students' ? students : teachers
 
   const promoteStudent = async (student: ClassMember) => {
     if (limitReached) return
@@ -208,8 +201,8 @@ function ClassRepresentativesPanel({ turma, onClose }: { turma: TurmaRow; onClos
     try {
       await setClassRepresentativeClient(turma.id, student.id, true)
       await loadMembers()
-    } catch {
-      setError('Não foi possível tornar este aluno representante.')
+    } catch (err) {
+      setError(getHttpErrorMessage(err, 'Não foi possível tornar este aluno representante.'))
     } finally {
       setActionMemberId(null)
     }
@@ -222,131 +215,239 @@ function ClassRepresentativesPanel({ turma, onClose }: { turma: TurmaRow; onClos
     try {
       await setClassRepresentativeClient(turma.id, representative.id, false)
       await loadMembers()
-    } catch {
-      setError('Não foi possível remover este representante.')
+    } catch (err) {
+      setError(getHttpErrorMessage(err, 'Não foi possível remover este representante.'))
     } finally {
       setActionMemberId(null)
     }
   }
 
   return (
-    <section className="mt-8 rounded-md border-sm border-border-default bg-background-surface p-4 md:p-6">
-      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-        <div>
-          <Text as="h2" variant="heading-h3" tone="primary">
-            Representantes da turma {turma.code}
+    <section className="mt-8 overflow-hidden rounded-md border-sm border-border-default bg-background-surface">
+      <header className="flex flex-col gap-4 border-b border-border-default px-4 py-4 md:flex-row md:items-center md:justify-between md:px-6">
+        <button
+          type="button"
+          className="inline-flex items-center gap-2 text-text-brand transition-colors hover:text-interactive-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
+          onClick={onClose}
+        >
+          <Icon name="chevron-left" size="sm" decorative />
+          <Text as="span" variant="heading-h3" tone="brand">
+            {turma.code}
           </Text>
-          <Text variant="body-sm" tone="secondary">
-            Selecione exatamente {CLASS_REPRESENTATIVE_LIMIT} alunos como representantes.
-          </Text>
-        </div>
+        </button>
 
-        <Button size="sm" variant="ghost" iconLeft="chevron-left" onClick={onClose}>
-          Voltar para turmas
+        <Button size="sm" iconLeft="plus">
+          Adicionar usuários a esta turma
         </Button>
-      </div>
+      </header>
 
       {error ? (
-        <div className="mt-4 rounded-md border-sm border-feedback-error/20 bg-feedback-error/5 p-3">
+        <div
+          role="alert"
+          className="mx-4 mt-4 rounded-md border-sm border-feedback-error/20 bg-feedback-error/5 p-3 md:mx-6"
+        >
           <Text variant="body-sm" className="text-feedback-error">
             {error}
           </Text>
         </div>
       ) : null}
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <section aria-labelledby="students-title">
-          <div className="mb-3">
-            <Text as="h3" id="students-title" variant="label-md-emphasis" tone="primary">
-              Alunos
-            </Text>
-            <Text variant="body-sm" tone="secondary">
-              Apenas alunos aparecem como opção de representante.
-            </Text>
+      <div className="grid min-h-96 gap-6 px-4 py-6 lg:grid-cols-3 lg:px-6">
+        <section aria-labelledby="members-title" className="min-w-0 lg:col-span-2">
+          <div className="mb-4 flex items-end justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-4 border-b border-border-default">
+                <RepresentativeTabButton
+                  active={activeTab === 'students'}
+                  onClick={() => setActiveTab('students')}
+                >
+                  Alunos
+                </RepresentativeTabButton>
+                <RepresentativeTabButton
+                  active={activeTab === 'teachers'}
+                  onClick={() => setActiveTab('teachers')}
+                >
+                  Professores
+                </RepresentativeTabButton>
+              </div>
+
+              {limitReached ? (
+                <div role="status" className="mt-2 border-l-2 border-feedback-warning pl-2">
+                  <Text variant="label-xs" tone="brand">
+                    {CLASS_REPRESENTATIVE_LIMIT_MESSAGE}
+                  </Text>
+                </div>
+              ) : null}
+            </div>
           </div>
 
-          <div className="space-y-2">
+          <div id="members-title" className="sr-only">
+            Membros da turma
+          </div>
+
+          <div className="overflow-hidden rounded-md border-sm border-border-default">
             {loading ? (
-              <Text variant="body-sm" tone="secondary">
-                Carregando alunos...
-              </Text>
-            ) : students.length === 0 ? (
-              <Text variant="body-sm" tone="secondary">
-                Nenhum aluno disponível para seleção.
-              </Text>
+              <div className="p-4">
+                <Text variant="body-sm" tone="secondary">
+                  Carregando alunos...
+                </Text>
+              </div>
+            ) : shownMembers.length === 0 ? (
+              <div className="p-4">
+                <Text variant="body-sm" tone="secondary">
+                  {activeTab === 'students'
+                    ? 'Nenhum aluno disponível para seleção.'
+                    : 'Nenhum professor encontrado nesta turma.'}
+                </Text>
+              </div>
             ) : (
-              students.map((student) => (
-                <ListItem key={student.id} className="flex items-center justify-between gap-3">
-                  <Text variant="body-md" tone="primary">
-                    {student.name}
-                  </Text>
-                  <Button
-                    size="sm"
-                    variant="outlined"
-                    disabled={busy || limitReached}
-                    loading={actionMemberId === student.id}
-                    onClick={() => void promoteStudent(student)}
+              <div className="divide-y divide-border-default">
+                {shownMembers.map((member) => (
+                  <div
+                    key={member.id}
+                    className="flex min-h-12 items-center justify-between gap-3 px-4 py-2"
                   >
-                    Tornar Representante
-                  </Button>
-                </ListItem>
-              ))
+                    <div className="flex min-w-0 items-center gap-3">
+                      <Icon name="circle-user" size="md" tone="primary" decorative />
+                      <Text variant="label-xs" tone="brand" className="truncate">
+                        {member.name}
+                      </Text>
+                    </div>
+
+                    {activeTab === 'students' ? (
+                      <Button
+                        size="xs"
+                        variant="outlined"
+                        disabled={busy || limitReached}
+                        loading={actionMemberId === member.id}
+                        onClick={() => void promoteStudent(member)}
+                      >
+                        Tornar Representante
+                      </Button>
+                    ) : (
+                      <Text variant="label-xs" tone="secondary">
+                        Professor
+                      </Text>
+                    )}
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         </section>
 
-        <aside
-          aria-labelledby="representatives-title"
-          className="rounded-md border-sm border-border-default bg-background-default p-4"
-        >
-          <div className="mb-3">
-            <Text as="h3" id="representatives-title" variant="label-md-emphasis" tone="primary">
-              Representantes atuais
-            </Text>
-            <Text variant="body-sm" tone="secondary">
-              {representatives.length}/{CLASS_REPRESENTATIVE_LIMIT} selecionados
-            </Text>
+        <aside aria-labelledby="representatives-title" className="flex min-w-0 flex-col">
+          <div className="mb-4 flex min-h-8 items-center justify-between gap-3">
+            <div>
+              <Text as="h3" id="representatives-title" variant="label-md-emphasis" tone="primary">
+                Representantes
+              </Text>
+              <Text variant="label-xs" tone="secondary">
+                {representatives.length}/{CLASS_REPRESENTATIVE_LIMIT} selecionados
+              </Text>
+            </div>
+            <Button size="xs" variant="outlined" disabled>
+              Alterar representantes
+            </Button>
           </div>
 
           {limitReached ? (
-            <div className="mb-3 rounded-md border-sm border-feedback-warning/20 bg-feedback-warning/5 p-3">
+            <div
+              role="status"
+              className="mb-3 rounded-md border-sm border-feedback-warning/20 bg-feedback-warning/5 p-3"
+            >
               <Text variant="body-sm" tone="primary">
                 {CLASS_REPRESENTATIVE_LIMIT_MESSAGE}
               </Text>
             </div>
           ) : null}
 
-          <div className="space-y-2">
+          <div className="overflow-hidden rounded-md border-sm border-border-default">
             {loading ? (
-              <Text variant="body-sm" tone="secondary">
-                Carregando representantes...
-              </Text>
+              <div className="p-4">
+                <Text variant="body-sm" tone="secondary">
+                  Carregando representantes...
+                </Text>
+              </div>
             ) : representatives.length === 0 ? (
-              <Text variant="body-sm" tone="secondary">
-                Nenhum representante selecionado.
-              </Text>
+              <div className="p-4">
+                <Text variant="body-sm" tone="secondary">
+                  Nenhum representante selecionado.
+                </Text>
+              </div>
             ) : (
-              representatives.map((representative) => (
-                <ListItem key={representative.id} className="flex items-center justify-between gap-3">
-                  <Text variant="body-md" tone="primary">
-                    {representative.name}
-                  </Text>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    tone="negative"
-                    icon="x"
-                    aria-label={`Remover ${representative.name} dos representantes`}
-                    disabled={busy}
-                    loading={actionMemberId === representative.id}
-                    onClick={() => void removeRepresentative(representative)}
-                  />
-                </ListItem>
-              ))
+              <div className="divide-y divide-border-default">
+                {representatives.map((representative) => (
+                  <div
+                    key={representative.id}
+                    className="flex min-h-14 items-center justify-between gap-3 px-4 py-2"
+                  >
+                    <div className="flex min-w-0 items-center gap-3">
+                      <Icon name="circle-user" size="md" tone="primary" decorative />
+                      <Text variant="label-xs" tone="brand" className="truncate">
+                        {representative.name}
+                      </Text>
+                    </div>
+                    <Button
+                      size="xs"
+                      variant="outlined"
+                      tone="negative"
+                      icon="x"
+                      aria-label={`Remover ${representative.name} dos representantes`}
+                      disabled={busy}
+                      loading={actionMemberId === representative.id}
+                      onClick={() => void removeRepresentative(representative)}
+                    />
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         </aside>
       </div>
+
+      <footer className="flex flex-col gap-2 border-t border-border-default px-4 py-4 md:flex-row md:justify-end md:px-6">
+        <Button size="sm" variant="outlined" onClick={onClose}>
+          Descartar alterações
+        </Button>
+        <Button size="sm" onClick={onClose}>
+          Salvar Edições
+        </Button>
+      </footer>
     </section>
   )
+}
+
+function RepresentativeTabButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean
+  onClick: () => void
+  children: string
+}) {
+  return (
+    <button
+      type="button"
+      className={[
+        'border-b-2 pb-2 text-label-xs font-inter transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus',
+        active
+          ? 'border-interactive-default text-interactive-default'
+          : 'border-transparent text-text-secondary hover:text-interactive-hover',
+      ].join(' ')}
+      aria-pressed={active}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  )
+}
+
+function getHttpErrorMessage(err: unknown, fallback: string): string {
+  if (err instanceof HttpError) {
+    return err.body?.message ?? err.message ?? fallback
+  }
+
+  return fallback
 }
