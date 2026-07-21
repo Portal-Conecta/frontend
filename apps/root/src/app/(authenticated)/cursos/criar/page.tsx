@@ -1,9 +1,8 @@
 import type { Metadata } from 'next'
 
-import { AppShell } from '@portal/core'
+import { AppShell, PermissionGate } from '@portal/core'
 import { getCurrentUser } from '@portal/core/auth/getCurrentUser'
 import { Text } from '@portal/ui'
-import { PermissionGate } from '@portal/core' 
 
 import { CriarCursoFormWrapper } from './CriarCursoFormWrapper'
 import { CoursePageHeader } from './CoursePageHeader'

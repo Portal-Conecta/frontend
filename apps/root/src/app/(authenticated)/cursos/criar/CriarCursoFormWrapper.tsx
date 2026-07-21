@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 
 import { createCoursesClient } from '@portal/core/courses/coursesClient'
 import { HttpError } from '@portal/core/http/errors'
-import { Button, Text } from '@portal/ui'
+import { Alert, Button, Text } from '@portal/ui'
 
 import { CreateCourseForm } from './CreateCourseForm'
 import { DraftCourseList, type DraftCourse } from './DraftCourseList'
@@ -121,14 +121,7 @@ export function CriarCursoFormWrapper() {
         />
       </div>
 
-      {formError ? (
-        <div role="alert" className="flex items-stretch gap-4">
-          <span className="w-[3px] shrink-0 rounded-full bg-feedback-error" aria-hidden="true" />
-          <Text variant="label-md" className="text-feedback-error">
-            {formError}
-          </Text>
-        </div>
-      ) : null}
+      {formError ? <Alert variant="error">{formError}</Alert> : null}
 
       <div className="flex gap-4">
         <Button variant="outlined" onClick={() => router.back()} disabled={isSaving} className="flex-1">

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, type ChangeEvent } from 'react'
+import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 
 import { Button, Input, Text } from '@portal/ui'
 
@@ -32,6 +32,13 @@ export interface DraftCourseListProps {
 export function DraftCourseList({ items, onUpdate, onRemove, disabled = false }: DraftCourseListProps) {
   const [editingId, setEditingId] = useState<string | null>(null)
 
+  function finishEditing(id: string) {
+    setEditingId(null)
+    requestAnimationFrame(() => {
+      document.querySelector<HTMLButtonElement>(`button[data-edit-course-id="${id}"]`)?.focus()
+    })
+  }
+
   if (items.length === 0) {
     return (
       <Text as="p" variant="body-sm" tone="secondary">
@@ -50,10 +57,10 @@ export function DraftCourseList({ items, onUpdate, onRemove, disabled = false }:
             disabled={disabled}
             onConfirm={(data) => {
               const error = onUpdate(item.id, data)
-              if (!error) setEditingId(null)
+              if (!error) finishEditing(item.id)
               return error
             }}
-            onCancel={() => setEditingId(null)}
+            onCancel={() => finishEditing(item.id)}
           />
         ) : (
           <DraftCourseReadRow
@@ -99,6 +106,7 @@ function DraftCourseReadRow({
           size="sm"
           icon="square-pen"
           aria-label={`Editar curso ${item.code}`}
+          data-edit-course-id={item.id}
           onClick={onEdit}
           disabled={disabled}
         />
@@ -127,9 +135,14 @@ function DraftCourseEditRow({
   onConfirm: (data: { code: string; name: string }) => string | null
   onCancel: () => void
 }) {
+  const fieldsRef = useRef<HTMLDivElement>(null)
   const [code, setCode] = useState(item.code)
   const [name, setName] = useState(item.name)
   const [errors, setErrors] = useState({ code: '', name: '' })
+
+  useEffect(() => {
+    fieldsRef.current?.querySelector<HTMLInputElement>('input')?.focus()
+  }, [])
 
   function handleConfirm() {
     const trimmedCode = code.trim()
@@ -151,7 +164,7 @@ function DraftCourseEditRow({
 
   return (
     <li className="flex flex-col gap-3 px-4 py-3">
-      <div className="flex flex-col gap-3 sm:flex-row">
+      <div ref={fieldsRef} className="flex flex-col gap-3 sm:flex-row">
         <Input
           value={code}
           disabled={disabled}
