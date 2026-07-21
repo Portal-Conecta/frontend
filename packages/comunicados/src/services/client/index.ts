@@ -1,11 +1,13 @@
 export {
   uploadAnnouncementImageClient,
   uploadAnnouncementImagesClient,
+  deleteAnnouncementImageClient,
 } from './announcementImagesClient'
 export {
   listDestinationCoursesClient,
   listDestinationClassesClient,
   listDestinationUsersClient,
+  getDestinationUserClient,
 } from './destinationsClient'
 export {
   listPostsClient,

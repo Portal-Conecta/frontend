@@ -28,24 +28,20 @@ Texto pelo componente `Text`, escolhendo a intenção (`variant`) e o tom (`tone
 </Text>
 ```
 
-## 3. Monte a tela dentro do AppLayout
+## 3. A página é só o conteúdo — o shell vem do layout
 
-O shell compartilhado vem do `@portal/core`. Ele entrega a Sidebar, o cabeçalho e a navegação, e embrulha o conteúdo da sua tela. Exemplo real de uma página de módulo:
+O shell compartilhado (`AppShell` do `@portal/core` — Sidebar, cabeçalho e navegação) é montado uma única vez no layout do grupo `(authenticated)` do `apps/root`, e o item ativo da nav é derivado da rota. A página do módulo não monta shell nenhum: renderiza só o conteúdo.
 
 ```tsx
 import { Text } from '@portal/ui'
 
-import { AppShell } from '@portal/core'
-
 export default function ComunicadosPage() {
   return (
-    <AppShell activeKey="comunicados">
-      <div className="p-8">
-        <Text as="h1" variant="heading-h2" tone="primary">
-          Mural de Comunicados
-        </Text>
-      </div>
-    </AppShell>
+    <div className="p-8">
+      <Text as="h1" variant="heading-h2" tone="primary">
+        Mural de Comunicados
+      </Text>
+    </div>
   )
 }
 ```
@@ -56,7 +52,7 @@ Não adicione `'use client'` por precaução. Use apenas quando o arquivo precis
 
 ## Onde cada coisa mora
 
-A página de um módulo nasce em `packages/[domínio]/src/pages/` e o shell a monta em `apps/root/src/app/[rota]/page.tsx`. As camadas importam só de cima para baixo, e um domínio nunca importa outro domínio.
+A página de um módulo nasce em `packages/[domínio]/src/pages/` e o `apps/root` a registra numa rota fina em `apps/root/src/app/(authenticated)/[rota]/page.tsx` — o shell vem do layout do grupo. As camadas importam só de cima para baixo, e um domínio nunca importa outro domínio.
 
 ## Precisa de um componente que não existe?
 

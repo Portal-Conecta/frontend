@@ -8,12 +8,6 @@ importers:
 
   .:
     devDependencies:
-      '@fontsource/afacad':
-        specifier: ^5.2.10
-        version: 5.2.10
-      '@fontsource/inter':
-        specifier: ^5.2.8
-        version: 5.2.8
       '@storybook/addon-a11y':
         specifier: ^8.0.0
         version: 8.6.18(storybook@8.6.18(prettier@3.8.3))
@@ -29,6 +23,9 @@ importers:
       '@storybook/react':
         specifier: ^8.0.0
         version: 8.6.18(@storybook/test@8.6.18(storybook@8.6.18(prettier@3.8.3)))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(storybook@8.6.18(prettier@3.8.3))(typescript@5.9.3)
+      '@storybook/test':
+        specifier: ^8.0.0
+        version: 8.6.18(storybook@8.6.18(prettier@3.8.3))
       '@storybook/test-runner':
         specifier: ^0.24.4
         version: 0.24.4(@types/node@22.19.20)(esbuild-register@3.6.0(esbuild@0.25.12))(storybook@8.6.18(prettier@3.8.3))
@@ -59,6 +56,9 @@ importers:
       http-server:
         specifier: ^14.1.1
         version: 14.1.1
+      next:
+        specifier: ^15.0.0
+        version: 15.5.19(@babel/core@7.29.7)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       playwright:
         specifier: 1.61.0
         version: 1.61.0
@@ -141,6 +141,9 @@ importers:
       '@portal/ui':
         specifier: workspace:*
         version: link:../ui
+      lucide-react:
+        specifier: ^1.17.0
+        version: 1.17.0(react@19.2.7)
       next:
         specifier: ^15.0.0
         version: 15.5.19(@babel/core@7.29.7)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -1285,12 +1288,6 @@ packages:
 
   '@floating-ui/utils@0.2.12':
     resolution: {integrity: sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==}
-
-  '@fontsource/afacad@5.2.10':
-    resolution: {integrity: sha512-e0guo2tqseypnc3ttd3dDTy4xLP/kBKlPl0PJyTKhnSEgjqWBx2pAsH9bcvrKJ1oH1MFV2OSwIwl1eP0meBX0Q==}
-
-  '@fontsource/inter@5.2.8':
-    resolution: {integrity: sha512-P6r5WnJoKiNVV+zvW2xM13gNdFhAEpQ9dQJHt3naLvfg+LkF2ldgSLiF4T41lf1SQCM9QmkqPTn4TH568IRagg==}
 
   '@hapi/address@5.1.1':
     resolution: {integrity: sha512-A+po2d/dVoY7cYajycYI43ZbYMXukuopIsqCjh5QzsBCipDtdofHntljDlpccMjIfTy6UOkg+5KPriwYch2bXA==}
@@ -7328,10 +7325,6 @@ snapshots:
   '@floating-ui/utils@0.2.12':
     optional: true
 
-  '@fontsource/afacad@5.2.10': {}
-
-  '@fontsource/inter@5.2.8': {}
-
   '@hapi/address@5.1.1':
     dependencies:
       '@hapi/hoek': 11.0.7
@@ -7520,7 +7513,7 @@ snapshots:
 
   '@img/sharp-wasm32@0.34.5':
     dependencies:
-      '@emnapi/runtime': 1.11.0
+      '@emnapi/runtime': 1.11.1
     optional: true
 
   '@img/sharp-win32-arm64@0.34.5':

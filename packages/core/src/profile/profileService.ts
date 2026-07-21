@@ -1,6 +1,12 @@
 import { createHttpClient } from '../http/httpClient'
 import { hubGatewayPath } from '../http/hubGateway'
-import type { MyListCourseResponse, MyProfile, UserById } from './types'
+import type {
+  CreateUserPayload,
+  MyListCourseResponse,
+  MyProfile,
+  UpdateUserPayload,
+  UserById,
+} from './types'
 
 const http = createHttpClient('API_GATEWAY_URL')
 
@@ -19,5 +25,25 @@ export function getMyCourses(token: string): Promise<MyListCourseResponse> {
  * Sem `token`, usa o JWT da sessão (Server Components / Route Handlers).
  */
 export function getUserById(userId: string, token?: string): Promise<UserById> {
-  return http.get<UserById>(hubGatewayPath(`/users/${userId}`), token ? { token } : undefined)
+  return http.get<UserById>(
+    hubGatewayPath(`/users/${encodeURIComponent(userId)}`),
+    token ? { token } : undefined,
+  )
+}
+
+/** Cria um usuário no Hub. Regras de domínio (e-mail institucional e hierarquia) ficam no backend. */
+export function createUser(payload: CreateUserPayload, token: string): Promise<UserById> {
+  return http.post<UserById>(hubGatewayPath('/users'), { token, body: payload })
+}
+
+/** Atualiza os campos fornecidos de um usuário existente no Hub. */
+export function updateUser(
+  userId: string,
+  payload: UpdateUserPayload,
+  token: string,
+): Promise<UserById> {
+  return http.patch<UserById>(hubGatewayPath(`/users/${encodeURIComponent(userId)}`), {
+    token,
+    body: payload,
+  })
 }

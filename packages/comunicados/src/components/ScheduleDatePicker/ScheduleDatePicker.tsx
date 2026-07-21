@@ -19,7 +19,14 @@ import { useEffect, useId, useRef, useState } from 'react'
 
 import { DateInput, RadioGroup, Text, TimeInput } from '@portal/ui'
 
-import { combineToIso, isFutureIso, isoToLocalDate, isoToLocalTime, resolveScheduleDefaults, todayLocalDate } from './datetime'
+import {
+  combineToIso,
+  isFutureIso,
+  isoToLocalDate,
+  isoToLocalTime,
+  resolveScheduleDefaults,
+  todayLocalDate,
+} from '../../utils/datetime'
 
 const MODE_NOW = 'now'
 const MODE_SCHEDULE = 'schedule'
@@ -37,6 +44,11 @@ export interface ScheduleDatePickerProps {
   /** Erro externo (ex.: backend). Tem precedência sobre o aviso de data no passado. */
   error?: string
   disabled?: boolean
+  /**
+   * Quando `false`, a opção "Agendar publicação" fica desabilitada (ex.: comunicado
+   * já publicado — a API não aceita `PUBLISHED → SCHEDULED`). Default `true`.
+   */
+  allowSchedule?: boolean
   /** Só para layout externo. */
   className?: string
 }
@@ -46,6 +58,7 @@ export function ScheduleDatePicker({
   onChange,
   error,
   disabled = false,
+  allowSchedule = true,
   className,
 }: ScheduleDatePickerProps) {
   const baseId = useId()
@@ -53,7 +66,7 @@ export function ScheduleDatePicker({
   const timeId = `${baseId}-time`
   const errorId = `${baseId}-error`
 
-  const [enabled, setEnabled] = useState(() => value != null)
+  const [enabled, setEnabled] = useState(() => allowSchedule && value != null)
   const [dateStr, setDateStr] = useState(() => isoToLocalDate(value))
   const [timeStr, setTimeStr] = useState(() => isoToLocalTime(value))
   // Último valor emitido: distingue mudança externa (reset/edição pelo pai) de
@@ -63,10 +76,19 @@ export function ScheduleDatePicker({
   useEffect(() => {
     if (value === lastEmitted.current) return
     lastEmitted.current = value
-    setEnabled(value != null)
+    setEnabled(allowSchedule && value != null)
     setDateStr(isoToLocalDate(value))
     setTimeStr(isoToLocalTime(value))
-  }, [value])
+  }, [value, allowSchedule])
+
+  // Se o pai desligar o agendamento (ex.: status PUBLISHED), força "agora".
+  useEffect(() => {
+    if (allowSchedule) return
+    setEnabled(false)
+    if (value == null) return
+    lastEmitted.current = null
+    onChange(null)
+  }, [allowSchedule, onChange, value])
 
   function emit(nextEnabled: boolean, nextDate: string, nextTime: string) {
     const iso = nextEnabled ? combineToIso(nextDate, nextTime) : null
@@ -75,6 +97,8 @@ export function ScheduleDatePicker({
   }
 
   function handleMode(mode: string) {
+    if (mode === MODE_SCHEDULE && !allowSchedule) return
+
     const next = mode === MODE_SCHEDULE
     setEnabled(next)
 
@@ -86,6 +110,12 @@ export function ScheduleDatePicker({
 
     emit(next, resolved.date, resolved.time)
   }
+
+  const modeOptions = MODE_OPTIONS.map((option) =>
+    option.value === MODE_SCHEDULE && !allowSchedule
+      ? { ...option, disabled: true }
+      : option,
+  )
 
   function handleDate(next: string) {
     setDateStr(next)
@@ -107,10 +137,17 @@ export function ScheduleDatePicker({
       <RadioGroup
         value={enabled ? MODE_SCHEDULE : MODE_NOW}
         onChange={handleMode}
-        options={MODE_OPTIONS}
+        options={modeOptions}
         disabled={disabled}
         aria-label="Quando publicar o comunicado"
       />
+
+      {!allowSchedule ? (
+        <Text as="p" variant="body-sm" tone="secondary">
+          Comunicado já publicado: não é possível agendar. Salve as alterações de conteúdo e
+          destinatários.
+        </Text>
+      ) : null}
 
       {enabled ? (
         <>

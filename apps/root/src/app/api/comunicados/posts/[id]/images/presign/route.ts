@@ -7,6 +7,7 @@ import {
   type ImagesErrorKind,
 } from '@portal/comunicados/services/imagesService'
 import type { PresignUploadRequest } from '@portal/comunicados/types/presign'
+import { validateAnnouncementImagePresign } from '@portal/comunicados/utils/announcementImageValidation'
 
 const STATUS_BY_KIND: Record<ImagesErrorKind, number> = {
   validation: 400,
@@ -22,9 +23,14 @@ interface RouteContext {
 }
 
 /**
- * BFF de presign (#198).
+ * BFF de presign (#198 / #398).
+ *
  * Proxy JSON → gateway `/comunicados/api/posts/{postId}/images/presign`.
- * O browser envia o arquivo com PUT direto ao `uploadUrl` retornado.
+ *
+ * **Uso atual:** o wizard de create/edit **não** chama esta rota — o upload
+ * passa por `POST …/images` (presign + PUT S3 no servidor). Mantida para
+ * clientes/tooling que ainda peçam URL assinada; conteúdo e tamanho são
+ * validados aqui antes do proxy. Preferir o POST multipart quando possível.
  */
 export async function POST(req: Request, context: RouteContext) {
   const token = await getSession()
@@ -45,6 +51,18 @@ export async function POST(req: Request, context: RouteContext) {
     return NextResponse.json(
       { code: 'validation', message: 'contentType e originalName são obrigatórios.' },
       { status: 400 },
+    )
+  }
+
+  const validation = validateAnnouncementImagePresign({
+    contentType: body.contentType,
+    ...(body.sizeBytes != null ? { sizeBytes: body.sizeBytes } : {}),
+  })
+  if (validation) {
+    const status = validation.code === 'size' ? 413 : 400
+    return NextResponse.json(
+      { code: validation.code === 'size' ? 'payload-too-large' : 'validation', message: validation.message },
+      { status },
     )
   }
 

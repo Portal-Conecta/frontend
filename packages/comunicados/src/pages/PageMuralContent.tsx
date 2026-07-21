@@ -14,25 +14,61 @@ import {
   type AnnouncementFilters,
 } from '../components/AnnouncementFiltersBar'
 import { AnnouncementSearchField } from '../components/AnnouncementSearchField'
-import { useMuralFilterCatalog } from '../hooks/useMuralFilterCatalog'
+import { useMuralFilterCatalog, type MuralFilterCatalogSeed } from '../hooks/useMuralFilterCatalog'
 import type { ListPostsParams } from '../types/announcement'
 import { createDefaultFeedFilters, toListPostsParams } from '../utils/muralFilters'
 
 /** Espera após a última tecla antes de buscar no mural. */
 const SEARCH_DEBOUNCE_MS = 300
 
+/** Sobrevive a navegação (ex.: abrir um post e voltar) e reload da aba; some ao fechar a aba. */
+const MURAL_FILTERS_STORAGE_KEY = 'comunicados:mural-filters'
+
+interface StoredMuralFilters {
+  filters: AnnouncementFilters
+  search: string
+}
+
+function readStoredMuralFilters(): StoredMuralFilters {
+  if (typeof window === 'undefined') return { filters: {}, search: '' }
+
+  try {
+    const raw = window.sessionStorage.getItem(MURAL_FILTERS_STORAGE_KEY)
+    if (!raw) return { filters: {}, search: '' }
+
+    const parsed = JSON.parse(raw) as Partial<StoredMuralFilters>
+    return { filters: parsed.filters ?? {}, search: parsed.search ?? '' }
+  } catch {
+    return { filters: {}, search: '' }
+  }
+}
+
 export interface PageMuralContentProps {
   canCreate: boolean
   userType?: TypeUser | undefined
+  /** Catálogo pré-carregado pelo `PageMural` (Server Component) — pula o fetch client (#406). */
+  catalogSeed?: MuralFilterCatalogSeed | undefined
 }
 
-export function PageMuralContent({ canCreate, userType }: PageMuralContentProps) {
-  const catalog = useMuralFilterCatalog()
-  const [activeFilters, setActiveFilters] = useState<AnnouncementFilters>({})
-  const [searchQuery, setSearchQuery] = useState('')
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('')
-  const [feedFilters, setFeedFilters] = useState<ListPostsParams>(() => createDefaultFeedFilters())
+export function PageMuralContent({ canCreate, userType, catalogSeed }: PageMuralContentProps) {
+  const catalog = useMuralFilterCatalog(catalogSeed)
+  const [activeFilters, setActiveFilters] = useState<AnnouncementFilters>(
+    () => readStoredMuralFilters().filters,
+  )
+  const [searchQuery, setSearchQuery] = useState(() => readStoredMuralFilters().search)
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(() => readStoredMuralFilters().search)
+  const [feedFilters, setFeedFilters] = useState<ListPostsParams>(() => {
+    const stored = readStoredMuralFilters()
+    return toListPostsParams(stored.filters, stored.search)
+  })
   const [filtersOpen, setFiltersOpen] = useState(false)
+
+  useEffect(() => {
+    window.sessionStorage.setItem(
+      MURAL_FILTERS_STORAGE_KEY,
+      JSON.stringify({ filters: activeFilters, search: searchQuery } satisfies StoredMuralFilters),
+    )
+  }, [activeFilters, searchQuery])
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -70,6 +106,7 @@ export function PageMuralContent({ canCreate, userType }: PageMuralContentProps)
     periodoOptions: MURAL_PERIODO_OPTIONS,
     onApply: handleApply,
     onRestore: handleRestore,
+    initialFilters: activeFilters,
   }
 
   return (

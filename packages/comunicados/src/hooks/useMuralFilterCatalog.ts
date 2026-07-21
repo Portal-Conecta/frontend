@@ -28,18 +28,34 @@ export interface UseMuralFilterCatalogResult {
 }
 
 /**
+ * Dados de catálogo já resolvidos (ex.: prefetch no Server Component `PageMural`, #406).
+ * `shifts` fica de fora — é constante local (`getShiftOptions()`), não vem de fetch.
+ */
+export interface MuralFilterCatalogSeed {
+  courses: SelectOption[]
+  classes: ClassFilterOption[]
+  tags: Tag[]
+}
+
+/**
  * Catálogo leve do mural: cursos/turmas (Hub), turnos locais e tags ativas
  * (comunicados). Não carrega usuários — isso fica no fluxo de criação.
+ *
+ * `seed` (opcional, #406): quando o Server Component já fez o prefetch (ex.:
+ * `PageMural`), os estados nascem preenchidos e o fetch client é pulado —
+ * sem isso, dois catálogos idênticos (SSR + client) apareceriam no Network tab.
+ * Chamadas sem `seed` (ex.: `PageMeusComunicadosContent`) mantêm o fetch de sempre.
  */
-export function useMuralFilterCatalog(): UseMuralFilterCatalogResult {
-  const [courses, setCourses] = useState<SelectOption[]>([])
-  const [classes, setClasses] = useState<ClassFilterOption[]>([])
-  const [tags, setTags] = useState<Tag[]>([])
+export function useMuralFilterCatalog(seed?: MuralFilterCatalogSeed): UseMuralFilterCatalogResult {
+  const [courses, setCourses] = useState<SelectOption[]>(seed?.courses ?? [])
+  const [classes, setClasses] = useState<ClassFilterOption[]>(seed?.classes ?? [])
+  const [tags, setTags] = useState<Tag[]>(seed?.tags ?? [])
   const shifts = getShiftOptions()
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(!seed)
   const [error, setError] = useState('')
 
   useEffect(() => {
+    if (seed) return
     let cancelled = false
 
     async function loadCatalog() {

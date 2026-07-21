@@ -21,8 +21,10 @@ import type { AnnouncementDetail, AnnouncementTag } from '../../types'
 
 import Link from 'next/link'
 
-import { RichTextContent, Tag, Text } from '@portal/ui'
+import { Tag, Text } from '@portal/ui'
+import { RichTextContent } from '@portal/ui/organisms/RichTextEditor/RichTextContent'
 
+import { resolveAnnouncementDisplayDate } from '../../utils/announcement'
 import { AnnouncementDetailDocuments } from './AnnouncementDetailDocuments'
 import { AnnouncementDetailImages } from './AnnouncementDetailImages'
 
@@ -68,12 +70,12 @@ function Header({
   creatorName?: string
 }) {
   const { announcement } = detail
-  const dateLabel = formatDate(announcement.publishedAt ?? announcement.scheduledFor)
+  const dateLabel = formatDate(resolveAnnouncementDisplayDate(announcement))
 
   return (
     <header className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2">
-        <Tag tone="neutral" size="sm">
+        <Tag tone="info" size="sm">
           {originLabel[announcement.origin] ?? announcement.origin}
         </Tag>
         {announcement.pinned ? (

@@ -1,6 +1,20 @@
+import type { CSSProperties } from 'react'
+
 import { Text } from '@portal/ui'
 
+import { SEAT_ICON_DESKTOP_WIDTH, SEAT_ICON_FLUID_WIDTH } from '../seatSizing'
 import { SeatIcon } from '../SeatIcon'
+
+// Abaixo de `lg`: largura fluida (`clamp`, ver seatSizing.ts). Em `lg+`:
+// trava no tamanho desktop (`md` = 99px) via max-width — o clamp já chega
+// nesse teto em 1024px, e o max-width cobre qualquer viewport maior.
+// `aspectRatio` preserva o viewBox (99×58) com `height: auto`.
+const seatIconStyle: CSSProperties = {
+  width: SEAT_ICON_FLUID_WIDTH,
+  maxWidth: SEAT_ICON_DESKTOP_WIDTH,
+  aspectRatio: '99 / 58',
+  height: 'auto',
+}
 
 export type SeatCardState = 'available' | 'occupied' | 'selected' | 'teacher'
 
@@ -33,11 +47,18 @@ const defaultLabel: Partial<Record<SeatCardState, string>> = {
 
 const colorClassByState: Record<SeatCardState, string> = {
   available: 'text-text-secondary',
-  occupied: 'text-interactive-default',
-  // "Selecionado" reusa interactive-pressed, mesmo padrão do estado ativo do
-  // SidebarNavItem — não há token dedicado a seleção no DS.
-  selected: 'text-interactive-pressed',
-  teacher: 'text-interactive-default',
+  // "Ocupado" precisa ficar visualmente neutro — só o assento do próprio
+  // usuário (`selected`) pode usar azul, senão o "ponto azul" do rodapé
+  // (RoomMapSection) deixa de ser único e vira ambíguo com colegas alocados.
+  occupied: 'text-text-primary',
+  // `selected` (blue/300, mais claro) e `teacher` (blue/700, mais escuro)
+  // precisam ser azuis distinguíveis: os dois aparecem no mesmo grid e o
+  // rodapé da página só chama de "ponto azul" o assento do aluno — se
+  // fossem a mesma cor, o aluno confundiria seu lugar com o do professor.
+  // Reusa os tokens semânticos existentes (sem token dedicado a assento no
+  // DS): interactive-focus-ring = blue/300, interactive-hover = blue/700.
+  selected: 'text-interactive-focus-ring',
+  teacher: 'text-interactive-hover',
 }
 
 export function SeatCard({
@@ -53,7 +74,7 @@ export function SeatCard({
   const cursorClass = isEditing ? 'cursor-pointer' : 'cursor-default'
 
   const classes = [
-    'flex flex-col items-center justify-center gap-1 rounded-md p-2',
+    'flex min-w-0 flex-col items-center justify-center gap-1 rounded-md p-2',
     colorClassByState[state],
     cursorClass,
     className,
@@ -74,9 +95,13 @@ export function SeatCard({
       aria-pressed={state === 'selected'}
     >
       {/* Cadeira do professor fica de frente para a turma — espelhada
-          verticalmente em relação ao assento padrão  */}
-      <SeatIcon size="md" flipped={state === 'teacher'} />
-      <Text variant="label-sm">{resolvedLabel}</Text>
+          verticalmente em relação ao assento padrão. Largura fluida abaixo
+          de `lg` (`seatIconStyle` / seatSizing.ts); em `lg+` trava no `md`
+          (99px) — sem regressão visual no desktop (#427). */}
+      <SeatIcon flipped={state === 'teacher'} style={seatIconStyle} />
+      <Text variant="label-sm" className="max-w-full truncate">
+        {resolvedLabel}
+      </Text>
     </button>
   )
 }

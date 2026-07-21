@@ -40,14 +40,14 @@ function SidebarToggleButton({ expanded }: { expanded: boolean }) {
 }
 
 const meta: Meta<typeof AppFooter> = {
-  title: 'Componentes/Navegação/AppFooter',
+  title: 'Componentes/Navigation/AppFooter',
   component: AppFooter,
   parameters: { layout: 'fullscreen' },
   argTypes: {
     sidebarExpanded: {
       control: 'boolean',
       description:
-        'Alinha a largura da coluna esquerda ao estado da sidebar (colapsada 96px / expandida 254px).',
+        'Alinha a largura da coluna esquerda ao estado da sidebar (colapsada 72px / expandida 248px).',
     },
     leftSlot: {
       control: false,

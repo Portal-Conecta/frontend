@@ -88,6 +88,21 @@ export function ChecklistItemResult({
               </span>
             </>
           )}
+            "flex h-8 w-10 shrink-0 items-center justify-center gap-2 rounded-md border-sm",
+            "md:h-auto md:w-30 md:px-3 md:py-2",
+            isConforme
+              ? "border-feedback-success text-feedback-success"
+              : "border-feedback-error text-feedback-error",
+          ].join(" ")}
+        >
+          <Icon name={isConforme ? "check-check" : "x"} size="sm" decorative />
+
+          <Text
+            variant="label-xs"
+            className="whitespace-nowrap sr-only md:not-sr-only"
+          >
+            {isConforme ? "Conforme" : "Não Conforme"}
+          </Text>
         </div>
       </div>
 

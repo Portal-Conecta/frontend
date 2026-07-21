@@ -9,7 +9,7 @@ import { TimeInput } from './TimeInput'
  * formato nativo `HH:mm` (24h); o seletor abre pelo botão do ícone.
  */
 const meta: Meta<typeof TimeInput> = {
-  title: 'Componentes/Inputs/Input/Time',
+  title: 'Componentes/Inputs/Pickers/TimeInput',
   component: TimeInput,
   parameters: { layout: 'padded' },
   argTypes: {
