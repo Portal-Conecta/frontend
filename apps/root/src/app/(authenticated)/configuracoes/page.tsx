@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 
-/** Alias legado "Configurações" → gestão de usuários. */
+/** Alias legado da nav "Configurações" → lista de usuários (#440). */
 export default function ConfiguracoesRedirectPage() {
   redirect('/usuarios')
 }

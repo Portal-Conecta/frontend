@@ -22,7 +22,7 @@ import {
 
 import { ROLE_LABELS } from '../profile/roleLabels'
 import type { UserById } from '../profile/types'
-import { userProfileStatusLabel } from '../users/userProfileStatusLabel'
+import { directoryUserStatusLabel } from '../users/usersLabels'
 
 export interface PageUserProfileContentProps {
   user: UserById
@@ -37,20 +37,23 @@ export function PageUserProfileContent({
 }: PageUserProfileContentProps) {
   const router = useRouter()
   const roleLabel = ROLE_LABELS[user.typeUser]
-  const statusLabel = userProfileStatusLabel(user.active)
+  const statusLabel = directoryUserStatusLabel(user.active)
 
   return (
     <div className="flex flex-col gap-6 p-6 md:p-8">
       <header className="flex flex-wrap items-center justify-between gap-4 border-b border-border-default pb-4">
-        <Link
-          href="/usuarios"
-          className="inline-flex min-w-0 items-center gap-2 rounded-sm text-text-brand transition-colors hover:text-interactive-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive-focus-ring focus-visible:ring-offset-2"
-        >
-          <Icon name="chevron-left" size="lg" decorative />
-          <Text as="span" variant="heading-h2" tone="brand" className="truncate">
+        <div className="flex min-w-0 items-center gap-2">
+          <Link
+            href="/usuarios"
+            aria-label="Voltar para a lista de usuários"
+            className="inline-flex shrink-0 items-center justify-center rounded-sm text-text-brand transition-colors hover:text-interactive-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive-focus-ring focus-visible:ring-offset-2"
+          >
+            <Icon name="chevron-left" size="lg" decorative />
+          </Link>
+          <h1 className="truncate text-heading-h2 font-inter text-text-brand">
             Visualizar usuário
-          </Text>
-        </Link>
+          </h1>
+        </div>
 
         <Button
           iconLeft="square-pen"

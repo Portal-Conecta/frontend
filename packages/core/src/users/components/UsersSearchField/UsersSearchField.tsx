@@ -1,20 +1,14 @@
 'use client'
 
 /**
- * CourseSearchField — busca da lista de cursos por nome ou código.
+ * UsersSearchField — busca da lista de usuários por nome (#440).
  *
- * Componente específico do domínio de cursos (nasce no core, issue #357). O
- * átomo `Input` do DS só expõe ícone à direita e o protótipo pede a lupa à
- * **esquerda** num campo full-width arredondado (`lg`), então compomos aqui o
- * `Icon` + input nativo reusando as mesmas classes de token do `Input` — sem
- * duplicar regra de cor nem tocar em `packages/ui` (mudança no DS exige squad).
- *
- * Controlado: recebe `value` e emite `onChange`. O debounce e a chamada ao BFF
- * vivem na página (`PageCursosContent`).
+ * Espelha `CourseSearchField`: lupa à esquerda, campo full-width `rounded-lg`
+ * com borda focus, sem tocar em `packages/ui`. Debounce vive na página.
  */
 import { Icon } from '@portal/ui'
 
-export interface CourseSearchFieldProps {
+export interface UsersSearchFieldProps {
   value: string
   onChange: (value: string) => void
   placeholder?: string
@@ -22,13 +16,13 @@ export interface CourseSearchFieldProps {
   id?: string
 }
 
-export function CourseSearchField({
+export function UsersSearchField({
   value,
   onChange,
-  placeholder = 'Buscar por nome ou código',
+  placeholder = 'Buscar por nome',
   className,
   id,
-}: CourseSearchFieldProps) {
+}: UsersSearchFieldProps) {
   return (
     <div
       className={[
@@ -45,12 +39,10 @@ export function CourseSearchField({
       <input
         id={id}
         type="search"
-        aria-label="Buscar cursos"
+        aria-label="Buscar usuários por nome"
         placeholder={placeholder}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        // `type=search` traz um botão de limpar nativo (✕) no WebKit/Chrome que
-        // não existe no protótipo — suprimido para manter a fidelidade.
         className="min-w-0 flex-1 appearance-none border-0 bg-transparent p-0 text-label-md font-inter text-text-primary outline-none placeholder:text-text-placeholder [&::-webkit-search-cancel-button]:appearance-none"
       />
     </div>
