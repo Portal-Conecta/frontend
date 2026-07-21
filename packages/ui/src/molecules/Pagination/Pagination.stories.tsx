@@ -33,7 +33,7 @@ function ControlledPagination({
 }
 
 const meta: Meta<typeof Pagination> = {
-  title: 'Componentes/Navegação/Pagination',
+  title: 'Componentes/Navigation/Pagination',
   component: Pagination,
   parameters: { layout: 'padded' },
   argTypes: {

@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { ClassCard } from './ClassCard'
 
 const meta: Meta<typeof ClassCard> = {
-  title: 'Componentes/Conteúdo/ClassCard',
+  title: 'Componentes/Data/ClassCard',
   component: ClassCard,
   parameters: { layout: 'padded' },
   argTypes: {

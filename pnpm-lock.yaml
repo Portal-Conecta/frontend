@@ -23,6 +23,9 @@ importers:
       '@storybook/react':
         specifier: ^8.0.0
         version: 8.6.18(@storybook/test@8.6.18(storybook@8.6.18(prettier@3.8.3)))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(storybook@8.6.18(prettier@3.8.3))(typescript@5.9.3)
+      '@storybook/test':
+        specifier: ^8.0.0
+        version: 8.6.18(storybook@8.6.18(prettier@3.8.3))
       '@storybook/test-runner':
         specifier: ^0.24.4
         version: 0.24.4(@types/node@22.19.20)(esbuild-register@3.6.0(esbuild@0.25.12))(storybook@8.6.18(prettier@3.8.3))
@@ -53,6 +56,9 @@ importers:
       http-server:
         specifier: ^14.1.1
         version: 14.1.1
+      next:
+        specifier: ^15.0.0
+        version: 15.5.19(@babel/core@7.29.7)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       playwright:
         specifier: 1.61.0
         version: 1.61.0
@@ -7507,7 +7513,7 @@ snapshots:
 
   '@img/sharp-wasm32@0.34.5':
     dependencies:
-      '@emnapi/runtime': 1.11.0
+      '@emnapi/runtime': 1.11.1
     optional: true
 
   '@img/sharp-win32-arm64@0.34.5':
