@@ -12,7 +12,11 @@ export interface LoginResponse {
     expiresIn: number
 }
 
-export type AuthErrorKind = 'invalid_credentials' | 'validation' | 'server' | 'network'
+export type AuthErrorKind =
+    | 'invalid_credentials'
+    | 'validation'
+    | 'server'
+    | 'network'
 
 export class AuthError extends Error {
     constructor(public readonly kind: AuthErrorKind, message?: string) {
@@ -64,7 +68,7 @@ export async function refresh(refreshToken: string): Promise<LoginResponse> {
         res = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ refresh_token: refreshToken }),
+            body: JSON.stringify({ refreshToken }),
         })
     } catch {
         throw new AuthError('network')
@@ -80,6 +84,93 @@ export async function refresh(refreshToken: string): Promise<LoginResponse> {
 
     if (res.status === 401) throw new AuthError('invalid_credentials')
     throw new AuthError('server')
+}
+
+export type ActivationErrorKind =
+    | 'activation_invalid'
+    | 'activation_expired'
+    | 'activation_used'
+    | 'validation'
+    | 'server'
+    | 'network'
+
+const ACTIVATION_ERROR_KINDS: readonly ActivationErrorKind[] = [
+    'activation_invalid',
+    'activation_expired',
+    'activation_used',
+    'validation',
+    'server',
+    'network',
+]
+
+export const MIN_ACTIVATION_PASSWORD_LENGTH = 6
+
+export function isValidActivationPassword(value: unknown): value is string {
+    return typeof value === 'string' && value.length >= MIN_ACTIVATION_PASSWORD_LENGTH
+}
+
+export function isActivationErrorKind(value: unknown): value is ActivationErrorKind {
+    return typeof value === 'string' && ACTIVATION_ERROR_KINDS.includes(value as ActivationErrorKind)
+}
+
+export class ActivationError extends Error {
+    constructor(public readonly kind: ActivationErrorKind) {
+        super(kind)
+        this.name = 'ActivationError'
+    }
+}
+
+interface ApiErrorBody {
+    message?: unknown
+}
+
+async function getErrorMessage(res: Response): Promise<string> {
+    try {
+        const body = (await res.json()) as ApiErrorBody
+        return typeof body.message === 'string'
+            ? body.message.toLocaleLowerCase('pt-BR').normalize('NFD').replace(/\p{Diacritic}/gu, '')
+            : ''
+    } catch {
+        return ''
+    }
+}
+
+function activationErrorKind(message: string): ActivationErrorKind {
+    if (message.includes('token de ativacao expirado')) return 'activation_expired'
+    if (message.includes('token de ativacao ja utilizado') || message.includes('conta ja foi ativada')) {
+        return 'activation_used'
+    }
+    if (message.includes('token de ativacao invalido')) return 'activation_invalid'
+    return 'validation'
+}
+
+/**
+ * Ativa uma conta pendente usando o token recebido por e-mail.
+ *
+ * Não cria sessão: o back-end responde 204 e o usuário deve entrar pelo login
+ * com a senha recém-definida.
+ */
+export async function activateAccount(token: string, newPassword: string): Promise<void> {
+    const url = `${baseUrl()}/auth/activate`
+
+    let res: Response
+    try {
+        res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token, newPassword }),
+        })
+    } catch {
+        throw new ActivationError('network')
+    }
+
+    if (res.ok) return
+
+    if (res.status === 400) {
+        throw new ActivationError(activationErrorKind(await getErrorMessage(res)))
+    }
+    if (res.status === 404) throw new ActivationError('activation_invalid')
+    throw new ActivationError('server')
 }
 
 export async function logout(refreshToken: string): Promise<void> {

@@ -101,4 +101,31 @@ describe('createHttpClient', () => {
       kind: 'server',
     })
   })
+
+  it('passa next.revalidate/tags e omite cache quando next é informado', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(response(200, listResponse))
+    const http = createHttpClient('API_GATEWAY_URL')
+
+    await http.get('/comunicados/api/tags', {
+      token: 'x',
+      next: { revalidate: 120, tags: ['comunicados-tags'] },
+    })
+
+    const [, init] = fetchMock.mock.calls[0]!
+    expect(init).toMatchObject({ next: { revalidate: 120, tags: ['comunicados-tags'] } })
+    expect(init).not.toHaveProperty('cache')
+  })
+
+  it('mantém cache: no-store quando next não é informado (compat retroativa)', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(response(200, listResponse))
+    const http = createHttpClient('API_GATEWAY_URL')
+
+    await http.get('/comunicados/api/posts', { token: 'x' })
+
+    const [, init] = fetchMock.mock.calls[0]!
+    expect(init?.cache).toBe('no-store')
+    expect(init).not.toHaveProperty('next')
+  })
 })

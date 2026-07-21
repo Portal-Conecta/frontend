@@ -5,14 +5,19 @@ import type {
   ListHubClassesParams,
   ListHubClassesResponse,
   ListHubCoursesResponse,
-  ListHubUsersParams,
-  ListHubUsersResponse,
 } from '../../types/hub'
 
 const http = createHttpClient('API_GATEWAY_URL')
 
+/** Catálogos quase estáticos (cursos/turmas do Hub) — TTL adotado pelo time (#406). */
+const CATALOG_REVALIDATE_SECONDS = 60
+
 export function listHubCourses(token: string): Promise<ListHubCoursesResponse> {
-  return http.get<ListHubCoursesResponse>(hubGatewayPath('/courses'), { token })
+  return http.get<ListHubCoursesResponse>(hubGatewayPath('/courses'), {
+    token,
+    // tags pra revalidateTag futuro, se/quando existir mutation deste catálogo neste front — nenhuma hoje (#406)
+    next: { revalidate: CATALOG_REVALIDATE_SECONDS, tags: ['hub-courses'] },
+  })
 }
 
 export function listHubClasses(
@@ -27,19 +32,6 @@ export function listHubClasses(
       ...(params.includeInactive != null ? { includeInactive: params.includeInactive } : {}),
       ...(params.onlyInactive != null ? { onlyInactive: params.onlyInactive } : {}),
     },
-  })
-}
-
-export function listHubUsers(
-  token: string,
-  params: ListHubUsersParams = {},
-): Promise<ListHubUsersResponse> {
-  return http.get<ListHubUsersResponse>(hubGatewayPath('/users'), {
-    token,
-    params: {
-      page: params.page ?? 0,
-      size: params.size ?? 20,
-      ...(params.typeUser ? { typeUser: params.typeUser } : {}),
-    },
+    next: { revalidate: CATALOG_REVALIDATE_SECONDS, tags: ['hub-classes'] },
   })
 }

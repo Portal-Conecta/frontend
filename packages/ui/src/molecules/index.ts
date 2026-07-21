@@ -2,6 +2,7 @@ export * from "./Alert";
 export * from "./ClassCard";
 export * from "./Banner";
 export * from "./ErrorPage";
+export * from "./EmptyState";
 export * from "./Field";
 export * from "./FileUpload";
 export * from "./SearchBar";

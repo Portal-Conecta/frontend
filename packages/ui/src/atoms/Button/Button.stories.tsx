@@ -9,7 +9,7 @@ const variants: ButtonVariant[] = ['solid', 'outlined', 'ghost', 'link']
 const tones: ButtonTone[] = ['brand', 'positive', 'negative']
 
 const meta = {
-  title: 'Componentes/Ações/Button',
+  title: 'Componentes/Actions/Button',
   component: Button,
   parameters: { layout: 'centered' },
   argTypes: {

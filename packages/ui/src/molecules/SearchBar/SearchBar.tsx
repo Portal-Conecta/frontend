@@ -3,10 +3,12 @@
 /**
  * SearchBar — campo de busca com lista rolável de resultados ricos.
  *
- * Inicia **vazio**; ao digitar, os resultados (`items`) aparecem abaixo numa
- * lista separada por régua (`SearchBarResults`). A mecânica de combobox (teclado
- * APG, click-outside, `aria-activedescendant`, scroll do ativo) vem do hook
- * compartilhado `useCombobox` — o mesmo do `Select`, sem reinventar a navegação.
+ * Inicia **vazio** por padrão; ao digitar, os resultados (`items`) aparecem abaixo
+ * numa lista separada por régua (`SearchBarResults`). Com `openOnFocus`, abre já
+ * com os `items` como **lista inicial**, antes de digitar. A mecânica de combobox
+ * (teclado APG, click-outside, `aria-activedescendant`, scroll do ativo) vem do
+ * hook compartilhado `useCombobox` — o mesmo do `Select`, sem reinventar a
+ * navegação.
  *
  * Base **controlada**: recebe `items` (já buscados) + `loading` e emite
  * `onQueryChange`. O ciclo assíncrono (debounce/fetch) fica no `SearchBarAsync`.
@@ -43,6 +45,24 @@ export interface SearchBarProps {
   selectedItem?: SearchBarItem | null;
   /** Avisa mudança do texto digitado (o SearchBarAsync escuta e busca). */
   onQueryChange?: (query: string) => void;
+  /**
+   * Abre a lista **antes de digitar**, mostrando os `items` como lista inicial
+   * (ex.: "todas as salas"). São três efeitos — o nome anuncia só o primeiro:
+   * abre no foco, abre no clique, e apagar o texto deixa de fechar (volta à
+   * lista inicial em vez de sumir).
+   *
+   * Default `false`: a SearchBar nasce vazia, que é o certo para busca pura —
+   * num universo grande, uma "lista inicial" não significaria nada. Ligue quando
+   * o conjunto é pequeno e navegável e o usuário precisa **descobrir** o que
+   * existe sem adivinhar o termo.
+   *
+   * Aqui na base os `items` iniciais são responsabilidade do consumidor (basta
+   * devolver a lista cheia para query vazia); no `SearchBarAsync`, ligar esta
+   * prop também dispara `search("")` na primeira abertura.
+   */
+  openOnFocus?: boolean;
+  /** Avisa abertura/fechamento (o SearchBarAsync usa para carregar ao abrir). */
+  onOpenChange?: (open: boolean) => void;
   /** `true` (default) limpa o campo ao escolher; `false` preenche com o `label` (como o Select). */
   clearOnSelect?: boolean;
   placeholder?: string;
@@ -63,6 +83,8 @@ export function SearchBar({
   onSelect,
   selectedItem,
   onQueryChange,
+  openOnFocus = false,
+  onOpenChange,
   clearOnSelect = true,
   placeholder = "Buscar",
   disabled = false,
@@ -105,8 +127,10 @@ export function SearchBar({
     isItemDisabled: (i) => !!displayItems[i]?.disabled,
     disabled,
     onSelect: selectItem,
+    onOpenChange,
     // A SearchBar abre sem item destacado (diferente do Select): o usuário navega
-    // com as setas a partir do campo.
+    // com as setas a partir do campo. Vale também para a lista inicial — destacar
+    // de saída faria o Enter escolher algo que o usuário não mirou.
     getDefaultActiveIndex: () => -1,
     id,
   });
@@ -144,9 +168,11 @@ export function SearchBar({
     setActiveIndex(-1); // texto novo → sem destaque até o usuário navegar
     if (next) {
       if (!open) openMenu();
-    } else if (open && !selectedItem) {
-      // Sem texto e sem seleção → fecha. Com seleção, mantém aberto mostrando o
-      // item fixado no topo.
+    } else if (open && !selectedItem && !openOnFocus) {
+      // Sem texto e sem seleção → fecha. Mantém aberto em dois casos: com seleção
+      // (mostrando o item fixado no topo) e com `openOnFocus` — aí apagar o texto
+      // volta à lista inicial, já que o `onQueryChange("")` acima avisou o
+      // consumidor a repovoar `items`.
       closeMenu({ refocus: false });
     }
   }
@@ -187,10 +213,10 @@ export function SearchBar({
           onChange={onInputChange}
           onFocus={() => {
             inputRef.current?.select();
-            if (query || selectedItem) openMenu();
+            if (openOnFocus || query || selectedItem) openMenu();
           }}
           onClick={() => {
-            if (query || selectedItem) openMenu();
+            if (openOnFocus || query || selectedItem) openMenu();
           }}
           className={inputClasses}
         />

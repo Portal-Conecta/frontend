@@ -1,7 +1,5 @@
 import type { Metadata } from 'next'
 
-import { AppShell } from '@portal/core'
-import { getCurrentUser } from '@portal/core/auth/getCurrentUser'
 import { Icon, Text, type IconName } from '@portal/ui'
 
 export const metadata: Metadata = {
@@ -31,11 +29,9 @@ const contactChannels: readonly ContactChannel[] = [
   { icon: 'map-pin', label: 'Localização', value: 'Jaraguá do Sul - SC' },
 ]
 
-export default async function ContatoPage() {
-  const user = await getCurrentUser()
-
+export default function ContatoPage() {
   return (
-    <AppShell user={user} activeKey="">
+    <>
       <Text
         as="h1"
         variant="heading-h3"
@@ -126,6 +122,6 @@ export default async function ContatoPage() {
           </Text>
         </section>
       </div>
-    </AppShell>
+    </>
   )
 }

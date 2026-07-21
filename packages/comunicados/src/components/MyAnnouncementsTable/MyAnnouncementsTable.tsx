@@ -1,18 +1,19 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
-import { ConfirmDialog, Skeleton, Text, useToast } from '@portal/ui'
+import { Button, ConfirmDialog, EmptyState, Skeleton, Text, useToast } from '@portal/ui'
 
 import { ACTION_ERROR, useAnnouncementActions } from '../../hooks/useAnnouncementActions'
 import { useMyAnnouncements } from '../../hooks/useMyAnnouncements'
 import type { AnnouncementSummary } from '../../types/announcement'
 import type { PendingAnnouncementAction } from '../AnnouncementActionsMenu'
 import { AnnouncementActionsMenu } from '../AnnouncementActionsMenu'
-import { ComunicadosEmptyState } from '../ComunicadosEmptyState'
+import { AnnouncementEmptyIllustration } from '../AnnouncementEmptyIllustration'
 import { getAnnouncementPlainDescription } from '../../utils/announcementDescription'
-import { formatMyAnnouncementDate, originLabel } from './myAnnouncementsTableModel'
+import { formatAnnouncementStatusLine, originLabel } from './myAnnouncementsTableModel'
 
 export interface MyAnnouncementsTableContentProps {
   items: AnnouncementSummary[]
@@ -78,20 +79,27 @@ export function MyAnnouncementsTableContent({
 
   if (error) {
     return (
-      <ComunicadosEmptyState
+      <EmptyState
         title="Comunicados não carregados"
         description={error}
-        actionLabel="Tentar novamente"
-        {...(onRetry ? { onAction: onRetry } : {})}
+        illustration={<AnnouncementEmptyIllustration className="h-60 w-60" aria-hidden="true" />}
+        action={
+          onRetry ? (
+            <Button variant="outlined" onClick={onRetry}>
+              Tentar novamente
+            </Button>
+          ) : undefined
+        }
       />
     )
   }
 
   if (items.length === 0) {
     return (
-      <ComunicadosEmptyState
+      <EmptyState
         title="Nenhum comunicado encontrado"
         description="Os comunicados que você publicar aparecerão aqui."
+        illustration={<AnnouncementEmptyIllustration className="h-60 w-60" aria-hidden="true" />}
       />
     )
   }
@@ -100,17 +108,25 @@ export function MyAnnouncementsTableContent({
     <>
       <ul aria-label="Meus comunicados" className="flex flex-col bg-background-surface">
         {items.map((post) => {
-          const { id, title, origin, pinned } = post
+          const { id, title, origin, pinned, thumbnailUrl } = post
           const description = getAnnouncementPlainDescription(post)
-          const dateLabel = formatMyAnnouncementDate(post.publishedAt ?? post.scheduledFor)
+          const statusLine = formatAnnouncementStatusLine(post)
           const rowPending = pendingAction?.id === id ? pendingAction.action : null
 
           return (
             <li
               key={id}
-              className="flex items-center gap-4 border-b border-border-default px-3 py-6 sm:gap-8 sm:p-6 lg:gap-18"
+              className="relative flex items-center gap-4 border-b border-border-default px-3 py-6 sm:gap-8 sm:p-6 lg:gap-18"
             >
-              <div className="flex min-w-0 flex-1 flex-col gap-4 sm:gap-8">
+              {/* Cobre o item inteiro — mesmo padrão do AnnouncementCard: mantém a linha inteira clicável sem aninhar os botões de ação numa âncora. */}
+              <Link
+                href={`/comunicados/${id}?from=meus`}
+                aria-label={`Abrir comunicado: ${title}`}
+                className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
+              />
+
+              {/* `relative` garante que este bloco pinte por cima do Link absoluto (posicionado sempre pinta por cima de não-posicionado, senão o Link intercepta até os botões). `pointer-events-none` deixa o clique atravessar até o Link nas áreas de texto — só as ações (`pointer-events-auto`) voltam a capturar o clique. */}
+              <div className="relative pointer-events-none flex min-w-0 flex-1 flex-col gap-4 sm:gap-8">
                 <div className="flex flex-col gap-2 sm:gap-4">
                   {/* Figma: título e descrição usam blue/900 (#011142), quase preto — sem token de texto pra esse tom, `primary` é o mais próximo (não `brand`, que é azul vivo). */}
                   <Text as="h3" variant="body-xl-emphasis" tone="primary" className="truncate">
@@ -124,42 +140,53 @@ export function MyAnnouncementsTableContent({
 
                   <Text as="p" variant="label-xs" tone="disabled">
                     {originLabel[origin]}
-                    {dateLabel ? (
+                    {statusLine ? (
                       <>
                         <span className="px-2" aria-hidden="true">
                           |
                         </span>
-                        {dateLabel}
+                        {statusLine}
                       </>
                     ) : null}
                   </Text>
                 </div>
 
-                {/* Figma mobile: ações icon-only (compact); desktop: ícone + rótulo. */}
-                <AnnouncementActionsMenu
-                  pinned={pinned}
-                  onPin={() => onPin?.(post)}
-                  onEdit={() => onEdit?.(id)}
-                  onDelete={() => onDeleteRequest?.(id)}
-                  pending={rowPending}
-                  compact
-                  className="sm:hidden"
-                />
-                <AnnouncementActionsMenu
-                  pinned={pinned}
-                  onPin={() => onPin?.(post)}
-                  onEdit={() => onEdit?.(id)}
-                  onDelete={() => onDeleteRequest?.(id)}
-                  pending={rowPending}
-                  className="hidden sm:flex"
-                />
+                {/*
+                  Figma mobile: ações icon-only (compact); desktop: ícone + rótulo.
+                  `hidden`/`flex` viram wrapper `<div>` — o próprio AnnouncementActionsMenu
+                  já tem `flex` fixo na classe base, então "hidden" direto nele briga com
+                  esse "flex" e os dois acabam renderizando juntos.
+                */}
+                <div className="pointer-events-auto sm:hidden">
+                  <AnnouncementActionsMenu
+                    pinned={pinned}
+                    onPin={() => onPin?.(post)}
+                    onEdit={() => onEdit?.(id)}
+                    onDelete={() => onDeleteRequest?.(id)}
+                    pending={rowPending}
+                    compact
+                  />
+                </div>
+                <div className="pointer-events-auto hidden sm:block">
+                  <AnnouncementActionsMenu
+                    pinned={pinned}
+                    onPin={() => onPin?.(post)}
+                    onEdit={() => onEdit?.(id)}
+                    onDelete={() => onDeleteRequest?.(id)}
+                    pending={rowPending}
+                  />
+                </div>
               </div>
 
-              {/* Figma "CardComunicado": thumbnail fluida — proporção 132/116 no mobile, 485/273 no desktop. Escala com a linha pra não deixar vão morto nas larguras intermediárias. Sem imagem real ainda, mesmo placeholder do AnnouncementCard. */}
+              {/* Figma "CardComunicado": thumbnail fluida — proporção 132/116 no mobile, 485/273 no desktop. Escala com a linha pra não deixar vão morto nas larguras intermediárias. */}
               <div
                 aria-hidden="true"
-                className="aspect-[132/116] w-[38%] shrink-0 rounded-md bg-interactive-disabled sm:aspect-[485/273] sm:w-[45%] sm:max-w-[485px]"
-              />
+                className="relative pointer-events-none aspect-[132/116] w-[38%] shrink-0 overflow-hidden rounded-md bg-interactive-disabled sm:aspect-[485/273] sm:w-[45%] sm:max-w-[485px]"
+              >
+                {thumbnailUrl ? (
+                  <img src={thumbnailUrl} alt="" loading="lazy" className="h-full w-full object-cover" />
+                ) : null}
+              </div>
             </li>
           )
         })}

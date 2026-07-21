@@ -2,6 +2,9 @@
   "name": "@portal/core",
   "version": "1.0.0",
   "private": true,
+  "sideEffects": [
+    "**/*.css"
+  ],
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {

@@ -43,7 +43,8 @@ O contrato público (`AppLayoutProps`):
 | `onLogoClick` | `() => void?` | Clique na logo (home). |
 | `onProfileClick` | `() => void?` | Clique no perfil. |
 | `onNotificationsClick` | `() => void?` | Clique nas notificações. |
-| `onMoreOptionsClick` | `() => void?` | Clique em "mais opções". |
+
+> **Atualização (2026-07-16):** o ícone "mais opções" (ellipsis) foi removido do `AppHeader` — nenhuma tela consumia `onMoreOptionsClick`. A prop foi retirada do contrato (`AppHeaderProps`/`AppLayoutProps`); a tabela acima já reflete o contrato atual.
 
 A montagem da página do módulo e o registro da rota em `apps/root` que consome esse shell ficam fora desta ADR — serão fixados com o piloto de Comunicados (ver [layout-e-paginas](../conventions/layout-e-paginas.md)).
 

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 
 import { getPostImages } from '@portal/comunicados/services/server/postsService'
+import { validateAnnouncementImageFile } from '@portal/comunicados/utils/announcementImageValidation'
 
 import { bffErrorResponse } from '../../../_lib/bffError'
 
@@ -10,7 +11,6 @@ import {
   uploadPostImageViaPresign,
   type ImagesErrorKind,
 } from '@portal/comunicados/services/imagesService'
-
 
 /** BFF — imagens anexadas de um post. Delega ao service server (JWT do cookie httpOnly). */
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -38,9 +38,10 @@ interface RouteContext {
 }
 
 /**
- * BFF de anexar imagem (#198).
- * 1. Presign via API Gateway
- * 2. PUT ao S3 no servidor (browser não acessa S3 nem gateway para o binário)
+ * BFF de anexar imagem (#198 / #398).
+ * 1. Valida MIME allowlist + tamanho (`ANNOUNCEMENT_IMAGE_MAX_BYTES`)
+ * 2. Presign via API Gateway
+ * 3. PUT ao S3 no servidor (browser não acessa S3 nem gateway para o binário)
  */
 export async function POST(req: Request, context: RouteContext) {
   const token = await getSession()
@@ -59,10 +60,19 @@ export async function POST(req: Request, context: RouteContext) {
   }
 
   const file = formData.get('file')
-  if (!(file instanceof File) || file.size === 0) {
+  if (!(file instanceof File)) {
     return NextResponse.json(
       { code: 'validation', message: 'Arquivo de imagem obrigatório.' },
       { status: 400 },
+    )
+  }
+
+  const validation = validateAnnouncementImageFile(file)
+  if (validation) {
+    const status = validation.code === 'size' ? 413 : 400
+    return NextResponse.json(
+      { code: validation.code === 'size' ? 'payload-too-large' : 'validation', message: validation.message },
+      { status },
     )
   }
 

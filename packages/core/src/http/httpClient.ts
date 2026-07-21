@@ -12,6 +12,13 @@ export interface HttpRequestOptions {
   cache?: RequestCache
   /** Sobrescreve o token da sessão (ex.: testes). Omitir para resolver via getSession(). */
   token?: string
+  /**
+   * Opt-in ao Data Cache do Next (só Server Components/Route Handlers — fetch no
+   * browser ignora isso). Mutuamente exclusivo com `cache`: o Next rejeita `cache`
+   * junto de `next.revalidate` na mesma call, então os dois ficam em branches
+   * separados em `request()` (#406).
+   */
+  next?: { revalidate: number; tags?: string[] }
 }
 
 function baseUrl(baseUrlEnv: string): string {
@@ -67,7 +74,7 @@ export function createHttpClient(baseUrlEnv: string): HttpClient {
       const init: RequestInit = {
         method,
         headers: authHeaders(token),
-        cache: options.cache ?? 'no-store',
+        ...(options.next ? { next: options.next } : { cache: options.cache ?? 'no-store' }),
       }
       if (options.body !== undefined) {
         init.body = JSON.stringify(options.body)

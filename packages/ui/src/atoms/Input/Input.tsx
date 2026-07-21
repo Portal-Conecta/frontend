@@ -24,7 +24,19 @@ const toneStyles: Record<InputTone, { box: string; input: string; suffix: string
     // foco visível sobre o painel azul: anel branco (a borda azul de border/focus
     // ficaria invisível no fundo azul).
     box: 'border-white focus-within:ring-2 focus-within:ring-white',
-    input: 'text-text-inverse placeholder:text-text-inverse',
+    // autofill: o browser injeta um background-color próprio via :-webkit-autofill
+    // e ignora bg-transparent. Fundo do painel é um gradiente (blue/300 → blue/500),
+    // então uma cor sólida no lugar do autofill nunca bate com o ponto exato do
+    // gradiente atrás do input. Trick: transition de background-color gigantesca
+    // (a cor forçada do autofill "anima" por 5000s e nunca chega a aparecer), então
+    // o fundo do input segue transparente e o gradiente real aparece atrás.
+    // -webkit-text-fill-color sobrescreve a cor de texto do autofill (color: não
+    // basta nesse pseudo-elemento).
+    input: [
+      'text-text-inverse placeholder:text-text-inverse',
+      '[transition:background-color_5000s_ease-in-out_0s]',
+      'autofill:[-webkit-text-fill-color:#FFFFFF]',
+    ].join(' '),
     suffix: 'text-text-inverse',
     message: 'text-text-inverse',
   },

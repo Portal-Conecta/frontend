@@ -901,6 +901,99 @@
             }
         },
         "/classes/{classId}/members": {
+            "get": {
+                "tags": [
+                    "Turmas"
+                ],
+                "summary": "Lista membros da turma",
+                "description": "Retorna todos os membros vinculados a uma turma, com opção de filtrar por papel (role).",
+                "operationId": "listMembers",
+                "parameters": [
+                    {
+                        "name": "classId",
+                        "in": "path",
+                        "description": "Identificador da turma.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                    },
+                    {
+                        "name": "role",
+                        "in": "query",
+                        "description": "Papel do membro na turma. Quando ausente, retorna todos os papéis.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "STUDENT",
+                                "TEACHER",
+                                "REPRESENTATIVE"
+                            ]
+                        },
+                        "example": "TEACHER"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Membros da turma listados com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ClassMemberResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Parâmetro role inválido.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Usuário sem permissão para visualizar membros.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Turma não encontrada.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
             "post": {
                 "tags": [
                     "Turmas"
@@ -1764,6 +1857,212 @@
                 ]
             }
         },
+        "/notifications/{notificationId}/read": {
+            "patch": {
+                "tags": [
+                    "Notificações"
+                ],
+                "summary": "Marcar notificação como lida",
+                "description": "Altera o status de uma notificação específica do usuário autenticado para lida.",
+                "operationId": "markAsRead",
+                "parameters": [
+                    {
+                        "name": "notificationId",
+                        "in": "path",
+                        "description": "Identificador da notificação.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Notificação marcada como lida com sucesso."
+                    },
+                    "400": {
+                        "description": "Formato de identificador inválido.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Notificação não encontrada para o usuário informado.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/notifications/{notificationId}/dismiss": {
+            "patch": {
+                "tags": [
+                    "Notificações"
+                ],
+                "summary": "Descartar/ocultar notificação",
+                "description": "Arquiva ou oculta uma notificação do painel do usuário autenticado.",
+                "operationId": "dismiss",
+                "parameters": [
+                    {
+                        "name": "notificationId",
+                        "in": "path",
+                        "description": "Identificador da notificação.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Notificação descartada com sucesso."
+                    },
+                    "400": {
+                        "description": "Formato de identificador inválido.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Notificação não encontrada para o usuário informado.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/notifications/read": {
+            "patch": {
+                "tags": [
+                    "Notificações"
+                ],
+                "summary": "Marcar notificações como lidas",
+                "description": "Altera o status de várias notificações do usuário autenticado para lidas, com base nos IDs fornecidos.",
+                "operationId": "markAsRead_1",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MarkAsReadNotificationsRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "204": {
+                        "description": "Notificações marcadas como lidas com sucesso."
+                    },
+                    "400": {
+                        "description": "Formato de identificador inválido ou lista de IDs vazia.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/notifications/read-all": {
+            "patch": {
+                "tags": [
+                    "Notificações"
+                ],
+                "summary": "Marcar todas as notificações como lidas",
+                "description": "Altera o status de todas as notificações não lidas do usuário autenticado para lidas em lote.",
+                "operationId": "markAllAsRead",
+                "responses": {
+                    "204": {
+                        "description": "Todas as notificações foram marcadas como lidas."
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/courses/{courseId}": {
             "get": {
                 "tags": [
@@ -2103,162 +2402,6 @@
                 ]
             }
         },
-        "/api/v1/notifications/{notificationId}/read": {
-            "patch": {
-                "tags": [
-                    "Notificações"
-                ],
-                "summary": "Marcar notificação como lida",
-                "description": "Altera o status de uma notificação específica do usuário autenticado para lida.",
-                "operationId": "markAsRead",
-                "parameters": [
-                    {
-                        "name": "notificationId",
-                        "in": "path",
-                        "description": "Identificador da notificação.",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        },
-                        "example": "550e8400-e29b-41d4-a716-446655440000"
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "Notificação marcada como lida com sucesso."
-                    },
-                    "400": {
-                        "description": "Formato de identificador inválido.",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiError"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Autenticação ausente ou inválida.",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiError"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Notificação não encontrada para o usuário informado.",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiError"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/notifications/{notificationId}/dismiss": {
-            "patch": {
-                "tags": [
-                    "Notificações"
-                ],
-                "summary": "Descartar/ocultar notificação",
-                "description": "Arquiva ou oculta uma notificação do painel do usuário autenticado.",
-                "operationId": "dismiss",
-                "parameters": [
-                    {
-                        "name": "notificationId",
-                        "in": "path",
-                        "description": "Identificador da notificação.",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        },
-                        "example": "550e8400-e29b-41d4-a716-446655440000"
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "Notificação descartada com sucesso."
-                    },
-                    "400": {
-                        "description": "Formato de identificador inválido.",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiError"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Autenticação ausente ou inválida.",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiError"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Notificação não encontrada para o usuário informado.",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiError"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/notifications/read-all": {
-            "patch": {
-                "tags": [
-                    "Notificações"
-                ],
-                "summary": "Marcar todas as notificações como lidas",
-                "description": "Altera o status de todas as notificações não lidas do usuário autenticado para lidas em lote.",
-                "operationId": "markAllAsRead",
-                "responses": {
-                    "204": {
-                        "description": "Todas as notificações foram marcadas como lidas."
-                    },
-                    "401": {
-                        "description": "Autenticação ausente ou inválida.",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiError"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
         "/users/{userId}": {
             "get": {
                 "tags": [
@@ -2451,6 +2594,133 @@
                 ]
             }
         },
+        "/notifications": {
+            "get": {
+                "tags": [
+                    "Notificações"
+                ],
+                "summary": "Listar notificações do usuário autenticado",
+                "description": "Retorna as notificações do usuário autenticado filtradas por status (lida ou não lida), com paginação, ordenadas da mais recente para a mais antiga. Notificações ocultadas não são retornadas.",
+                "operationId": "listNotifications",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Filtra por notificações lidas ou não lidas.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "READ",
+                                "UNREAD"
+                            ]
+                        },
+                        "example": "UNREAD"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Número da página (base 0).",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 0,
+                            "minimum": 0
+                        },
+                        "example": 0
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "description": "Tamanho da página. Máximo 50.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 20,
+                            "maximum": 50,
+                            "minimum": 1
+                        },
+                        "example": 20
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de notificações retornada com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PagedNotificationsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Status inválido ou parâmetro de paginação fora do limite.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/notifications/unread-count": {
+            "get": {
+                "tags": [
+                    "Notificações"
+                ],
+                "summary": "Contar notificações não lidas",
+                "description": "Retorna a quantidade de notificações não lidas e não ocultadas do usuário autenticado.",
+                "operationId": "unreadCount",
+                "responses": {
+                    "200": {
+                        "description": "Contagem retornada com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnreadCountResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/me": {
             "get": {
                 "tags": [
@@ -2589,177 +2859,6 @@
                     },
                     "404": {
                         "description": "Turma inexistente ou removida.",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiError"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/classes/{classId}/students": {
-            "get": {
-                "tags": [
-                    "Turmas"
-                ],
-                "summary": "Lista alunos da turma",
-                "description": "Retorna os aprendizes vinculados a uma turma ativa. Inclui representantes, pois continuam ocupando posição no mapa de sala. Não inclui docentes nem dados sensíveis.",
-                "operationId": "listStudents",
-                "parameters": [
-                    {
-                        "name": "classId",
-                        "in": "path",
-                        "description": "Identificador da turma.",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        },
-                        "example": "550e8400-e29b-41d4-a716-446655440000"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Lista de alunos retornada com sucesso.",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ClassStudentResponse"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Autenticação ausente ou inválida.",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiError"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Turma inexistente ou desativada.",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiError"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/notifications": {
-            "get": {
-                "tags": [
-                    "Notificações"
-                ],
-                "summary": "Listar notificações do usuário autenticado",
-                "description": "Retorna as notificações do usuário autenticado com paginação, ordenadas da mais recente para a mais antiga. Notificações ocultadas não são retornadas. Use o parâmetro unreadOnly=true para filtrar apenas não lidas.",
-                "operationId": "listNotifications",
-                "parameters": [
-                    {
-                        "name": "page",
-                        "in": "query",
-                        "description": "Número da página (base 0).",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int32",
-                            "default": 0
-                        },
-                        "example": 0
-                    },
-                    {
-                        "name": "size",
-                        "in": "query",
-                        "description": "Tamanho da página.",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int32",
-                            "default": 20
-                        },
-                        "example": 20
-                    },
-                    {
-                        "name": "unreadOnly",
-                        "in": "query",
-                        "description": "Retorna apenas notificações não lidas quando true.",
-                        "required": false,
-                        "schema": {
-                            "type": "boolean",
-                            "default": false
-                        },
-                        "example": false
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Lista de notificações retornada com sucesso.",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/PagedNotificationsResponse"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Autenticação ausente ou inválida.",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiError"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/notifications/unread-count": {
-            "get": {
-                "tags": [
-                    "Notificações"
-                ],
-                "summary": "Contar notificações não lidas",
-                "description": "Retorna a quantidade de notificações não lidas e não ocultadas do usuário autenticado.",
-                "operationId": "unreadCount",
-                "responses": {
-                    "200": {
-                        "description": "Contagem retornada com sucesso.",
-                        "content": {
-                            "*/*": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UnreadCountResponse"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Autenticação ausente ou inválida.",
                         "content": {
                             "*/*": {
                                 "schema": {
@@ -3688,13 +3787,6 @@
                 "properties": {
                     "name": {
                         "type": "string"
-                    },
-                    "email": {
-                        "type": "string",
-                        "format": "email"
-                    },
-                    "avatarUrl": {
-                        "type": "string"
                     }
                 }
             },
@@ -3742,6 +3834,18 @@
                             "OTHER"
                         ],
                         "example": "LABORATORY"
+                    }
+                }
+            },
+            "MarkAsReadNotificationsRequest": {
+                "type": "object",
+                "properties": {
+                    "notificationIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
                     }
                 }
             },
@@ -3836,6 +3940,23 @@
                             "WEG",
                             "ADMIN"
                         ]
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Filtra usuários ativos cujo nome contenha o valor informado, sem diferenciar maiúsculas de minúsculas."
+                    },
+                    "status": {
+                        "type": "array",
+                        "description": "Filtra por um ou mais status da conta. Quando ausente, retorna somente usuários ACTIVE.",
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "PENDING_ACTIVATION",
+                                "ACTIVE",
+                                "DISABLED",
+                                "PENDING_DELETION"
+                            ]
+                        }
                     }
                 }
             },
@@ -3896,6 +4017,187 @@
                     "totalPages": {
                         "type": "integer",
                         "format": "int32"
+                    }
+                }
+            },
+            "JsonNode": {
+                "type": "object",
+                "properties": {
+                    "integralNumber": {
+                        "type": "boolean"
+                    },
+                    "missingNode": {
+                        "type": "boolean"
+                    },
+                    "floatingPointNumber": {
+                        "type": "boolean"
+                    },
+                    "boolean": {
+                        "type": "boolean"
+                    },
+                    "binary": {
+                        "type": "boolean"
+                    },
+                    "nodeType": {
+                        "type": "string",
+                        "enum": [
+                            "ARRAY",
+                            "BINARY",
+                            "BOOLEAN",
+                            "MISSING",
+                            "NULL",
+                            "NUMBER",
+                            "OBJECT",
+                            "POJO",
+                            "STRING"
+                        ]
+                    },
+                    "string": {
+                        "type": "boolean"
+                    },
+                    "valueNode": {
+                        "type": "boolean"
+                    },
+                    "container": {
+                        "type": "boolean"
+                    },
+                    "object": {
+                        "type": "boolean"
+                    },
+                    "pojo": {
+                        "type": "boolean"
+                    },
+                    "short": {
+                        "type": "boolean"
+                    },
+                    "int": {
+                        "type": "boolean"
+                    },
+                    "long": {
+                        "type": "boolean"
+                    },
+                    "double": {
+                        "type": "boolean"
+                    },
+                    "bigDecimal": {
+                        "type": "boolean"
+                    },
+                    "bigInteger": {
+                        "type": "boolean"
+                    },
+                    "textual": {
+                        "type": "boolean",
+                        "deprecated": true
+                    },
+                    "number": {
+                        "type": "boolean"
+                    },
+                    "array": {
+                        "type": "boolean"
+                    },
+                    "empty": {
+                        "type": "boolean"
+                    },
+                    "null": {
+                        "type": "boolean"
+                    },
+                    "float": {
+                        "type": "boolean"
+                    },
+                    "embeddedValue": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "NotificationResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "notificationId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "body": {
+                        "type": "string"
+                    },
+                    "source": {
+                        "type": "string"
+                    },
+                    "eventType": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "CHECKLIST",
+                            "MAPA",
+                            "COMUNICADO",
+                            "OUTRO"
+                        ]
+                    },
+                    "occurredAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "readAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "read": {
+                        "type": "boolean"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "metadata": {
+                        "$ref": "#/components/schemas/JsonNode"
+                    }
+                }
+            },
+            "PagedNotificationsResponse": {
+                "type": "object",
+                "properties": {
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/NotificationResponse"
+                        }
+                    },
+                    "page": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                }
+            },
+            "UnreadCountResponse": {
+                "type": "object",
+                "properties": {
+                    "unreadCount": {
+                        "type": "integer",
+                        "format": "int64"
                     }
                 }
             },
@@ -4096,7 +4398,7 @@
                     }
                 }
             },
-            "ClassStudentResponse": {
+            "ClassMemberResponse": {
                 "type": "object",
                 "properties": {
                     "id": {
@@ -4105,171 +4407,14 @@
                     },
                     "name": {
                         "type": "string"
-                    }
-                }
-            },
-            "JsonNode": {
-                "type": "object",
-                "properties": {
-                    "pojo": {
-                        "type": "boolean"
                     },
-                    "short": {
-                        "type": "boolean"
-                    },
-                    "int": {
-                        "type": "boolean"
-                    },
-                    "long": {
-                        "type": "boolean"
-                    },
-                    "double": {
-                        "type": "boolean"
-                    },
-                    "bigDecimal": {
-                        "type": "boolean"
-                    },
-                    "bigInteger": {
-                        "type": "boolean"
-                    },
-                    "textual": {
-                        "type": "boolean",
-                        "deprecated": true
-                    },
-                    "boolean": {
-                        "type": "boolean"
-                    },
-                    "binary": {
-                        "type": "boolean"
-                    },
-                    "valueNode": {
-                        "type": "boolean"
-                    },
-                    "container": {
-                        "type": "boolean"
-                    },
-                    "object": {
-                        "type": "boolean"
-                    },
-                    "nodeType": {
+                    "classRole": {
                         "type": "string",
                         "enum": [
-                            "ARRAY",
-                            "BINARY",
-                            "BOOLEAN",
-                            "MISSING",
-                            "NULL",
-                            "NUMBER",
-                            "OBJECT",
-                            "POJO",
-                            "STRING"
+                            "STUDENT",
+                            "TEACHER",
+                            "REPRESENTATIVE"
                         ]
-                    },
-                    "string": {
-                        "type": "boolean"
-                    },
-                    "floatingPointNumber": {
-                        "type": "boolean"
-                    },
-                    "missingNode": {
-                        "type": "boolean"
-                    },
-                    "integralNumber": {
-                        "type": "boolean"
-                    },
-                    "number": {
-                        "type": "boolean"
-                    },
-                    "array": {
-                        "type": "boolean"
-                    },
-                    "empty": {
-                        "type": "boolean"
-                    },
-                    "null": {
-                        "type": "boolean"
-                    },
-                    "float": {
-                        "type": "boolean"
-                    },
-                    "embeddedValue": {
-                        "type": "boolean"
-                    }
-                }
-            },
-            "NotificationResponse": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string",
-                        "format": "uuid"
-                    },
-                    "notificationId": {
-                        "type": "string",
-                        "format": "uuid"
-                    },
-                    "title": {
-                        "type": "string"
-                    },
-                    "body": {
-                        "type": "string"
-                    },
-                    "source": {
-                        "type": "string"
-                    },
-                    "eventType": {
-                        "type": "string"
-                    },
-                    "occurredAt": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "readAt": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "createdAt": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "metadata": {
-                        "$ref": "#/components/schemas/JsonNode"
-                    }
-                }
-            },
-            "PagedNotificationsResponse": {
-                "type": "object",
-                "properties": {
-                    "content": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/NotificationResponse"
-                        }
-                    },
-                    "page": {
-                        "type": "integer",
-                        "format": "int32"
-                    },
-                    "size": {
-                        "type": "integer",
-                        "format": "int32"
-                    },
-                    "totalElements": {
-                        "type": "integer",
-                        "format": "int64"
-                    },
-                    "totalPages": {
-                        "type": "integer",
-                        "format": "int32"
-                    }
-                }
-            },
-            "UnreadCountResponse": {
-                "type": "object",
-                "properties": {
-                    "unreadCount": {
-                        "type": "integer",
-                        "format": "int64"
                     }
                 }
             },

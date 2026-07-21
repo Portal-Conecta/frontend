@@ -13,6 +13,13 @@
  * Em caso de falha, cai no estado vazio (retry na próxima query), espelhando o
  * `SelectAsync`. Estado de erro dedicado fica como evolução futura.
  *
+ * **Lista inicial** (`openOnFocus`): dispara `search("")` na primeira abertura e
+ * guarda o resultado como a lista para onde voltar quando o usuário apagar o
+ * texto. O `minChars` continua governando **apenas queries digitadas** — mas com
+ * `openOnFocus` o ramo abaixo do limiar passa a mostrar a lista inicial em vez de
+ * lista vazia (ex.: `minChars={3}` + 1 caractere digitado). É deliberado: com
+ * lista inicial ligada, o usuário nunca deve encarar um menu vazio.
+ *
  * Story em `Componentes/Inputs/SearchBar/SearchBarAsync`.
  */
 import { useEffect, useRef, useState } from "react";
@@ -25,7 +32,7 @@ import {
 
 export interface SearchBarAsyncProps extends Omit<
   SearchBarProps,
-  "items" | "loading" | "onQueryChange"
+  "items" | "loading" | "onQueryChange" | "onOpenChange"
 > {
   /** Busca os resultados para a query (já com trim). Chamada após o debounce. */
   search: (query: string) => Promise<SearchBarItem[]>;
@@ -39,6 +46,7 @@ export function SearchBarAsync({
   search,
   debounceMs = 300,
   minChars = 1,
+  openOnFocus = false,
   ...rest
 }: SearchBarAsyncProps) {
   const [items, setItems] = useState<SearchBarItem[]>([]);
@@ -48,8 +56,48 @@ export function SearchBarAsync({
   );
   // Sequência da última busca disparada; respostas com seq != atual são ignoradas.
   const seqRef = useRef(0);
+  // Lista inicial (resposta de `search("")`) — para onde voltar quando o usuário
+  // apaga o texto. Em ref, não em estado: só é lida sob demanda, nunca renderiza.
+  const initialItemsRef = useRef<SearchBarItem[]>([]);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => () => clearTimeout(debounceRef.current), []);
+
+  /**
+   * Busca a lista inicial. Sem debounce (não vem de digitação) e sem guarda de
+   * "já carregando" — quem chama é que decide.
+   */
+  function startInitialFetch() {
+    const seq = ++seqRef.current;
+    setLoading(true);
+    void search("")
+      .then((results) => {
+        // FORA da guarda de seq: a resposta da query vazia É a lista inicial,
+        // mesmo que o usuário já tenha digitado por cima. Cachear sempre é o que
+        // garante ter para onde voltar quando ele apagar o texto — diferente do
+        // SelectAsync, aqui a lista fica ABERTA e não há segunda abertura para
+        // se recuperar.
+        initialItemsRef.current = results;
+        setLoaded(true);
+        // DENTRO da guarda: só exibe se ninguém digitou por cima.
+        if (seq === seqRef.current) {
+          setItems(results);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        // `loaded` continua false → a próxima abertura tenta de novo (retry
+        // implícito, como no SelectAsync).
+        if (seq === seqRef.current) {
+          setItems([]);
+          setLoading(false);
+        }
+      });
+  }
+
+  function onOpenChange(open: boolean) {
+    if (open && openOnFocus && !loaded && !loading) startInitialFetch();
+  }
 
   function onQueryChange(query: string) {
     clearTimeout(debounceRef.current);
@@ -57,8 +105,17 @@ export function SearchBarAsync({
 
     if (trimmed.length < minChars) {
       seqRef.current++; // invalida qualquer resposta em voo
-      setItems([]);
       setLoading(false);
+      if (!openOnFocus) {
+        setItems([]);
+        return;
+      }
+      // Com lista inicial: volta para ela em vez de esvaziar.
+      setItems(loaded ? initialItemsRef.current : []);
+      // Se ainda não carregou, o prefetch se perdeu numa corrida com a digitação
+      // — refaz. Não se checa `loading`: o seqRef.current++ acima acabou de
+      // invalidar tudo que estava em voo, então este refetch é intencional.
+      if (!loaded) startInitialFetch();
       return;
     }
 
@@ -84,9 +141,11 @@ export function SearchBarAsync({
   return (
     <SearchBar
       {...rest}
+      openOnFocus={openOnFocus}
       items={items}
       loading={loading}
       onQueryChange={onQueryChange}
+      onOpenChange={onOpenChange}
     />
   );
 }
