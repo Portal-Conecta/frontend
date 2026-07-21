@@ -6,7 +6,7 @@
  * ou nenhuma (`none`, só exibição). Consumido por `TurmaMembersList` (remove)
  * e `TurmaMemberSearchPanel` (add), que antes duplicavam essa mesma marcação.
  */
-import { Button, Icon, ListItem, Text } from '@portal/ui'
+import { Avatar, Button, ListItem, Text } from '@portal/ui'
 
 export type AssociateUsersCardVariant = 'add' | 'remove' | 'none'
 
@@ -21,7 +21,7 @@ export function AssociateUsersCard({ name, variant, onAction, disabled = false }
   return (
     <ListItem className="flex items-center justify-between gap-3">
       <span className="flex items-center gap-3">
-        <Icon name="circle-user" size="lg" decorative />
+        <Avatar size="sm" />
         <Text as="span" variant="label-sm" tone="brand">
           {name}
         </Text>
