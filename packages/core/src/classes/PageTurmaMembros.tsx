@@ -70,8 +70,13 @@ async function TurmaMembrosContent({
   try {
     members = await listClassMembers(classId, undefined, accessToken)
   } catch (err) {
-    if (err instanceof HttpError && err.kind === 'unauthorized') {
-      redirect('/login')
+    if (err instanceof HttpError) {
+      if (err.kind === 'unauthorized') {
+        redirect('/login')
+      }
+      if (err.kind === 'forbidden') {
+        return <ErrorPage {...ERROR_PRESENTATION.forbidden} />
+      }
     }
     loadFailed = true
   }
