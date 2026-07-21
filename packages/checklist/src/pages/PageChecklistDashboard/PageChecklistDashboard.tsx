@@ -6,15 +6,17 @@
 import { PermissionGate } from '@portal/core'
 import { getCurrentUser } from '@portal/core/auth/getCurrentUser'
 
+import { resolveChecklistSectionTabs } from '../../components/checklistSectionTabs'
 import { PageChecklistDashboardContent } from './PageChecklistDashboardContent'
 
 export async function PageChecklistDashboard() {
   const user = await getCurrentUser()
+  const sectionTabs = resolveChecklistSectionTabs(user)
 
   return (
     <PermissionGate user={user} permission="checklist:dashboard">
       <div className="min-h-full bg-background-default p-6 md:p-8 lg:p-10">
-        <PageChecklistDashboardContent />
+        <PageChecklistDashboardContent sectionTabs={sectionTabs} />
       </div>
     </PermissionGate>
   )

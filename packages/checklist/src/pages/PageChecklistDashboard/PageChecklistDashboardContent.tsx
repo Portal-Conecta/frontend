@@ -13,7 +13,7 @@ import {
   isDashboardEmpty,
   validateDashboardPeriod,
 } from "../../components/dashboard";
-import { CHECKLIST_SECTION_TABS } from "../../components/checklistSectionTabs";
+import type { SectionTab } from "../../components/SectionTabs";
 import { SectionTabs } from "../../components/SectionTabs";
 import { fetchDashboardStats } from "../../services/dashboard/dashboardClient";
 import type { DashboardStats } from "../../types/dashboard";
@@ -21,10 +21,13 @@ import type { DashboardStats } from "../../types/dashboard";
 export interface PageChecklistDashboardContentProps {
   /** Força modo demo (Storybook) com MOCK_DASHBOARD_STATS. */
   useMock?: boolean;
+  /** Abas do módulo já resolvidas por papel (`resolveChecklistSectionTabs`). */
+  sectionTabs?: readonly SectionTab[];
 }
 
 export function PageChecklistDashboardContent({
   useMock = false,
+  sectionTabs = [],
 }: PageChecklistDashboardContentProps) {
   const [loading, setLoading] = useState(!useMock);
   const [period, setPeriod] = useState(defaultDashboardPeriod);
@@ -92,7 +95,7 @@ export function PageChecklistDashboardContent({
   return (
     <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-8">
       {/* Abas do módulo — acima do título do dashboard */}
-      <SectionTabs tabs={[...CHECKLIST_SECTION_TABS]} />
+      {sectionTabs.length > 0 ? <SectionTabs tabs={[...sectionTabs]} /> : null}
 
       <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="flex flex-col gap-2">

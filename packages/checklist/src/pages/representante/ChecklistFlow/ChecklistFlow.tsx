@@ -4,7 +4,7 @@ import { useState, type ReactNode } from "react";
 
 import { EmptyState, Text } from "@portal/ui";
 
-import { CHECKLIST_SECTION_TABS } from "../../../components/checklistSectionTabs";
+import type { SectionTab } from "../../../components/SectionTabs";
 import { SectionTabs } from "../../../components/SectionTabs";
 import { findActiveTemplateByRoomClient } from "../../../services/client/templateClient";
 import type { ClassSelection } from "../../../services/resolveClassSelection";
@@ -17,8 +17,12 @@ export interface ChecklistFlowProps {
   /** Nome da turma quando a seleção é `fixed` (turma única já resolvida). */
   fixedClassName?: string;
   filledByLabel: string;
-  /** Gestão (SENAI/WEG/ADMIN): mostra as abas de navegação do módulo no topo. */
-  showSectionTabs?: boolean;
+  /**
+   * Gestão (SENAI/WEG/ADMIN): abas de navegação do módulo no topo, já
+   * resolvidas por papel (`resolveChecklistSectionTabs`). Ausente/vazio para
+   * representante/professor, que não precisam do componente.
+   */
+  sectionTabs?: readonly SectionTab[];
 }
 
 interface FillTarget {
@@ -30,14 +34,14 @@ export function ChecklistFlow({
   selection,
   fixedClassName,
   filledByLabel,
-  showSectionTabs,
+  sectionTabs,
 }: ChecklistFlowProps) {
   const [target, setTarget] = useState<FillTarget | null>(null);
   const [error, setError] = useState("");
   const [noTemplateRoom, setNoTemplateRoom] = useState(false);
 
-  const tabs = showSectionTabs ? (
-    <SectionTabs tabs={[...CHECKLIST_SECTION_TABS]} className="px-3 md:px-6" />
+  const tabs = sectionTabs?.length ? (
+    <SectionTabs tabs={[...sectionTabs]} className="px-3 md:px-6" />
   ) : null;
 
   let content: ReactNode;
