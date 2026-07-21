@@ -1,4 +1,4 @@
-import { Icon, Text, spacing } from "@portal/ui";
+import { Icon, Text } from "@portal/ui";
 import type { CSSProperties } from "react";
 
 export interface ChecklistItemResultProps {
