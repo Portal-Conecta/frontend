@@ -105,7 +105,14 @@ export const Default: Story = {
 
     await step("digitar abre", async () => {
       await userEvent.type(input, "des");
-      await expect(await canvas.findByRole("listbox")).toBeVisible();
+      // `findByRole` resolve assim que a lista entra no DOM, mas ela nasce em
+      // `opacity-0 -translate-y-1` e só fica visível ao fim da transição de
+      // 150ms — `toBeVisible()` trata `opacity: 0` como invisível. Sem o
+      // `waitFor`, o assert corre contra a animação de entrada.
+      const listbox = await canvas.findByRole("listbox");
+      await waitFor(async () => {
+        await expect(listbox).toBeVisible();
+      });
     });
 
     await step("apagar fecha", async () => {
@@ -237,9 +244,12 @@ export const ListaInicial: Story = {
 
     await step("focar abre a lista já com todos os cursos", async () => {
       await userEvent.click(input);
+      // Espera a transição de entrada terminar — mesma corrida da story Default.
       const listbox = await canvas.findByRole("listbox");
-      await expect(listbox).toBeVisible();
-      await expect(canvas.getAllByRole("option")).toHaveLength(cursos.length);
+      await waitFor(async () => {
+        await expect(listbox).toBeVisible();
+        await expect(canvas.getAllByRole("option")).toHaveLength(cursos.length);
+      });
     });
 
     await step("digitar filtra", async () => {
