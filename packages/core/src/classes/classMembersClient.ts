@@ -1,5 +1,12 @@
 import { bffFetch } from '../http/bffClient'
-import type { AddMemberRequest, AddMemberResponse } from './types'
+import { buildQuery } from '../http/query'
+import type { ClassRole } from '../rbac'
+import type {
+  AddMemberRequest,
+  AddMemberResponse,
+  ClassMember,
+  MemberRoleResponse,
+} from './types'
 
 /**
  * Client-side do vínculo usuário-turma-papel — consumido pela tela de adicionar
@@ -20,5 +27,30 @@ export function removeClassMemberClient(classId: string, userId: string): Promis
   return bffFetch<void>(
     `/api/classes/${encodeURIComponent(classId)}/members/${encodeURIComponent(userId)}`,
     { method: 'DELETE' },
+  )
+}
+
+/** Lista membros de uma turma, opcionalmente filtrando por papel. */
+export function listClassMembersClient(
+  classId: string,
+  role?: ClassRole,
+): Promise<ClassMember[]> {
+  const query = buildQuery({ role })
+
+  return bffFetch<ClassMember[]>(`/api/classes/${encodeURIComponent(classId)}/members${query}`)
+}
+
+/** Promove ou remove um representante de turma via BFF. */
+export function setClassRepresentativeClient(
+  classId: string,
+  userId: string,
+  representative: boolean,
+): Promise<MemberRoleResponse> {
+  return bffFetch<MemberRoleResponse>(
+    `/api/classes/${encodeURIComponent(classId)}/members/${encodeURIComponent(userId)}/representative`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify({ representative }),
+    },
   )
 }

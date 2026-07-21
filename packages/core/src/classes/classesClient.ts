@@ -1,15 +1,12 @@
 import { bffFetch } from '../http/bffClient'
 import { buildQuery } from '../http/query'
 import type {
-  ClassMember,
   ClassDetail,
   ClassesListParams,
   ClassesListResult,
   CreateClassPayload,
   CreatedClass,
-  MemberRoleResponse,
 } from './types'
-import type { ClassRole } from '../rbac'
 
 /**
  * Client-side do recurso Turma — consumido pelas telas (lista, criação, detalhe)
@@ -40,29 +37,4 @@ export function createClassClient(payload: CreateClassPayload): Promise<CreatedC
     method: 'POST',
     body: JSON.stringify(payload),
   })
-}
-
-/** Lista membros de uma turma, opcionalmente filtrando por papel. */
-export function listClassMembersClient(
-  classId: string,
-  role?: ClassRole,
-): Promise<ClassMember[]> {
-  const query = buildQuery({ role })
-
-  return bffFetch<ClassMember[]>(`/api/classes/${encodeURIComponent(classId)}/members${query}`)
-}
-
-/** Promove ou remove um representante de turma via BFF. */
-export function setClassRepresentativeClient(
-  classId: string,
-  userId: string,
-  representative: boolean,
-): Promise<MemberRoleResponse> {
-  return bffFetch<MemberRoleResponse>(
-    `/api/classes/${encodeURIComponent(classId)}/members/${encodeURIComponent(userId)}/representative`,
-    {
-      method: 'PATCH',
-      body: JSON.stringify({ representative }),
-    },
-  )
 }
