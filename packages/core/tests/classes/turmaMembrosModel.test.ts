@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   applySavedDiff,
   computeMembersDiff,
+  draftFreedMembers,
   excludeLinkedUsers,
   filterMembersByTab,
   isMembersDirty,
@@ -59,6 +60,25 @@ describe('excludeLinkedUsers', () => {
     ]
 
     expect(excludeLinkedUsers(users, [aluno])).toEqual([users[1]])
+  })
+})
+
+describe('draftFreedMembers', () => {
+  it('filtra removidos do rascunho pela aba ativa', () => {
+    expect(draftFreedMembers([aluno, representante, professor], 'STUDENT', '')).toEqual([
+      aluno,
+      representante,
+    ])
+    expect(draftFreedMembers([aluno, representante, professor], 'TEACHER', '')).toEqual([professor])
+  })
+
+  it('filtra por busca de nome (case-insensitive, substring)', () => {
+    expect(draftFreedMembers([aluno, representante], 'STUDENT', 'an')).toEqual([aluno])
+    expect(draftFreedMembers([aluno, representante], 'STUDENT', 'ZZZ')).toEqual([])
+  })
+
+  it('sem removidos pendentes, retorna vazio', () => {
+    expect(draftFreedMembers([], 'STUDENT', '')).toEqual([])
   })
 })
 

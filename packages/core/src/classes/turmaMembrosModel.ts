@@ -49,6 +49,24 @@ export function excludeLinkedUsers(
 }
 
 /**
+ * Membros removidos do rascunho (`toRemove` de `computeMembersDiff`, ainda não
+ * salvos) que devem voltar a aparecer como disponíveis na busca — client-side,
+ * sem depender de refetch: o backend só sabe do estado salvo (`semTurmaAtiva`
+ * continua excluindo enquanto o "Salvar Edições" não confirma a remoção).
+ * Aplica o mesmo filtro de aba/busca por nome que a busca real usa.
+ */
+export function draftFreedMembers(
+  pendingRemovals: readonly ClassMember[],
+  tab: 'STUDENT' | 'TEACHER',
+  query: string,
+): ClassMember[] {
+  const byTab = filterMembersByTab(pendingRemovals, tab)
+  const normalizedQuery = query.trim().toLowerCase()
+  if (!normalizedQuery) return byTab
+  return byTab.filter((member) => member.name.toLowerCase().includes(normalizedQuery))
+}
+
+/**
  * Recalcula a baseline após um save parcialmente bem-sucedido: aplica só os
  * adds/removes que o servidor confirmou, sobrando as falhas como diff pendente
  * pro próximo "Salvar Edições".

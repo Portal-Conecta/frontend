@@ -17,17 +17,21 @@ import { Button, Input, Pagination, Text } from '@portal/ui'
 
 import type { ClassRole } from '../rbac'
 import { AssociateUsersCard } from './AssociateUsersCard'
-import { excludeLinkedUsers } from './turmaMembrosModel'
+import { draftFreedMembers, excludeLinkedUsers } from './turmaMembrosModel'
 import type { ClassMember, DirectoryUser } from './types'
 import { searchUsersClient } from './userDirectoryClient'
 
 export interface TurmaMemberSearchPanelProps {
   linkedMembers: ClassMember[]
-  onAdd: (user: DirectoryUser, classRole: ClassRole) => void
+  /** Removidos do rascunho (ainda não salvos) — reoferecidos na busca sem depender do backend. */
+  pendingRemovals: ClassMember[]
+  onAdd: (user: Pick<DirectoryUser, 'id' | 'name'>, classRole: ClassRole) => void
   isDirty: boolean
   saving: boolean
   onSave: () => void
   onDiscard: () => void
+  /** Muda a cada save bem-sucedido — força a busca a refazer a consulta. */
+  refreshToken: number
 }
 
 const SEARCH_DEBOUNCE_MS = 300
@@ -35,11 +39,13 @@ const PAGE_SIZE = 10
 
 export function TurmaMemberSearchPanel({
   linkedMembers,
+  pendingRemovals,
   onAdd,
   isDirty,
   saving,
   onSave,
   onDiscard,
+  refreshToken,
 }: TurmaMemberSearchPanelProps) {
   const [tab, setTab] = useState<ClassRole>('STUDENT')
   const [query, setQuery] = useState('')
@@ -86,9 +92,15 @@ export function TurmaMemberSearchPanel({
     }, SEARCH_DEBOUNCE_MS)
 
     return () => clearTimeout(debounceRef.current)
-  }, [tab, query, page])
+  }, [tab, query, page, refreshToken])
 
-  const results = excludeLinkedUsers(users, linkedMembers)
+  // Quem foi removido no rascunho aparece primeiro (client-side, sem esperar
+  // save/refetch); o resto vem da busca real no backend.
+  // `tab` deste painel só assume STUDENT/TEACHER (os dois botões abaixo) —
+  // REPRESENTATIVE nunca é selecionado aqui, mas o estado é tipado como
+  // `ClassRole` (mesmo tipo do `classRole` repassado a `onAdd`).
+  const freed = draftFreedMembers(pendingRemovals, tab as 'STUDENT' | 'TEACHER', query)
+  const results = [...freed, ...excludeLinkedUsers(users, linkedMembers)]
 
   return (
     <div className="flex flex-col gap-4">
