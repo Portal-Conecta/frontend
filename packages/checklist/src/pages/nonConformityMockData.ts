@@ -1,6 +1,10 @@
 import type { ChecklistExecutionResponse } from "../types/execution";
 import type { ChecklistExecutionDetailItem } from "../types/executionDetail";
 import type { NonConformityItem } from "../types/nonConformity";
+import type {
+  ChecklistTemplateResponse,
+  RoomResponse,
+} from "../types/template";
 
 /**
  * Dados mockados pra testar a tela sem o backend no ar. Usados só quando
@@ -208,5 +212,189 @@ export const MOCK_EXECUTION_DETAIL_ITEMS: ChecklistExecutionDetailItem[] = [
     title: "Paredes e piso",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
     compliant: true,
+  },
+];
+
+/** Sala com indicação se já tem checklist ativo — `hasChecklist` não existe no `RoomResponse` do backend; decide qual botão (`RoomChecklistItem`) aparece. */
+export type MockRoomWithChecklist = RoomResponse & { hasChecklist: boolean };
+
+/** Salas para a tela de gestão de checklists (`/checklist/gestao-itens`). */
+export const MOCK_CHECKLIST_ROOMS: MockRoomWithChecklist[] = [
+  {
+    id: "room-001",
+    number: 101,
+    typeRoom: "Sala de aula",
+    status: "ACTIVE",
+    hasChecklist: true,
+  },
+  {
+    id: "room-002",
+    number: 102,
+    typeRoom: "Sala de aula",
+    status: "ACTIVE",
+    hasChecklist: true,
+  },
+  {
+    id: "room-003",
+    number: 103,
+    typeRoom: "Sala de aula",
+    status: "ACTIVE",
+    hasChecklist: false,
+  },
+  {
+    id: "room-004",
+    number: 104,
+    typeRoom: "Sala de aula",
+    status: "ACTIVE",
+    hasChecklist: true,
+  },
+  {
+    id: "room-005",
+    number: 105,
+    typeRoom: "Sala de aula",
+    status: "ACTIVE",
+    hasChecklist: false,
+  },
+  {
+    id: "room-006",
+    number: 204,
+    typeRoom: "Laboratório de informática",
+    status: "ACTIVE",
+    hasChecklist: true,
+  },
+  {
+    id: "room-007",
+    number: 205,
+    typeRoom: "Laboratório de informática",
+    status: "ACTIVE",
+    hasChecklist: false,
+  },
+  {
+    id: "room-008",
+    number: 206,
+    typeRoom: "Laboratório de eletrônica",
+    status: "ACTIVE",
+    hasChecklist: false,
+  },
+  {
+    id: "room-009",
+    number: 301,
+    typeRoom: "Oficina",
+    status: "ACTIVE",
+    hasChecklist: true,
+  },
+  {
+    id: "room-010",
+    number: 302,
+    typeRoom: "Auditório",
+    status: "ACTIVE",
+    hasChecklist: false,
+  },
+];
+
+/** Checklists templates para a tela de gestão de itens (`/checklist/gestao-itens`). */
+export const MOCK_CHECKLIST_ITEMS: ChecklistTemplateResponse[] = [
+  {
+    id: "tpl-arrival-001",
+    roomId: "sala-mock-0000",
+    title: "Checklist de Chegada",
+    description: "Verificação de conformidade na chegada dos alunos",
+    category: "GERAL",
+    version: 3,
+    status: "ACTIVE",
+    active: true,
+    schemaJson: {
+      sections: [
+        {
+          key: "infraestrutura",
+          title: "Infraestrutura",
+          order: 1,
+          items: [
+            {
+              key: "ar-condicionado",
+              title: "Ar Condicionado",
+              description: "Verificar funcionamento do ar condicionado",
+              required: true,
+              order: 1,
+            },
+            {
+              key: "iluminacao",
+              title: "Iluminação",
+              description: "Verificar se todas as luzes estão funcionando",
+              required: true,
+              order: 2,
+            },
+          ],
+        },
+      ],
+    },
+    createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: "tpl-postbreak-001",
+    roomId: "sala-mock-0000",
+    title: "Checklist Pós-Intervalo",
+    description: "Verificação de conformidade após intervalo",
+    category: "GERAL",
+    version: 2,
+    status: "ACTIVE",
+    active: true,
+    schemaJson: {
+      sections: [
+        {
+          key: "limpeza",
+          title: "Limpeza",
+          order: 1,
+          items: [
+            {
+              key: "piso",
+              title: "Piso",
+              description: "Verificar limpeza do piso",
+              required: true,
+              order: 1,
+            },
+            {
+              key: "lousa",
+              title: "Lousa/Quadro",
+              description: "Verificar se o quadro foi limpo",
+              required: true,
+              order: 2,
+            },
+          ],
+        },
+      ],
+    },
+    createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: "tpl-equipment-001",
+    roomId: "sala-mock-0000",
+    title: "Checklist de Equipamentos",
+    description: "Verificação de equipamentos eletrônicos",
+    category: "ELETRONICOS",
+    version: 1,
+    status: "DRAFT",
+    active: false,
+    schemaJson: {
+      sections: [
+        {
+          key: "computadores",
+          title: "Computadores",
+          order: 1,
+          items: [
+            {
+              key: "liga-desliga",
+              title: "Liga/Desliga",
+              description: "Verificar se os computadores ligam",
+              required: true,
+              order: 1,
+            },
+          ],
+        },
+      ],
+    },
+    createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
   },
 ];

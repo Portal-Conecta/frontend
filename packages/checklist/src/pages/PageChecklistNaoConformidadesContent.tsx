@@ -44,6 +44,7 @@ const MOCK_TRANSITIONS: Record<string, ChecklistIssueResponse["status"]> = {
 const CHECKLIST_TABS = [
   { label: "Preenchimento", href: "/checklist" },
   { label: "Não Conformidades", href: "/checklist/nao-conformidades" },
+  { label: "Gestão de Itens", href: "/checklist/gestao-itens" },
 ];
 
 const CHECKLIST_TYPE_LABEL: Record<string, string> = {
