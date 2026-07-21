@@ -2,14 +2,14 @@
 
 import { useMemo } from "react";
 import { Bar } from "react-chartjs-2";
+import { ChartCard } from "@portal/ui";
+
 import {
-  ChartCard,
   dsBarDatasetDefaults,
   makeDsChartOptions,
   registerBarCharts,
   useDsChartTheme,
-} from "@portal/ui";
-
+} from "../../charts";
 import {
   PERFORMANCE_TURNO_LABELS,
   PERFORMANCE_TURNO_SERIES,

@@ -1,7 +1,6 @@
 import type { ChartOptions, ChartType } from 'chart.js'
 
-import { colorPrimitives, colors } from '../../tokens/colors'
-import { typography } from '../../tokens/typography'
+import { colorPrimitives, colors, typography } from '@portal/ui'
 
 export type DsChartKind = 'bar' | 'line' | 'doughnut' | 'kpi'
 

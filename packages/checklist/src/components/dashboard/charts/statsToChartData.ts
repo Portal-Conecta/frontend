@@ -1,4 +1,4 @@
-import { DS_CATEGORICAL_BLUE } from '@portal/ui'
+import { DS_CATEGORICAL_BLUE } from '../../charts'
 
 import type { StatsEntry } from '../../../types/dashboard'
 import { humanizeStatsLabel } from './statsLabels'

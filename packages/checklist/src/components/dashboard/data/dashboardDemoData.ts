@@ -1,5 +1,5 @@
 import type { StatsEntry } from "../../../types/dashboard";
-import { DS_STATUS_COLORS_BLUE } from "@portal/ui";
+import { DS_STATUS_COLORS_BLUE } from "../../charts";
 
 /** KPIs do topo — valores da referência de produto. */
 export const DASHBOARD_KPIS = [

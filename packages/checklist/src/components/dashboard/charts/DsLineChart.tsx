@@ -2,15 +2,15 @@
 
 import { useMemo } from "react";
 import { Line } from "react-chartjs-2";
+import { ChartCard } from "@portal/ui";
+
 import {
-  ChartCard,
   DS_CATEGORICAL_BLUE,
   dsLineDatasetDefaults,
   makeDsChartOptions,
   registerLineCharts,
   useDsChartTheme,
-} from "@portal/ui";
-
+} from "../../charts";
 import type { StatsEntry } from "../../../types/dashboard";
 import { isEmptyStats, statsToChartData } from "./statsToChartData";
 

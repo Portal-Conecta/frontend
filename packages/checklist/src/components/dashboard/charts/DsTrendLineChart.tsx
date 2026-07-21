@@ -2,15 +2,15 @@
 
 import { useMemo } from "react";
 import { Line } from "react-chartjs-2";
+import { ChartCard } from "@portal/ui";
+
 import {
-  ChartCard,
   DS_CATEGORICAL,
   dsLineDatasetDefaults,
   makeDsChartOptions,
   registerLineCharts,
   useDsChartTheme,
-} from "@portal/ui";
-
+} from "../../charts";
 import {
   TENDENCIA_CONFORMIDADE_LABELS,
   TENDENCIA_CONFORMIDADE_VALUES,

@@ -2,14 +2,14 @@
 
 import { useMemo } from "react";
 import { Doughnut } from "react-chartjs-2";
+import { ChartCard } from "@portal/ui";
+
 import {
-  ChartCard,
   dsDoughnutDatasetDefaults,
   makeDsChartOptions,
   registerDoughnutCharts,
   useDsChartTheme,
-} from "@portal/ui";
-
+} from "../../charts";
 import type { StatsEntry } from "../../../types/dashboard";
 import { isEmptyStats, statsToChartData } from "./statsToChartData";
 
