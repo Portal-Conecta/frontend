@@ -3,8 +3,6 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 
-import { AppShell } from '@portal/core'
-import { getCurrentUser } from '@portal/core/auth/getCurrentUser'
 import { Text } from '@portal/ui'
 import { CreateClassForm, type Course, type CreateClassPayload } from '@portal/ui/molecules/Classes/CreateClassForm'
 
@@ -15,9 +13,11 @@ export const metadata: Metadata = {
   title: 'Criar Nova Turma | Portal Conecta',
 }
 
+/**
+ * Sem `AppShell` aqui: o layout do grupo `(authenticated)` (#405) já o monta uma
+ * única vez para todas as rotas autenticadas.
+ */
 export default async function CriarTurmaPage() {
-  const user = await getCurrentUser()
-  
   const cookieStore = await cookies()
   const token = cookieStore.get('session')?.value || cookieStore.get('token')?.value || ''
   
@@ -68,22 +68,18 @@ export default async function CriarTurmaPage() {
   }
 
   return (
-    <AppShell user={user} activeKey="cursos-turmas">
-      <main className="mx-auto flex w-full flex-col px-6 pb-10 pt-6">
-        
-        <div className="mb-10 flex items-center gap-2">
-          <Text as="h1" variant="heading-h3" tone="brand">
-            Criar Nova Turma
-          </Text>
-        </div>
+    <main className="mx-auto flex w-full flex-col px-6 pb-10 pt-6">
+      <div className="mb-10 flex items-center gap-2">
+        <Text as="h1" variant="heading-h3" tone="brand">
+          Criar Nova Turma
+        </Text>
+      </div>
 
-        <CreateClassForm 
-          courses={realCourses} 
-          onSubmitClass={handleSubmitClass} 
-          onCancel={handleCancel}
-        />
-
-      </main>
-    </AppShell>
+      <CreateClassForm
+        courses={realCourses}
+        onSubmitClass={handleSubmitClass}
+        onCancel={handleCancel}
+      />
+    </main>
   )
 }
