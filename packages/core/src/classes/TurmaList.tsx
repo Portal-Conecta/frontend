@@ -87,8 +87,10 @@ function TurmaRowItem({ turma }: { turma: TurmaRow }) {
   return (
     <ListItem className="flex items-center justify-between gap-2 md:gap-4">
       <ClassCard
-        variant="single"
-        item={{ code: turma.code, course: turma.course, shift: turma.shift }}
+        variant='withBackground'
+        tag={turma.code}
+        title={turma.course}
+        meta={turma.shift}
       />
       <span className="hidden md:inline-flex">
         <Button size="sm" variant="outlined" iconLeft="chevron-right">
