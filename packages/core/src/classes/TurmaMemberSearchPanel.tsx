@@ -5,6 +5,11 @@
  * sistema, com abas Professores/Alunos, e os botões "Salvar Edições"/
  * "Descartar alterações" (Figma: ficam alinhados embaixo desta coluna, não
  * numa barra full-width).
+ *
+ * Aba Alunos: além de `withoutActiveClass` (sem turma ativa), busca por
+ * `status=[PENDING_ACTIVATION, ACTIVE]` — sem isso o backend usa o default
+ * (só ACTIVE) e esconde alunos que ainda não ativaram a conta, mas que já
+ * podem ser vinculados a uma turma.
  */
 import { useEffect, useRef, useState } from 'react'
 
@@ -62,6 +67,7 @@ export function TurmaMemberSearchPanel({
         page: page - 1,
         size: PAGE_SIZE,
         withoutActiveClass: tab === 'STUDENT',
+        ...(tab === 'STUDENT' ? { status: ['PENDING_ACTIVATION', 'ACTIVE'] } : {}),
       })
         .then((result) => {
           if (seq !== seqRef.current) return
