@@ -26,6 +26,7 @@ export interface TurmaListProps {
 }
 
 export function TurmaList({ turmas }: TurmaListProps) {
+  const router = useRouter()
   const [query, setQuery] = useState('')
   const [filters, setFilters] = useState<TurmaFilters>({})
 
@@ -66,7 +67,13 @@ export function TurmaList({ turmas }: TurmaListProps) {
               Nenhuma turma encontrada.
             </Text>
           ) : (
-            filtered.map((turma) => <TurmaRowItem key={turma.id} turma={turma} />)
+            filtered.map((turma) => (
+              <TurmaRowItem
+                key={turma.id}
+                turma={turma}
+                onManage={() => router.push(`/turmas/${turma.id}`)}
+              />
+            ))
           )}
         </div>
 
@@ -83,11 +90,13 @@ export function TurmaList({ turmas }: TurmaListProps) {
   )
 }
 
-/** Uma turma na lista — no mobile o curso e o turno empilham; no `md+` viram colunas. */
-function TurmaRowItem({ turma }: { turma: TurmaRow }) {
-  const router = useRouter()
-  const openDetail = () => router.push(`/turmas/${turma.id}`)
-
+/**
+ * Uma turma na lista — no mobile o curso e o turno empilham; no `md+` viram colunas.
+ * "Gerenciar" leva pro detalhe da turma (#363), que é o ponto de entrada único:
+ * adicionar usuários (#364) virou atalho de dentro dele, não mais destino direto
+ * da listagem.
+ */
+function TurmaRowItem({ turma, onManage }: { turma: TurmaRow; onManage: () => void }) {
   return (
     <ListItem className="flex items-center justify-between gap-2 md:gap-4">
       <ClassCard
@@ -97,7 +106,7 @@ function TurmaRowItem({ turma }: { turma: TurmaRow }) {
         meta={turma.shift}
       />
       <span className="hidden md:inline-flex">
-        <Button size="sm" variant="outlined" iconLeft="chevron-right" onClick={openDetail}>
+        <Button size="sm" variant="outlined" iconLeft="chevron-right" onClick={onManage}>
           Gerenciar
         </Button>
       </span>
@@ -107,7 +116,7 @@ function TurmaRowItem({ turma }: { turma: TurmaRow }) {
           variant="outlined"
           icon="chevron-right"
           aria-label={`Gerenciar ${turma.code}`}
-          onClick={openDetail}
+          onClick={onManage}
         />
       </span>
     </ListItem>

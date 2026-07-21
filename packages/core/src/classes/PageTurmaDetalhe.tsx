@@ -101,7 +101,7 @@ async function TurmaDetalhe({ classId, accessToken }: { classId: string; accessT
         </div>
 
         <TurmaNavButton
-          href={`/turmas/${classId}/usuarios`}
+          href={`/turmas/${classId}/membros`}
           iconLeft="plus"
           size="xs"
           className="shrink-0"
