@@ -2,8 +2,6 @@
 
 import { Icon, spacing } from "@portal/ui";
 import { useState, type CSSProperties } from "react";
-import { Icon } from "@portal/ui";
-import { useState } from "react";
 
 export type StatusValue = "conforme" | "nao-conforme";
 export interface StatusToggleProps {
@@ -37,11 +35,6 @@ const base =
   "rounded-md border-sm bg-background-surface " +
   "px-3 py-1 font-inter text-label-sm leading-none " +
   "whitespace-nowrap overflow-hidden cursor-pointer transition-colors " +
-const base =
-  "inline-flex items-center border-sm bg-background-surface " +
-  "font-inter text-label-sm cursor-pointer transition-colors " +
-  "h-8 w-10 justify-center rounded-md " +
-  "md:w-auto md:justify-start md:gap-1 md:pl-3 md:pr-3 md:whitespace-nowrap " +
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 " +
   "disabled:cursor-not-allowed disabled:opacity-50";
 
