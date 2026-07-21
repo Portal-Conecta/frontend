@@ -108,6 +108,7 @@ interface CollapsibleSectionProps {
    */
   filters?: (api: CollapsibleSectionFilterApi) => ReactNode;
   children: ReactNode;
+  className?: string;
 }
 
 /** Título clicável que expande/recolhe o conteúdo — mesma animação de grid-rows do ChecklistNonConformityCard. */
@@ -116,6 +117,7 @@ function CollapsibleSection({
   defaultOpen = true,
   filters,
   children,
+  className,
 }: CollapsibleSectionProps) {
   const [open, setOpen] = useState(defaultOpen);
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -125,7 +127,7 @@ function CollapsibleSection({
   const closeFilters = () => setFiltersOpen(false);
 
   return (
-    <section>
+    <section className={className}>
       {/* gap-10 = 40px entre o título (Envios) e o ícone de filtro */}
       <div className="flex items-center gap-10">
         <button
@@ -362,9 +364,9 @@ export function PageChecklistNaoConformidadesContent({
         )}
       >
         {filteredSubmissions.length === 0 ? (
-          <Text variant="body-md" tone="secondary">
+          <Banner variant="info">
             Nenhum envio encontrado para os filtros selecionados.
-          </Text>
+          </Banner>
         ) : (
           <div role="table" aria-label="Lista de envios">
             <ChecklistSubmissionListHeader />
@@ -401,6 +403,7 @@ export function PageChecklistNaoConformidadesContent({
 
       <CollapsibleSection
         title="Não conformidades registradas"
+        className="mt-10"
         filters={({ closeFilters }) => (
           <ChecklistFilters
             roomOptions={roomOptions}
@@ -414,9 +417,9 @@ export function PageChecklistNaoConformidadesContent({
         )}
       >
         {filteredItems.length === 0 ? (
-          <Text variant="body-md" tone="secondary">
+          <Banner variant="info">
             Nenhuma não conformidade encontrada para os filtros selecionados.
-          </Text>
+          </Banner>
         ) : (
           <div role="table" aria-label="Lista de não conformidades">
             <ChecklistNonConformityListHeader />

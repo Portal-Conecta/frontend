@@ -16,7 +16,7 @@ import { getSession } from "@portal/core/auth/session";
 import { PermissionGate } from "@portal/core";
 
 import { MOCK_CHECKLIST_ROOMS } from "./gestaoItensMockData";
-import { PageChecklistGestaoItensContent } from "./PageChecklistGestaoItensContent (1)";
+import { PageChecklistGestaoItensContent } from "./PageChecklistGestaoItensContent";
 
 /**
  * Fallback local: ainda não existe endpoint que liste TODAS as salas

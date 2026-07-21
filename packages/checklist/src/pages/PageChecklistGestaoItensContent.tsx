@@ -60,9 +60,9 @@ export function PageChecklistGestaoItensContent({
 
       <div aria-live="polite">
         {filteredRooms.length === 0 ? (
-          <Text variant="body-md" tone="secondary" className="mt-4">
-            Nenhuma sala encontrada.
-          </Text>
+          <Banner variant="info">
+            Nenhuma sala encontrada. Tente ajustar sua busca.
+          </Banner>
         ) : (
           <div role="table" aria-label="Lista de salas">
             {filteredRooms.map((room) => (
