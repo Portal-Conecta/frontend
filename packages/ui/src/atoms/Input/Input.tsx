@@ -8,7 +8,7 @@
  * seguem a cor do tom. Sem label visível (placeholder-only, como no DS) — use
  * aria-label ou um Field.
  */
-import { useId, useState, type InputHTMLAttributes } from 'react'
+import { useId, useRef, useState, type ChangeEvent, type InputHTMLAttributes } from 'react'
 
 import { Icon, type IconName } from '../Icon'
 
@@ -67,6 +67,10 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
   iconLeft?: IconName
   /** Ícone à direita (set aprovado). Ignorado quando `type="password"` (usa o toggle de olho). */
   iconRight?: IconName
+  /** Exibe o botão de limpar enquanto o campo tem valor. */
+  clearable?: boolean
+  /** Chamado ao limpar. Em uso controlado é aqui que o consumidor zera o `value`. */
+  onClear?: () => void
 }
 
 export function Input({
@@ -74,6 +78,9 @@ export function Input({
   error,
   iconLeft,
   iconRight,
+  clearable = false,
+  onClear,
+  onChange,
   type = 'text',
   disabled = false,
   id,
@@ -82,6 +89,7 @@ export function Input({
 }: InputProps) {
   const [revealed, setRevealed] = useState(false)
   const generatedId = useId()
+  const inputRef = useRef<HTMLInputElement>(null)
   const inputId = id ?? generatedId
   const errorId = `${inputId}-error`
 
@@ -89,8 +97,34 @@ export function Input({
   const inputType = isPassword ? (revealed ? 'text' : 'password') : type
   const styles = toneStyles[tone]
 
+  // O botão de limpar só aparece com valor no campo, e o campo pode ser
+  // controlado ou não. Controlado: `value` é a verdade. Não-controlado: o valor
+  // vive no DOM, então espelhamos só a presença dele em state (não o conteúdo).
+  const isControlled = rest.value !== undefined
+  const [hasUncontrolledValue, setHasUncontrolledValue] = useState(
+    () => String(rest.defaultValue ?? '') !== '',
+  )
+  const hasValue = isControlled ? String(rest.value ?? '') !== '' : hasUncontrolledValue
+
+  function handleChange(event: ChangeEvent<HTMLInputElement>) {
+    if (!isControlled) setHasUncontrolledValue(event.target.value !== '')
+    onChange?.(event)
+  }
+
+  function handleClear() {
+    // Não-controlado: escrever no DOM não dispara `change`, então o consumidor
+    // que precisa saber depende de `onClear` — mesmo canal do caso controlado.
+    if (!isControlled && inputRef.current) {
+      inputRef.current.value = ''
+      setHasUncontrolledValue(false)
+    }
+    onClear?.()
+    inputRef.current?.focus()
+  }
+
   const boxClasses = [
     // `group`: os ícones seguem o estado da caixa (ver `icon` em toneStyles).
+    // `h-9` (36px) é token de spacing promovido no código — ver spacing.ts.
     'group flex items-center gap-2 h-9 px-3 py-2.5 rounded-md border-sm transition-colors',
     disabled ? 'bg-background-default border-border-disabled' : styles.box,
   ].join(' ')
@@ -111,14 +145,27 @@ export function Input({
         ) : null}
 
         <input
+          ref={inputRef}
           id={inputId}
           type={inputType}
           disabled={disabled}
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? errorId : undefined}
           className={inputClasses}
+          onChange={handleChange}
           {...rest}
         />
+
+        {clearable && hasValue && !disabled ? (
+          <button
+            type="button"
+            onClick={handleClear}
+            aria-label="Limpar campo"
+            className={`shrink-0 transition-colors ${styles.icon}`}
+          >
+            <Icon name="x" size="sm" decorative />
+          </button>
+        ) : null}
 
         {isPassword ? (
           <button

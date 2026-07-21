@@ -32,6 +32,10 @@ const meta: Meta<typeof Input> = {
       options: [undefined, 'search', 'mail'],
       description: 'Ícone à direita (set aprovado). Ignorado quando `type="password"`.',
     },
+    clearable: {
+      control: 'boolean',
+      description: 'Exibe o botão de limpar enquanto o campo tem valor.',
+    },
     disabled: {
       control: 'boolean',
       description: 'Desabilita o campo (atributo nativo).',
@@ -75,6 +79,19 @@ export const WithIconLeft: Story = {
 /** Os dois lados juntos — e `iconLeft` também convive com o toggle de senha. */
 export const WithBothIcons: Story = {
   args: { iconLeft: 'mail', iconRight: 'search', placeholder: 'Buscar por e-mail' },
+}
+
+/**
+ * clearable: o botão `x` só aparece com valor no campo, e some junto com ele.
+ * Some também quando `disabled` — não há o que limpar num campo que não edita.
+ */
+export const Clearable: Story = {
+  args: { clearable: true, defaultValue: 'usuario@senai.br' },
+}
+
+/** clearable + prefix — é a busca da lista de turmas. */
+export const ClearableWithIconLeft: Story = {
+  args: { clearable: true, tone: 'brand', iconLeft: 'search', defaultValue: 'Turma A' },
 }
 
 /** Erro: barra vermelha + mensagem (label-xs). A borda permanece neutra, como no DS. */
