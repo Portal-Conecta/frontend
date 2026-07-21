@@ -5,6 +5,67 @@ import { useId, useState } from "react";
 
 import type { IssueStatus } from "../../types/issue";
 
+/** Colunas desktop compartilhadas entre o cabeçalho e cada linha da lista. */
+export const NON_CONFORMITY_LIST_GRID_CLASS =
+  "lg:grid-cols-[repeat(5,minmax(0,1fr))_auto] lg:items-center lg:gap-x-6";
+
+/** Cabeçalho das colunas da lista de não conformidades (desktop). */
+export function ChecklistNonConformityListHeader({
+  className,
+}: {
+  className?: string;
+}) {
+  return (
+    <div
+      className={[
+        "hidden border-t border-border-default p-3 lg:grid lg:p-4",
+        NON_CONFORMITY_LIST_GRID_CLASS,
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
+      role="row"
+    >
+      <Text
+        variant="label-md-emphasis"
+        tone="brand"
+        className="min-w-0 truncate text-left"
+      >
+        Sala
+      </Text>
+      <Text
+        variant="label-md-emphasis"
+        tone="brand"
+        className="min-w-0 truncate text-left"
+      >
+        Item
+      </Text>
+      <Text
+        variant="label-md-emphasis"
+        tone="brand"
+        className="min-w-0 truncate text-left"
+      >
+        Tipo
+      </Text>
+      <Text
+        variant="label-md-emphasis"
+        tone="brand"
+        className="min-w-0 truncate text-left"
+      >
+        Enviado
+      </Text>
+      <Text
+        variant="label-md-emphasis"
+        tone="brand"
+        className="min-w-0 truncate text-left"
+      >
+        Preenchido por
+      </Text>
+      <span className="block w-[11rem]" aria-hidden />
+    </div>
+  );
+}
+
 export interface ChecklistNonConformityCardProps {
   room: string;
   category: string;
@@ -65,7 +126,13 @@ export function ChecklistNonConformityCard({
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="flex flex-col gap-4 p-3 md:p-4 lg:grid lg:grid-cols-5 lg:items-center lg:gap-4">
+      <div
+        className={[
+          "flex flex-col gap-4 p-3 md:p-4 lg:grid",
+          NON_CONFORMITY_LIST_GRID_CLASS,
+        ].join(" ")}
+        role="row"
+      >
         {/* Mobile: dados agrupados */}
         <div className="flex flex-col lg:hidden">
           <Text
@@ -93,35 +160,39 @@ export function ChecklistNonConformityCard({
           </div>
         </div>
 
-        {/* Desktop: grid com 5 colunas de largura igual — o template é o mesmo em
-            toda linha repetida pelo .map(), então as colunas alinham entre as
-            linhas independente do tamanho do conteúdo de cada uma. */}
         <Text
           variant="label-md"
-          className="hidden text-interactive-hover lg:block lg:truncate lg:text-left"
+          className="hidden min-w-0 truncate text-interactive-hover lg:block lg:text-left"
         >
           {room}
         </Text>
 
         <Text
           variant="label-md"
-          className="hidden text-interactive-hover lg:block lg:truncate lg:text-left"
+          className="hidden min-w-0 truncate text-interactive-hover lg:block lg:text-left"
         >
           {category}
         </Text>
 
         <Text
           variant="label-md"
-          className="hidden text-interactive-hover lg:block lg:text-left"
+          className="hidden min-w-0 truncate text-interactive-hover lg:block lg:text-left"
         >
-          {checklistType} | enviado às {submittedTime}
+          {checklistType}
         </Text>
 
         <Text
           variant="label-md"
-          className="hidden text-interactive-hover lg:block lg:text-left"
+          className="hidden min-w-0 truncate text-interactive-hover lg:block lg:text-left"
         >
-          Preenchido por: {filledBy} | {group}
+          {submittedDate} às {submittedTime}
+        </Text>
+
+        <Text
+          variant="label-md"
+          className="hidden min-w-0 truncate text-interactive-hover lg:block lg:text-left"
+        >
+          {filledBy} | {group}
         </Text>
 
         <Button
@@ -131,7 +202,7 @@ export function ChecklistNonConformityCard({
           onClick={toggle}
           aria-expanded={open}
           aria-controls={panelId}
-          className="w-full whitespace-nowrap lg:w-auto lg:justify-self-end"
+          className="w-full shrink-0 whitespace-nowrap lg:w-auto lg:justify-self-end"
         >
           Ver Não Conformidade
         </Button>

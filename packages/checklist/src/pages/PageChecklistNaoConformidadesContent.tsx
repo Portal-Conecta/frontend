@@ -5,15 +5,21 @@ import { useRouter } from "next/navigation";
 
 import { bffFetch } from "@portal/core/http/bffClient";
 import { HttpError } from "@portal/core/http/errors";
-import { Banner, Icon, Text, type SelectOption } from "@portal/ui";
+import { Banner, Button, Icon, Text, type SelectOption } from "@portal/ui";
 
 import { SectionTabs } from "../components/SectionTabs";
 import {
   ChecklistFilters,
   type ChecklistFiltersValues,
 } from "../components/ChecklistFilters";
-import { ChecklistNonConformityCard } from "../components/ChecklistNonConformityCard";
-import { ChecklistSubmissionCard } from "../components/ChecklistSubmissionCard";
+import {
+  ChecklistNonConformityCard,
+  ChecklistNonConformityListHeader,
+} from "../components/ChecklistNonConformityCard";
+import {
+  ChecklistSubmissionCard,
+  ChecklistSubmissionListHeader,
+} from "../components/ChecklistSubmissionCard";
 import type { NonConformityItem } from "../types/nonConformity";
 import type { ChecklistIssueResponse } from "../types/issue";
 import type { ChecklistExecutionResponse } from "../types/execution";
@@ -87,9 +93,19 @@ async function transitionIssue(
   );
 }
 
+interface CollapsibleSectionFilterApi {
+  /** Fecha o painel de filtros no mobile (ex.: após Aplicar). */
+  closeFilters: () => void;
+}
+
 interface CollapsibleSectionProps {
   title: string;
   defaultOpen?: boolean;
+  /**
+   * Filtros da seção. No mobile o painel fica oculto e só o ícone (funil)
+   * ao lado do título abre; no desktop (md+) os filtros ficam sempre visíveis.
+   */
+  filters?: (api: CollapsibleSectionFilterApi) => ReactNode;
   children: ReactNode;
 }
 
@@ -97,42 +113,93 @@ interface CollapsibleSectionProps {
 function CollapsibleSection({
   title,
   defaultOpen = true,
+  filters,
   children,
 }: CollapsibleSectionProps) {
   const [open, setOpen] = useState(defaultOpen);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const panelId = useId();
+  const filtersPanelId = useId();
+
+  const closeFilters = () => setFiltersOpen(false);
 
   return (
     <section>
-      <button
-        type="button"
-        onClick={() => setOpen((prev) => !prev)}
-        aria-expanded={open}
-        aria-controls={panelId}
-        className="flex items-center gap-2"
-      >
-        <Icon
-          name={open ? "chevron-down" : "chevron-up"}
-          size="lg"
-          tone="primary"
-          decorative
-        />
-        <Text
-          as="span"
-          variant="label-md-emphasis"
-          tone="brand"
-          className="lg:text-heading-h2"
+      {/* gap-10 = 40px entre o título (Envios) e o ícone de filtro */}
+      <div className="flex items-center gap-10">
+        <button
+          type="button"
+          onClick={() => setOpen((prev) => !prev)}
+          aria-expanded={open}
+          aria-controls={panelId}
+          className="flex items-center gap-2"
         >
-          {title}
-        </Text>
-      </button>
+          <Icon
+            name={open ? "chevron-down" : "chevron-up"}
+            size="lg"
+            tone="primary"
+            decorative
+          />
+          <Text
+            as="span"
+            variant="label-md-emphasis"
+            tone="brand"
+            className="lg:text-heading-h2"
+          >
+            {title}
+          </Text>
+        </button>
+
+        {filters ? (
+          <Button
+            variant="outlined"
+            size="sm"
+            aria-label={filtersOpen ? "Fechar filtros" : "Abrir filtros"}
+            aria-expanded={filtersOpen}
+            aria-controls={filtersPanelId}
+            onClick={() => setFiltersOpen((prev) => !prev)}
+            className={[
+              "!rounded-full !px-4 !py-2 md:hidden",
+              // Aberto / selecionado: fundo interactive-pressed.
+              filtersOpen
+                ? "!border-interactive-pressed !bg-interactive-pressed !text-text-inverse"
+                : undefined,
+            ]
+              .filter(Boolean)
+              .join(" ")}
+          >
+            {/* sm = 16px (icon-only do Button sm usa 24px por padrão) */}
+            <Icon
+              name="funnel"
+              size="sm"
+              decorative
+              tone={filtersOpen ? "inverse" : undefined}
+            />
+          </Button>
+        ) : null}
+      </div>
 
       <div
         id={panelId}
         className="grid overflow-hidden transition-[grid-template-rows] duration-300 ease-in-out motion-reduce:transition-none"
         style={{ gridTemplateRows: open ? "1fr" : "0fr" }}
       >
-        <div className="min-h-0 overflow-hidden pt-4">{children}</div>
+        <div className="min-h-0 overflow-hidden pt-4">
+          {filters ? (
+            <div
+              id={filtersPanelId}
+              className={[
+                "mb-4",
+                // Mobile: só com o funil; desktop: sempre visível.
+                filtersOpen ? "block" : "hidden",
+                "md:block",
+              ].join(" ")}
+            >
+              {filters({ closeFilters })}
+            </div>
+          ) : null}
+          {children}
+        </div>
       </div>
     </section>
   );
@@ -156,23 +223,26 @@ export function PageChecklistNaoConformidadesContent({
     useState<ChecklistFiltersValues>({});
 
   const roomOptions = useMemo<SelectOption[]>(() => {
-    const uniqueRoomIds = [
-      ...new Set(items.map((item) => item.execution.roomId)),
-    ];
-    return uniqueRoomIds.map((roomId) => ({
-      value: roomId,
-      label: `Sala ${roomId.slice(0, 8)}`,
-    }));
+    const byId = new Map<string, string>();
+    for (const { execution } of items) {
+      if (!byId.has(execution.roomId)) {
+        byId.set(execution.roomId, execution.roomLabel ?? "Sala");
+      }
+    }
+    return [...byId.entries()].map(([value, label]) => ({ value, label }));
   }, [items]);
 
   const groupOptions = useMemo<SelectOption[]>(() => {
-    const uniqueClassIds = [
-      ...new Set(items.map((item) => item.execution.classId)),
-    ];
-    return uniqueClassIds.map((classId) => ({
-      value: classId,
-      label: classNames[classId] ?? classId,
-    }));
+    const byId = new Map<string, string>();
+    for (const { execution } of items) {
+      if (!byId.has(execution.classId)) {
+        byId.set(
+          execution.classId,
+          execution.className ?? classNames[execution.classId] ?? "Turma",
+        );
+      }
+    }
+    return [...byId.entries()].map(([value, label]) => ({ value, label }));
   }, [items, classNames]);
 
   const filteredItems = useMemo(() => {
@@ -191,23 +261,26 @@ export function PageChecklistNaoConformidadesContent({
   }, [items, filters]);
 
   const submissionRoomOptions = useMemo<SelectOption[]>(() => {
-    const uniqueRoomIds = [
-      ...new Set(submissions.map((execution) => execution.roomId)),
-    ];
-    return uniqueRoomIds.map((roomId) => ({
-      value: roomId,
-      label: `Sala ${roomId.slice(0, 8)}`,
-    }));
+    const byId = new Map<string, string>();
+    for (const execution of submissions) {
+      if (!byId.has(execution.roomId)) {
+        byId.set(execution.roomId, execution.roomLabel ?? "Sala");
+      }
+    }
+    return [...byId.entries()].map(([value, label]) => ({ value, label }));
   }, [submissions]);
 
   const submissionGroupOptions = useMemo<SelectOption[]>(() => {
-    const uniqueClassIds = [
-      ...new Set(submissions.map((execution) => execution.classId)),
-    ];
-    return uniqueClassIds.map((classId) => ({
-      value: classId,
-      label: classNames[classId] ?? classId,
-    }));
+    const byId = new Map<string, string>();
+    for (const execution of submissions) {
+      if (!byId.has(execution.classId)) {
+        byId.set(
+          execution.classId,
+          execution.className ?? classNames[execution.classId] ?? "Turma",
+        );
+      }
+    }
+    return [...byId.entries()].map(([value, label]) => ({ value, label }));
   }, [submissions, classNames]);
 
   const filteredSubmissions = useMemo(() => {
@@ -274,25 +347,31 @@ export function PageChecklistNaoConformidadesContent({
         </Banner>
       )}
 
-      <CollapsibleSection title="Envios">
-        <ChecklistFilters
-          roomOptions={submissionRoomOptions}
-          groupOptions={submissionGroupOptions}
-          onApply={setSubmissionFilters}
-          onReset={() => setSubmissionFilters({})}
-          className="mb-4"
-        />
-
+      <CollapsibleSection
+        title="Envios"
+        filters={({ closeFilters }) => (
+          <ChecklistFilters
+            roomOptions={submissionRoomOptions}
+            groupOptions={submissionGroupOptions}
+            onApply={(values) => {
+              setSubmissionFilters(values);
+              closeFilters();
+            }}
+            onReset={() => setSubmissionFilters({})}
+          />
+        )}
+      >
         {filteredSubmissions.length === 0 ? (
           <Text variant="body-md" tone="secondary">
             Nenhum envio encontrado para os filtros selecionados.
           </Text>
         ) : (
-          <div>
+          <div role="table" aria-label="Lista de envios">
+            <ChecklistSubmissionListHeader />
             {filteredSubmissions.map((execution) => (
               <ChecklistSubmissionCard
                 key={execution.id}
-                room={`Sala ${execution.roomId.slice(0, 8)}`}
+                room={execution.roomLabel ?? "Sala"}
                 checklistType={
                   CHECKLIST_TYPE_LABEL[execution.checklistType] ??
                   execution.checklistType
@@ -302,8 +381,12 @@ export function PageChecklistNaoConformidadesContent({
                     ? formatDateTime(execution.submittedAt)
                     : formatDateTime(execution.startedAt)
                 }
-                filledBy={execution.filledBy}
-                group={classNames[execution.classId] ?? execution.classId}
+                filledBy={execution.filledByName ?? "—"}
+                group={
+                  execution.className ??
+                  classNames[execution.classId] ??
+                  "Turma"
+                }
                 hasNonConformity={execution.issues.length > 0}
                 onView={() =>
                   router.push(
@@ -316,25 +399,31 @@ export function PageChecklistNaoConformidadesContent({
         )}
       </CollapsibleSection>
 
-      <CollapsibleSection title="Não conformidades registradas">
-        <ChecklistFilters
-          roomOptions={roomOptions}
-          groupOptions={groupOptions}
-          onApply={setFilters}
-          onReset={() => setFilters({})}
-          className="mb-4"
-        />
-
+      <CollapsibleSection
+        title="Não conformidades registradas"
+        filters={({ closeFilters }) => (
+          <ChecklistFilters
+            roomOptions={roomOptions}
+            groupOptions={groupOptions}
+            onApply={(values) => {
+              setFilters(values);
+              closeFilters();
+            }}
+            onReset={() => setFilters({})}
+          />
+        )}
+      >
         {filteredItems.length === 0 ? (
           <Text variant="body-md" tone="secondary">
             Nenhuma não conformidade encontrada para os filtros selecionados.
           </Text>
         ) : (
-          <div>
+          <div role="table" aria-label="Lista de não conformidades">
+            <ChecklistNonConformityListHeader />
             {filteredItems.map(({ issue, execution }) => (
               <ChecklistNonConformityCard
                 key={issue.id}
-                room={`Sala ${execution.roomId.slice(0, 8)}`}
+                room={execution.roomLabel ?? "Sala"}
                 category={issue.itemTitleSnapshot}
                 checklistType={
                   CHECKLIST_TYPE_LABEL[execution.checklistType] ??
@@ -342,8 +431,12 @@ export function PageChecklistNaoConformidadesContent({
                 }
                 submittedDate={formatDate(execution.startedAt)}
                 submittedTime={formatTime(execution.startedAt)}
-                filledBy={execution.filledBy}
-                group={classNames[execution.classId] ?? execution.classId}
+                filledBy={execution.filledByName ?? "—"}
+                group={
+                  execution.className ??
+                  classNames[execution.classId] ??
+                  "Turma"
+                }
                 nonConformity={issue.description}
                 status={issue.status}
                 canValidate={canValidate}

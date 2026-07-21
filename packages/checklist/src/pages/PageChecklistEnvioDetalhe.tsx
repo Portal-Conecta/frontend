@@ -6,9 +6,12 @@
  * conformidades. Server Component: mesmo gate de RBAC das outras páginas do
  * domínio (`checklist:gerenciar`).
  *
- * TEMPORÁRIO: com dados mockados o `id` da URL não é usado pra buscar nada —
- * a lista de itens é sempre a mesma (`MOCK_EXECUTION_DETAIL_ITEMS`). Reverta
- * `USE_MOCK_DATA` pra `false` assim que `API_GATEWAY_URL` estiver no ar.
+ * Dados reais via `getExecutionDetail(id)`:
+ * - GET `/api/checklist-executions/{id}` (execução + respostas)
+ * - GET template da execução (títulos dos itens)
+ * - GET `/api/checklist-issues/execution/{id}` (`ChecklistIssueController`)
+ *
+ * `USE_MOCK_DATA` fica como fallback local se o gateway não estiver no ar.
  */
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -31,7 +34,7 @@ import {
   MOCK_SUBMISSIONS,
 } from "./nonConformityMockData";
 
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = false;
 
 const CHECKLIST_TYPE_LABEL: Record<string, string> = {
   ARRIVAL: "Checklist de chegada",
@@ -132,13 +135,13 @@ async function EnvioDetalheData({ id, token }: { id: string; token: string }) {
             {formatDateTime(execution.submittedAt ?? execution.startedAt)}
           </Text>
           <Text variant="label-xs" className="text-interactive-pressed">
-            Sala: {execution.roomId.slice(0, 8)}
+            Sala: {execution.roomLabel ?? "—"}
           </Text>
           <Text variant="label-xs" className="text-interactive-pressed">
-            Turma: {className ?? execution.classId}
+            Turma: {execution.className ?? className ?? "—"}
           </Text>
           <Text variant="label-xs" className="text-interactive-pressed">
-            Preenchido por: {execution.filledBy}
+            Preenchido por: {execution.filledByName ?? "—"}
           </Text>
         </div>
 
@@ -157,13 +160,13 @@ async function EnvioDetalheData({ id, token }: { id: string; token: string }) {
       {/* Desktop: Sala/Turma/Preenchido em linha, sem fundo, mesmo recuo do título. */}
       <div className="hidden items-center gap-x-6 md:flex md:pl-10">
         <Text variant="label-md" className="text-interactive-pressed">
-          Sala: {execution.roomId.slice(0, 8)}
+          Sala: {execution.roomLabel ?? "—"}
         </Text>
         <Text variant="label-md" className="text-interactive-pressed">
-          Turma: {className ?? execution.classId}
+          Turma: {execution.className ?? className ?? "—"}
         </Text>
         <Text variant="label-md" className="text-interactive-pressed">
-          Preenchido por: {execution.filledBy}
+          Preenchido por: {execution.filledByName ?? "—"}
         </Text>
       </div>
 
