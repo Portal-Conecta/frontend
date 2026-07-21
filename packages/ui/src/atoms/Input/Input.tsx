@@ -91,7 +91,7 @@ export function Input({
 
   const boxClasses = [
     // `group`: os ícones seguem o estado da caixa (ver `icon` em toneStyles).
-    'group flex items-center gap-2 h-9 px-3 py-2.5 rounded-lg border-sm transition-colors',
+    'group flex items-center gap-2 h-9 px-3 py-2.5 rounded-md border-sm transition-colors',
     disabled ? 'bg-background-default border-border-disabled' : styles.box,
   ].join(' ')
 
