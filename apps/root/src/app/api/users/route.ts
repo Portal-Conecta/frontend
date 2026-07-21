@@ -33,12 +33,14 @@ function normalizeSize(raw: string | null): number {
  * Proxy de `GET /hub/users`; `typeUser` desconhecido é erro explícito (400),
  * `page`/`size` são normalizados (`size` limitado a `MAX_SIZE`) e `search`
  * filtra por nome (substring, case-insensitive — repassado como `name` pro
- * core). Sessão ausente cai em 401 pelo http client do service.
+ * core). `withoutActiveClass` vira `semTurmaAtiva` pro core (nome do campo
+ * lá é em português). Sessão ausente cai em 401 pelo http client do service.
  */
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
   const typeUserParam = searchParams.get('typeUser')
   const search = searchParams.get('search')?.trim()
+  const withoutActiveClass = searchParams.get('withoutActiveClass') === 'true'
 
   if (typeUserParam && !USER_TYPES.has(typeUserParam as TypeUser)) {
     return NextResponse.json(
@@ -52,6 +54,7 @@ export async function GET(req: Request) {
     size: normalizeSize(searchParams.get('size')),
     ...(typeUserParam ? { typeUser: typeUserParam as TypeUser } : {}),
     ...(search ? { name: search } : {}),
+    ...(withoutActiveClass ? { semTurmaAtiva: true } : {}),
   }
 
   try {

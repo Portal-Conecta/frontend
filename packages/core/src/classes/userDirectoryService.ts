@@ -21,6 +21,12 @@ export interface ListUsersParams {
   typeUser?: TypeUser
   /** Busca parcial por nome (case-insensitive), aplicada pelo core. */
   name?: string
+  /**
+   * Quando `true`, restringe alunos/representantes a quem não tem vínculo em
+   * turma ativa (regra 1 aluno = 1 turma). Não afeta outros `typeUser` — o
+   * core ignora o filtro pra professores.
+   */
+  semTurmaAtiva?: boolean
 }
 
 const http = createHttpClient('API_GATEWAY_URL')
