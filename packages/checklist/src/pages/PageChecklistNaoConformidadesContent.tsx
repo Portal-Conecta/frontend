@@ -305,6 +305,11 @@ export function PageChecklistNaoConformidadesContent({
                 filledBy={execution.filledBy}
                 group={classNames[execution.classId] ?? execution.classId}
                 hasNonConformity={execution.issues.length > 0}
+                onView={() =>
+                  router.push(
+                    `/checklist/nao-conformidades/envios/${execution.id}`,
+                  )
+                }
               />
             ))}
           </div>

@@ -1,4 +1,5 @@
 import type { ChecklistExecutionResponse } from "../types/execution";
+import type { ChecklistExecutionDetailItem } from "../types/executionDetail";
 import type { NonConformityItem } from "../types/nonConformity";
 
 /**
@@ -157,3 +158,55 @@ export const MOCK_NON_CONFORMITIES: NonConformityItem[] =
   MOCK_SUBMISSIONS.flatMap((execution) =>
     execution.issues.map((issue) => ({ issue, execution })),
   );
+
+/** Itens da tela de detalhe do envio (`/checklist/nao-conformidades/envios/[id]`) — mesma lista pra qualquer execução mockada. */
+export const MOCK_EXECUTION_DETAIL_ITEMS: ChecklistExecutionDetailItem[] = [
+  {
+    key: "ar-condicionado",
+    title: "Ar Condicionado",
+    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    compliant: true,
+  },
+  {
+    key: "computadores",
+    title: "Computadores",
+    compliant: false,
+    observation:
+      "3 Computadores apresentam problemas para se conectar com a internet. Acho que os cabos de rede estão com algum mal contato.",
+  },
+  {
+    key: "perifericos",
+    title: "Periféricos",
+    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    compliant: true,
+  },
+  {
+    key: "mesas",
+    title: "Mesas",
+    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    compliant: true,
+  },
+  {
+    key: "cadeiras",
+    title: "Cadeiras",
+    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    compliant: true,
+  },
+  {
+    key: "janelas",
+    title: "Janelas",
+    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    compliant: true,
+  },
+  {
+    key: "portas",
+    title: "Portas",
+    compliant: false,
+  },
+  {
+    key: "paredes-piso",
+    title: "Paredes e piso",
+    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    compliant: true,
+  },
+];
