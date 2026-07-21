@@ -53,7 +53,7 @@ export function ClassMembersTabs({ students, teachers }: ClassMembersTabsProps) 
         className="py-3"
       />
 
-      <div className="mt-4 rounded-md border-sm border-border-default px-2.5 pt-2.5">
+      <div className="mt-4 rounded-md border-sm border-border-default p-2.5">
         {members.length === 0 ? (
           /*
            * Estado vazio composto aqui em vez de usar o `EmptyState` do DS: o
