@@ -7,8 +7,9 @@
  * `ListItem`; sem resultados, mostra um estado vazio.
  */
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 
-import { Button, ClassCard, Icon, Input, ListItem, Text } from '@portal/ui'
+import { Avatar, Button, ClassCard, Icon, Input, ListItem, Text } from '@portal/ui'
 
 import {
   CLASS_REPRESENTATIVE_LIMIT,
@@ -81,7 +82,14 @@ export function TurmaList({ turmas }: TurmaListProps) {
               </Text>
             ) : (
               filtered.map((turma) => (
-                <TurmaRowItem key={turma.id} turma={turma} onManage={setSelectedTurma} />
+                <TurmaRowItem
+                  key={turma.id}
+                  turma={turma}
+                  onManageMembers={(selected) => {
+                    router.push(`/turmas/${encodeURIComponent(selected.id)}/membros`)
+                  }}
+                  onManageRepresentatives={setSelectedTurma}
+                />
               ))
             )}
           </div>
@@ -100,7 +108,15 @@ export function TurmaList({ turmas }: TurmaListProps) {
   )
 }
 
-function TurmaRowItem({ turma, onManage }: { turma: TurmaRow; onManage: (turma: TurmaRow) => void }) {
+function TurmaRowItem({
+  turma,
+  onManageMembers,
+  onManageRepresentatives,
+}: {
+  turma: TurmaRow
+  onManageMembers: (turma: TurmaRow) => void
+  onManageRepresentatives: (turma: TurmaRow) => void
+}) {
   return (
     <ListItem className="flex items-center justify-between gap-2 md:gap-4">
       <ClassCard
@@ -109,18 +125,28 @@ function TurmaRowItem({ turma, onManage }: { turma: TurmaRow; onManage: (turma: 
         title={turma.course}
         meta={turma.shift}
       />
-      <span className="hidden md:inline-flex">
-        <Button size="sm" variant="outlined" iconLeft="chevron-right" onClick={() => onManage(turma)}>
+      <span className="hidden items-center gap-2 md:inline-flex">
+        <Button size="sm" variant="outlined" iconLeft="chevron-right" onClick={() => onManageMembers(turma)}>
           Gerenciar
         </Button>
+        <Button size="sm" variant="outlined" iconLeft="users" onClick={() => onManageRepresentatives(turma)}>
+          Representantes
+        </Button>
       </span>
-      <span className="inline-flex md:hidden">
+      <span className="inline-flex items-center gap-2 md:hidden">
+        <Button
+          size="sm"
+          variant="outlined"
+          icon="users"
+          aria-label={`Editar representantes de ${turma.code}`}
+          onClick={() => onManageRepresentatives(turma)}
+        />
         <Button
           size="sm"
           variant="outlined"
           icon="chevron-right"
           aria-label={`Gerenciar ${turma.code}`}
-          onClick={() => onManage(turma)}
+          onClick={() => onManageMembers(turma)}
         />
       </span>
     </ListItem>
@@ -230,6 +256,7 @@ function ClassRepresentativesPanel({ turma, onClose }: { turma: TurmaRow; onClos
       <header className="flex flex-col gap-4 border-b border-border-default px-4 py-4 md:flex-row md:items-center md:justify-between md:px-6">
         <button
           type="button"
+          aria-label="Voltar para a lista de turmas"
           className="inline-flex items-center gap-2 text-text-brand transition-colors hover:text-interactive-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
           onClick={onClose}
         >
@@ -239,8 +266,8 @@ function ClassRepresentativesPanel({ turma, onClose }: { turma: TurmaRow; onClos
           </Text>
         </button>
 
-        <Button size="sm" iconLeft="plus">
-          Adicionar usuários a esta turma
+        <Button size="sm" variant="outlined" iconLeft="chevron-left" onClick={onClose}>
+          Voltar
         </Button>
       </header>
 
@@ -255,7 +282,7 @@ function ClassRepresentativesPanel({ turma, onClose }: { turma: TurmaRow; onClos
         </div>
       ) : null}
 
-      <div className="grid min-h-96 gap-6 px-4 py-6 lg:grid-cols-3 lg:px-6">
+      <div className="grid gap-6 px-4 py-6 lg:grid-cols-3 lg:px-6">
         <section aria-labelledby="members-title" className="min-w-0 lg:col-span-2">
           <div className="mb-4 flex items-end justify-between gap-4">
             <div>
@@ -308,10 +335,10 @@ function ClassRepresentativesPanel({ turma, onClose }: { turma: TurmaRow; onClos
                 {shownMembers.map((member) => (
                   <div
                     key={member.id}
-                    className="flex min-h-12 items-center justify-between gap-3 px-4 py-2"
+                    className="flex items-center justify-between gap-3 px-4 py-2"
                   >
                     <div className="flex min-w-0 items-center gap-3">
-                      <Icon name="circle-user" size="md" tone="primary" decorative />
+                      <Avatar className="h-6 w-6" />
                       <Text variant="label-xs" tone="brand" className="truncate">
                         {member.name}
                       </Text>
@@ -340,7 +367,7 @@ function ClassRepresentativesPanel({ turma, onClose }: { turma: TurmaRow; onClos
         </section>
 
         <aside aria-labelledby="representatives-title" className="flex min-w-0 flex-col">
-          <div className="mb-4 flex min-h-8 items-center justify-between gap-3">
+          <div className="mb-4">
             <div>
               <Text as="h3" id="representatives-title" variant="label-md-emphasis" tone="primary">
                 Representantes
@@ -349,9 +376,6 @@ function ClassRepresentativesPanel({ turma, onClose }: { turma: TurmaRow; onClos
                 {representatives.length}/{CLASS_REPRESENTATIVE_LIMIT} selecionados
               </Text>
             </div>
-            <Button size="xs" variant="outlined" disabled>
-              Alterar representantes
-            </Button>
           </div>
 
           {limitReached ? (
@@ -383,10 +407,10 @@ function ClassRepresentativesPanel({ turma, onClose }: { turma: TurmaRow; onClos
                 {representatives.map((representative) => (
                   <div
                     key={representative.id}
-                    className="flex min-h-14 items-center justify-between gap-3 px-4 py-2"
+                    className="flex items-center justify-between gap-3 px-4 py-2"
                   >
                     <div className="flex min-w-0 items-center gap-3">
-                      <Icon name="circle-user" size="md" tone="primary" decorative />
+                      <Avatar className="h-6 w-6" />
                       <Text variant="label-xs" tone="brand" className="truncate">
                         {representative.name}
                       </Text>
@@ -409,12 +433,9 @@ function ClassRepresentativesPanel({ turma, onClose }: { turma: TurmaRow; onClos
         </aside>
       </div>
 
-      <footer className="flex flex-col gap-2 border-t border-border-default px-4 py-4 md:flex-row md:justify-end md:px-6">
+      <footer className="flex justify-end border-t border-border-default px-4 py-4 md:px-6">
         <Button size="sm" variant="outlined" onClick={onClose}>
-          Descartar alterações
-        </Button>
-        <Button size="sm" onClick={onClose}>
-          Salvar Edições
+          Voltar para turmas
         </Button>
       </footer>
     </section>
