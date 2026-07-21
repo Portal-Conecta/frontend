@@ -121,21 +121,15 @@ async function TurmaDetalhe({ classId, accessToken }: { classId: string; accessT
           </div>
 
           <aside className="flex flex-col gap-4 lg:py-3">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <Text as="h2" variant="body-md" tone="brand">
-                Representantes
-              </Text>
-
-              <TurmaNavButton
-                href={`/turmas/${classId}/representantes`}
-                variant="outlined"
-                iconLeft="square-pen"
-                size="xs"
-                className="shrink-0"
-              >
-                Alterar representantes
-              </TurmaNavButton>
-            </div>
+            {/*
+             * O Figma prevê aqui um botão "Alterar representantes", omitido por
+             * ora: a tela de promoção não existe (o backend já expõe o endpoint,
+             * com o limite de 2 validado lá). Painel só de leitura até ela nascer
+             * — melhor que um botão que leva a 404.
+             */}
+            <Text as="h2" variant="body-md" tone="brand">
+              Representantes
+            </Text>
 
             <div className="rounded-md border-sm border-border-default px-3 pt-3">
               {representatives.length === 0 ? (
