@@ -90,9 +90,13 @@ export function PageChecklistLanding() {
 
       alert("Configuração salva com sucesso!");
       handleCloseModal();
-    } catch (err: any) {
+    } catch (err) {
       console.error("Error saving configuration:", err);
-      setError(err.message || "Erro ao salvar configuração. Tente novamente.");
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Erro ao salvar configuração. Tente novamente.";
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
