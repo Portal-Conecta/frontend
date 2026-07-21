@@ -12,6 +12,7 @@
  * Regras de produto embutidas:
  * - `comunicados:ver` / `mapa:ver` → todo usuário autenticado.
  * - `checklist:ver` → todos menos o aluno comum (`STUDENT`).
+ * - `checklist:dashboard` → gestão SENAI / WEG / ADMIN (painel agregado).
  * - `*:gerenciar` / `usuarios:listar` → equipe (SENAI, WEG, ADMIN).
  * - `matriculas:gerenciar` → apenas SENAI e ADMIN (WEG não).
  */
@@ -25,6 +26,7 @@ export const rolePermissions: Record<TypeUser, readonly Permission[]> = {
     'comunicados:ver',
     'mapa:ver',
     'checklist:ver',
+    'checklist:dashboard',
     'usuarios:listar',
     'usuarios:gerenciar',
     'salas:gerenciar',
@@ -36,6 +38,7 @@ export const rolePermissions: Record<TypeUser, readonly Permission[]> = {
     'comunicados:ver',
     'mapa:ver',
     'checklist:ver',
+    'checklist:dashboard',
     'usuarios:listar',
     'usuarios:gerenciar',
     'salas:gerenciar',
@@ -46,6 +49,7 @@ export const rolePermissions: Record<TypeUser, readonly Permission[]> = {
     'comunicados:ver',
     'mapa:ver',
     'checklist:ver',
+    'checklist:dashboard',
     'usuarios:listar',
     'usuarios:gerenciar',
     'salas:gerenciar',
