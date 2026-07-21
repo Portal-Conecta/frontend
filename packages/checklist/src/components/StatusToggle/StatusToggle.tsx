@@ -1,6 +1,6 @@
 "use client";
 
-import { Icon, spacing } from "@portal/ui";
+import { Icon } from "@portal/ui";
 import { useState, type CSSProperties } from "react";
 
 export type StatusValue = "conforme" | "nao-conforme";
@@ -13,21 +13,22 @@ export interface StatusToggleProps {
 }
 
 /**
- * Caixa idêntica nos dois botões — tokens de spacing do DS:
- * width 36 = 144px · height 10 = 40px · py 1 = 4px · px 3 = 12px · gap 1 = 4px
+ * Caixa idêntica nos dois botões — 144×40px fixos (mesmo padrão do chip de
+ * largura fixa do ChecklistItemResult). Valor de layout inline: não há token de
+ * spacing pra 144px no DS, e criar um exigiria aprovação do squad de Front-End.
  *
- * Dimensões via style + token (não só class) para os dois ocuparem exatamente
- * o mesmo espaço, independente do comprimento do rótulo.
+ * Dimensões via style (não só class) para os dois ocuparem exatamente o mesmo
+ * espaço, independente do comprimento do rótulo.
  */
 const buttonBoxStyle: CSSProperties = {
   boxSizing: "border-box",
-  width: spacing[36],
-  minWidth: spacing[36],
-  maxWidth: spacing[36],
-  height: spacing[10],
-  minHeight: spacing[10],
-  maxHeight: spacing[10],
-  flex: `0 0 ${spacing[36]}`,
+  width: "144px",
+  minWidth: "144px",
+  maxWidth: "144px",
+  height: "40px",
+  minHeight: "40px",
+  maxHeight: "40px",
+  flex: "0 0 144px",
 };
 
 const base =
