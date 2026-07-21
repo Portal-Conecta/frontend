@@ -7,7 +7,7 @@ import { ALERTAS_ORIENTACAO } from "../data/dashboardDemoData";
 export function AlertaOrientacao() {
   return (
     <section
-      className="flex flex-col gap-4 rounded-md border border-border-default bg-background-surface p-5 shadow-sm"
+      className="flex flex-col gap-4 rounded-md border border-border-default bg-background-surface p-4 shadow-sm"
       aria-labelledby="alerta-orientacao-title"
     >
       <header className="flex items-start gap-3">

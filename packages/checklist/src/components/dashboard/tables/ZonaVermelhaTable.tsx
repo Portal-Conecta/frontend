@@ -29,7 +29,7 @@ export interface ZonaVermelhaTableProps {
 export function ZonaVermelhaTable({ onCorrigir }: ZonaVermelhaTableProps) {
   return (
     <section
-      className="flex flex-col gap-4 rounded-md border border-border-default bg-background-surface p-5 shadow-sm"
+      className="flex flex-col gap-4 rounded-md border border-border-default bg-background-surface p-4 shadow-sm"
       aria-labelledby="zona-vermelha-title"
     >
       <header className="flex flex-wrap items-center justify-between gap-3">

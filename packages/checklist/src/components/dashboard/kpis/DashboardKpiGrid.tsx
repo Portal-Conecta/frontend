@@ -38,7 +38,7 @@ export function DashboardKpiGrid({
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="rounded-md border border-border-default bg-background-surface p-5"
+            className="rounded-md border border-border-default bg-background-surface p-4"
           >
             <Skeleton variant="text" count={2} />
             <Skeleton variant="rect" height={40} className="mt-4" />
@@ -53,7 +53,7 @@ export function DashboardKpiGrid({
       {kpis.map((kpi) => (
         <article
           key={kpi.id}
-          className="flex flex-col gap-3 rounded-md border border-border-default bg-background-surface p-5 shadow-sm"
+          className="flex flex-col gap-3 rounded-md border border-border-default bg-background-surface p-4 shadow-sm"
         >
           <div className="flex items-start justify-between gap-3">
             <Text as="h2" variant="label-sm" tone="secondary">
@@ -61,7 +61,7 @@ export function DashboardKpiGrid({
             </Text>
             <span
               className={[
-                "flex h-9 w-9 items-center justify-center rounded-sm bg-background-default",
+                "flex h-10 w-10 items-center justify-center rounded-sm bg-background-default",
                 toneIcon[kpi.tone],
               ].join(" ")}
               aria-hidden
