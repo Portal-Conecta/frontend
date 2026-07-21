@@ -10,7 +10,7 @@ export interface ChecklistItemResultProps {
 }
 
 /**
- * Chip de status — largura fixa em 136px para ambos os estados
+ * Chip de status — largura fixa em 136px para ambos os estados.
  */
 const chipBoxStyle: CSSProperties = {
   boxSizing: "border-box",
@@ -20,7 +20,7 @@ const chipBoxStyle: CSSProperties = {
   flex: "0 0 136px",
 };
 
-// Classes base compartilhadas (Padding 12px nas laterais, 8px vertical e fonte 12px)
+// Classes base compartilhadas (padding 12px nas laterais, 8px vertical e fonte 12px).
 const statusChipBase =
   "inline-flex items-center " +
   "rounded-md border-sm px-3 py-2 " +
@@ -71,7 +71,7 @@ export function ChecklistItemResult({
         >
           {isConforme ? (
             <>
-              {/* CONFORME: Ícone fixo na esquerda (12px) e texto no centro absoluto */}
+              {/* CONFORME: ícone fixo à esquerda (12px) e texto no centro absoluto */}
               <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center size-4 shrink-0">
                 <Icon name="check-check" size="sm" decorative className="size-4" />
               </div>
@@ -81,13 +81,8 @@ export function ChecklistItemResult({
             </>
           ) : (
             <>
-              {/* NÃO CONFORME: Exatamente como estava antes (Alinhado à esquerda com gap de 4px) */}
-              <Icon
-                name="x"
-                size="sm"
-                decorative
-                className="size-4 shrink-0"
-              />
+              {/* NÃO CONFORME: alinhado à esquerda com gap de 4px */}
+              <Icon name="x" size="sm" decorative className="size-4 shrink-0" />
               <span className="leading-none whitespace-nowrap">
                 {statusLabel}
               </span>
