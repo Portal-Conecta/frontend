@@ -33,13 +33,15 @@ export function SelectRoomPage({ onRoomSelected }: SelectRoomPageProps) {
   }
 
   return (
-    <div className="flex h-full items-center justify-center">
-      <RoomSelector
-        rooms={rooms}
-        onSelect={(room) => {
-          onRoomSelected({ roomId: room.id, roomLabel: `${room.number}` });
-        }}
-      />
+    <div className="h-full overflow-y-auto">
+      <div className="flex min-h-full items-center justify-center py-6">
+        <RoomSelector
+          rooms={rooms}
+          onSelect={(room) => {
+            onRoomSelected({ roomId: room.id, roomLabel: `${room.number}` });
+          }}
+        />
+      </div>
     </div>
   );
 }

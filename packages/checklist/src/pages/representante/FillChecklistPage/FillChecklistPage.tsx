@@ -1,8 +1,9 @@
 "use client";
 
+import { messageFor } from "@portal/core/http/errorPresentation";
 import { HttpError } from "@portal/core/http/errors";
 import { Field, Select, Text, useToast } from "@portal/ui";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { ChecklistActions } from "../../../components/ChecklistActions";
 import { ChecklistItem } from "../../../components/ChecklistItem";
@@ -43,11 +44,13 @@ export interface FillChecklistPageProps {
 }
 
 /**
- * Tela de preenchimento. A sala já foi escolhida; aqui, no topo, escolhe-se a
- * turma (dropdown) — fixa/desabilitada pro representante, com opções pro
- * professor/admin. Ao escolher a turma, os itens abrem (o rascunho é criado ou
- * retomado a qualquer hora). A janela de horário só é cobrada no envio: se
- * estiver fechada, o backend recusa e a tela mostra o erro num modal.
+ * Tela de preenchimento. A sala já foi escolhida; os itens do template
+ * aparecem direto, independente de turma — a turma (dropdown no topo, fixa
+ * pro representante) só é obrigatória de fato no envio. Enquanto não
+ * escolhida, as respostas ficam só na tela; ao escolher, elas são enviadas
+ * pro rascunho da turma e o autosave assume a partir daí. A janela de
+ * horário só é cobrada no envio: se estiver fechada, o backend recusa e a
+ * tela mostra o erro num toast.
  */
 export function FillChecklistPage({
   template,
@@ -92,91 +95,39 @@ export function FillChecklistPage({
         </Text>
       </div>
 
-      {selectedClassId ? (
-        <ClassChecklistFill
-          key={selectedClassId}
-          classId={selectedClassId}
-          template={template}
-          {...(onSubmitted ? { onSubmitted } : {})}
-        />
-      ) : (
-        <div className="flex flex-1 items-center justify-center px-3">
-          <Text variant="body-sm" tone="secondary" className="text-center">
-            Selecione a turma para começar o preenchimento.
-          </Text>
-        </div>
-      )}
+      <ChecklistForm
+        classId={selectedClassId}
+        template={template}
+        {...(onSubmitted ? { onSubmitted } : {})}
+      />
     </div>
   );
 }
 
-interface ClassChecklistFillProps {
-  classId: string;
-  template: ChecklistTemplateResponse;
-  onSubmitted?: (execution: ChecklistExecutionResponse) => void;
-}
-
-/** Resolve o tipo (janela configurada) da turma antes de montar o formulário. */
-function ClassChecklistFill({ classId, template, onSubmitted }: ClassChecklistFillProps) {
-  const { checklistType, hasWindow, loading, error } = useClassChecklistType(classId);
-
-  if (loading) {
-    return (
-      <div className="flex flex-1 items-center justify-center">
-        <Text variant="body-sm" tone="secondary">
-          Carregando...
-        </Text>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-1 items-center justify-center">
-        <Text variant="body-sm" tone="secondary">
-          {error}
-        </Text>
-      </div>
-    );
-  }
-
-  if (!hasWindow || !checklistType) {
-    return (
-      <div className="flex flex-1 items-center justify-center">
-        <ChecklistWindowClosedState
-          title="Sem janela de checklist"
-          description="Esta turma não tem uma janela de preenchimento configurada."
-        />
-      </div>
-    );
-  }
-
-  return (
-    <ChecklistForm
-      classId={classId}
-      checklistType={checklistType}
-      template={template}
-      {...(onSubmitted ? { onSubmitted } : {})}
-    />
-  );
-}
-
 interface ChecklistFormProps {
-  classId: string;
-  checklistType: ChecklistType;
+  /** `null` até o usuário escolher a turma — os itens já aparecem mesmo assim. */
+  classId: string | null;
   template: ChecklistTemplateResponse;
   onSubmitted?: (execution: ChecklistExecutionResponse) => void;
 }
 
-/** Formulário de itens + envio, com o rascunho já criado/retomado. */
-function ChecklistForm({ classId, checklistType, template, onSubmitted }: ChecklistFormProps) {
-  const { execution, answers, setAnswer, lockedItemKeys, loading, isSubmitting, submit } =
-    useFillChecklist({
-      createParams: { templateId: template.id, roomId: template.roomId, classId, checklistType },
-    });
+/** Formulário de itens + envio. Funciona sem turma escolhida (respostas só na tela). */
+function ChecklistForm({ classId, template, onSubmitted }: ChecklistFormProps) {
+  const { checklistType, hasWindow, loading: loadingType } = useClassChecklistType(classId);
+  const { execution, answers, setAnswer, lockedItemKeys, error, isSubmitting, submit } = useFillChecklist({
+    templateId: template.id,
+    roomId: template.roomId,
+    classId,
+    checklistType,
+  });
 
   const { toast } = useToast();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+  useEffect(() => {
+    if (!error) return;
+    toast.warning(error, { title: "Atenção" });
+  }, [error, toast]);
 
   const items = flattenItems(template);
   const answeredCount = Object.keys(answers).length;
@@ -191,18 +142,31 @@ function ChecklistForm({ classId, checklistType, template, onSubmitted }: Checkl
   const isSubmitted = execution?.status === "SUBMITTED";
 
   const handleSubmit = async () => {
+    if (!classId) {
+      toast.error("Selecione uma turma antes de enviar o checklist.", {
+        title: "Não foi possível enviar o checklist",
+      });
+      return;
+    }
+
     const wasSubmitted = isSubmitted;
     try {
       const updated = await submit();
       if (updated) {
         onSubmitted?.(updated);
-        if (!wasSubmitted && updated.status === "SUBMITTED") setShowSuccessModal(true);
+        if (!wasSubmitted && updated.status === "SUBMITTED") {
+          setShowSuccessModal(true);
+        } else if (wasSubmitted) {
+          toast.success("Alterações salvas com sucesso.");
+        }
       }
     } catch (err) {
       const message =
-        err instanceof HttpError && err.body?.message
-          ? err.body.message
-          : "Não foi possível enviar o checklist. Tente novamente.";
+        err instanceof HttpError
+          ? (err.body?.message ?? messageFor(err.kind))
+          : err instanceof Error && err.message
+            ? err.message
+            : "Não foi possível enviar o checklist. Tente novamente.";
       toast.error(message, { title: "Não foi possível enviar o checklist" });
     }
   };
@@ -211,12 +175,14 @@ function ChecklistForm({ classId, checklistType, template, onSubmitted }: Checkl
     if (value) setAnswer(itemKey, value, answers[itemKey]?.observation);
   };
 
-  if (loading) {
+  // Turma escolhida mas sem janela de preenchimento configurada: bloqueia.
+  if (classId && !loadingType && (!hasWindow || !checklistType)) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <Text variant="body-sm" tone="secondary">
-          Carregando...
-        </Text>
+        <ChecklistWindowClosedState
+          title="Sem janela de checklist"
+          description="Esta turma não tem uma janela de preenchimento configurada."
+        />
       </div>
     );
   }
@@ -226,7 +192,7 @@ function ChecklistForm({ classId, checklistType, template, onSubmitted }: Checkl
       <div className="flex-1 overflow-y-auto px-3 pb-4 md:px-6 md:pb-8">
         <div className="flex items-center justify-between gap-4">
           <Text variant="label-md-emphasis" tone="brand" className="font-inter">
-            {CHECKLIST_TYPE_LABEL[checklistType]}
+            {checklistType ? CHECKLIST_TYPE_LABEL[checklistType] : "Checklist"}
           </Text>
           {isSubmitted ? (
             <Text variant="label-sm-emphasis" className="text-feedback-success">

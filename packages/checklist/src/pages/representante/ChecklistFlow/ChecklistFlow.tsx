@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { Text } from "@portal/ui";
+import { EmptyState, Text } from "@portal/ui";
 
 import { findActiveTemplateByRoomClient } from "../../../services/client/templateClient";
 import type { ClassSelection } from "../../../services/resolveClassSelection";
@@ -25,6 +25,7 @@ interface FillTarget {
 export function ChecklistFlow({ selection, fixedClassName, filledByLabel }: ChecklistFlowProps) {
   const [target, setTarget] = useState<FillTarget | null>(null);
   const [error, setError] = useState("");
+  const [noTemplateRoom, setNoTemplateRoom] = useState(false);
 
   if (selection.mode === "none") {
     return (
@@ -46,6 +47,17 @@ export function ChecklistFlow({ selection, fixedClassName, filledByLabel }: Chec
     );
   }
 
+  if (noTemplateRoom) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <EmptyState
+          title="Sala sem checklist"
+          description="Nenhum checklist configurado para esta sala."
+        />
+      </div>
+    );
+  }
+
   // Passo 1 — sala (universal, independente de turma).
   if (!target) {
     return (
@@ -54,7 +66,7 @@ export function ChecklistFlow({ selection, fixedClassName, filledByLabel }: Chec
           try {
             const template = await findActiveTemplateByRoomClient(roomId);
             if (!template) {
-              setError("Nenhum checklist configurado para esta sala.");
+              setNoTemplateRoom(true);
               return;
             }
             setTarget({ template, roomLabel });

@@ -2,10 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { HttpError } from "@portal/core/http/errors";
+
 import {
   createDraftClient,
   findActiveExecutionClient,
-  findExecutionByIdClient,
   saveDraftAnswersClient,
   submitExecutionClient,
   updateExecutionAnswersClient,
@@ -16,6 +17,7 @@ import type {
   ChecklistExecutionResponse,
   ConformityAnswerValue,
 } from "../types/execution";
+import type { ChecklistType } from "../types/submissionWindow";
 
 const AUTOSAVE_DEBOUNCE_MS = 1000;
 const DRAFT_DEDUPE_TTL_MS = 3000;
@@ -83,10 +85,12 @@ export interface ChecklistAnswerState {
 }
 
 export interface UseFillChecklistOptions {
-  /** Id de uma execução DRAFT já existente, pra retomar o preenchimento. */
-  executionId?: string;
-  /** Parâmetros pra criar um rascunho novo, quando não há executionId ainda. */
-  createParams?: ChecklistExecutionDraftCreateRequest;
+  templateId: string;
+  roomId: string;
+  /** `null` enquanto a turma ainda não foi escolhida — as respostas ficam só na tela, sem salvar. */
+  classId: string | null;
+  /** `null` até a turma ser resolvida (depende da turma ter janela configurada). */
+  checklistType: ChecklistType | null;
 }
 
 function toAnswerRequestList(
@@ -112,19 +116,31 @@ function lockedItemKeysFrom(execution: ChecklistExecutionResponse | null): Set<s
  * Carrega (ou cria) uma execução de checklist e gerencia o preenchimento
  * incremental: cada `setAnswer` salva automaticamente em segundo plano
  * (debounce de 1s) via `PATCH /draft`, sem precisar de botão de rascunho.
+ *
+ * `classId`/`checklistType` podem chegar nulos (turma ainda não escolhida):
+ * o preenchimento funciona só na tela (sem `execution`, sem autosave) até a
+ * turma ser escolhida. Quando ela chega, cria/retoma o rascunho e — se o
+ * usuário já tinha respondido algo antes de escolher — envia essas respostas
+ * pro rascunho recém-obtido; senão, carrega o que já estava salvo nele.
  */
-export function useFillChecklist({ executionId, createParams }: UseFillChecklistOptions) {
+export function useFillChecklist({
+  templateId,
+  roomId,
+  classId,
+  checklistType,
+}: UseFillChecklistOptions) {
   const [execution, setExecution] = useState<ChecklistExecutionResponse | null>(null);
   const [answers, setAnswers] = useState<Record<string, ChecklistAnswerState>>({});
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const answersRef = useRef(answers);
   const executionRef = useRef(execution);
+  const errorRef = useRef(error);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const hasInitializedRef = useRef(false);
+  const resolvedClassIdRef = useRef<string | null>(null);
   const mountedRef = useRef(true);
 
   useEffect(() => {
@@ -136,6 +152,10 @@ export function useFillChecklist({ executionId, createParams }: UseFillChecklist
   }, [execution]);
 
   useEffect(() => {
+    errorRef.current = error;
+  }, [error]);
+
+  useEffect(() => {
     mountedRef.current = true;
     return () => {
       mountedRef.current = false;
@@ -143,31 +163,66 @@ export function useFillChecklist({ executionId, createParams }: UseFillChecklist
   }, []);
 
   useEffect(() => {
-    if (hasInitializedRef.current) return;
-    hasInitializedRef.current = true;
+    if (!classId || !checklistType) return;
+    if (resolvedClassIdRef.current === classId) return;
+
+    const isFirstResolution = resolvedClassIdRef.current === null;
+    const localAnswersSnapshot = answersRef.current;
+    resolvedClassIdRef.current = classId;
 
     async function load() {
       setLoading(true);
       setError("");
       try {
-        const data = executionId
-          ? await findExecutionByIdClient(executionId)
-          : createParams
-            ? await getOrCreateDraft(createParams)
-            : null;
-
-        if (!data) throw new Error("Nenhum executionId ou createParams informado.");
+        const data = await getOrCreateDraft({
+          templateId,
+          roomId,
+          classId: classId!,
+          checklistType: checklistType!,
+        });
         if (!mountedRef.current) return;
 
-        setExecution(data);
-        setAnswers(
-          Object.fromEntries(
-            data.answersJson.answers.map((answer) => [
-              answer.itemKey,
-              { value: answer.value, ...(answer.observation ? { observation: answer.observation } : {}) },
-            ]),
-          ),
-        );
+        const loadFromServer = () => {
+          setExecution(data);
+          setAnswers(
+            Object.fromEntries(
+              data.answersJson.answers.map((answer) => [
+                answer.itemKey,
+                { value: answer.value, ...(answer.observation ? { observation: answer.observation } : {}) },
+              ]),
+            ),
+          );
+        };
+
+        if (isFirstResolution && Object.keys(localAnswersSnapshot).length > 0) {
+          // Usuário já tinha respondido algo antes de escolher a turma —
+          // manda pro rascunho/execução recém-obtido em vez de sobrescrever com
+          // o dele. Se a execução retomada já foi enviada, `/draft` rejeita
+          // (só vale pra status DRAFT) — nesse caso usa `/answers` mesmo.
+          const answerBody = { answers: toAnswerRequestList(localAnswersSnapshot) };
+          try {
+            const updated =
+              data.status === "SUBMITTED"
+                ? await updateExecutionAnswersClient(data.id, answerBody)
+                : await saveDraftAnswersClient(data.id, answerBody);
+            if (!mountedRef.current) return;
+            setExecution(updated);
+          } catch (err) {
+            // Alguma resposta dada antes de escolher a turma conflita com o
+            // estado real da execução retomada (ex.: item travado por
+            // pendência aberta) — carrega o que já está salvo em vez de
+            // deixar a tela sem execução resolvida, e avisa o motivo.
+            if (!mountedRef.current) return;
+            loadFromServer();
+            setError(
+              err instanceof HttpError && err.body?.message
+                ? err.body.message
+                : "Uma ou mais respostas não puderam ser aplicadas à turma selecionada.",
+            );
+          }
+        } else {
+          loadFromServer();
+        }
       } catch {
         if (mountedRef.current) setError("Não foi possível carregar o checklist. Tente novamente.");
       } finally {
@@ -176,7 +231,7 @@ export function useFillChecklist({ executionId, createParams }: UseFillChecklist
     }
 
     void load();
-  }, [executionId, createParams]);
+  }, [classId, checklistType, templateId, roomId]);
 
   useEffect(() => {
     return () => {
@@ -213,7 +268,11 @@ export function useFillChecklist({ executionId, createParams }: UseFillChecklist
 
   const submit = useCallback(async () => {
     const current = executionRef.current;
-    if (!current) return;
+    if (!current) {
+      throw new Error(
+        errorRef.current || "Não foi possível preparar o checklist para envio. Tente novamente.",
+      );
+    }
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
     setIsSubmitting(true);

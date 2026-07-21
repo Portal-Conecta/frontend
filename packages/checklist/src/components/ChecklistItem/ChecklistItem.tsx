@@ -99,7 +99,7 @@ export function ChecklistItem({
               aria-label="Justificativa do item não conforme"
               value={justificationValue}
               onChange={(e) => handleJustificationChange(e.target.value)}
-              disabled={disabled || !showJustification}
+              disabled={!showJustification}
             />
           </div>
         </div>

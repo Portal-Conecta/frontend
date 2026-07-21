@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 
+import { messageFor } from "@portal/core/http/errorPresentation";
+import { HttpError } from "@portal/core/http/errors";
+
 import { listRoomsClient } from "../services/client/roomClient";
 
 export interface AvailableRoom {
@@ -42,8 +45,14 @@ export function useAvailableRooms() {
             name: roomLabel(room.typeRoom),
           })),
         );
-      } catch {
-        if (!cancelled) setError("Não foi possível carregar as salas disponíveis.");
+      } catch (err) {
+        if (!cancelled) {
+          setError(
+            err instanceof HttpError
+              ? messageFor(err.kind)
+              : "Não foi possível carregar as salas disponíveis.",
+          );
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }

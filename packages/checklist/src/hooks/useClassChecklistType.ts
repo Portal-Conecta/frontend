@@ -11,21 +11,31 @@ import type { ChecklistType } from "../types/submissionWindow";
  * janelas configuradas — aberta ou não. `hasWindow=false` significa que a turma
  * não tem janela nenhuma (não é preenchível). A validação do horário em si
  * acontece só no envio (backend), não aqui.
+ *
+ * `classId` nulo (turma ainda não escolhida) não busca nada — devolve o
+ * estado neutro, sem `loading`.
  */
-export function useClassChecklistType(classId: string) {
+export function useClassChecklistType(classId: string | null) {
   const [checklistType, setChecklistType] = useState<ChecklistType | null>(null);
   const [hasWindow, setHasWindow] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (!classId) {
+      setChecklistType(null);
+      setHasWindow(false);
+      setError("");
+      return;
+    }
+
     let cancelled = false;
 
     async function load() {
       setLoading(true);
       setError("");
       try {
-        const windows = await listSubmissionWindowsByClassClient(classId);
+        const windows = await listSubmissionWindowsByClassClient(classId!);
         if (cancelled) return;
         setHasWindow(windows.length > 0);
         setChecklistType(resolveChecklistType(windows));
