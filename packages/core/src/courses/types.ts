@@ -37,8 +37,6 @@ export interface CoursesListParams {
 }
 
 export interface CoursesListResult {
-  content?: unknown[]
-  data?: unknown[]
   courses: Course[]
 }
 

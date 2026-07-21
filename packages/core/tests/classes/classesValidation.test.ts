@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { parseCreateClass } from '../../src/classes/classesValidation'
+import { parseCreateClass } from '@portal/core/classes/classesValidation'
 
 describe('parseCreateClass', () => {
   it('aceita curso, número e turno válidos (normaliza o courseId)', () => {

@@ -1,13 +1,14 @@
 import type { Metadata } from 'next'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { cookies } from 'next/headers'
 
 import { Text } from '@portal/ui'
 import { CreateClassForm, type Course, type CreateClassPayload } from '@portal/ui/molecules/Classes/CreateClassForm'
 
+import { getSession } from '@portal/core/auth/session'
 import { createClass } from '@portal/core/classes/classesService'
-import { listCourses } from '@portal/core/courses/coursesService' 
+import { parseCreateClass } from '@portal/core/classes/classesValidation'
+import { listCourses } from '@portal/core/courses/coursesService'
 
 export const metadata: Metadata = {
   title: 'Criar Nova Turma | Portal Conecta',
@@ -18,53 +19,58 @@ export const metadata: Metadata = {
  * única vez para todas as rotas autenticadas.
  */
 export default async function CriarTurmaPage() {
-  const cookieStore = await cookies()
-  const token = cookieStore.get('session')?.value || cookieStore.get('token')?.value || ''
-  
-  // Tipagem ajustada de any[] para Course[]
-  let realCourses: Course[] = [] 
+  // O cookie de sessão é `access_token` (packages/core/src/auth/cookies.ts) —
+  // ler 'session'/'token' devolvia undefined e mandava token vazio pro gateway,
+  // que respondia 401 e a tela renderizava como se não houvesse curso nenhum.
+  const token = await getSession()
 
-  try {
-    const response = await listCourses(token)
-    
-    realCourses = response?.courses || []
-    
-    if (!Array.isArray(realCourses)) {
-        realCourses = []
+  let realCourses: Course[] = []
+
+  if (token) {
+    try {
+      const { courses } = await listCourses(token)
+      realCourses = courses
+    } catch (error) {
+      console.error('Erro ao buscar lista de cursos:', error)
     }
-
-  } catch (error) {
-    console.error('Erro ao buscar lista de cursos reais:', error)
   }
 
-  // Tipagem ajustada de any para CreateClassPayloa
   const handleSubmitClass = async (data: CreateClassPayload) => {
     'use server'
-    
-    try {
-      const serverCookieStore = await cookies()
-      const serverToken = serverCookieStore.get('session')?.value || serverCookieStore.get('token')?.value || ''
-      
-      const payload = {
-        courseId: data.courseId,
-        number: data.classNumber,
-        shift: data.shift
-      }
 
-      await createClass(payload as unknown as Parameters<typeof createClass>[0], serverToken)
-      
+    const serverToken = await getSession()
+    if (!serverToken) {
+      return { success: false, error: 'Sessão expirada. Entre novamente para criar a turma.' }
+    }
+
+    // `classNumber` chega como string do Input e o contrato do core exige
+    // inteiro. `parseCreateClass` converte a borda e valida os três campos
+    // (inclusive o enum de turno), devolvendo o payload já no tipo de
+    // `createClass` — é o que dispensa o cast duplo que existia aqui.
+    const parsed = parseCreateClass({
+      courseId: data.courseId,
+      number: Number(data.classNumber),
+      shift: data.shift,
+    })
+
+    if (!parsed.ok) {
+      return { success: false, error: parsed.errors[0]?.message ?? 'Dados inválidos.' }
+    }
+
+    try {
+      await createClass(parsed.value, serverToken)
     } catch (error: unknown) {
       console.error('Erro na criação da turma:', error)
       return { success: false }
     }
 
-    revalidatePath('/cursos-turmas')
-    redirect('/cursos-turmas')
+    revalidatePath('/turmas')
+    redirect('/turmas')
   }
 
   const handleCancel = async () => {
     'use server'
-    redirect('/cursos-turmas')
+    redirect('/turmas')
   }
 
   return (

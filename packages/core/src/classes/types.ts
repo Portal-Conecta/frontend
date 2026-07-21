@@ -134,7 +134,7 @@ export interface ClassesListResult {
 /** Payload de criação de turma (`CreateClassRequest`) — os três campos obrigatórios. */
 export interface CreateClassPayload {
   courseId: string
-  number: number 
+  number: number
   shift: HubShift
 }
 
