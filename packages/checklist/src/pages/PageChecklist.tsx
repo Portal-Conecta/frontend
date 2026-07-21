@@ -6,6 +6,7 @@ import { getClassDetail } from "@portal/core/classes/classesService";
 import { PermissionGate } from "@portal/core/layout/PermissionGate";
 import { getMyProfile } from "@portal/core/profile/profileService";
 
+import { canViewChecklistDashboard } from "../auth/canViewChecklistDashboard";
 import { resolveClassSelection } from "../services/resolveClassSelection";
 import { ChecklistFlow } from "./representante/ChecklistFlow";
 
@@ -33,6 +34,7 @@ export async function PageChecklist() {
         selection={selection}
         {...(fixedClassName !== undefined ? { fixedClassName } : {})}
         filledByLabel={profile.name}
+        showSectionTabs={canViewChecklistDashboard(user)}
       />
     </PermissionGate>
   );

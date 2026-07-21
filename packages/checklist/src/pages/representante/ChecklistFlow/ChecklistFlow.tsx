@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 
 import { EmptyState, Text } from "@portal/ui";
 
+import { CHECKLIST_SECTION_TABS } from "../../../components/checklistSectionTabs";
+import { SectionTabs } from "../../../components/SectionTabs";
 import { findActiveTemplateByRoomClient } from "../../../services/client/templateClient";
 import type { ClassSelection } from "../../../services/resolveClassSelection";
 import type { ChecklistTemplateResponse } from "../../../types/template";
@@ -15,6 +17,8 @@ export interface ChecklistFlowProps {
   /** Nome da turma quando a seleção é `fixed` (turma única já resolvida). */
   fixedClassName?: string;
   filledByLabel: string;
+  /** Gestão (SENAI/WEG/ADMIN): mostra as abas de navegação do módulo no topo. */
+  showSectionTabs?: boolean;
 }
 
 interface FillTarget {
@@ -22,45 +26,50 @@ interface FillTarget {
   roomLabel: string;
 }
 
-export function ChecklistFlow({ selection, fixedClassName, filledByLabel }: ChecklistFlowProps) {
+export function ChecklistFlow({
+  selection,
+  fixedClassName,
+  filledByLabel,
+  showSectionTabs,
+}: ChecklistFlowProps) {
   const [target, setTarget] = useState<FillTarget | null>(null);
   const [error, setError] = useState("");
   const [noTemplateRoom, setNoTemplateRoom] = useState(false);
 
+  const tabs = showSectionTabs ? (
+    <SectionTabs tabs={[...CHECKLIST_SECTION_TABS]} className="px-3 md:px-6" />
+  ) : null;
+
+  let content: ReactNode;
+
   if (selection.mode === "none") {
-    return (
-      <div className="flex h-full items-center justify-center">
+    content = (
+      <div className="flex flex-1 items-center justify-center">
         <Text variant="body-sm" tone="secondary">
           Você não tem turma vinculada para preencher checklist.
         </Text>
       </div>
     );
-  }
-
-  if (error) {
-    return (
-      <div className="flex h-full items-center justify-center">
+  } else if (error) {
+    content = (
+      <div className="flex flex-1 items-center justify-center">
         <Text variant="body-sm" tone="secondary">
           {error}
         </Text>
       </div>
     );
-  }
-
-  if (noTemplateRoom) {
-    return (
-      <div className="flex h-full items-center justify-center">
+  } else if (noTemplateRoom) {
+    content = (
+      <div className="flex flex-1 items-center justify-center">
         <EmptyState
           title="Sala sem checklist"
           description="Nenhum checklist configurado para esta sala."
         />
       </div>
     );
-  }
-
-  // Passo 1 — sala (universal, independente de turma).
-  if (!target) {
-    return (
+  } else if (!target) {
+    // Passo 1 — sala (universal, independente de turma).
+    content = (
       <SelectRoomPage
         onRoomSelected={async ({ roomId, roomLabel }) => {
           try {
@@ -76,16 +85,25 @@ export function ChecklistFlow({ selection, fixedClassName, filledByLabel }: Chec
         }}
       />
     );
+  } else {
+    // Passo 2 — preenchimento: escolhe a turma no topo e preenche.
+    content = (
+      <FillChecklistPage
+        template={target.template}
+        roomLabel={target.roomLabel}
+        selection={selection}
+        {...(fixedClassName !== undefined ? { fixedClassName } : {})}
+        filledByLabel={filledByLabel}
+      />
+    );
   }
 
-  // Passo 2 — preenchimento: escolhe a turma no topo e preenche.
+  if (!tabs) return content;
+
   return (
-    <FillChecklistPage
-      template={target.template}
-      roomLabel={target.roomLabel}
-      selection={selection}
-      {...(fixedClassName !== undefined ? { fixedClassName } : {})}
-      filledByLabel={filledByLabel}
-    />
+    <div className="flex h-full flex-col">
+      <div className="pt-3 md:pt-6">{tabs}</div>
+      <div className="flex flex-1 flex-col overflow-hidden">{content}</div>
+    </div>
   );
 }
