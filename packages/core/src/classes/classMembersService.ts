@@ -76,16 +76,26 @@ function isEligibleClassStudent(member: HubClassMemberResponse | null | undefine
  * Lista os membros de uma turma (`GET /hub/classes/{classId}/members`),
  * opcionalmente filtrados por papel (`?role=STUDENT | TEACHER | REPRESENTATIVE`).
  * Sem `role`, retorna todos os membros; cada item traz o papel (`role`).
+ *
+ * O core devolve o campo como `classRole` (`ClassMemberResponse`), não `role` —
+ * mapeado aqui pro `ClassMember` do front. Sem esse mapeamento, `member.role`
+ * fica `undefined` e o filtro de aba (`filterMembersByTab`) descarta todo
+ * mundo — só não aparecia no rascunho local (`handleAdd` já monta `{ role }`
+ * direto, antes de salvar).
  */
-export function listClassMembers(
+export async function listClassMembers(
   classId: string,
   role?: ClassRole,
   token?: string,
 ): Promise<ClassMember[]> {
-  return http.get<ClassMember[]>(hubGatewayPath(`/classes/${encodeURIComponent(classId)}/members`), {
-    ...(role ? { params: { role } } : {}),
-    ...(token ? { token } : {}),
-  })
+  const raw = await http.get<HubClassMemberResponse[]>(
+    hubGatewayPath(`/classes/${encodeURIComponent(classId)}/members`),
+    {
+      ...(role ? { params: { role } } : {}),
+      ...(token ? { token } : {}),
+    },
+  )
+  return raw.map((member) => ({ id: member.id, name: member.name, role: member.classRole }))
 }
 
 /**
