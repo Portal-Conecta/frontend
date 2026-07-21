@@ -22,7 +22,7 @@ export const NAV_REGISTRY: readonly NavEntry[] = [
   { key: 'comunicados', icon: 'newspaper', label: 'Comunicados', href: '/comunicados' },
   { key: 'mapa-salas', icon: 'map', label: 'Mapa de Sala', href: '/mapa-salas' },
   { key: 'checklist', icon: 'clipboard-list', label: 'Checklist', href: '/checklist', requires: 'checklist:ver' },
-  { key: 'config', icon: 'settings', label: 'Configurações', href: '/configuracoes', requires: 'usuarios:gerenciar' },
+  { key: 'usuarios', icon: 'users', label: 'Usuários', href: '/usuarios', requires: 'usuarios:gerenciar' },
   { key: 'turma', icon: 'users', label: 'Geren. Turmas', href: '/turmas', requires: 'turmas:gerenciar' },
   { key: 'cursos', icon: 'graduation-cap', label: 'Cursos', href: '/cursos', requires: 'cursos:gerenciar' },
 ]
@@ -36,7 +36,7 @@ export const NAV_REGISTRY: readonly NavEntry[] = [
  * | comunicados | - (universal)      |   sim   |   sim   |   sim   |  sim  | sim |  sim  |
  * | mapa-salas  | - (universal)      |   sim   |   sim   |   sim   |  sim  | sim |  sim  |
  * | checklist   | checklist:ver      |   nao   |   sim   |   sim   |  sim  | sim |  sim  |
- * | config      | usuarios:gerenciar |   nao   |   nao   |   nao   |  sim  | sim |  sim  |
+ * | usuarios    | usuarios:gerenciar |   nao   |   nao   |   nao   |  sim  | sim |  sim  |
  * | turma       | turmas:gerenciar   |   nao   |   nao   |   nao   |  sim  | sim |  sim  |
  * | cursos      | cursos:gerenciar   |   nao   |   nao   |   nao   |  sim  | sim |  sim  |
  *
