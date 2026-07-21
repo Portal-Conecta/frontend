@@ -74,7 +74,15 @@ const noHoverActiveNegative =
 // mover ele inteiro pra uma segunda linha. `whitespace-nowrap`: ícone e
 // texto nunca quebram linha um em cima do outro dentro do próprio botão.
 // Sempre presente, independente do estado hover/active (#[MOBILE-TOOLBAR]).
-const toolbarButtonBaseClasses = 'shrink-0 whitespace-nowrap'
+//
+// Abaixo de 422px (largura em que "Limpar Mapa" + "Salvar Alterações" não
+// cabem mais lado a lado com o `shrink-0` acima) trocamos de estratégia: em
+// vez de deixar o `flex-wrap` do container empurrar o botão inteiro pra uma
+// segunda linha, permitimos que ESTE botão encolha (`shrink`/`min-w-0`) e
+// truncamos só o texto (ver `<span className="min-w-0 truncate">` abaixo) — o ícone
+// tem `shrink-0` próprio, então nunca é cortado, só o texto ganha reticências
+// se não couber. Mantém os dois botões sempre na mesma linha nessa faixa.
+const toolbarButtonBaseClasses = 'shrink-0 whitespace-nowrap max-[421px]:min-w-0 max-[421px]:shrink'
 
 // Padding HORIZONTAL fluido do Button abaixo de `lg` — quando os botões
 // empilham (um por linha, ver `containerClasses`), o `px-4` nativo do
@@ -132,6 +140,10 @@ export function MapToolbar({ mode, canSave, onEdit, onClear, onSave, className }
   const containerClasses = [
     'inline-flex min-h-12 max-w-full flex-wrap items-center justify-center gap-3 rounded-lg',
     'border-sm border-border-default bg-background-surface px-4 py-3',
+    // Abaixo de 422px, ver comentário de `toolbarButtonBaseClasses`: os
+    // botões encolhem (com texto truncado) em vez do container quebrar em
+    // duas linhas, então o `flex-wrap` é desligado nessa faixa.
+    'max-[421px]:flex-nowrap',
     'lg:h-12 lg:flex-nowrap lg:gap-6 lg:px-6',
     className,
   ]
@@ -152,8 +164,8 @@ export function MapToolbar({ mode, canSave, onEdit, onClear, onSave, className }
           style={toolbarButtonFluidStyle}
           onClick={onEdit}
         >
-          <SquarePenIcon className={iconSizeClasses} />
-          Editar Mapa
+          <SquarePenIcon className={`${iconSizeClasses} shrink-0`} />
+          <span className="min-w-0 truncate">Editar Mapa</span>
         </Button>
       </div>
     )
@@ -168,8 +180,8 @@ export function MapToolbar({ mode, canSave, onEdit, onClear, onSave, className }
         style={toolbarButtonFluidStyle}
         onClick={onClear}
       >
-        <TrashIcon className={iconSizeClasses} />
-        Limpar Mapa
+        <TrashIcon className={`${iconSizeClasses} shrink-0`} />
+        <span className="min-w-0 truncate">Limpar Mapa</span>
       </Button>
 
       {/*
@@ -188,8 +200,8 @@ export function MapToolbar({ mode, canSave, onEdit, onClear, onSave, className }
         disabled={!canSave}
         onClick={onSave}
       >
-        <SaveIcon className={iconSizeClasses} />
-        Salvar Alterações
+        <SaveIcon className={`${iconSizeClasses} shrink-0`} />
+        <span className="min-w-0 truncate">Salvar Alterações</span>
       </Button>
     </div>
   )
