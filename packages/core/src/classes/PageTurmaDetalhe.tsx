@@ -85,7 +85,8 @@ async function TurmaDetalhe({ classId, accessToken }: { classId: string; accessT
 
   return (
     <div className="px-8 py-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      {/* Régua sob o cabeçalho (Figma 1683:29406) — mesma da `PageTurmaMembros`. */}
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border-default pb-4">
         <div className="flex min-w-0 items-center gap-2">
           <Link
             href="/turmas"
@@ -115,21 +116,28 @@ async function TurmaDetalhe({ classId, accessToken }: { classId: string; accessT
           Não foi possível carregar esta turma.
         </Banner>
       ) : (
-        <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-3">
+        <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2">
             <ClassMembersTabs students={students} teachers={teachers} />
           </div>
 
-          <aside className="flex flex-col gap-4 lg:py-3">
-            {/*
-             * O Figma prevê aqui um botão "Alterar representantes", omitido por
-             * ora: a tela de promoção não existe (o backend já expõe o endpoint,
-             * com o limite de 2 validado lá). Painel só de leitura até ela nascer
-             * — melhor que um botão que leva a 404.
-             */}
-            <Text as="h2" variant="body-md" tone="brand">
-              Representantes
-            </Text>
+          <aside className="flex flex-col gap-4 lg:py-6">
+            {/* Cabeçalho do painel (Figma 1689:4293): título + atalho à direita. */}
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <Text as="h2" variant="body-md" tone="brand">
+                Representantes
+              </Text>
+
+              <TurmaNavButton
+                href={`/turmas/${classId}/representantes`}
+                variant="outlined"
+                iconLeft="square-pen"
+                size="xs"
+                className="shrink-0"
+              >
+                Alterar representantes
+              </TurmaNavButton>
+            </div>
 
             <div className="rounded-md border-sm border-border-default px-3 pt-3">
               {representatives.length === 0 ? (
