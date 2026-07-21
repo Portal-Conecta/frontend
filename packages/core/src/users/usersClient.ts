@@ -1,6 +1,7 @@
 import { bffFetch } from '../http/bffClient'
 import { buildQuery } from '../http/query'
 import type { ListUsersResponse } from '../classes/types'
+import type { CreateUserPayload, UserById } from '../profile/types'
 import type { TypeUser } from '../rbac'
 import type { UserAccountStatus } from '../classes/types'
 
@@ -29,4 +30,12 @@ export function listUsersClient(params: ListUsersClientParams = {}): Promise<Lis
     status: params.status,
   })
   return bffFetch<ListUsersResponse>(`/api/users${query}`)
+}
+
+/** Cria um usuário (#441) — `POST /api/users`. */
+export function createUserClient(payload: CreateUserPayload): Promise<UserById> {
+  return bffFetch<UserById>('/api/users', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
 }
