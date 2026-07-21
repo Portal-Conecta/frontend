@@ -18,7 +18,7 @@ import { Skeleton } from '@portal/ui'
 export default function LoadingMapaSalasPage() {
   return (
     <div
-      className="flex flex-col items-center gap-14 px-6 py-16 md:py-24"
+      className="flex flex-col items-center gap-14 px-6 py-14 md:py-24"
       role="status"
       aria-live="polite"
     >
