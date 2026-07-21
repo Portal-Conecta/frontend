@@ -2,7 +2,7 @@ import { createHttpClient } from '../http/httpClient'
 import { hubGatewayPath } from '../http/hubGateway'
 import type { QueryParams } from '../http/query'
 import type { TypeUser } from '../rbac'
-import type { ListUsersResponse } from './types'
+import type { ListUsersResponse, UserAccountStatus } from './types'
 
 /**
  * Busca de usuários do sistema (`GET /hub/users`), usada pela tela de
@@ -10,9 +10,10 @@ import type { ListUsersResponse } from './types'
  * destinatários de comunicados. Server-only, mesmo http client compartilhado
  * dos demais services do core.
  *
- * O core filtra por `typeUser`, pagina (`page`/`size`) e busca por nome
- * (`name`, substring case-insensitive, `LIKE %valor%` restrito a usuários
- * `ACTIVE` — ver `GetAllUserUseCase`/`UserRepository` no core-backend).
+ * O core filtra por `typeUser`, pagina (`page`/`size`), busca por nome
+ * (`name`, substring case-insensitive) e status. Sem `status`, o backend
+ * retorna somente usuários `ACTIVE`. `semTurmaAtiva` restringe alunos e
+ * representantes sem vínculo em turma ativa.
  */
 
 export interface ListUsersParams {
@@ -21,6 +22,8 @@ export interface ListUsersParams {
   typeUser?: TypeUser
   /** Busca parcial por nome (case-insensitive), aplicada pelo core. */
   name?: string
+  /** Um ou mais status de conta; ausente preserva o padrão `ACTIVE` do backend. */
+  status?: UserAccountStatus[]
   /**
    * Quando `true`, restringe alunos/representantes a quem não tem vínculo em
    * turma ativa (regra 1 aluno = 1 turma). Não afeta outros `typeUser` — o

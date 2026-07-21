@@ -1,7 +1,7 @@
-import { Skeleton } from '@portal/ui'
+import { Skeleton } from "@portal/ui";
 
 export interface ChecklistFiltersSkeletonProps {
-  className?: string | undefined
+  className?: string | undefined;
 }
 
 /**
@@ -14,9 +14,16 @@ export interface ChecklistFiltersSkeletonProps {
  * `className`), então a largura vai numa div externa e o Skeleton preenche
  * essa div com o `width: '100%'` default dele.
  */
-export function ChecklistFiltersSkeleton({ className }: ChecklistFiltersSkeletonProps) {
+export function ChecklistFiltersSkeleton({
+  className,
+}: ChecklistFiltersSkeletonProps) {
   return (
-    <div className={className} role="status" aria-live="polite" aria-busy="true">
+    <div
+      className={className}
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+    >
       <span className="sr-only">Carregando filtros...</span>
 
       <div
@@ -43,5 +50,5 @@ export function ChecklistFiltersSkeleton({ className }: ChecklistFiltersSkeleton
         </div>
       </div>
     </div>
-  )
+  );
 }

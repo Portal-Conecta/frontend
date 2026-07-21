@@ -9,7 +9,7 @@ import { DateInput } from './DateInput'
  * formato nativo `yyyy-mm-dd`; o calendário abre pelo botão do ícone.
  */
 const meta: Meta<typeof DateInput> = {
-  title: 'Componentes/Inputs/Input/Date',
+  title: 'Componentes/Inputs/Pickers/DateInput',
   component: DateInput,
   parameters: { layout: 'padded' },
   argTypes: {
