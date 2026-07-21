@@ -170,12 +170,11 @@ function CollapsibleSection({
               .join(" ")}
           >
             {/* sm = 16px (icon-only do Button sm usa 24px por padrão) */}
-            <Icon
-              name="funnel"
-              size="sm"
-              decorative
-              tone={filtersOpen ? "inverse" : undefined}
-            />
+            {filtersOpen ? (
+              <Icon name="funnel" size="sm" decorative tone="inverse" />
+            ) : (
+              <Icon name="funnel" size="sm" decorative />
+            )}
           </Button>
         ) : null}
       </div>

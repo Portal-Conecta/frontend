@@ -1,26 +1,28 @@
 /**
- * PageChecklistGestaoItens — gerenciamento de checklists por sala/espaço
- * (`/checklist/gestao-itens`). Lista todas as salas onde é possível visualizar
- * ou adicionar checklists. Server Component: mesmo gate de RBAC das outras
- * páginas do domínio (`checklist:gerenciar`).
+ * PageChecklistGestaoItens — lista todas as salas/espaços; cada uma mostra um
+ * único botão condicional: "Ver Checklist" (já tem checklist ativo) ou
+ * "+ Criar Checklist" (ainda não tem). Server Component: resolve sessão e
+ * `CurrentUser`, gateia por RBAC; busca/filtro ficam no client
+ * (`PageChecklistGestaoItensContent`).
  *
- * TEMPORÁRIO: com dados mockados a lista é estática (`MOCK_CHECKLIST_ROOMS`).
- * Reverta `USE_MOCK_DATA` pra `false` assim que `API_GATEWAY_URL` estiver no ar.
+ * RBAC: `checklist:gerenciar` (TEACHER, SENAI, WEG, ADMIN — não o
+ * representante, que só preenche checklist), mesmo gate de
+ * `PageChecklistNaoConformidades`.
  */
 import { redirect } from "next/navigation";
 
 import { getCurrentUser } from "@portal/core/auth/getCurrentUser";
 import { getSession } from "@portal/core/auth/session";
-import { ERROR_PRESENTATION } from "@portal/core/http/errorPresentation";
 import { PermissionGate } from "@portal/core";
-import { ErrorPage, Text } from "@portal/ui";
 
-import { RoomChecklistItem } from "../components/RoomChecklistItem";
-import {
-  MOCK_CHECKLIST_ROOMS,
-  type MockRoomWithChecklist,
-} from "./nonConformityMockData";
+import { MOCK_CHECKLIST_ROOMS } from "./gestaoItensMockData";
+import { PageChecklistGestaoItensContent } from "./PageChecklistGestaoItensContent (1)";
 
+/**
+ * Fallback local: ainda não existe endpoint que liste TODAS as salas
+ * (`listTemplates()` só retorna as que já têm template). Reverta pra `false`
+ * quando esse endpoint existir.
+ */
 const USE_MOCK_DATA = true;
 
 export async function PageChecklistGestaoItens() {
@@ -33,61 +35,20 @@ export async function PageChecklistGestaoItens() {
 
   return (
     <PermissionGate user={user} permission="checklist:gerenciar">
-      <GestaoItensData _token={token} />
+      <GestaoItensData />
     </PermissionGate>
   );
 }
 
-async function GestaoItensData({ _token }: { _token: string }) {
-  let rooms: MockRoomWithChecklist[] = [];
-  const loadFailed = false;
-
+async function GestaoItensData() {
   if (USE_MOCK_DATA) {
-    rooms = MOCK_CHECKLIST_ROOMS;
-  } else {
-    // TODO: implement API call to fetch rooms
-    // try {
-    //   rooms = await getRooms(token);
-    // } catch (err) {
-    //   if (err instanceof HttpError) {
-    //     if (err.kind === "unauthorized") {
-    //       redirect("/login");
-    //     }
-    //     if (err.kind === "forbidden") {
-    //       return <ErrorPage {...ERROR_PRESENTATION.forbidden} />;
-    //     }
-    //   }
-    //   loadFailed = true;
-    // }
+    return (
+      <PageChecklistGestaoItensContent initialRooms={MOCK_CHECKLIST_ROOMS} />
+    );
   }
 
-  if (loadFailed) {
-    return <ErrorPage {...ERROR_PRESENTATION.server} />;
-  }
-
-  return (
-    <div className="flex flex-col gap-6 p-6 md:p-8">
-      <Text as="h1" variant="heading-h2" tone="brand" className="sr-only">
-        Gestão de Checklists
-      </Text>
-
-      {rooms.length === 0 ? (
-        <Text variant="body-md" tone="secondary">
-          Nenhuma sala encontrada.
-        </Text>
-      ) : (
-        <div>
-          {rooms.map((room) => (
-            <RoomChecklistItem
-              key={room.id}
-              room={`${room.number} ${room.typeRoom}`}
-              hasChecklist={room.hasChecklist}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
+  // TODO: implementar chamada real assim que existir endpoint de listagem de salas.
+  return <PageChecklistGestaoItensContent initialRooms={[]} initialError />;
 }
 
 export default PageChecklistGestaoItens;
