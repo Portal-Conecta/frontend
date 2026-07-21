@@ -33,7 +33,7 @@ function ClassCardRow({ code, course, shift, className }: ClassCardRowProps) {
   return (
     <div
       className={[
-        'col-span-3 grid min-w-0 grid-cols-subgrid items-center gap-x-6 rounded-md bg-background-surface px-3 py-6 shadow-sm',
+        'col-span-3 grid min-w-0 grid-cols-subgrid items-center gap-x-6 px-3 py-6',
         className,
       ]
         .filter(Boolean)
