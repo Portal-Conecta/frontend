@@ -122,7 +122,7 @@ export function CourseEditPanel({ course, open, onClose, onUpdated }: CourseEdit
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-1 flex-col pt-6">
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-4">
             {requestError ? <Banner variant="error">{requestError}</Banner> : null}
             <label className="flex flex-col gap-2">
               <Text as="span" variant="label-md-emphasis" tone="brand">
