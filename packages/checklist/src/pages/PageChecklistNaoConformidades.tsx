@@ -10,11 +10,8 @@
  * pra esta rota ainda; este gate cobre acesso direto pela URL. O gate real
  * continua sendo o 403 do backend em cada chamada (REVISION.md §5).
  *
- * Limitações conhecidas desta primeira versão (sem endpoint no
- * checklist-backend/Hub ainda — mesma lacuna registrada na issue #446):
- * - Sala aparece pelo `roomId` bruto — falta um catálogo de salas pro BFF.
- * - Quem preencheu aparece pelo id do token (`filledBy`) — falta o
- *   enriquecimento via `GET /users/{id}` (ADR-0014, "perfil é adiado").
+ * Sala, turma e quem preencheu vêm enriquecidos do Hub
+ * (`roomLabel`, `className`, `filledByName`) na listagem de execuções.
  */
 import { redirect } from "next/navigation";
 
@@ -37,10 +34,10 @@ import {
 import { PageChecklistNaoConformidadesContent } from "./PageChecklistNaoConformidadesContent";
 
 /**
- * TEMPORÁRIO: liga dados mockados enquanto o checklist-backend não está no ar.
- * Reverta pra `false` assim que `API_GATEWAY_URL` estiver respondendo de novo.
+ * Fallback local se o gateway/checklist-backend não estiver no ar.
+ * Com `false`, lista envios + issues reais (e "Ver Envio" usa o id real na #463).
  */
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = false;
 
 export async function PageChecklistNaoConformidades() {
   const token = await getSession();

@@ -54,8 +54,15 @@ export interface ChecklistExecutionResponse {
   templateId: string;
   templateVersion: number;
   roomId: string;
+  /** Rótulo amigável da sala (ex.: "Sala 101"), resolvido no Hub. */
+  roomLabel?: string;
   classId: string;
+  /** Nome da turma (ex.: "MIDS1"), resolvido no Hub. */
+  className?: string;
+  /** UUID de quem preencheu — não exibir na UI. */
   filledBy: string;
+  /** Nome de quem preencheu (Hub). */
+  filledByName?: string;
   period: Period;
   checklistType: ChecklistType;
   status: ChecklistExecutionStatus;
@@ -94,6 +101,7 @@ export interface ChecklistExecutionHistoryItem {
   roomId: string;
   classId: string;
   filledBy: string;
+  filledByName?: string;
   period: Period;
   checklistType: ChecklistType;
   status: ChecklistExecutionStatus;
