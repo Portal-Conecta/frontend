@@ -58,7 +58,7 @@ const preview: Preview = {
           ['Introdução', 'Começando'],
           'Fundação',
           'Componentes',
-          ['Ações', 'Inputs', 'Formulário', 'Feedback', 'Data', 'Overlay', 'Navegação', 'Conteúdo', 'Layout'],
+          ['Actions', 'Inputs', 'Form', 'Feedback', 'Data', 'Overlay', 'Navigation', 'Content', 'Layout'],
         ],
       },
     },

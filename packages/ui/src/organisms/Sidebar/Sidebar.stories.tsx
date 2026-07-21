@@ -42,7 +42,7 @@ function Demo({ activeKey, initialExpanded }: { activeKey: string; initialExpand
 }
 
 const meta: Meta<typeof Sidebar> = {
-  title: 'Componentes/Navegação/Sidebar',
+  title: 'Componentes/Navigation/Sidebar/Sidebar',
   component: Sidebar,
   parameters: { layout: 'fullscreen' },
   argTypes: {

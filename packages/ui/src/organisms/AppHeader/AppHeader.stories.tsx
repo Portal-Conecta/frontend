@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { AppHeader } from './AppHeader'
 
 const meta: Meta<typeof AppHeader> = {
-  title: 'Componentes/Navegação/AppHeader',
+  title: 'Componentes/Navigation/AppHeader',
   component: AppHeader,
   parameters: { layout: 'fullscreen' },
   argTypes: {

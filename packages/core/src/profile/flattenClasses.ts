@@ -7,9 +7,9 @@ import type { MyCourse } from './types'
 export function flattenClasses(courses: MyCourse[]): ClassCardItem[] {
   return courses.flatMap((course) =>
     course.classes.map((cls) => ({
-      code: `${course.code} - ${cls.number}`,
-      course: course.name,
-      shift: HUB_SHIFT_LABELS[cls.shift],
+      tag: `${course.code} - ${cls.number}`,
+      title: course.name,
+      meta: HUB_SHIFT_LABELS[cls.shift],
     })),
   )
 }

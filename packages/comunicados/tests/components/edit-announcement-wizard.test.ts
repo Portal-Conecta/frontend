@@ -243,7 +243,7 @@ describe('buildEditUpdatePayload', () => {
     })
   })
 
-  it('PUBLISHED → agendar envia status SCHEDULED + scheduledFor', () => {
+  it('PUBLISHED ignora scheduledFor (API não aceita PUBLISHED → SCHEDULED)', () => {
     expect(
       buildEditUpdatePayload({
         title: 'T',
@@ -256,8 +256,6 @@ describe('buildEditUpdatePayload', () => {
       title: 'T',
       description: 'D',
       destinations: [{ type: 'USER', referenceId: 'u1' }],
-      status: ANNOUNCEMENT_STATUS.SCHEDULED,
-      scheduledFor: '2026-12-10T12:00:00.000Z',
     })
   })
 

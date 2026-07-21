@@ -94,6 +94,16 @@ describe('searchUsers', () => {
     expect(new URL(url as string).searchParams.has('name')).toBe(false)
   })
 
+  it('repassa cada status como parâmetro repetido para o core', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(response(200, page))
+
+    await searchUsers({ status: ['ACTIVE', 'DISABLED'] }, TOKEN)
+
+    const [url] = fetchMock.mock.calls[0]!
+    expect(new URL(url as string).searchParams.getAll('status')).toEqual(['ACTIVE', 'DISABLED'])
+  })
+
   it('mapeia 403 (sem permissão para listar) para HttpError forbidden', async () => {
     stubFetch().mockResolvedValue(response(403, {}))
 
