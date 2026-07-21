@@ -26,8 +26,9 @@ function normalizeSize(raw: string | null): number {
  * BFF — busca paginada de usuários do sistema (tela "adicionar usuários").
  * Proxy de `GET /hub/users`; `typeUser` desconhecido é erro explícito (400),
  * `page`/`size` são normalizados (`size` limitado a `MAX_SIZE`); `search`
- * filtra por nome e `status` aceita valores repetidos. Ambos são repassados
- * ao core. Sessão ausente cai em 401 pelo http client do service.
+ * filtra por nome e `status` aceita valores repetidos, ambos repassados ao
+ * core. `withoutActiveClass` vira `semTurmaAtiva` pro core (nome do campo lá
+ * é em português). Sessão ausente cai em 401 pelo http client do service.
  */
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
@@ -35,6 +36,7 @@ export async function GET(req: Request) {
   const typeUser = typeUserParam && isTypeUser(typeUserParam) ? typeUserParam : undefined
   const search = searchParams.get('search')?.trim()
   const statuses = searchParams.getAll('status').filter(Boolean)
+  const withoutActiveClass = searchParams.get('withoutActiveClass') === 'true'
 
   if (typeUserParam && !typeUser) {
     return NextResponse.json(
@@ -57,6 +59,7 @@ export async function GET(req: Request) {
     ...(typeUser ? { typeUser } : {}),
     ...(search ? { name: search } : {}),
     ...(statuses.length > 0 ? { status: statuses as UserAccountStatus[] } : {}),
+    ...(withoutActiveClass ? { semTurmaAtiva: true } : {}),
   }
 
   try {

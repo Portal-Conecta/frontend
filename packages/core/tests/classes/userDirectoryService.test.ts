@@ -104,6 +104,26 @@ describe('searchUsers', () => {
     expect(new URL(url as string).searchParams.getAll('status')).toEqual(['ACTIVE', 'DISABLED'])
   })
 
+  it('repassa semTurmaAtiva como query pro core', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(response(200, page))
+
+    await searchUsers({ page: 0, size: 20, semTurmaAtiva: true }, TOKEN)
+
+    const [url] = fetchMock.mock.calls[0]!
+    expect(new URL(url as string).searchParams.get('semTurmaAtiva')).toBe('true')
+  })
+
+  it('omite semTurmaAtiva da query quando não informado', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(response(200, page))
+
+    await searchUsers({ page: 0, size: 20 }, TOKEN)
+
+    const [url] = fetchMock.mock.calls[0]!
+    expect(new URL(url as string).searchParams.has('semTurmaAtiva')).toBe(false)
+  })
+
   it('mapeia 403 (sem permissão para listar) para HttpError forbidden', async () => {
     stubFetch().mockResolvedValue(response(403, {}))
 
