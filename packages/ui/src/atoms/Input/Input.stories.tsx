@@ -9,8 +9,9 @@ const meta: Meta<typeof Input> = {
   argTypes: {
     tone: {
       control: 'inline-radio',
-      options: ['default', 'overlay'],
-      description: 'Tom: `default` (claro) ou `overlay` (transparente/branco, p/ painéis coloridos).',
+      options: ['default', 'brand', 'overlay'],
+      description:
+        'Tom: `default` (claro), `brand` (borda e ícones em cor de marca) ou `overlay` (transparente/branco, p/ painéis coloridos).',
     },
     type: {
       control: 'inline-radio',
@@ -20,6 +21,11 @@ const meta: Meta<typeof Input> = {
     error: {
       control: 'text',
       description: 'Mensagem de erro. A presença ativa o estado de erro (barra + mensagem).',
+    },
+    iconLeft: {
+      control: 'select',
+      options: [undefined, 'search', 'mail'],
+      description: 'Ícone à esquerda (set aprovado). Convive com `type="password"`.',
     },
     iconRight: {
       control: 'select',
@@ -61,6 +67,16 @@ export const WithIconRight: Story = {
   args: { iconRight: 'search', placeholder: 'Buscar' },
 }
 
+/** Ícone prefix estático. */
+export const WithIconLeft: Story = {
+  args: { iconLeft: 'search', placeholder: 'Buscar' },
+}
+
+/** Os dois lados juntos — e `iconLeft` também convive com o toggle de senha. */
+export const WithBothIcons: Story = {
+  args: { iconLeft: 'mail', iconRight: 'search', placeholder: 'Buscar por e-mail' },
+}
+
 /** Erro: barra vermelha + mensagem (label-xs). A borda permanece neutra, como no DS. */
 export const ErrorState: Story = {
   args: { error: 'E-mail inválido', defaultValue: 'usuario@' },
@@ -68,6 +84,20 @@ export const ErrorState: Story = {
 
 export const Disabled: Story = {
   args: { disabled: true },
+}
+
+/**
+ * tone="brand": borda e ícones em cor de marca; o valor digitado segue
+ * text/primary. Hover e foco escurecem a borda para interactive/pressed —
+ * `border-focus` seria invisível aqui, já que é o mesmo blue/500 da borda em repouso.
+ */
+export const Brand: Story = {
+  args: { tone: 'brand', defaultValue: 'usuario@senai.br', iconLeft: 'mail' },
+}
+
+/** Brand + erro: a mensagem segue feedback/error, não o tom — erro não é marca. */
+export const BrandError: Story = {
+  args: { tone: 'brand', error: 'E-mail inválido', defaultValue: 'usuario@' },
 }
 
 /** tone="overlay" sobre o painel azul — é o input da tela de Login. */
