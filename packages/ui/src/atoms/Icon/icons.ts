@@ -60,6 +60,7 @@ import {
   Underline,
   User,
   Users,
+  UserCog,
   X,
   type LucideIcon,
 } from 'lucide-react'
@@ -84,6 +85,7 @@ export const iconRegistry = {
   bell: Bell,
   user: User,
   users: Users,
+  'user-cog': UserCog,
   'graduation-cap': GraduationCap,
   'id-card': IdCard,
   'circle-user': CircleUser,
