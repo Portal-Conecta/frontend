@@ -4,6 +4,7 @@ import { useState, useEffect, useId, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { Icon } from '../../atoms/Icon'
 import { useFocusTrap } from '../../hooks/useFocusTrap'
+import { RichTextContent } from '@portal/ui/organisms/RichTextEditor/RichTextContent'
 
 export interface DefaultModalProps {
   isOpen: boolean
@@ -25,6 +26,8 @@ export function DefaultModal({ isOpen, onClose, title, body }: DefaultModalProps
   useFocusTrap(modalRef, { active: isOpen, onClose })
 
   if (!isOpen || !mounted) return null
+
+  const looksLikeHtml = /<\/?[a-z][\s\S]*>/i.test(body)
 
   return createPortal(
   <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background-overlay">
@@ -52,9 +55,13 @@ export function DefaultModal({ isOpen, onClose, title, body }: DefaultModalProps
               {title}
           </div>
 
-          <div className="text-label-sm leading-relaxed whitespace-pre-wrap">
+          {looksLikeHtml ? (
+            <RichTextContent html={body} />
+          ) : (
+            <div className="text-label-sm leading-relaxed whitespace-pre-wrap">
               {body}
-          </div>
+            </div>
+          )}
       </div>
     </div>
   </div>,
