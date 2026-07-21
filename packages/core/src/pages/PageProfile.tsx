@@ -9,10 +9,8 @@ import { redirect } from 'next/navigation'
 
 import { Avatar, Banner, ClassCard, Text, type ClassCardItem } from '@portal/ui'
 
-import { getCurrentUser } from '../auth/getCurrentUser'
 import { getSession } from '../auth/session'
 import { HttpError } from '../http/errors'
-import { AppShell } from '../layout/AppShell'
 import { flattenClasses } from '../profile/flattenClasses'
 import { getMyCourses, getMyProfile } from '../profile/profileService'
 import { ROLE_LABELS } from '../profile/roleLabels'
@@ -24,24 +22,30 @@ export async function PageProfile() {
     redirect('/login')
   }
 
-  const user = await getCurrentUser()
+  // Dispara as duas chamadas do BFF em paralelo (elimina o waterfall — #407).
+  // `allSettled` nunca rejeita, então cada resultado é tratado pelo seu próprio
+  // status, preservando a degradação: `profile` é obrigatório (rejeição derruba
+  // a página inteira) e `courses` é opcional (rejeição vira Banner de erro).
+  const [profileResult, coursesResult] = await Promise.allSettled([
+    getMyProfile(accessToken),
+    getMyCourses(accessToken),
+  ])
 
-  let profile: MyProfile
-  try {
-    profile = await getMyProfile(accessToken)
-  } catch (err) {
+  if (profileResult.status === 'rejected') {
+    const err = profileResult.reason
     if (err instanceof HttpError && err.kind === 'unauthorized') {
       redirect('/login')
     }
     throw err
   }
+  const profile: MyProfile = profileResult.value
 
   let classes: ClassCardItem[] = []
   let coursesFailed = false
-  try {
-    const { courses } = await getMyCourses(accessToken)
-    classes = flattenClasses(courses)
-  } catch (err) {
+  if (coursesResult.status === 'fulfilled') {
+    classes = flattenClasses(coursesResult.value.courses)
+  } else {
+    const err = coursesResult.reason
     if (err instanceof HttpError && err.kind === 'unauthorized') {
       redirect('/login')
     }
@@ -49,45 +53,51 @@ export async function PageProfile() {
   }
 
   return (
-    <AppShell user={user} activeKey="">
-      <div className="flex flex-col gap-6 p-6 md:p-8">
-        {/* Escala responsiva (h3 mobile → h2 tablet/desktop): fora do variant fixo do
-        Text, mesmo padrão de token empilhado por breakpoint do ErrorPage (display-*). */}
-        <h1 className="text-heading-h3 font-inter text-text-brand md:text-heading-h2">Meu Perfil</h1>
+    <div className="flex flex-col gap-6 p-6 md:p-8">
+      {/* Escala responsiva (h3 mobile → h2 tablet/desktop): fora do variant fixo do
+      Text, mesmo padrão de token empilhado por breakpoint do ErrorPage (display-*). */}
+      <h1 className="text-heading-h3 font-inter text-text-brand md:text-heading-h2">Meu Perfil</h1>
 
-        <div className="mx-auto flex w-full max-w-xl flex-col items-center gap-6 md:items-start">
-          <div className="flex flex-col items-center gap-6 text-center md:flex-row md:text-left">
-            <Avatar />
-            <div className="flex flex-col items-center gap-2 md:items-start">
-              <Text variant="label-md-emphasis" tone="brand">
-                {profile.name}
-              </Text>
-              <Text variant="label-sm" tone="secondary">
-                {profile.email}
-              </Text>
-              <Text variant="label-sm" tone="secondary">
-                {ROLE_LABELS[profile.typeUser]}
-              </Text>
-            </div>
+      <div className="mx-auto flex w-full max-w-xl flex-col items-center gap-6 md:items-start">
+        <div className="flex flex-col items-center gap-6 text-center md:flex-row md:text-left">
+          <Avatar />
+          <div className="flex flex-col items-center gap-2 md:items-start">
+            <Text variant="label-md-emphasis" tone="brand">
+              {profile.name}
+            </Text>
+            <Text variant="label-sm" tone="secondary">
+              {profile.email}
+            </Text>
+            <Text variant="label-sm" tone="secondary">
+              {ROLE_LABELS[profile.typeUser]}
+            </Text>
           </div>
-
-          {coursesFailed ? (
-            <Banner variant="error" className="w-full">
-              Não foi possível carregar suas turmas.
-            </Banner>
-          ) : classes.length === 1 ? (
-            <ClassCard variant="list" title="Turma" items={classes} className="w-full" />
-          ) : classes.length > 1 ? (
-            <ClassCard variant="list" items={classes} className="w-full" />
-          ) : null}
-
-          <Banner variant="info" className="w-full">
-            Sua conta é gerenciada por um administrador. Caso precise alterar algum dado, procure alguém com este
-            acesso.
-          </Banner>
         </div>
+
+        {coursesFailed ? (
+          <Banner variant="error" className="w-full">
+            Não foi possível carregar suas turmas.
+          </Banner>
+        ) : classes.length > 0 ? (
+          <section
+            aria-labelledby="profile-classes-heading"
+            className="flex max-w-full flex-col gap-3 rounded-lg bg-background-default p-8"
+          >
+            <Text as="h2" id="profile-classes-heading" variant="label-sm-emphasis" tone="brand">
+              {classes.length === 1 ? 'Turma' : 'Turmas'}
+            </Text>
+            {classes.map((turma) => (
+              <ClassCard key={turma.tag} variant="withBackground" {...turma} />
+            ))}
+          </section>
+        ) : null}
+
+        <Banner variant="info" className="w-full">
+          Sua conta é gerenciada por um administrador. Caso precise alterar algum dado, procure alguém com este
+          acesso.
+        </Banner>
       </div>
-    </AppShell>
+    </div>
   )
 }
 

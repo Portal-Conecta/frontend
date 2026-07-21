@@ -20,6 +20,22 @@ export interface UserById {
   createdAt: string
 }
 
+/** Corpo de `POST /users` — os três campos são obrigatórios. */
+export interface CreateUserPayload {
+  name: string
+  email: string
+  typeUser: TypeUser
+}
+
+/**
+ * Corpo de `PATCH /users/{id}`. O Hub atual aceita somente `name`.
+ * Alterações de ciclo de vida da conta usam endpoints dedicados
+ * (`/deactivate` e `/reactivate`), não este PATCH.
+ */
+export interface UpdateUserPayload {
+  name?: string
+}
+
 export interface MyClass {
   id: string
   name: string

@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-import { Button, ConfirmDialog, Icon, Text } from '@portal/ui'
+import { Button, ConfirmDialog, Icon, Text, revokeLocalFileUploadPreviews } from '@portal/ui'
 import { HttpError } from '@portal/core/http/errors'
 
 import type { AnnouncementStatus } from '../../types/announcement'
@@ -69,15 +69,6 @@ function getSaveConfirmCopy(args: {
 
   if (scheduledFor) {
     const when = formatScheduledForLabel(scheduledFor)
-    if (currentStatus === ANNOUNCEMENT_STATUS.PUBLISHED) {
-      return {
-        subTitle: 'Comunicados',
-        title: 'Agendar comunicado?',
-        content: `O comunicado deixará de ficar publicado agora e será agendado para ${when} (horário de Brasília).`,
-        labelConfirm: 'Agendar publicação',
-      }
-    }
-
     return {
       subTitle: 'Comunicados',
       title: 'Confirmar reagendamento?',
@@ -132,7 +123,7 @@ export interface EditAnnouncementWizardProps {
  * Wizard de edição de comunicado (#205): conteúdo → destinatários → publicação.
  * Reusa as mesmas etapas do criar; na última etapa:
  * - SCHEDULED: altera data/hora ou publica agora
- * - PUBLISHED: pode agendar uma nova data
+ * - PUBLISHED: só salva conteúdo/destinos (API não aceita PUBLISHED → SCHEDULED)
  */
 export function EditAnnouncementWizard({ announcementId }: EditAnnouncementWizardProps) {
   const router = useRouter()
@@ -145,6 +136,16 @@ export function EditAnnouncementWizard({ announcementId }: EditAnnouncementWizar
     ANNOUNCEMENT_STATUS.PUBLISHED,
   )
   const [initialImageIds, setInitialImageIds] = useState<string[]>([])
+
+  // Blob URLs de imagens locais novas — limpa ao sair da página (não ao trocar etapa).
+  const imagesRef = useRef(content.images)
+  imagesRef.current = content.images
+  useEffect(() => {
+    return () => {
+      revokeLocalFileUploadPreviews(imagesRef.current)
+    }
+  }, [])
+
   const [contentErrors, setContentErrors] = useState<
     Partial<Record<keyof AnnouncementContentValue, string>>
   >({})
@@ -307,24 +308,26 @@ export function EditAnnouncementWizard({ announcementId }: EditAnnouncementWizar
     setScheduleError(undefined)
 
     const destinations = buildDestinationsFromRecipients(recipients)
+    // Publicado: a API rejeita PUBLISHED → SCHEDULED; nunca envia data de agendamento.
+    const effectiveScheduledFor =
+      currentStatus === ANNOUNCEMENT_STATUS.PUBLISHED ? null : scheduledFor
     const payload = buildEditUpdatePayload({
       title: content.title,
       description: content.description,
       destinations,
       currentStatus,
-      scheduledFor,
+      scheduledFor: effectiveScheduledFor,
     })
 
-    const wantsScheduled =
-      Boolean(scheduledFor) && currentStatus === ANNOUNCEMENT_STATUS.PUBLISHED
     const wantsPublishedNow =
-      scheduledFor == null && currentStatus === ANNOUNCEMENT_STATUS.SCHEDULED
+      effectiveScheduledFor == null && currentStatus === ANNOUNCEMENT_STATUS.SCHEDULED
 
     try {
       const dateChanged =
-        Boolean(scheduledFor) && detail?.announcement.scheduledFor !== scheduledFor
+        Boolean(effectiveScheduledFor) &&
+        detail?.announcement.scheduledFor !== effectiveScheduledFor
 
-      if (currentStatus === ANNOUNCEMENT_STATUS.SCHEDULED && scheduledFor) {
+      if (currentStatus === ANNOUNCEMENT_STATUS.SCHEDULED && effectiveScheduledFor) {
         // Conteúdo/destinos via PUT; data via PATCH dedicado (só SCHEDULED).
         await save({
           title: content.title.trim(),
@@ -332,28 +335,10 @@ export function EditAnnouncementWizard({ announcementId }: EditAnnouncementWizar
           destinations,
         })
         if (dateChanged) {
-          await reschedule(scheduledFor)
+          await reschedule(effectiveScheduledFor)
         }
       } else {
-        let updated = await save(payload)
-
-        // Confirma transição de status (publicado → agendado some do mural).
-        if (wantsScheduled && updated.announcement.status !== ANNOUNCEMENT_STATUS.SCHEDULED) {
-          if (!scheduledFor) {
-            throw new Error(
-              'Não foi possível agendar o comunicado. Ele continua publicado no mural.',
-            )
-          }
-          updated = await save({
-            status: ANNOUNCEMENT_STATUS.SCHEDULED,
-            scheduledFor,
-          })
-          if (updated.announcement.status !== ANNOUNCEMENT_STATUS.SCHEDULED) {
-            throw new Error(
-              'Não foi possível agendar o comunicado. Ele continua publicado no mural.',
-            )
-          }
-        }
+        const updated = await save(payload)
 
         if (wantsPublishedNow && updated.announcement.status !== ANNOUNCEMENT_STATUS.PUBLISHED) {
           throw new Error('Não foi possível publicar o comunicado agora. Tente novamente.')
@@ -365,8 +350,10 @@ export function EditAnnouncementWizard({ announcementId }: EditAnnouncementWizar
         return
       }
 
+      // `/comunicados/meus` busca os próprios dados via `useMyAnnouncements`
+      // (client-side, sem RSC/cache de servidor) — `router.refresh()` depois
+      // do `push` só duplicaria o fetch à toa (#399).
       router.push('/comunicados/meus')
-      router.refresh()
     } catch (err) {
       setFormError(messageFromHttpError(err))
     } finally {
@@ -466,6 +453,7 @@ export function EditAnnouncementWizard({ announcementId }: EditAnnouncementWizar
             value={scheduledFor}
             onChange={setScheduledFor}
             disabled={submitting}
+            allowSchedule={!isPublished}
             {...(scheduleError ? { error: scheduleError } : {})}
           />
         ) : null}

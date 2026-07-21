@@ -6,12 +6,15 @@ import { HttpError } from '@portal/core/http/errors'
 
 import { listMyPostsClient } from '../services/client'
 import type { AnnouncementSummary, ListPostsParams } from '../types'
+import { withListRetry } from '../utils/listRetry'
 
 /**
  * useMyAnnouncements — carrega os comunicados do próprio autor via BFF e mantém
  * o estado de carregamento/erro. Aceita filtros de busca (`params`) e separa os
  * fixados (`pinned`) da lista (`items`), como o back devolve. Expõe `reload` para
  * reexecutar após uma ação (excluir/fixar) no painel de gestão (#211, #216).
+ *
+ * Usa o mesmo retry do mural: o gateway às vezes falha logo após create/upload.
  */
 
 const GENERIC_ERROR = 'Não foi possível carregar seus comunicados. Tente novamente.'
@@ -36,7 +39,7 @@ export function useMyAnnouncements(params: ListPostsParams = NO_PARAMS) {
     setLoading(true)
     setError('')
     try {
-      const result = await listMyPostsClient(params)
+      const result = await withListRetry(() => listMyPostsClient(params))
       setItems(result.items)
       setPinned(result.pinned)
     } catch (err) {

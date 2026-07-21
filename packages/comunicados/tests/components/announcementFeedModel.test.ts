@@ -6,6 +6,7 @@ import type { AnnouncementSummary } from '../../src/types/announcement'
 import {
   isAnnouncementFeedUnauthorizedError,
   mergeAnnouncementFeedItems,
+  needsAutoFillNextPage,
   resolveAnnouncementFeedErrorMessage,
 } from '../../src/components/AnnouncementFeed/announcementFeedModel'
 
@@ -63,5 +64,23 @@ describe('announcementFeedModel', () => {
     expect(resolveAnnouncementFeedErrorMessage(new Error('posts_list_error'))).toBe(
       'Não foi possível carregar os comunicados. Tente novamente mais tarde.',
     )
+  })
+
+  it('pede a próxima página quando o filtro local encolheu a página abaixo do alvo', () => {
+    expect(
+      needsAutoFillNextPage({ filledCount: 2, targetFill: 6, currentPage: 0, totalPages: 3 }),
+    ).toBe(true)
+  })
+
+  it('não pede próxima página quando já atingiu o alvo de itens filtrados', () => {
+    expect(
+      needsAutoFillNextPage({ filledCount: 6, targetFill: 6, currentPage: 0, totalPages: 3 }),
+    ).toBe(false)
+  })
+
+  it('não pede próxima página quando o back já não tem mais páginas', () => {
+    expect(
+      needsAutoFillNextPage({ filledCount: 1, targetFill: 6, currentPage: 2, totalPages: 3 }),
+    ).toBe(false)
   })
 })

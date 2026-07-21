@@ -1,13 +1,13 @@
 'use client'
 
 import Link from 'next/link'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-import { Button, ConfirmDialog, Icon, Text } from '@portal/ui'
+import { Button, ConfirmDialog, Icon, Text, revokeLocalFileUploadPreviews } from '@portal/ui'
 import { useCurrentUser } from '@portal/core'
 
-import { ANNOUNCEMENT_ORIGIN } from '../../types/announcement'
+import { resolveAnnouncementOrigin } from '../../auth/resolveAnnouncementOrigin'
 import {
   useCreateAnnouncement,
   type CreateAnnouncementFormValues,
@@ -50,11 +50,12 @@ function buildFormValues(
   content: AnnouncementContentValue,
   mapped: Pick<RecipientsPayload, 'destinations' | 'tagIds' | 'shiftCodes' | 'roles'>,
   scheduledFor: string | null,
+  origin: CreateAnnouncementFormValues['origin'],
 ): CreateAnnouncementFormValues {
   return {
     title: content.title,
     description: content.description,
-    origin: ANNOUNCEMENT_ORIGIN.BOTH,
+    origin,
     destinations: mapped.destinations,
     tagIds: mapped.tagIds,
     shiftCodes: mapped.shiftCodes,
@@ -81,7 +82,7 @@ function getPublishConfirmCopy(scheduledFor: string | null) {
       subTitle: 'Comunicados',
       title: 'Confirmar agendamento?',
       content: `O comunicado será publicado em ${formatScheduledForLabel(scheduledFor)} (horário de Brasília). Você pode editá-lo depois.`,
-      labelConfirm: 'Agendar publicação',
+      labelConfirm: 'Confirmar',
     }
   }
 
@@ -106,6 +107,16 @@ export function CreateAnnouncementWizard() {
   const [destinationsError, setDestinationsError] = useState<string | undefined>()
   const [confirmOpen, setConfirmOpen] = useState(false)
 
+  // Blob URLs vivem no estado do wizard (o FileUpload não revoga no unmount de
+  // etapa). Ao sair da página, libera as object URLs locais.
+  const imagesRef = useRef(content.images)
+  imagesRef.current = content.images
+  useEffect(() => {
+    return () => {
+      revokeLocalFileUploadPreviews(imagesRef.current)
+    }
+  }, [])
+
   const { fieldErrors, formError, submitting, pendingImageUpload, publishFrom, scheduleFrom } =
     useCreateAnnouncement({
       redirectOnSuccess: false,
@@ -117,7 +128,13 @@ export function CreateAnnouncementWizard() {
   const restricted = isTeacher || isRepresentative
   const modes = isTeacher ? TEACHER_MODES : isRepresentative ? REPRESENTATIVE_MODES : ALL_MODES
 
-  const catalog = useDestinationCatalog({ includeDirectoryUsers: !restricted })
+  const step = STEPS[stepIndex]!.key
+  // Só busca cursos/turmas/tags/usuários quando o step de destinatários abre
+  // pela primeira vez — evita o request no mount do wizard inteiro (#399).
+  const catalog = useDestinationCatalog({
+    enabled: step === 'destinations',
+    includeDirectoryUsers: !restricted,
+  })
   const myStudents = useMyClassStudents(restricted)
 
   const myClassIds = useMemo(
@@ -150,7 +167,6 @@ export function CreateAnnouncementWizard() {
     setRecipients(next)
   }
 
-  const step = STEPS[stepIndex]!.key
   const confirmCopy = getPublishConfirmCopy(scheduledFor)
 
   function handleNext() {
@@ -214,7 +230,12 @@ export function CreateAnnouncementWizard() {
       return
     }
 
-    const formValues = buildFormValues(content, mapped, scheduledFor)
+    const formValues = buildFormValues(
+      content,
+      mapped,
+      scheduledFor,
+      resolveAnnouncementOrigin(user?.userType),
+    )
 
     const submitOptions = {
       images: content.images,
@@ -226,7 +247,11 @@ export function CreateAnnouncementWizard() {
       : await publishFrom(formValues, submitOptions)
 
     if (created) {
+      // Soft-nav ao mural: o list do feed pode pegar 5xx transitório logo após
+      // publish/upload. `refresh` invalida o cache RSC; o retry do usePostsList
+      // cobre a listagem client.
       router.push('/comunicados')
+      router.refresh()
     }
   }
 

@@ -2,21 +2,34 @@ import { createHttpClient } from '../http/httpClient'
 import { hubGatewayPath } from '../http/hubGateway'
 import type { QueryParams } from '../http/query'
 import type { TypeUser } from '../rbac'
-import type { ListUsersResponse } from './types'
+import type { ListUsersResponse, UserAccountStatus } from './types'
 
 /**
  * Busca de usuários do sistema (`GET /hub/users`), usada pela tela de
- * "adicionar usuários" ao vincular alguém a uma turma. Server-only, mesmo
- * http client compartilhado dos demais services do core.
+ * "adicionar usuários" ao vincular alguém a uma turma e pelo seletor de
+ * destinatários de comunicados. Server-only, mesmo http client compartilhado
+ * dos demais services do core.
  *
- * O contrato do core só filtra por `typeUser` e pagina (`page`/`size`) — não há
- * busca textual por nome/email.
+ * O core filtra por `typeUser`, pagina (`page`/`size`), busca por nome
+ * (`name`, substring case-insensitive) e status. Sem `status`, o backend
+ * retorna somente usuários `ACTIVE`. `semTurmaAtiva` restringe alunos e
+ * representantes sem vínculo em turma ativa.
  */
 
 export interface ListUsersParams {
   page?: number
   size?: number
   typeUser?: TypeUser
+  /** Busca parcial por nome (case-insensitive), aplicada pelo core. */
+  name?: string
+  /** Um ou mais status de conta; ausente preserva o padrão `ACTIVE` do backend. */
+  status?: UserAccountStatus[]
+  /**
+   * Quando `true`, restringe alunos/representantes a quem não tem vínculo em
+   * turma ativa (regra 1 aluno = 1 turma). Não afeta outros `typeUser` — o
+   * core ignora o filtro pra professores.
+   */
+  semTurmaAtiva?: boolean
 }
 
 const http = createHttpClient('API_GATEWAY_URL')

@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { AppHeader } from './AppHeader'
 
 const meta: Meta<typeof AppHeader> = {
-  title: 'Componentes/Navegação/AppHeader',
+  title: 'Componentes/Navigation/AppHeader',
   component: AppHeader,
   parameters: { layout: 'fullscreen' },
   argTypes: {
@@ -13,7 +13,6 @@ const meta: Meta<typeof AppHeader> = {
         'Espelha o estado da Sidebar (controlado pelo AppLayout). No desktop, expande o bloco da logo e troca a marca (ícone) pela versão completa.',
     },
     onLogoClick: { control: false, description: 'Clique na logo — navegação para a home.' },
-    onMoreOptionsClick: { control: false, description: 'Clique no ícone "mais opções" (ellipsis).' },
     onNotificationsClick: { control: false, description: 'Clique no ícone de notificações (bell).' },
     hasUnreadNotifications: {
       control: 'boolean',
