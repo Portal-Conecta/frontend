@@ -7,6 +7,7 @@
  * `ListItem`; sem resultados, mostra um estado vazio.
  */
 import { useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 import { Button, ClassCard, Input, ListItem, Text } from '@portal/ui'
 
@@ -84,6 +85,9 @@ export function TurmaList({ turmas }: TurmaListProps) {
 
 /** Uma turma na lista — no mobile o curso e o turno empilham; no `md+` viram colunas. */
 function TurmaRowItem({ turma }: { turma: TurmaRow }) {
+  const router = useRouter()
+  const openDetail = () => router.push(`/turmas/${turma.id}`)
+
   return (
     <ListItem className="flex items-center justify-between gap-2 md:gap-4">
       <ClassCard
@@ -93,12 +97,18 @@ function TurmaRowItem({ turma }: { turma: TurmaRow }) {
         meta={turma.shift}
       />
       <span className="hidden md:inline-flex">
-        <Button size="sm" variant="outlined" iconLeft="chevron-right">
+        <Button size="sm" variant="outlined" iconLeft="chevron-right" onClick={openDetail}>
           Gerenciar
         </Button>
       </span>
       <span className="inline-flex md:hidden">
-        <Button size="sm" variant="outlined" icon="chevron-right" aria-label={`Gerenciar ${turma.code}`} />
+        <Button
+          size="sm"
+          variant="outlined"
+          icon="chevron-right"
+          aria-label={`Gerenciar ${turma.code}`}
+          onClick={openDetail}
+        />
       </span>
     </ListItem>
   )
