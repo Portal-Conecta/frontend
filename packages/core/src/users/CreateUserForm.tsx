@@ -136,7 +136,13 @@ export function CreateUserForm({ requesterType }: CreateUserFormProps) {
         >
           Cancelar
         </Button>
-        <Button className="flex-1" tone="brand" disabled={saving} onClick={() => void handleSave()}>
+        <Button
+          className="flex-1"
+          tone="brand"
+          disabled={saving}
+          loading={saving}
+          onClick={() => void handleSave()}
+        >
           Salvar
         </Button>
       </div>

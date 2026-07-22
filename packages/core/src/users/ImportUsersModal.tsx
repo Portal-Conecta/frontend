@@ -186,7 +186,13 @@ export function ImportUsersModal({ open, onClose }: ImportUsersModalProps) {
           </Button>
 
           {!result && (
-            <Button className="flex-1" tone="brand" disabled={!file || loading} onClick={() => void handleAnalyze()}>
+            <Button
+              className="flex-1"
+              tone="brand"
+              disabled={!file || loading}
+              loading={loading}
+              onClick={() => void handleAnalyze()}
+            >
               Analisar planilha
             </Button>
           )}
@@ -196,6 +202,7 @@ export function ImportUsersModal({ open, onClose }: ImportUsersModalProps) {
               className="flex-1"
               tone="brand"
               disabled={loading || result.created === 0}
+              loading={loading}
               onClick={() => void handleConfirm()}
             >
               Confirmar importação
