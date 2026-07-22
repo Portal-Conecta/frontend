@@ -6,10 +6,10 @@
  * Vive no `core` porque conhece contrato de domínio (curso, HubShift, payload
  * de criação) — ADR-0004: `@portal/ui` não pode carregar regra de negócio.
  *
- * Curso: `Select` do DS (combobox com filtro por digitação). A lista completa
- * não fica montada na página — só a linha do curso escolhido aparece abaixo.
- * Turno: par de botões como o `ShiftFilter`. Após sucesso, navegação no cliente
- * (`router.push`) para não depender de `NEXT_REDIRECT` na action.
+ * Curso e turno: `Select` do DS (combobox com filtro). A lista completa de
+ * cursos não fica montada na página — só a linha do curso escolhido aparece
+ * abaixo. Após sucesso, navegação no cliente (`router.push`) para não depender
+ * de `NEXT_REDIRECT` na action.
  */
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -38,9 +38,9 @@ export interface CreateClassFormProps {
  * Rótulos do protótipo (barra, não "e") — mesma cópia do `ShiftFilter` (#357).
  * O valor enviado ao BFF continua sendo o enum `HubShift`.
  */
-const SHIFT_OPTIONS: readonly { shift: HubShift; label: string }[] = [
-  { shift: HUB_SHIFT.FULL_AM_PM, label: 'Manhã/Tarde' },
-  { shift: HUB_SHIFT.FULL_PM_NT, label: 'Tarde/Noite' },
+const SHIFT_OPTIONS: SelectOption[] = [
+  { value: HUB_SHIFT.FULL_AM_PM, label: 'Manhã/Tarde' },
+  { value: HUB_SHIFT.FULL_PM_NT, label: 'Tarde/Noite' },
 ]
 
 function courseOptionLabel(course: Course): string {
@@ -193,37 +193,19 @@ export function CreateClassForm({
               />
             </Field>
 
-            <div className="flex flex-col gap-3">
-              <Text as="p" variant="label-md-emphasis" tone="brand">
-                Turno
-              </Text>
-              <div role="group" aria-label="Turno" className="flex items-center gap-3">
-                {SHIFT_OPTIONS.map(({ shift: option, label }) => {
-                  const active = shift === option
-                  return (
-                    <Button
-                      key={option}
-                      variant={active ? 'solid' : 'outlined'}
-                      size="sm"
-                      aria-pressed={active}
-                      disabled={isSubmitting}
-                      onClick={() => {
-                        setShift(option)
-                        setErrors((prev) => ({ ...prev, shift: false }))
-                      }}
-                      className="flex-1"
-                    >
-                      {label}
-                    </Button>
-                  )
-                })}
-              </div>
-              {errors.shift ? (
-                <Text variant="label-xs" className="text-feedback-error">
-                  Este campo é obrigatório
-                </Text>
-              ) : null}
-            </div>
+            <Field label="Turno">
+              <Select
+                options={SHIFT_OPTIONS}
+                value={shift || null}
+                onChange={(value) => {
+                  setShift((value as HubShift | null) ?? '')
+                  setErrors((prev) => ({ ...prev, shift: false }))
+                }}
+                placeholder="Todos"
+                disabled={isSubmitting}
+                error={errors.shift ? 'Este campo é obrigatório' : ''}
+              />
+            </Field>
           </div>
 
           <div className="flex gap-3">
