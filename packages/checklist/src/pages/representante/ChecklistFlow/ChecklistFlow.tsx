@@ -2,8 +2,9 @@
 
 import { useState, type ReactNode } from "react";
 
-import { EmptyState, Text } from "@portal/ui";
+import { Button, EmptyState, Skeleton, Text } from "@portal/ui";
 
+import { ChecklistErrorState } from "../../../components/ChecklistErrorState";
 import type { SectionTab } from "../../../components/SectionTabs";
 import { SectionTabs } from "../../../components/SectionTabs";
 import { findActiveTemplateByRoomClient } from "../../../services/client/templateClient";
@@ -37,12 +38,43 @@ export function ChecklistFlow({
   sectionTabs,
 }: ChecklistFlowProps) {
   const [target, setTarget] = useState<FillTarget | null>(null);
+  const [loadingTemplate, setLoadingTemplate] = useState(false);
   const [error, setError] = useState("");
   const [noTemplateRoom, setNoTemplateRoom] = useState(false);
 
   const tabs = sectionTabs?.length ? (
     <SectionTabs tabs={[...sectionTabs]} className="px-3 md:px-6" />
   ) : null;
+
+  const resetToRoomSelection = () => {
+    setError("");
+    setNoTemplateRoom(false);
+    setTarget(null);
+  };
+
+  const selectRoom = async ({
+    roomId,
+    roomLabel,
+  }: {
+    roomId: string;
+    roomLabel: string;
+  }) => {
+    setLoadingTemplate(true);
+    try {
+      const template = await findActiveTemplateByRoomClient(roomId);
+      if (!template) {
+        setNoTemplateRoom(true);
+        return;
+      }
+      setTarget({ template, roomLabel });
+    } catch {
+      setError(
+        "Não foi possível carregar o template desta sala. Tente novamente.",
+      );
+    } finally {
+      setLoadingTemplate(false);
+    }
+  };
 
   let content: ReactNode;
 
@@ -54,12 +86,20 @@ export function ChecklistFlow({
         </Text>
       </div>
     );
+  } else if (loadingTemplate) {
+    content = (
+      <div className="flex flex-1 flex-col items-center justify-center gap-4 px-3">
+        <Skeleton variant="text" width={280} height={24} />
+        <Skeleton variant="rect" width={320} height={200} />
+      </div>
+    );
   } else if (error) {
     content = (
       <div className="flex flex-1 items-center justify-center">
-        <Text variant="body-sm" tone="secondary">
-          {error}
-        </Text>
+        <ChecklistErrorState
+          description={error}
+          onRetry={resetToRoomSelection}
+        />
       </div>
     );
   } else if (noTemplateRoom) {
@@ -68,29 +108,17 @@ export function ChecklistFlow({
         <EmptyState
           title="Sala sem checklist"
           description="Nenhum checklist configurado para esta sala."
+          action={
+            <Button variant="outlined" onClick={resetToRoomSelection}>
+              Selecionar outra sala
+            </Button>
+          }
         />
       </div>
     );
   } else if (!target) {
     // Passo 1 — sala (universal, independente de turma).
-    content = (
-      <SelectRoomPage
-        onRoomSelected={async ({ roomId, roomLabel }) => {
-          try {
-            const template = await findActiveTemplateByRoomClient(roomId);
-            if (!template) {
-              setNoTemplateRoom(true);
-              return;
-            }
-            setTarget({ template, roomLabel });
-          } catch {
-            setError(
-              "Não foi possível carregar o template desta sala. Tente novamente.",
-            );
-          }
-        }}
-      />
-    );
+    content = <SelectRoomPage onRoomSelected={selectRoom} />;
   } else {
     // Passo 2 — preenchimento: escolhe a turma no topo e preenche.
     content = (

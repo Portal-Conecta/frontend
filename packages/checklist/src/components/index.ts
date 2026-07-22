@@ -1,4 +1,5 @@
 export * from "./ChecklistActions";
+export * from "./ChecklistErrorState";
 export * from "./ChecklistProgressBar";
 export * from "./ChecklistWindowClosedState";
 export * from "./ChecklistNonConformityCard";

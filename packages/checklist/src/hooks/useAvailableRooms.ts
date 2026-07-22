@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { messageFor } from "@portal/core/http/errorPresentation";
 import { HttpError } from "@portal/core/http/errors";
@@ -27,6 +27,7 @@ export function useAvailableRooms() {
   const [rooms, setRooms] = useState<AvailableRoom[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [reloadToken, setReloadToken] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -62,7 +63,9 @@ export function useAvailableRooms() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [reloadToken]);
 
-  return { rooms, loading, error };
+  const retry = useCallback(() => setReloadToken((t) => t + 1), []);
+
+  return { rooms, loading, error, retry };
 }
