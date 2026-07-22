@@ -38,7 +38,10 @@ export function SelectRoomPage({ onRoomSelected }: SelectRoomPageProps) {
         <RoomSelector
           rooms={rooms}
           onSelect={(room) => {
-            onRoomSelected({ roomId: room.id, roomLabel: `${room.number}` });
+            onRoomSelected({
+              roomId: room.id,
+              roomLabel: `${room.number} - ${room.name}`,
+            });
           }}
         />
       </div>

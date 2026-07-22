@@ -18,7 +18,9 @@ export function ChecklistProgressBar({
   const percent = safeTotal > 0 ? (safeAnswered / safeTotal) * 100 : 0;
 
   return (
-    <div className={["flex flex-col gap-2", className].filter(Boolean).join(" ")}>
+    <div
+      className={["flex flex-col gap-2", className].filter(Boolean).join(" ")}
+    >
       <Text variant="label-sm" tone="secondary">
         {safeAnswered} de {safeTotal} itens respondidos
       </Text>
@@ -29,7 +31,7 @@ export function ChecklistProgressBar({
         aria-valuenow={safeAnswered}
         aria-valuemin={0}
         aria-valuemax={safeTotal}
-        className="h-2 w-full overflow-hidden rounded-full bg-background-surface"
+        className="h-2 w-full overflow-hidden rounded-full bg-interactive-disabled"
       >
         <div
           className="h-full rounded-full bg-interactive-default transition-[width] duration-300 ease-in-out"

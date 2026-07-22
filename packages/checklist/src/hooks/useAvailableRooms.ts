@@ -14,7 +14,7 @@ export interface AvailableRoom {
 }
 
 const ROOM_TYPE_LABEL: Record<string, string> = {
-  LABORATORY: "Laboratório",
+  LABORATORY: "Laboratório de Informática",
   CLASSROOM: "Sala de aula",
 };
 

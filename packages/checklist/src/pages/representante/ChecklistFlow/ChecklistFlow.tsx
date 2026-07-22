@@ -16,7 +16,7 @@ export interface ChecklistFlowProps {
   selection: ClassSelection;
   /** Nome da turma quando a seleção é `fixed` (turma única já resolvida). */
   fixedClassName?: string;
-  filledByLabel: string;
+
   /**
    * Gestão (SENAI/WEG/ADMIN): abas de navegação do módulo no topo, já
    * resolvidas por papel (`resolveChecklistSectionTabs`). Ausente/vazio para
@@ -33,7 +33,7 @@ interface FillTarget {
 export function ChecklistFlow({
   selection,
   fixedClassName,
-  filledByLabel,
+
   sectionTabs,
 }: ChecklistFlowProps) {
   const [target, setTarget] = useState<FillTarget | null>(null);
@@ -84,7 +84,9 @@ export function ChecklistFlow({
             }
             setTarget({ template, roomLabel });
           } catch {
-            setError("Não foi possível carregar o template desta sala. Tente novamente.");
+            setError(
+              "Não foi possível carregar o template desta sala. Tente novamente.",
+            );
           }
         }}
       />
@@ -97,7 +99,7 @@ export function ChecklistFlow({
         roomLabel={target.roomLabel}
         selection={selection}
         {...(fixedClassName !== undefined ? { fixedClassName } : {})}
-        filledByLabel={filledByLabel}
+        onBack={() => setTarget(null)}
       />
     );
   }

@@ -57,7 +57,10 @@ async function resumeOrCreateDraft(
  * compartilham a mesma promessa, e o resultado fica em cache por um instante
  * curto pra cobrir a rajada — evitando buscas/POSTs repetidos.
  */
-const draftCreationCache = new Map<string, Promise<ChecklistExecutionResponse>>();
+const draftCreationCache = new Map<
+  string,
+  Promise<ChecklistExecutionResponse>
+>();
 
 function draftKey(params: ChecklistExecutionDraftCreateRequest): string {
   return `${params.classId}|${params.roomId}|${params.checklistType}|${params.templateId}`;
@@ -103,11 +106,15 @@ function toAnswerRequestList(
   }));
 }
 
-function lockedItemKeysFrom(execution: ChecklistExecutionResponse | null): Set<string> {
+function lockedItemKeysFrom(
+  execution: ChecklistExecutionResponse | null,
+): Set<string> {
   if (!execution) return new Set();
   return new Set(
     execution.issues
-      .filter((issue) => issue.status !== "VALIDATED" && issue.status !== "CANCELED")
+      .filter(
+        (issue) => issue.status !== "VALIDATED" && issue.status !== "CANCELED",
+      )
       .map((issue) => issue.itemKey),
   );
 }
@@ -129,8 +136,12 @@ export function useFillChecklist({
   classId,
   checklistType,
 }: UseFillChecklistOptions) {
-  const [execution, setExecution] = useState<ChecklistExecutionResponse | null>(null);
-  const [answers, setAnswers] = useState<Record<string, ChecklistAnswerState>>({});
+  const [execution, setExecution] = useState<ChecklistExecutionResponse | null>(
+    null,
+  );
+  const [answers, setAnswers] = useState<Record<string, ChecklistAnswerState>>(
+    {},
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
@@ -188,7 +199,12 @@ export function useFillChecklist({
             Object.fromEntries(
               data.answersJson.answers.map((answer) => [
                 answer.itemKey,
-                { value: answer.value, ...(answer.observation ? { observation: answer.observation } : {}) },
+                {
+                  value: answer.value,
+                  ...(answer.observation
+                    ? { observation: answer.observation }
+                    : {}),
+                },
               ]),
             ),
           );
@@ -199,7 +215,9 @@ export function useFillChecklist({
           // manda pro rascunho/execução recém-obtido em vez de sobrescrever com
           // o dele. Se a execução retomada já foi enviada, `/draft` rejeita
           // (só vale pra status DRAFT) — nesse caso usa `/answers` mesmo.
-          const answerBody = { answers: toAnswerRequestList(localAnswersSnapshot) };
+          const answerBody = {
+            answers: toAnswerRequestList(localAnswersSnapshot),
+          };
           try {
             const updated =
               data.status === "SUBMITTED"
@@ -224,7 +242,8 @@ export function useFillChecklist({
           loadFromServer();
         }
       } catch {
-        if (mountedRef.current) setError("Não foi possível carregar o checklist. Tente novamente.");
+        if (mountedRef.current)
+          setError("Não foi possível carregar o checklist. Tente novamente.");
       } finally {
         if (mountedRef.current) setLoading(false);
       }
@@ -246,7 +265,9 @@ export function useFillChecklist({
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       setIsSaving(true);
-      saveDraftAnswersClient(current.id, { answers: toAnswerRequestList(answersRef.current) })
+      saveDraftAnswersClient(current.id, {
+        answers: toAnswerRequestList(answersRef.current),
+      })
         .then((updated) => setExecution(updated))
         .catch(() => {
           // autosave falha silenciosamente — a próxima edição tenta salvar de novo.
@@ -256,11 +277,23 @@ export function useFillChecklist({
   }, []);
 
   const setAnswer = useCallback(
-    (itemKey: string, value: ConformityAnswerValue, observation?: string) => {
-      setAnswers((prev) => ({
-        ...prev,
-        [itemKey]: { value, ...(observation ? { observation } : {}) },
-      }));
+    (
+      itemKey: string,
+      value: ConformityAnswerValue | null,
+      observation?: string,
+    ) => {
+      setAnswers((prev) => {
+        if (!value) {
+          const next = { ...prev };
+          delete next[itemKey];
+          return next;
+        }
+
+        return {
+          ...prev,
+          [itemKey]: { value, ...(observation ? { observation } : {}) },
+        };
+      });
       scheduleAutosave();
     },
     [scheduleAutosave],
@@ -270,7 +303,8 @@ export function useFillChecklist({
     const current = executionRef.current;
     if (!current) {
       throw new Error(
-        errorRef.current || "Não foi possível preparar o checklist para envio. Tente novamente.",
+        errorRef.current ||
+          "Não foi possível preparar o checklist para envio. Tente novamente.",
       );
     }
 

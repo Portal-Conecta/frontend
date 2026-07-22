@@ -4,7 +4,6 @@ import { getCurrentUser } from "@portal/core/auth/getCurrentUser";
 import { getSession } from "@portal/core/auth/session";
 import { getClassDetail } from "@portal/core/classes/classesService";
 import { PermissionGate } from "@portal/core/layout/PermissionGate";
-import { getMyProfile } from "@portal/core/profile/profileService";
 
 import { canViewChecklistDashboard } from "../auth/canViewChecklistDashboard";
 import { resolveChecklistSectionTabs } from "../components/checklistSectionTabs";
@@ -23,8 +22,6 @@ export async function PageChecklist() {
     ? resolveChecklistSectionTabs(user)
     : undefined;
 
-  const profile = await getMyProfile(accessToken);
-
   // Só a turma `fixed` é conhecida no servidor; professor/admin escolhem no
   // client, e o nome vem da própria seleção.
   const fixedClassName =
@@ -37,7 +34,6 @@ export async function PageChecklist() {
       <ChecklistFlow
         selection={selection}
         {...(fixedClassName !== undefined ? { fixedClassName } : {})}
-        filledByLabel={profile.name}
         {...(sectionTabs ? { sectionTabs } : {})}
       />
     </PermissionGate>

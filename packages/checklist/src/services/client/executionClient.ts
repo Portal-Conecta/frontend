@@ -11,15 +11,22 @@ import type { ChecklistType } from "../../types/submissionWindow";
 export function createDraftClient(
   body: ChecklistExecutionDraftCreateRequest,
 ): Promise<ChecklistExecutionResponse> {
-  return bffFetch<ChecklistExecutionResponse>("/api/checklist/executions/drafts", {
-    method: "POST",
-    body: JSON.stringify(body),
-  });
+  return bffFetch<ChecklistExecutionResponse>(
+    "/api/checklist/executions/drafts",
+    {
+      method: "POST",
+      body: JSON.stringify(body),
+    },
+  );
 }
 
 /** Busca execução por id via BFF (GET /api/checklist/executions/{id}). */
-export function findExecutionByIdClient(executionId: string): Promise<ChecklistExecutionResponse> {
-  return bffFetch<ChecklistExecutionResponse>(`/api/checklist/executions/${executionId}`);
+export function findExecutionByIdClient(
+  executionId: string,
+): Promise<ChecklistExecutionResponse> {
+  return bffFetch<ChecklistExecutionResponse>(
+    `/api/checklist/executions/${executionId}`,
+  );
 }
 
 /**
@@ -32,12 +39,23 @@ export async function findActiveExecutionClient(
   roomId: string,
   checklistType: ChecklistType,
 ): Promise<ChecklistExecutionResponse | null> {
-  const query = new URLSearchParams({ classId, roomId, checklistType, size: "50" });
+  const query = new URLSearchParams({
+    classId,
+    roomId,
+    checklistType,
+    size: "50",
+  });
   const page = await bffFetch<PageResponse<ChecklistExecutionResponse>>(
     `/api/checklist/executions?${query.toString()}`,
   );
   const active = page.content
-    .filter((execution) => execution.status !== "CANCELED")
+    .filter(
+      (execution) =>
+        execution.status !== "CANCELED" &&
+        execution.classId === classId &&
+        execution.roomId === roomId &&
+        execution.checklistType === checklistType,
+    )
     .sort((a, b) => b.startedAt.localeCompare(a.startedAt));
   return active[0] ?? null;
 }
@@ -47,10 +65,13 @@ export function saveDraftAnswersClient(
   executionId: string,
   body: ChecklistExecutionSubmitRequest,
 ): Promise<ChecklistExecutionResponse> {
-  return bffFetch<ChecklistExecutionResponse>(`/api/checklist/executions/${executionId}/draft`, {
-    method: "PATCH",
-    body: JSON.stringify(body),
-  });
+  return bffFetch<ChecklistExecutionResponse>(
+    `/api/checklist/executions/${executionId}/draft`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    },
+  );
 }
 
 /** Submete a execução com todas as respostas via BFF (POST /api/checklist/executions/{id}/submit). */
@@ -58,10 +79,13 @@ export function submitExecutionClient(
   executionId: string,
   body: ChecklistExecutionSubmitRequest,
 ): Promise<ChecklistExecutionResponse> {
-  return bffFetch<ChecklistExecutionResponse>(`/api/checklist/executions/${executionId}/submit`, {
-    method: "POST",
-    body: JSON.stringify(body),
-  });
+  return bffFetch<ChecklistExecutionResponse>(
+    `/api/checklist/executions/${executionId}/submit`,
+    {
+      method: "POST",
+      body: JSON.stringify(body),
+    },
+  );
 }
 
 /** Atualiza respostas de uma execução já SUBMETIDA via BFF (PATCH /api/checklist/executions/{id}/answers). */
@@ -69,8 +93,11 @@ export function updateExecutionAnswersClient(
   executionId: string,
   body: ChecklistExecutionSubmitRequest,
 ): Promise<ChecklistExecutionResponse> {
-  return bffFetch<ChecklistExecutionResponse>(`/api/checklist/executions/${executionId}/answers`, {
-    method: "PATCH",
-    body: JSON.stringify(body),
-  });
+  return bffFetch<ChecklistExecutionResponse>(
+    `/api/checklist/executions/${executionId}/answers`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    },
+  );
 }

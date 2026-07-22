@@ -2,7 +2,7 @@
 
 import { messageFor } from "@portal/core/http/errorPresentation";
 import { HttpError } from "@portal/core/http/errors";
-import { Field, Select, Text, useToast } from "@portal/ui";
+import { Button, Field, Select, Text, useToast } from "@portal/ui";
 import { useEffect, useState } from "react";
 
 import { ChecklistActions } from "../../../components/ChecklistActions";
@@ -19,18 +19,25 @@ import type {
   ConformityAnswerValue,
 } from "../../../types/execution";
 import type { ChecklistType } from "../../../types/submissionWindow";
-import type { ChecklistItemSchema, ChecklistTemplateResponse } from "../../../types/template";
+import type {
+  ChecklistItemSchema,
+  ChecklistTemplateResponse,
+} from "../../../types/template";
 
 const CHECKLIST_TYPE_LABEL: Record<ChecklistType, string> = {
-  ARRIVAL: "Checklist de Entrada",
-  POST_BREAK: "Checklist Pós-Intervalo",
+  ARRIVAL: "Checklist de entrada",
+  POST_BREAK: "Checklist pós-intervalo",
 };
 
-function flattenItems(template: ChecklistTemplateResponse): ChecklistItemSchema[] {
+function flattenItems(
+  template: ChecklistTemplateResponse,
+): ChecklistItemSchema[] {
   return template.schemaJson.sections
     .slice()
     .sort((a, b) => a.order - b.order)
-    .flatMap((section) => section.items.slice().sort((a, b) => a.order - b.order));
+    .flatMap((section) =>
+      section.items.slice().sort((a, b) => a.order - b.order),
+    );
 }
 
 export interface FillChecklistPageProps {
@@ -39,7 +46,8 @@ export interface FillChecklistPageProps {
   selection: ClassSelection;
   /** Nome da turma quando a seleção é `fixed` (representante / professor com 1 turma). */
   fixedClassName?: string;
-  filledByLabel: string;
+
+  onBack: () => void;
   onSubmitted?: (execution: ChecklistExecutionResponse) => void;
 }
 
@@ -57,10 +65,12 @@ export function FillChecklistPage({
   roomLabel,
   selection,
   fixedClassName,
-  filledByLabel,
+
+  onBack,
   onSubmitted,
 }: FillChecklistPageProps) {
-  const { classes: selectable, loading: loadingClasses } = useSelectableClasses(selection);
+  const { classes: selectable, loading: loadingClasses } =
+    useSelectableClasses(selection);
   const [selectedClassId, setSelectedClassId] = useState<string | null>(
     selection.mode === "fixed" ? selection.classId : null,
   );
@@ -72,31 +82,14 @@ export function FillChecklistPage({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="p-3 md:px-6 md:pt-8">
-        <Text variant="heading-h2" tone="brand" className="font-inter font-bold">
-          {roomLabel}
-        </Text>
-
-        <div className="mt-4 max-w-xs">
-          <Field label="Turma">
-            <Select
-              options={classOptions}
-              value={selectedClassId}
-              onChange={setSelectedClassId}
-              disabled={isFixed}
-              loading={!isFixed && loadingClasses}
-              placeholder="Selecione a turma"
-            />
-          </Field>
-        </div>
-
-        <Text variant="body-sm" tone="secondary" className="mt-4 font-inter">
-          Preenchido por: {filledByLabel}
-        </Text>
-      </div>
-
       <ChecklistForm
         classId={selectedClassId}
+        classOptions={classOptions}
+        isClassSelectionFixed={isFixed}
+        isLoadingClasses={!isFixed && loadingClasses}
+        onClassChange={setSelectedClassId}
+        roomLabel={roomLabel}
+        onBack={onBack}
         template={template}
         {...(onSubmitted ? { onSubmitted } : {})}
       />
@@ -107,14 +100,45 @@ export function FillChecklistPage({
 interface ChecklistFormProps {
   /** `null` até o usuário escolher a turma — os itens já aparecem mesmo assim. */
   classId: string | null;
+  classOptions: { value: string; label: string }[];
+  isClassSelectionFixed: boolean;
+  isLoadingClasses: boolean;
+  onClassChange: (classId: string | null) => void;
+  roomLabel: string;
+
+  onBack: () => void;
   template: ChecklistTemplateResponse;
   onSubmitted?: (execution: ChecklistExecutionResponse) => void;
 }
 
 /** Formulário de itens + envio. Funciona sem turma escolhida (respostas só na tela). */
-function ChecklistForm({ classId, template, onSubmitted }: ChecklistFormProps) {
-  const { checklistType, hasWindow, loading: loadingType } = useClassChecklistType(classId);
-  const { execution, answers, setAnswer, lockedItemKeys, error, isSubmitting, submit } = useFillChecklist({
+function ChecklistForm({
+  classId,
+  classOptions,
+  isClassSelectionFixed,
+  isLoadingClasses,
+  onClassChange,
+  roomLabel,
+
+  onBack,
+  template,
+  onSubmitted,
+}: ChecklistFormProps) {
+  const {
+    checklistType,
+    hasWindow,
+    loading: loadingType,
+  } = useClassChecklistType(classId);
+  const {
+    execution,
+    answers,
+    setAnswer,
+    lockedItemKeys,
+    error,
+    loading: isLoadingExecution,
+    isSubmitting,
+    submit,
+  } = useFillChecklist({
     templateId: template.id,
     roomId: template.roomId,
     classId,
@@ -135,11 +159,18 @@ function ChecklistForm({ classId, template, onSubmitted }: ChecklistFormProps) {
   const allAnswered = items.every((item) => {
     const answer = answers[item.key];
     if (!answer) return false;
-    if (answer.value === "NON_COMPLIANT" && !answer.observation?.trim()) return false;
+    if (answer.value === "NON_COMPLIANT" && !answer.observation?.trim())
+      return false;
     return true;
   });
 
   const isSubmitted = execution?.status === "SUBMITTED";
+  const checklistLabel = checklistType
+    ? CHECKLIST_TYPE_LABEL[checklistType]
+    : CHECKLIST_TYPE_LABEL.ARRIVAL;
+  const isSubmissionUnavailable = Boolean(
+    classId && !loadingType && (!hasWindow || !checklistType),
+  );
 
   const handleSubmit = async () => {
     if (!classId) {
@@ -171,43 +202,106 @@ function ChecklistForm({ classId, template, onSubmitted }: ChecklistFormProps) {
     }
   };
 
-  const handleAnswerChange = (itemKey: string, value: ConformityAnswerValue | null) => {
-    if (value) setAnswer(itemKey, value, answers[itemKey]?.observation);
+  const handleAnswerChange = (
+    itemKey: string,
+    value: ConformityAnswerValue | null,
+  ) => {
+    setAnswer(itemKey, value, answers[itemKey]?.observation);
   };
 
-  // Turma escolhida mas sem janela de preenchimento configurada: bloqueia.
-  if (classId && !loadingType && (!hasWindow || !checklistType)) {
-    return (
-      <div className="flex flex-1 items-center justify-center">
-        <ChecklistWindowClosedState
-          title="Sem janela de checklist"
-          description="Esta turma não tem uma janela de preenchimento configurada."
-        />
+  const header = (
+    <header className="py-4 md:py-6">
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+        <div className="flex min-w-0 flex-1 items-start gap-1">
+          <Button
+            variant="ghost"
+            icon="chevron-left"
+            aria-label="Voltar para selecionar sala"
+            onClick={onBack}
+            className="shrink-0"
+          />
+
+          <div className="min-w-0 flex-1">
+            <Text as="h1" variant="heading-h2" tone="brand">
+              {roomLabel}
+            </Text>
+            <Text variant="label-md-emphasis" tone="brand" className="mt-2">
+              {checklistLabel}
+            </Text>
+          </div>
+        </div>
+
+        <div className="w-full lg:w-80 lg:shrink-0 lg:pt-1">
+          <ChecklistProgressBar answered={answeredCount} total={items.length} />
+        </div>
       </div>
+    </header>
+  );
+  const classSelection = (
+    <div className="max-w-xs pt-4">
+      <Field label="Turma">
+        <Select
+          options={classOptions}
+          value={classId}
+          onChange={onClassChange}
+          disabled={isClassSelectionFixed}
+          loading={isLoadingClasses}
+          placeholder="Selecione a turma"
+        />
+      </Field>
+    </div>
+  );
+
+  const footer = (
+    <div className="flex shrink-0 justify-end px-3 py-4 md:px-6 md:py-6">
+      <ChecklistActions
+        mode="submit"
+        onSubmit={handleSubmit}
+        isSubmitDisabled={
+          !classId ||
+          !execution ||
+          isLoadingExecution ||
+          !allAnswered ||
+          isSubmissionUnavailable
+        }
+        isSubmitting={isSubmitting}
+        submitLabel={isSubmitted ? "Salvar Alterações" : "Enviar Checklist"}
+        className="w-full sm:w-auto"
+      />
+    </div>
+  );
+
+  // Turma escolhida mas sem janela de preenchimento configurada: bloqueia.
+  if (isSubmissionUnavailable) {
+    return (
+      <>
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-3 pb-4 md:px-6 md:pb-6">
+          {header}
+          {classSelection}
+          <div className="flex flex-1 items-center justify-center py-6">
+            <ChecklistWindowClosedState
+              title="Checklist não disponível"
+              description="Esta turma ainda não possui uma janela de horário configurada para este checklist."
+              action={
+                <Button variant="outlined" onClick={onBack}>
+                  Selecionar outra sala
+                </Button>
+              }
+            />
+          </div>
+        </div>
+        {footer}
+      </>
     );
   }
 
   return (
     <>
-      <div className="flex-1 overflow-y-auto px-3 pb-4 md:px-6 md:pb-8">
-        <div className="flex items-center justify-between gap-4">
-          <Text variant="label-md-emphasis" tone="brand" className="font-inter">
-            {checklistType ? CHECKLIST_TYPE_LABEL[checklistType] : "Checklist"}
-          </Text>
-          {isSubmitted ? (
-            <Text variant="label-sm-emphasis" className="text-feedback-success">
-              Checklist enviado
-            </Text>
-          ) : (
-            <Text variant="label-sm-emphasis" className="text-feedback-error">
-              Checklist não realizado
-            </Text>
-          )}
-        </div>
+      <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-4 md:px-6 md:pb-6">
+        {header}
+        {classSelection}
 
-        <ChecklistProgressBar answered={answeredCount} total={items.length} className="mt-6" />
-
-        <div className="mt-8">
+        <div className="mt-6">
           {items.map((item) => (
             <ChecklistItem
               key={item.key}
@@ -217,26 +311,15 @@ function ChecklistForm({ classId, template, onSubmitted }: ChecklistFormProps) {
               onChange={(value) => handleAnswerChange(item.key, value)}
               justification={answers[item.key]?.observation ?? ""}
               onJustificationChange={(text) =>
-                answers[item.key]?.value && setAnswer(item.key, answers[item.key]!.value, text)
+                answers[item.key]?.value &&
+                setAnswer(item.key, answers[item.key]!.value, text)
               }
               disabled={isSubmitted && lockedItemKeys.has(item.key)}
             />
           ))}
         </div>
       </div>
-
-      <div className="flex items-center justify-between gap-4 px-6 py-6 md:px-10">
-        <Text variant="body-sm" tone="secondary" className="hidden font-inter md:block">
-          Todos os campos são de preenchimento obrigatório para envio.
-        </Text>
-        <ChecklistActions
-          mode="submit"
-          onSubmit={handleSubmit}
-          isSubmitDisabled={!allAnswered}
-          isSubmitting={isSubmitting}
-          submitLabel={isSubmitted ? "Salvar Alterações" : "Enviar Checklist"}
-        />
-      </div>
+      {footer}
 
       <SuccessModal
         open={showSuccessModal}
