@@ -2,7 +2,7 @@
 
 import { messageFor } from "@portal/core/http/errorPresentation";
 import { HttpError } from "@portal/core/http/errors";
-import { Button, Field, Select, Text, useToast } from "@portal/ui";
+import { Button, DefaultModal, Field, Select, Text } from "@portal/ui";
 import { useEffect, useState } from "react";
 
 import { ChecklistActions } from "../../../components/ChecklistActions";
@@ -58,7 +58,7 @@ export interface FillChecklistPageProps {
  * escolhida, as respostas ficam só na tela; ao escolher, elas são enviadas
  * pro rascunho da turma e o autosave assume a partir daí. A janela de
  * horário só é cobrada no envio: se estiver fechada, o backend recusa e a
- * tela mostra o erro num toast.
+ * tela mostra o erro num modal.
  */
 export function FillChecklistPage({
   template,
@@ -145,13 +145,16 @@ function ChecklistForm({
     checklistType,
   });
 
-  const { toast } = useToast();
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorModal, setErrorModal] = useState<{
+    title: string;
+    body: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!error) return;
-    toast.warning(error, { title: "Atenção" });
-  }, [error, toast]);
+    setErrorModal({ title: "Atenção", body: error });
+  }, [error]);
 
   const items = flattenItems(template);
   const answeredCount = Object.keys(answers).length;
@@ -174,8 +177,9 @@ function ChecklistForm({
 
   const handleSubmit = async () => {
     if (!classId) {
-      toast.error("Selecione uma turma antes de enviar o checklist.", {
+      setErrorModal({
         title: "Não foi possível enviar o checklist",
+        body: "Selecione uma turma antes de enviar o checklist.",
       });
       return;
     }
@@ -186,9 +190,9 @@ function ChecklistForm({
       if (updated) {
         onSubmitted?.(updated);
         if (!wasSubmitted && updated.status === "SUBMITTED") {
-          setShowSuccessModal(true);
+          setSuccessMessage("Checklist preenchida e enviada com sucesso");
         } else if (wasSubmitted) {
-          toast.success("Alterações salvas com sucesso.");
+          setSuccessMessage("Alterações salvas com sucesso.");
         }
       }
     } catch (err) {
@@ -198,7 +202,10 @@ function ChecklistForm({
           : err instanceof Error && err.message
             ? err.message
             : "Não foi possível enviar o checklist. Tente novamente.";
-      toast.error(message, { title: "Não foi possível enviar o checklist" });
+      setErrorModal({
+        title: "Não foi possível enviar o checklist",
+        body: message,
+      });
     }
   };
 
@@ -291,6 +298,13 @@ function ChecklistForm({
           </div>
         </div>
         {footer}
+
+        <DefaultModal
+          isOpen={errorModal !== null}
+          onClose={() => setErrorModal(null)}
+          title={errorModal?.title ?? ""}
+          body={errorModal?.body ?? ""}
+        />
       </>
     );
   }
@@ -322,9 +336,16 @@ function ChecklistForm({
       {footer}
 
       <SuccessModal
-        open={showSuccessModal}
-        message="Checklist preenchida e enviada com sucesso"
-        onClose={() => setShowSuccessModal(false)}
+        open={successMessage !== null}
+        message={successMessage ?? ""}
+        onClose={() => setSuccessMessage(null)}
+      />
+
+      <DefaultModal
+        isOpen={errorModal !== null}
+        onClose={() => setErrorModal(null)}
+        title={errorModal?.title ?? ""}
+        body={errorModal?.body ?? ""}
       />
     </>
   );
