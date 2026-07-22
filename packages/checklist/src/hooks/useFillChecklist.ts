@@ -211,12 +211,26 @@ export function useFillChecklist({
         };
 
         if (isFirstResolution && Object.keys(localAnswersSnapshot).length > 0) {
-          // Usuário já tinha respondido algo antes de escolher a turma —
-          // manda pro rascunho/execução recém-obtido em vez de sobrescrever com
-          // o dele. Se a execução retomada já foi enviada, `/draft` rejeita
-          // (só vale pra status DRAFT) — nesse caso usa `/answers` mesmo.
+          // Usuário já tinha respondido algo antes de escolher a turma — funde
+          // com o que a execução retomada já tinha salvo (local tem prioridade
+          // por item) em vez de sobrescrever o resto das respostas já salvas.
+          // Se a execução retomada já foi enviada, `/draft` rejeita (só vale
+          // pra status DRAFT) — nesse caso usa `/answers` mesmo.
+          const existingAnswers: Record<string, ChecklistAnswerState> =
+            Object.fromEntries(
+              data.answersJson.answers.map((answer) => [
+                answer.itemKey,
+                {
+                  value: answer.value,
+                  ...(answer.observation
+                    ? { observation: answer.observation }
+                    : {}),
+                },
+              ]),
+            );
+          const mergedAnswers = { ...existingAnswers, ...localAnswersSnapshot };
           const answerBody = {
-            answers: toAnswerRequestList(localAnswersSnapshot),
+            answers: toAnswerRequestList(mergedAnswers),
           };
           try {
             const updated =
@@ -225,6 +239,7 @@ export function useFillChecklist({
                 : await saveDraftAnswersClient(data.id, answerBody);
             if (!mountedRef.current) return;
             setExecution(updated);
+            setAnswers(mergedAnswers);
           } catch (err) {
             // Alguma resposta dada antes de escolher a turma conflita com o
             // estado real da execução retomada (ex.: item travado por
