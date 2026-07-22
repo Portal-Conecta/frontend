@@ -10,7 +10,7 @@ const sectionLinks = [
   { href: '#dados-coletados', label: '1. Dados coletados e finalidade' },
   { href: '#compartilhamento', label: '2. Compartilhamento de Dados' },
   { href: '#seguranca', label: '3. Segurança e Retenção' },
-  { href: '#direitos', label: '4. Seus Direitos (Art. 18 da LGPD)' },
+  { href: '#direitos', label: '4. Direitos do Titular dos Dados' },
   { href: '#contato', label: '5. Contato e Alterações' },
 ] as const
 
@@ -82,10 +82,23 @@ export default function PrivacidadePage() {
               tone="secondary"
               className="md:text-body-md"
             >
-              O Portal Conecta (&quot;Plataforma&quot;) coleta e trata dados
-              pessoais em conformidade com a Lei Geral de Proteção de Dados
-              (LGPD - Lei nº 13.709/2018). Ao utilizar a Plataforma, você
-              concorda com as práticas abaixo.
+              O Portal Conecta (&quot;Plataforma&quot;) realiza o tratamento
+              de dados pessoais em conformidade com a Lei Geral de Proteção de
+              Dados Pessoais (LGPD – Lei nº 13.709/2018), observando também os
+              princípios da finalidade, adequação, necessidade, livre acesso,
+              qualidade dos dados, transparência, segurança, prevenção, não
+              discriminação e responsabilização, previstos no artigo 6º da
+              legislação.
+            </Text>
+            <Text
+              variant="body-sm"
+              tone="secondary"
+              className="md:text-body-md"
+            >
+              Ao utilizar a Plataforma, o usuário declara estar ciente desta
+              Política de Privacidade e concorda com o tratamento de seus dados
+              pessoais para as finalidades descritas a seguir, sempre
+              respeitando os direitos garantidos pela legislação vigente.
             </Text>
           </section>
 
@@ -97,50 +110,168 @@ export default function PrivacidadePage() {
               1. Dados Coletados e Finalidade
             </Text>
             <Text
+              variant="body-sm"
+              tone="secondary"
+              className="md:text-body-md"
+            >
+              Para possibilitar o correto funcionamento da Plataforma, são
+              coletados apenas os dados estritamente necessários para a execução
+              de suas funcionalidades, respeitando o princípio da minimização de
+              dados previsto na LGPD.
+            </Text>
+            <Text
+              as="div"
+              variant="body-sm-emphasis"
+              tone="secondary"
+              className="md:text-body-md-emphasis"
+            >
+              Dados Cadastrais
+            </Text>
+            <Text
+              variant="body-sm"
+              tone="secondary"
+              className="md:text-body-md"
+            >
+              Durante o processo de cadastro e autenticação são coletados os
+              seguintes dados:
+            </Text>
+            <Text
               as="div"
               variant="body-sm"
               tone="secondary"
               className="md:text-body-md"
             >
-              <ul className="flex list-disc flex-col gap-3 pl-5">
+              <ul className="flex list-disc flex-col gap-2 pl-5">
+                <li>Nome completo;</li>
+                <li>Endereço de e-mail corporativo;</li>
+                <li>Cargo ou função desempenhada;</li>
+                <li>Matrícula funcional;</li>
                 <li>
-                  <Text
-                    as="span"
-                    variant="body-sm-emphasis"
-                    tone="secondary"
-                    className="md:text-body-md-emphasis"
-                  >
-                    Dados Cadastrais:
-                  </Text>{' '}
-                  Nome, e-mail, cargo, matrícula e senha criptografada.
-                  Finalidade: permitir o acesso e uso dos módulos de
-                  Comunicados, Mapa de Sala e Checklists (Execução de Contrato).
+                  Senha de acesso armazenada de forma criptografada (hash).
                 </li>
+              </ul>
+            </Text>
+            <Text
+              variant="body-sm"
+              tone="secondary"
+              className="md:text-body-md"
+            >
+              Essas informações possuem como finalidade identificar unicamente
+              cada usuário dentro da plataforma, controlar permissões de acesso,
+              garantir a autenticação segura, permitir a utilização dos módulos
+              disponíveis (Comunicados, Mapa de Sala e Checklists), registrar
+              autoria das ações executadas e manter a integridade das
+              informações armazenadas.
+            </Text>
+            <Text
+              variant="body-sm"
+              tone="secondary"
+              className="md:text-body-md"
+            >
+              Em nenhum momento a senha do usuário é armazenada em formato
+              legível, sendo protegida por algoritmos criptográficos amplamente
+              utilizados no mercado.
+            </Text>
+            <Text
+              as="div"
+              variant="body-sm-emphasis"
+              tone="secondary"
+              className="md:text-body-md-emphasis"
+            >
+              Dados de Uso
+            </Text>
+            <Text
+              variant="body-sm"
+              tone="secondary"
+              className="md:text-body-md"
+            >
+              Durante a utilização da Plataforma poderão ser registrados dados
+              produzidos voluntariamente pelo próprio usuário, incluindo:
+            </Text>
+            <Text
+              as="div"
+              variant="body-sm"
+              tone="secondary"
+              className="md:text-body-md"
+            >
+              <ul className="flex list-disc flex-col gap-2 pl-5">
+                <li>Comunicados publicados;</li>
+                <li>Reservas realizadas;</li>
+                <li>Checklists preenchidos;</li>
+                <li>Imagens anexadas;</li>
+                <li>Comentários e observações;</li>
+                <li>Informações relacionadas às atividades executadas.</li>
+              </ul>
+            </Text>
+            <Text
+              variant="body-sm"
+              tone="secondary"
+              className="md:text-body-md"
+            >
+              Esses dados são utilizados exclusivamente para possibilitar o
+              funcionamento das funcionalidades do Portal Conecta, registrar
+              histórico das operações realizadas, facilitar auditorias internas,
+              garantir rastreabilidade das atividades e apoiar a execução dos
+              processos internos da organização.
+            </Text>
+            <Text
+              as="div"
+              variant="body-sm-emphasis"
+              tone="secondary"
+              className="md:text-body-md-emphasis"
+            >
+              Dados Coletados Automaticamente
+            </Text>
+            <Text
+              variant="body-sm"
+              tone="secondary"
+              className="md:text-body-md"
+            >
+              Para garantir a segurança da aplicação e o correto funcionamento
+              dos serviços, alguns dados são coletados automaticamente durante o
+              acesso, tais como:
+            </Text>
+            <Text
+              as="div"
+              variant="body-sm"
+              tone="secondary"
+              className="md:text-body-md"
+            >
+              <ul className="flex list-disc flex-col gap-2 pl-5">
+                <li>Endereço IP;</li>
+                <li>Data e horário de acesso;</li>
+                <li>Informações do navegador utilizado;</li>
+                <li>Identificação do dispositivo;</li>
                 <li>
-                  <Text
-                    as="span"
-                    variant="body-sm-emphasis"
-                    tone="secondary"
-                    className="md:text-body-md-emphasis"
-                  >
-                    Dados de Uso:
-                  </Text>{' '}
-                  Textos, imagens e reservas inseridos voluntariamente nos
-                  módulos. Finalidade: operação regular das funções do sistema.
+                  Cookies estritamente necessários para autenticação e
+                  funcionamento do sistema;
                 </li>
+                <li>Registros de login e logout.</li>
+              </ul>
+            </Text>
+            <Text
+              variant="body-sm"
+              tone="secondary"
+              className="md:text-body-md"
+            >
+              Esses dados possuem como finalidade:
+            </Text>
+            <Text
+              as="div"
+              variant="body-sm"
+              tone="secondary"
+              className="md:text-body-md"
+            >
+              <ul className="flex list-disc flex-col gap-2 pl-5">
+                <li>Prevenir acessos não autorizados;</li>
+                <li>Detectar tentativas de fraude ou ataques cibernéticos;</li>
+                <li>Manter registros para auditorias de segurança;</li>
+                <li>Melhorar continuamente o desempenho da Plataforma;</li>
                 <li>
-                  <Text
-                    as="span"
-                    variant="body-sm-emphasis"
-                    tone="secondary"
-                    className="md:text-body-md-emphasis"
-                  >
-                    Dados Automáticos:
-                  </Text>{' '}
-                  Endereço IP, data, hora de acesso e cookies essenciais.
-                  Finalidade: segurança, melhoria do sistema (Legítimo
-                  Interesse) e guarda obrigatória de registros por 6 meses
-                  conforme o Marco Civil da Internet (Obrigação Legal).
+                  Cumprir obrigações legais previstas no Marco Civil da
+                  Internet (Lei nº 12.965/2014), especialmente no que se refere
+                  à guarda obrigatória dos registros de acesso por período
+                  mínimo de seis meses.
                 </li>
               </ul>
             </Text>
@@ -158,26 +289,94 @@ export default function PrivacidadePage() {
               tone="secondary"
               className="md:text-body-md"
             >
-              Não comercializamos seus dados. O compartilhamento ocorre apenas
-              com:
+              O Portal Conecta não comercializa, vende, aluga ou compartilha
+              dados pessoais para fins comerciais ou publicitários.
             </Text>
             <Text
-              as="div"
               variant="body-sm"
               tone="secondary"
               className="md:text-body-md"
             >
-              <ul className="flex list-disc flex-col gap-2 pl-5">
-                <li>Provedores de hospedagem em nuvem e banco de dados.</li>
-                <li>
-                  Serviços integrados de envio de e-mails transacionais
-                  (notificações).
-                </li>
-                <li>
-                  Autoridades públicas, quando exigido por ordem judicial ou
-                  lei.
-                </li>
-              </ul>
+              O compartilhamento ocorre exclusivamente quando necessário para a
+              execução dos serviços disponibilizados pela Plataforma ou para
+              cumprimento de obrigações legais.
+            </Text>
+            <Text
+              variant="body-sm"
+              tone="secondary"
+              className="md:text-body-md"
+            >
+              Os dados poderão ser compartilhados com:
+            </Text>
+            <Text
+              as="div"
+              variant="body-sm-emphasis"
+              tone="secondary"
+              className="md:text-body-md-emphasis"
+            >
+              Provedores de Infraestrutura
+            </Text>
+            <Text
+              variant="body-sm"
+              tone="secondary"
+              className="md:text-body-md"
+            >
+              Empresas responsáveis pela hospedagem da aplicação, servidores,
+              armazenamento em nuvem e bancos de dados, que realizam o
+              tratamento das informações apenas para garantir a disponibilidade
+              e funcionamento da Plataforma.
+            </Text>
+            <Text
+              as="div"
+              variant="body-sm-emphasis"
+              tone="secondary"
+              className="md:text-body-md-emphasis"
+            >
+              Serviços Integrados
+            </Text>
+            <Text
+              variant="body-sm"
+              tone="secondary"
+              className="md:text-body-md"
+            >
+              Ferramentas utilizadas para envio de e-mails automáticos,
+              notificações do sistema, recuperação de senha e comunicação entre
+              usuários.
+            </Text>
+            <Text
+              variant="body-sm"
+              tone="secondary"
+              className="md:text-body-md"
+            >
+              Esses fornecedores atuam como operadores de dados pessoais e estão
+              sujeitos às obrigações previstas na LGPD, devendo adotar medidas
+              adequadas de segurança da informação.
+            </Text>
+            <Text
+              as="div"
+              variant="body-sm-emphasis"
+              tone="secondary"
+              className="md:text-body-md-emphasis"
+            >
+              Autoridades Públicas
+            </Text>
+            <Text
+              variant="body-sm"
+              tone="secondary"
+              className="md:text-body-md"
+            >
+              Quando houver determinação judicial, requisição legal ou
+              obrigação prevista na legislação brasileira, os dados poderão ser
+              compartilhados com autoridades competentes, sempre observando os
+              limites legais aplicáveis.
+            </Text>
+            <Text
+              variant="body-sm"
+              tone="secondary"
+              className="md:text-body-md"
+            >
+              Nenhum compartilhamento é realizado sem finalidade legítima e
+              previamente justificada.
             </Text>
           </section>
 
@@ -190,24 +389,18 @@ export default function PrivacidadePage() {
               tone="secondary"
               className="md:text-body-md"
             >
-              Os dados são armazenados de forma segura (uso de criptografia
-              HTTPS, hash de senhas e proteção contra vulnerabilidades) pelo
-              tempo necessário para cumprir suas finalidades. O encerramento do
-              vínculo do usuário gera a exclusão ou anonimização dos dados,
-              exceto os históricos de acesso obrigatórios por lei.
-            </Text>
-          </section>
-
-          <section id="direitos" className="flex scroll-mt-24 flex-col gap-3">
-            <Text as="h3" variant="heading-h3" tone="brand">
-              4. Seus Direitos (Art. 18 da LGPD)
+              A proteção das informações dos usuários constitui um dos
+              principais compromissos do Portal Conecta.
             </Text>
             <Text
               variant="body-sm"
               tone="secondary"
               className="md:text-body-md"
             >
-              Você pode solicitar a qualquer momento:
+              Para reduzir riscos de acesso não autorizado, perda, alteração,
+              divulgação ou destruição indevida dos dados, são adotadas medidas
+              técnicas e administrativas compatíveis com as boas práticas de
+              segurança da informação, incluindo:
             </Text>
             <Text
               as="div"
@@ -216,13 +409,123 @@ export default function PrivacidadePage() {
               className="md:text-body-md"
             >
               <ul className="flex list-disc flex-col gap-2 pl-5">
-                <li>Confirmação e acesso aos seus dados.</li>
-                <li>Correção de informações incorretas ou desatualizadas.</li>
+                <li>Comunicação protegida por protocolo HTTPS (TLS);</li>
+                <li>Armazenamento seguro das informações em servidores protegidos;</li>
+                <li>Utilização de hash criptográfico para senhas;</li>
+                <li>Controle de autenticação e autorização de usuários;</li>
+                <li>Restrição de acessos conforme níveis de permissão;</li>
+                <li>Registros de auditoria (logs);</li>
+                <li>Proteção contra vulnerabilidades conhecidas;</li>
                 <li>
-                  Exclusão, bloqueio ou anonimização de dados desnecessários.
+                  Atualizações periódicas dos componentes utilizados pela
+                  Plataforma.
                 </li>
-                <li>Revogação de consentimentos anteriores.</li>
               </ul>
+            </Text>
+            <Text
+              variant="body-sm"
+              tone="secondary"
+              className="md:text-body-md"
+            >
+              Os dados pessoais permanecerão armazenados somente durante o
+              período necessário para cumprir as finalidades para as quais foram
+              coletados, respeitando prazos legais, regulatórios e contratuais.
+            </Text>
+            <Text
+              variant="body-sm"
+              tone="secondary"
+              className="md:text-body-md"
+            >
+              Após o encerramento do vínculo do usuário com a Plataforma, seus
+              dados poderão ser:
+            </Text>
+            <Text
+              as="div"
+              variant="body-sm"
+              tone="secondary"
+              className="md:text-body-md"
+            >
+              <ul className="flex list-disc flex-col gap-2 pl-5">
+                <li>Excluídos definitivamente;</li>
+                <li>Anonimizados, tornando impossível sua identificação;</li>
+                <li>
+                  Mantidos apenas quando houver obrigação legal, regulatória ou
+                  necessidade para defesa em processos judiciais ou
+                  administrativos.
+                </li>
+              </ul>
+            </Text>
+            <Text
+              variant="body-sm"
+              tone="secondary"
+              className="md:text-body-md"
+            >
+              Os registros obrigatórios previstos no Marco Civil da Internet
+              serão preservados pelos prazos determinados pela legislação.
+            </Text>
+          </section>
+
+          <section id="direitos" className="flex scroll-mt-24 flex-col gap-3">
+            <Text as="h3" variant="heading-h3" tone="brand">
+              4. Direitos do Titular dos Dados (Art. 18 da LGPD)
+            </Text>
+            <Text
+              variant="body-sm"
+              tone="secondary"
+              className="md:text-body-md"
+            >
+              Em conformidade com o artigo 18 da Lei Geral de Proteção de
+              Dados, o usuário poderá exercer, a qualquer momento, seus direitos
+              em relação aos dados pessoais tratados pela Plataforma.
+            </Text>
+            <Text
+              variant="body-sm"
+              tone="secondary"
+              className="md:text-body-md"
+            >
+              Entre esses direitos destacam-se:
+            </Text>
+            <Text
+              as="div"
+              variant="body-sm"
+              tone="secondary"
+              className="md:text-body-md"
+            >
+              <ul className="flex list-disc flex-col gap-2 pl-5">
+                <li>Confirmação da existência de tratamento de dados pessoais;</li>
+                <li>Acesso aos dados armazenados;</li>
+                <li>
+                  Correção de informações incompletas, inexatas ou
+                  desatualizadas;
+                </li>
+                <li>
+                  Anonimização, bloqueio ou eliminação de dados desnecessários,
+                  excessivos ou tratados em desconformidade com a legislação;
+                </li>
+                <li>Portabilidade dos dados, quando aplicável;</li>
+                <li>
+                  Eliminação dos dados tratados mediante consentimento,
+                  observadas as hipóteses legais de conservação;
+                </li>
+                <li>
+                  Informação sobre entidades públicas e privadas com as quais
+                  houve compartilhamento de dados;
+                </li>
+                <li>Revogação do consentimento anteriormente concedido;</li>
+                <li>
+                  Solicitação de revisão de decisões automatizadas, quando
+                  aplicável.
+                </li>
+              </ul>
+            </Text>
+            <Text
+              variant="body-sm"
+              tone="secondary"
+              className="md:text-body-md"
+            >
+              Todas as solicitações serão analisadas conforme os procedimentos
+              previstos na LGPD e respondidas dentro dos prazos estabelecidos
+              pela legislação.
             </Text>
           </section>
 
@@ -238,10 +541,41 @@ export default function PrivacidadePage() {
               tone="secondary"
               className="md:text-body-md"
             >
-              Esta política pode ser atualizada devido a novas funcionalidades.
-              Avisaremos sobre mudanças importantes no Módulo de Comunicados.
-              Para dúvidas ou direitos, use o canal oficial de comunicação
-              interna da equipe do projeto.
+              Esta Política de Privacidade poderá ser atualizada sempre que
+              houver alterações na legislação aplicável, modificações nas
+              funcionalidades do Portal Conecta ou implementação de novos
+              recursos que envolvam tratamento de dados pessoais.
+            </Text>
+            <Text
+              variant="body-sm"
+              tone="secondary"
+              className="md:text-body-md"
+            >
+              Sempre que ocorrerem mudanças relevantes, os usuários serão
+              comunicados por meio do Módulo de Comunicados ou por outros canais
+              oficiais da organização.
+            </Text>
+            <Text
+              variant="body-sm"
+              tone="secondary"
+              className="md:text-body-md"
+            >
+              Caso o usuário deseje exercer qualquer direito previsto na LGPD,
+              esclarecer dúvidas sobre esta Política de Privacidade ou solicitar
+              informações sobre o tratamento de seus dados pessoais, deverá
+              entrar em contato por meio do canal oficial disponibilizado pela
+              equipe responsável pelo Portal Conecta.
+            </Text>
+            <Text
+              variant="body-sm"
+              tone="secondary"
+              className="md:text-body-md"
+            >
+              O Portal Conecta compromete-se a atuar de forma transparente,
+              segura e responsável, garantindo que todo tratamento de dados
+              pessoais seja realizado em conformidade com a Lei Geral de
+              Proteção de Dados, com o Marco Civil da Internet e com as melhores
+              práticas de segurança da informação adotadas no mercado.
             </Text>
           </section>
         </div>
