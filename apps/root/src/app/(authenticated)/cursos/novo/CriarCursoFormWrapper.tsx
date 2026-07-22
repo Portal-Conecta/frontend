@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 
 import { createCoursesClient } from '@portal/core/courses/coursesClient'
 import { HttpError } from '@portal/core/http/errors'
-import { Alert, Button, Text } from '@portal/ui'
+import { Banner, Button, Text } from '@portal/ui'
 
 import { CreateCourseForm } from './CreateCourseForm'
 import { DraftCourseList, type DraftCourse } from './DraftCourseList'
@@ -59,7 +59,7 @@ export function CriarCursoFormWrapper() {
   }
 
   async function handleSalvarTodos() {
-    if (drafts.length === 0) return
+    if (drafts.length === 0 || isSaving) return
     setIsSaving(true)
     setFormError('')
 
@@ -73,9 +73,10 @@ export function CriarCursoFormWrapper() {
         return
       }
 
-      // 207: mantém na lista só os que falharam, com o erro por item.
+      // 207: mantém na lista só os que falharam, mapeando pelo `index` do contrato.
+      const resultByIndex = new Map(response.results.map((result) => [result.index, result]))
       const failed = drafts
-        .map((draft, index) => ({ draft, result: response.results[index] }))
+        .map((draft, index) => ({ draft, result: resultByIndex.get(index) }))
         .filter(({ result }) => result?.status !== 'created')
         .map(({ draft, result }) => ({
           ...draft,
@@ -121,10 +122,15 @@ export function CriarCursoFormWrapper() {
         />
       </div>
 
-      {formError ? <Alert variant="error">{formError}</Alert> : null}
+      {formError ? <Banner variant="error">{formError}</Banner> : null}
 
       <div className="flex gap-4">
-        <Button variant="outlined" onClick={() => router.back()} disabled={isSaving} className="flex-1">
+        <Button
+          variant="outlined"
+          onClick={() => router.push('/cursos')}
+          disabled={isSaving}
+          className="flex-1"
+        >
           Descartar alterações
         </Button>
         <Button
