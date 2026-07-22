@@ -13,17 +13,14 @@
 import { redirect } from 'next/navigation'
 
 import { ErrorPage } from '@portal/ui'
-import type { ClassCardItem } from '@portal/ui'
 
 import { getCurrentUser } from '../auth/getCurrentUser'
 import { getSession } from '../auth/session'
-import { HttpError } from '../http/errors'
-import { ERROR_PRESENTATION } from '../http/errorPresentation'
 import { PermissionGate } from '../layout/PermissionGate'
 import { getUserById } from '../profile/profileService'
-import type { UserById } from '../profile/types'
 import { loadUserClassCard } from '../users/loadUserClassCard'
 import { PageUserProfileContent } from './PageUserProfileContent'
+import { resolveUserProfileState } from './resolveUserProfileState'
 
 export interface PageUserProfileProps {
   userId: string
@@ -56,40 +53,21 @@ async function UserProfileLoader({ userId, token }: { userId: string; token: str
     loadUserClassCard(userId, token),
   ])
 
-  if (userResult.status === 'rejected') {
-    const err = userResult.reason
-    if (err instanceof HttpError) {
-      if (err.kind === 'unauthorized') redirect('/login')
-      if (err.kind === 'forbidden') {
-        return <ErrorPage {...ERROR_PRESENTATION.forbidden} />
-      }
-      if (err.kind === 'not_found') {
-        return <ErrorPage {...ERROR_PRESENTATION.not_found} />
-      }
-    }
-    return <ErrorPage {...ERROR_PRESENTATION.server} />
+  const state = resolveUserProfileState(userResult, classCardResult)
+
+  if (state.kind === 'redirect-login') {
+    redirect('/login')
   }
-  const user: UserById = userResult.value
-
-  let classCard: ClassCardItem | null = null
-  let classesFailed = false
-
-  // Turma só faz sentido para papéis com vínculo de turma no hub — descarta o
-  // resultado (sucesso ou falha) de loadUserClassCard pra outros papéis.
-  if (user.typeUser === 'STUDENT' || user.typeUser === 'REPRESENTATIVE') {
-    if (classCardResult.status === 'fulfilled') {
-      classCard = classCardResult.value
-    } else {
-      const err = classCardResult.reason
-      if (err instanceof HttpError && err.kind === 'unauthorized') {
-        redirect('/login')
-      }
-      classesFailed = true
-    }
+  if (state.kind === 'error') {
+    return <ErrorPage {...state.presentation} />
   }
 
   return (
-    <PageUserProfileContent user={user} classCard={classCard} classesFailed={classesFailed} />
+    <PageUserProfileContent
+      user={state.user}
+      classCard={state.classCard}
+      classesFailed={state.classesFailed}
+    />
   )
 }
 
