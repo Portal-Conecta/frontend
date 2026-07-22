@@ -42,8 +42,8 @@ export function UserRow({ user, onViewProfile }: UserRowProps) {
         <Text as="span" variant="label-md-emphasis" tone="brand" className="truncate">
           {user.name}
         </Text>
-        <div className="flex flex-wrap items-center gap-2">
-          <Text as="span" variant="label-md" tone="brand">
+        <div className="flex items-center justify-between gap-2">
+          <Text as="span" variant="label-md" tone="brand" className="truncate">
             {typeLabel}
           </Text>
           <UserStatusTag active={user.active} />
