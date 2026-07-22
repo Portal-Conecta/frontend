@@ -19,6 +19,12 @@ export const spacing = {
   6:  '1.5rem',  // 24px
   7:  '1.75rem', // 28px
   8:  '2rem',    // 32px
+  // Altura de campo de formulário (`h-9` no átomo Input) — promovido no código
+  // (aprovação TL, issue #383), ainda não refletido na coleção "spacing" do
+  // Figma DS (ver AGENTS.md § Dívidas técnicas). Sem esta chave, `h-9` colaria
+  // mesmo assim pelo default do Tailwind (theme.extend), fora da escala do DS e
+  // sem erro de lint — a armadilha da escala esparsa descrita em REVISION.md §5.
+  9:  '2.25rem', // 36px
   10: '2.5rem',  // 40px
   14: '3.5rem',  // 56px
   18: '4.5rem',  // 72px
