@@ -100,7 +100,7 @@ export function Toast({ toast, onDismiss }: ToastProps) {
       </div>
 
       <div className="flex min-w-0 flex-1 items-center px-5 py-3">
-        <Text as="p" variant="label-md-emphasis" tone="primary" className="truncate">
+        <Text as="p" variant="label-md-emphasis" tone="primary" className="break-words">
           {toast.title ? `${toast.title}: ${toast.message}` : toast.message}
         </Text>
       </div>

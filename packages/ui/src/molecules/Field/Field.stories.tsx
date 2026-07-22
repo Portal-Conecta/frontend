@@ -5,7 +5,7 @@ import { Input } from '@portal/ui/atoms'
 import { Field } from './Field'
 
 const meta: Meta<typeof Field> = {
-  title: 'Componentes/Formulário/Field',
+  title: 'Componentes/Form/Field',
   component: Field,
   parameters: { layout: 'padded' },
   decorators: [

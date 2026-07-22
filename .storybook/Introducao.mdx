@@ -20,15 +20,17 @@ O Design System é formado por três partes:
 
 O menu à esquerda está dividido em seções. **Sobre** reúne as páginas de orientação, como esta e o **Começando**. **Fundação** traz os tokens e as bases visuais. **Componentes** é o catálogo, agrupado por função em vez de pela camada técnica — você procura pelo que o componente faz, não por como ele é classificado no código:
 
-- **Ações**: o Button.
-- **Inputs**: o Input e a família de controles de formulário (`Input/*`).
-- **Formulário**: o **Field** (wrapper de campo), que estrutura label, erro e ajuda em volta de um controle.
-- **Feedback**: o Alert e demais sinais de estado.
-- **Navegação**: a Sidebar, o AppHeader e o AppFooter.
-- **Conteúdo**: o Text, o Icon e o Logo.
+- **Actions**: o Button.
+- **Inputs**: o Input e as famílias de controle — `Input/*` (texto e seleção), `Pickers/*` (data e hora), `Select/*` e `SearchBar/*` —, mais o RichTextEditor e o FileUpload.
+- **Form**: o **Field** (wrapper de campo), que estrutura label, erro e ajuda em volta de um controle.
+- **Feedback**: o Alert, o Banner, o EmptyState, o Skeleton e a ErrorPage — os sinais de estado.
+- **Data**: o que exibe registros e dados estruturados — a Tag, o ListItem, o NotificationListItem e o ClassCard.
+- **Overlay**: o que se sobrepõe à tela — o Toast, o DefaultModal e o ConfirmDialog.
+- **Navigation**: a `Sidebar/*`, as `Section/*`, o AppHeader, o AppFooter e a Pagination.
+- **Content**: os primitivos de apresentação — o Text, o Icon, o Logo e o Avatar.
 - **Layout**: o AppLayout, que monta o shell das telas.
 
-Novas categorias, como **Overlay**, aparecem conforme novos componentes (Toast, por exemplo) entram no Design System.
+O vocabulário de categorias é fechado: toda story usa exatamente uma delas, e criar categoria nova exige um adendo à [ADR-0011](https://github.com/Portal-Conecta/frontend/blob/main/docs/adr/ADR-0011-storybook-navegacao-funcional.md).
 
 Cada componente traz suas variações e estados já montados e um painel de controles para você testar as props na hora. A organização interna do código continua seguindo o Atomic Design (atoms, molecules, organisms); essa classificação é detalhe de implementação e não aparece mais no menu — ver [ADR-0011](https://github.com/Portal-Conecta/frontend/blob/main/docs/adr/ADR-0011-storybook-navegacao-funcional.md).
 

@@ -1,106 +1,101 @@
-'use client'
-
-/**
- * ClassCard — card com os dados básicos de uma turma: código, curso e turno,
- * separados por divisor vertical (Figma node 2511-20637). Duas variantes:
- * `single` (perfil Estudante, um card solto) e `list` (perfil Professor, N
- * cards sob o título "Turmas"). Presentational — recebe os dados já
- * resolvidos pela página, sem busca própria.
- *
- * Código/curso/turno usam CSS Grid com colunas compartilhadas no container
- * (`subgrid` em cada card, trilhas definidas no wrapper), não largura fixa em
- * px por célula — code/shift dimensionam pelo conteúdo, como colunas de
- * tabela, então os divisores ficam alinhados entre linhas de uma lista mesmo
- * com turmas de tamanhos diferentes. O curso ocupa o espaço restante
- * (`minmax(0,1fr)`) e quebra linha (`break-words`) em vez de truncar.
- */
-import { useId } from 'react'
-
 import { Text } from '@portal/ui/atoms'
 
+export type ClassCardVariant = 'withBackground' | 'withoutBackground'
+
+/** Campo em destaque no mobile/tablet (`tag` ou `title`). No desktop não tem efeito. */
+export type ClassCardPrincipal = 'tag' | 'title'
+
+const variantCard: Record<ClassCardVariant, string> = {
+  withBackground:'grid lg:grid-cols-[3.5vw_15vw_6vw] grid-cols-[1fr] md:grid-rows-[1fr_1fr] grid-rows-[1fr] lg:grid-rows-[1fr] gap-2 bg-background-surface rounded-lg p-4',
+  withoutBackground:'grid lg:grid-cols-[5vw_25vw_10vw] grid-cols-[1fr] md:grid-rows-[1fr_1fr] grid-rows-[1fr] lg:grid-rows-[1fr] gap-2 '
+}
+
 export interface ClassCardItem {
-  /** Código da turma, ex.: "MIDS - 78". */
-  code: string
-  course: string
-  shift: string
+  variant?: ClassCardVariant
+  /**
+   * Campo destacado no mobile/tablet: recebe `body-sm-emphasis` + `tone="brand"`,
+   * enquanto os demais campos ficam `tone="secondary"`. No desktop (`lg+`) o card
+   * é uniforme (tudo `brand`), então `principal` não tem efeito. Default `'tag'`.
+   */
+  principal?: ClassCardPrincipal
+  tag: string
+  title: string
+  meta: string
 }
 
-interface ClassCardRowProps extends ClassCardItem {
-  className?: string | undefined
-}
+/** Estilo de um campo num breakpoint: emphasis (peso do token) + tom de cor. */
+type FieldStyle = { emphasis: boolean; tone: 'brand' | 'secondary' }
 
-function ClassCardRow({ code, course, shift, className }: ClassCardRowProps) {
+/**
+ * Renderiza um campo do card. Como o emphasis vive dentro da `variant` do token
+ * (não é utilitário responsivo), o tratamento mobile/tablet e o desktop saem em
+ * dois `<Text>` alternados por breakpoint — cada um sempre com uma variant real.
+ */
+function CardField({
+  value,
+  mobile,
+  desktop,
+  className,
+}: {
+  value: string
+  mobile: FieldStyle
+  desktop: FieldStyle
+  className?: string
+}) {
   return (
-    <div
-      className={[
-        'col-span-3 grid min-w-0 grid-cols-subgrid items-center gap-x-6 rounded-md bg-background-surface px-3 py-6 shadow-sm',
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
-    >
-      <div className="flex items-center self-stretch border-r border-border-default pr-6">
-        <Text variant="label-sm" tone="brand" className="break-words text-center">
-          {code}
-        </Text>
-      </div>
-      <Text variant="label-sm" tone="brand" className="min-w-0 break-words text-center">
-        {course}
-      </Text>
-      <div className="flex items-center self-stretch border-l border-border-default pl-6">
-        <Text variant="label-sm" tone="brand" className="break-words text-center">
-          {shift}
-        </Text>
-      </div>
-    </div>
-  )
-}
-
-export interface ClassCardSingleProps {
-  variant?: 'single'
-  item: ClassCardItem
-  className?: string
-}
-
-export interface ClassCardListProps {
-  variant: 'list'
-  items: ClassCardItem[]
-  /** Título da seção. Default "Turmas". */
-  title?: string
-  className?: string
-}
-
-export type ClassCardProps = ClassCardSingleProps | ClassCardListProps
-
-export function ClassCard(props: ClassCardProps) {
-  const titleId = useId()
-
-  if (props.variant === 'list') {
-    const { items, title = 'Turmas', className } = props
-
-    return (
-      <section
-        aria-labelledby={titleId}
-        className={['rounded-lg bg-background-default p-6', className].filter(Boolean).join(' ')}
+    <>
+      <Text
+        variant={mobile.emphasis ? 'body-sm-emphasis' : 'body-sm'}
+        tone={mobile.tone}
+        className={['lg:hidden', className].filter(Boolean).join(' ')}
       >
-        <Text id={titleId} as="h2" variant="label-md-emphasis" tone="brand">
-          {title}
-        </Text>
-        <ul className="mt-4 grid grid-cols-[auto_minmax(0,1fr)_auto] gap-x-6 gap-y-3">
-          {items.map((item, index) => (
-            <li key={`${item.code}-${index}`} className="contents">
-              <ClassCardRow {...item} />
-            </li>
-          ))}
-        </ul>
-      </section>
-    )
-  }
+        {value}
+      </Text>
+      <Text
+        variant={desktop.emphasis ? 'body-sm-emphasis' : 'body-sm'}
+        tone={desktop.tone}
+        className={['hidden lg:block', className].filter(Boolean).join(' ')}
+      >
+        {value}
+      </Text>
+    </>
+  )
+}
 
-  const { item, className } = props
-  return (
-    <div className="grid grid-cols-[auto_auto_auto] justify-center gap-x-6">
-      <ClassCardRow {...item} className={className} />
+export function ClassCard({tag,title,meta,variant,principal='tag'}:ClassCardItem){
+  // Mobile/tablet: o campo `principal` destaca (brand+emphasis); os demais viram
+  // secondary. Desktop: uniforme — tag em emphasis, title/meta normais, tudo brand.
+  const secondary: FieldStyle = { emphasis: false, tone: 'secondary' }
+  const highlight: FieldStyle = { emphasis: true, tone: 'brand' }
+
+  return(
+    <div className={variantCard[variant ?? 'withoutBackground']}>
+      <div className='w-full col-start-1 self-center'>
+        <CardField
+          value={tag}
+          mobile={principal === 'tag' ? highlight : secondary}
+          desktop={{ emphasis: true, tone: 'brand' }}
+          className='lg:text-center'
+        />
+      </div>
+      <div className='w-full lg:col-start-2 md:row-start-2 lg:row-start-1 lg:self-center'>
+        <CardField
+          value={title}
+          mobile={principal === 'title' ? highlight : secondary}
+          desktop={{ emphasis: false, tone: 'brand' }}
+          className='break-words lg:text-center lg:border-x-sm border-text-brand lg:px-2'
+        />
+      </div>
+      <div className='w-full lg:col-start-3 self-center lg:text-center md:row-start-3 lg:row-start-1 row-start-3'>
+        <CardField
+          value={meta}
+          mobile={secondary}
+          desktop={{ emphasis: false, tone: 'brand' }}
+        />
+      </div>
     </div>
   )
 }
+
+
+

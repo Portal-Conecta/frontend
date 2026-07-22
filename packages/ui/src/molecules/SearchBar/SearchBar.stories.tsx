@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react";
+import { expect, userEvent, waitFor, within } from "@storybook/test";
 
 import { SearchBar, type SearchBarItem } from "./SearchBar";
 
@@ -90,6 +91,37 @@ const render: Story["render"] = (args) => {
 export const Default: Story = {
   args: { placeholder: "Buscar curso", "aria-label": "Buscar curso" },
   render,
+  // Guarda de regressão do `openOnFocus` (#435): sem a prop, a SearchBar tem de
+  // continuar nascendo vazia e fechando ao apagar. É o contra-exemplo que prova
+  // que a prop nova é opt-in de verdade.
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole("combobox");
+
+    await step("focar NÃO abre (sem openOnFocus)", async () => {
+      await userEvent.click(input);
+      await expect(canvas.queryByRole("listbox")).not.toBeInTheDocument();
+    });
+
+    await step("digitar abre", async () => {
+      await userEvent.type(input, "des");
+      // `findByRole` resolve assim que a lista entra no DOM, mas ela nasce em
+      // `opacity-0 -translate-y-1` e só fica visível ao fim da transição de
+      // 150ms — `toBeVisible()` trata `opacity: 0` como invisível. Sem o
+      // `waitFor`, o assert corre contra a animação de entrada.
+      const listbox = await canvas.findByRole("listbox");
+      await waitFor(async () => {
+        await expect(listbox).toBeVisible();
+      });
+    });
+
+    await step("apagar fecha", async () => {
+      await userEvent.clear(input);
+      await waitFor(async () => {
+        await expect(canvas.queryByRole("listbox")).not.toBeInTheDocument();
+      });
+    });
+  },
 };
 
 /** `clearOnSelect: false` — ao escolher, o campo é preenchido com o label (espelha o Select). */
@@ -151,6 +183,113 @@ export const SelecaoPersistente: Story = {
           items={items}
           selectedItem={selected}
           onQueryChange={(q) => setItems(filtrar(q))}
+          onSelect={(item) => setSelected(item)}
+        />
+        {selected ? (
+          <p className="mt-4 text-body-sm text-text-secondary">
+            Fixado no topo (pressed):{" "}
+            <span className="text-text-primary">{selected.label}</span>
+          </p>
+        ) : null}
+      </div>
+    );
+  },
+};
+
+/**
+ * Como `filtrar`, mas devolve **todos** os cursos quando a query está vazia — é o
+ * que alimenta a lista inicial do `openOnFocus`.
+ */
+function filtrarComListaInicial(query: string): SearchBarItem[] {
+  const needle = query.trim().toLowerCase();
+  if (!needle) return cursos;
+  return cursos.filter((c) =>
+    `${c.meta} ${c.label}`.toLowerCase().includes(needle),
+  );
+}
+
+/**
+ * `openOnFocus` — a lista abre **antes de digitar**, mostrando todos os cursos.
+ * Três efeitos para conferir: foque (abre já com a lista cheia), digite (filtra)
+ * e **apague tudo** (volta à lista cheia, em vez de fechar).
+ *
+ * A lista inicial é responsabilidade do consumidor: aqui o filtro devolve tudo
+ * quando a query está vazia.
+ */
+export const ListaInicial: Story = {
+  render: () => {
+    const [items, setItems] = useState<SearchBarItem[]>(cursos);
+    const [chosen, setChosen] = useState("");
+    return (
+      <div>
+        <SearchBar
+          openOnFocus
+          placeholder="Buscar curso"
+          aria-label="Buscar curso"
+          items={items}
+          onQueryChange={(q) => setItems(filtrarComListaInicial(q))}
+          onSelect={(item) => setChosen(item.label)}
+        />
+        {chosen ? (
+          <p className="mt-4 text-body-sm text-text-secondary">
+            Selecionado: <span className="text-text-primary">{chosen}</span>
+          </p>
+        ) : null}
+      </div>
+    );
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole("combobox");
+
+    await step("focar abre a lista já com todos os cursos", async () => {
+      await userEvent.click(input);
+      // Espera a transição de entrada terminar — mesma corrida da story Default.
+      const listbox = await canvas.findByRole("listbox");
+      await waitFor(async () => {
+        await expect(listbox).toBeVisible();
+        await expect(canvas.getAllByRole("option")).toHaveLength(cursos.length);
+      });
+    });
+
+    await step("digitar filtra", async () => {
+      await userEvent.type(input, "des");
+      await waitFor(async () => {
+        const encontrados = canvas.getAllByRole("option");
+        await expect(encontrados.length).toBeGreaterThan(0);
+        await expect(encontrados.length).toBeLessThan(cursos.length);
+      });
+    });
+
+    await step("apagar volta à lista cheia (não fecha)", async () => {
+      await userEvent.clear(input);
+      await waitFor(async () => {
+        await expect(canvas.getByRole("listbox")).toBeVisible();
+        await expect(canvas.getAllByRole("option")).toHaveLength(cursos.length);
+      });
+    });
+  },
+};
+
+/**
+ * Lista inicial + seleção persistente — o cenário do `RoomFilterBar` (mapa de
+ * salas). Ao focar, a lista completa aparece; o item escolhido fica fixado no
+ * topo como *pressed*, sem duplicar na lista abaixo.
+ */
+export const ListaInicialComSelecao: Story = {
+  render: () => {
+    const [items, setItems] = useState<SearchBarItem[]>(cursos);
+    const [selected, setSelected] = useState<SearchBarItem | null>(null);
+    return (
+      <div>
+        <SearchBar
+          openOnFocus
+          clearOnSelect={false}
+          placeholder="Buscar curso"
+          aria-label="Buscar curso"
+          items={items}
+          selectedItem={selected}
+          onQueryChange={(q) => setItems(filtrarComListaInicial(q))}
           onSelect={(item) => setSelected(item)}
         />
         {selected ? (
