@@ -1,6 +1,6 @@
 import { createHttpClient } from '../http/httpClient'
 import { hubGatewayPath } from '../http/hubGateway'
-import type { ClassRole } from '../rbac'
+import { isStudentClassRole, type ClassRole } from '../rbac'
 import type {
   AddMemberRequest,
   AddMemberResponse,
@@ -17,9 +17,6 @@ import type {
  */
 
 const http = createHttpClient('API_GATEWAY_URL')
-
-/** Papéis de “aluno da turma” (RN-COM-PA02/PA03) — TEACHER fica de fora. */
-const STUDENT_CLASS_ROLES: ReadonlySet<ClassRole> = new Set(['STUDENT', 'REPRESENTATIVE'])
 
 /** Status de conta que não entram no público de destinatários. */
 const INACTIVE_ACCOUNT_STATUSES: ReadonlySet<string> = new Set([
@@ -65,7 +62,7 @@ interface HubClassMemberResponse {
 
 function isEligibleClassStudent(member: HubClassMemberResponse | null | undefined): boolean {
   if (!member?.id || !member.name) return false
-  if (!STUDENT_CLASS_ROLES.has(member.classRole)) return false
+  if (!isStudentClassRole(member.classRole)) return false
   if (member.active === false) return false
   const status = member.accountStatus?.trim().toUpperCase()
   if (status && INACTIVE_ACCOUNT_STATUSES.has(status)) return false
