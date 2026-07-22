@@ -128,22 +128,11 @@ async function TurmaDetalhe({ classId, accessToken }: { classId: string; accessT
                 Representantes
               </Text>
 
-              {/*
-               * `disabled` enquanto a tela de representantes não existe: as
-               * rotas de turma hoje são `turmas/`, `turmas/criar`,
-               * `turmas/[classId]/` e `turmas/[classId]/membros/`. O clique
-               * levava a um 404 sem explicação — e o usuário final não lê a
-               * descrição da PR. O botão segue no layout que o Figma pede e a
-               * navegação prevista na DoD da #363 continua visível; quando a
-               * tela shipar, é remover `disabled` e `title`.
-               */}
               <TurmaNavButton
                 href={`/turmas/${classId}/representantes`}
                 variant="outlined"
                 iconLeft="square-pen"
                 size="xs"
-                disabled
-                title="Disponível em breve"
                 className="shrink-0"
               >
                 Alterar representantes
