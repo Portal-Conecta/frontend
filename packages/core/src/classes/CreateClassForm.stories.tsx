@@ -7,7 +7,6 @@ const MOCK_COURSES = [
   { id: '2', code: 'MADS', name: 'Análise e Desenvolvimento de Sistemas' },
   { id: '3', code: 'MELT', name: 'Eletrotécnica' },
   { id: '4', code: 'MMEC', name: 'Mecânica' },
-  { id: '5', code: 'MIDS', name: 'Desenvolvimento de Sistemas' },
 ]
 
 const meta: Meta<typeof CreateClassForm> = {

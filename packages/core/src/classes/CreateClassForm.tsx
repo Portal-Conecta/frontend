@@ -6,16 +6,16 @@
  * Vive no `core` porque conhece contrato de domínio (curso, HubShift, payload
  * de criação) — ADR-0004: `@portal/ui` não pode carregar regra de negócio.
  *
- * Layout: coluna 2/3 com busca + lista de cursos (linha estilo `CourseRow`);
- * coluna 1/3 com número, turno (par de botões como `ShiftFilter`) e ações.
- * Após sucesso, a navegação fica no cliente (`router.push`) para não depender
- * de `redirect()` atravessar a fronteira server action → client como exceção.
+ * Curso: `Select` do DS (combobox com filtro por digitação). A lista completa
+ * não fica montada na página — só a linha do curso escolhido aparece abaixo.
+ * Turno: par de botões como o `ShiftFilter`. Após sucesso, navegação no cliente
+ * (`router.push`) para não depender de `NEXT_REDIRECT` na action.
  */
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 import { HUB_SHIFT, type HubShift } from '@portal/shared'
-import { Button, ConfirmDialog, Field, Input, Text } from '@portal/ui'
+import { Button, ConfirmDialog, Field, Input, Select, Text, type SelectOption } from '@portal/ui'
 
 import type { Course } from '../courses/types'
 import type { CreateClassPayload } from './types'
@@ -43,6 +43,10 @@ const SHIFT_OPTIONS: readonly { shift: HubShift; label: string }[] = [
   { shift: HUB_SHIFT.FULL_PM_NT, label: 'Tarde/Noite' },
 ]
 
+function courseOptionLabel(course: Course): string {
+  return `${course.code} — ${course.name}`
+}
+
 function CourseIdentity({ course }: { course: Course }) {
   return (
     <div className="flex min-w-0 flex-1 items-center gap-4">
@@ -68,10 +72,9 @@ export function CreateClassForm({
 }: CreateClassFormProps) {
   const router = useRouter()
 
-  const [selectedCourseId, setSelectedCourseId] = useState('')
+  const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null)
   const [classNumber, setClassNumber] = useState('')
   const [shift, setShift] = useState<HubShift | ''>('')
-  const [courseSearch, setCourseSearch] = useState('')
 
   const [errors, setErrors] = useState<{ course?: boolean; classNumber?: boolean; shift?: boolean }>(
     {},
@@ -81,20 +84,23 @@ export function CreateClassForm({
   const [errorMessage, setErrorMessage] = useState<string | undefined>()
   const [errorRetryable, setErrorRetryable] = useState(true)
 
-  const filteredCourses = useMemo(() => {
-    if (!courseSearch.trim()) return courses
-    const query = courseSearch.toLowerCase()
-    return courses.filter(
-      (course) =>
-        course.code.toLowerCase().includes(query) || course.name.toLowerCase().includes(query),
-    )
-  }, [courses, courseSearch])
+  const courseOptions: SelectOption[] = useMemo(
+    () =>
+      courses.map((course) => ({
+        value: course.id,
+        label: courseOptionLabel(course),
+      })),
+    [courses],
+  )
 
-  const emptyListMessage = courseSearch.trim()
-    ? `Nenhum curso encontrado para "${courseSearch}"`
-    : coursesLoadFailed
-      ? 'Não foi possível carregar os cursos.'
-      : 'Ainda não há cursos cadastrados.'
+  const selectedCourse = useMemo(
+    () => courses.find((course) => course.id === selectedCourseId),
+    [courses, selectedCourseId],
+  )
+
+  const courseEmptyMessage = coursesLoadFailed
+    ? 'Não foi possível carregar os cursos.'
+    : 'Ainda não há cursos cadastrados.'
 
   function validateForm() {
     const newErrors = {
@@ -107,7 +113,7 @@ export function CreateClassForm({
   }
 
   async function handleSubmit() {
-    if (!validateForm() || !shift) return
+    if (!validateForm() || !selectedCourseId || !shift) return
 
     const parsedNumber = Number(classNumber.trim())
     if (!Number.isInteger(parsedNumber) || parsedNumber < 1) {
@@ -148,53 +154,27 @@ export function CreateClassForm({
         {/* Coluna do curso — ~2fr */}
         <div className="flex min-h-0 flex-col gap-6 md:col-span-8">
           <Field label="Curso">
-            <Input
+            <Select
+              options={courseOptions}
+              value={selectedCourseId}
+              onChange={(value) => {
+                setSelectedCourseId(value)
+                setErrors((prev) => ({ ...prev, course: false }))
+              }}
               placeholder="Todos"
-              value={courseSearch}
-              onChange={(e) => setCourseSearch(e.target.value)}
+              clearable
+              emptyMessage={courseEmptyMessage}
+              error={errors.course ? 'Selecione um curso.' : ''}
             />
           </Field>
 
-          <div
-            role="radiogroup"
-            aria-label="Curso"
-            aria-invalid={errors.course || undefined}
-            className="flex flex-col overflow-y-auto"
-          >
-            {filteredCourses.length > 0 ? (
-              filteredCourses.map((course) => {
-                const selected = selectedCourseId === course.id
-                return (
-                  <button
-                    key={course.id}
-                    type="button"
-                    role="radio"
-                    aria-checked={selected}
-                    onClick={() => {
-                      setSelectedCourseId(course.id)
-                      setErrors((prev) => ({ ...prev, course: false }))
-                    }}
-                    className={[
-                      'flex h-18 w-full items-center px-3 text-left transition-colors',
-                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive-focus-ring focus-visible:ring-offset-2',
-                      selected
-                        ? 'rounded-md border border-interactive-pressed bg-interactive-subtle'
-                        : 'border-b border-border-default bg-background-surface hover:border-interactive-default',
-                    ].join(' ')}
-                  >
-                    <CourseIdentity course={course} />
-                  </button>
-                )
-              })
-            ) : (
-              <div className="p-6 text-center text-text-secondary">{emptyListMessage}</div>
-            )}
-          </div>
-
-          {errors.course ? (
-            <Text variant="label-xs" className="text-feedback-error">
-              Selecione um curso.
-            </Text>
+          {selectedCourse ? (
+            <div
+              className="flex h-18 w-full items-center border-b border-border-default bg-background-surface px-3"
+              aria-live="polite"
+            >
+              <CourseIdentity course={selectedCourse} />
+            </div>
           ) : null}
         </div>
 
