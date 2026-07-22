@@ -144,7 +144,7 @@ export function PageEditUserContent({ user }: PageEditUserContentProps) {
           </div>
         </div>
 
-        <div className="mt-16 flex items-center gap-3">
+        <div className="flex items-center gap-3">
           <Button
             size="sm"
             className="flex-1"
