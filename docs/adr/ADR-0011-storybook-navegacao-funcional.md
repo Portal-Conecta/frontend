@@ -99,3 +99,84 @@ Consequências:
 - O array de ordem do `storySort` em `.storybook/preview.ts` volta a listar `'Formulário'` (após `'Inputs'`).
 - A introdução (`.storybook/Introducao.mdx`) volta a descrever o wrapper (como `Field`) numa categoria própria.
 - Código atômico preservado: `Field` segue como `molecule`; muda o nome do componente e o `title:` da story.
+
+## Adendo 2026-07-07
+
+A **SearchBar** ganha **subgrupo próprio `Componentes/Inputs/SearchBar/*`**, seguindo o mesmo critério do Select (Adendo #2): é uma **família** (controle base + `SearchBarAsync`), não um controle simples. Diferente do Select (que filtra opções de texto), a SearchBar mostra uma **lista de resultados ricos** (código + label) buscados sob demanda.
+
+Estrutura:
+
+```
+Componentes/Inputs/SearchBar/SearchBar        → controle base (controlado por `items`; dois modos via `clearOnSelect`)
+Componentes/Inputs/SearchBar/SearchBarAsync   → variante com busca no back (debounce + descarte de resposta obsoleta)
+```
+
+Consequências:
+- No código, `SearchBar` é uma `molecule` (`packages/ui/src/molecules/SearchBar/`) por compor uma lista própria. A lista interna (`SearchBarResults`) **não** tem story — espelha o `SelectList`, que também é interno à família.
+- A mecânica de combobox é compartilhada com o Select via o hook `packages/ui/src/hooks/useCombobox.ts` (não é um componente; sem story).
+- Não há mudança no `storySort`: o subgrupo aninha sob `Inputs`, cuja ordem já está fixada.
+
+## Adendo 2026-07-09
+
+O **FileUpload** (#250) entra no vocabulário fechado como leaf direta em `Componentes/Inputs/FileUpload` — mesmo critério dos controles simples (`Checkbox`, `Radio`, `Textarea`), sem subgrupo próprio, já que hoje não há variantes irmãs (diferente do `Select`/`SearchBar`).
+
+Estrutura:
+
+```
+Componentes/Inputs/FileUpload   → anexo de arquivo (só imagens por ora; accept/maxSize por prop)
+```
+
+Consequências:
+- No código, `FileUpload` é uma `molecule` (`packages/ui/src/molecules/FileUpload/`) por compor os átomos `Icon` e `Text`.
+- Promovido a partir do `ImageUploader` que existia em `packages/comunicados` (ciclo de promoção do AGENTS.md — nasce no domínio, migra pro DS); o consumidor (`AnnouncementContentStep`) passou a importar de `@portal/ui`.
+- Não há mudança no `storySort`: a leaf aninha sob `Inputs`, cuja ordem já está fixada.
+
+## Adendo 2026-07-20 — revisão geral de classificação (#436)
+
+Revisão das seções feita na #436, usando o Storybook do **WEG DS** (design-system.weg.net) como validação externa. A referência confirmou três escolhas que já tínhamos — categoria própria para o wrapper de campo mesmo com um único membro (a WEG tem `Form` com Field/Fieldset/Form), navegação reunindo shell e navegação de conteúdo (a WEG junta Topbar, Sidebar, Pagination e Breadcrumb) e `Overlay` reunindo Toast e diálogos — e apontou os ajustes abaixo.
+
+**1. O vocabulário de categorias passa a ser em inglês.** Até aqui ele misturava os dois idiomas (`Inputs`, `Feedback`, `Data`, `Overlay` e `Layout` contra `Ações`, `Formulário`, `Navegação` e `Conteúdo`). A mistura não é cosmética: é a causa provável do desvio corrigido no item 5, em que uma story traduziu `Overlay` para `Sobreposição` e criou uma categoria que nunca existiu. Um idioma só remove a ambiguidade, e alinha com a WEG, cujo vocabulário é todo em inglês.
+
+Vocabulário fechado, agora completo e autoritativo — esta lista **substitui** a da seção Decisão:
+
+```
+Componentes/Actions      → Button, ShiftFilter
+Componentes/Inputs       → Input/* · Pickers/* · Select/* · SearchBar/* · RichTextEditor · FileUpload · CourseSearchField
+Componentes/Form         → Field
+Componentes/Feedback     → Alert, Banner, EmptyState, ErrorPage, Skeleton
+Componentes/Data         → Tag, ListItem, NotificationListItem, ClassCard, CourseRow
+Componentes/Overlay      → Toast, DefaultModal, ConfirmDialog
+Componentes/Navigation   → Sidebar/* · Section/* · AppHeader · AppFooter · Pagination
+Componentes/Content      → Text, Icon, Logo, Avatar
+Componentes/Layout       → AppLayout
+```
+
+A **raiz `Componentes` segue em português**, por decisão explícita: traduzi-la atingiria as quatro stories que moram em `packages/core` (ver consequências).
+
+**2. Novo subgrupo `Componentes/Inputs/Pickers/*`.** `DateInput` e `TimeInput` saem de `Input/*` — que reúne controles de texto e seleção simples — e passam a `Inputs/Pickers/DateInput` e `Inputs/Pickers/TimeInput`. Espelha o `Inputs/Pickers` da WEG e restaura a invariante do Adendo #3 (o leaf espelha o nome do componente), que os leaves `Date`/`Time` violavam.
+
+**3. `ClassCard` movido de `Conteúdo` para `Data`.** Ele exibe os dados de uma turma — é registro, não primitivo de apresentação.
+
+**4. `RichTextEditor` vira leaf direta em `Componentes/Inputs/RichTextEditor`.** Estava em `Input/*`, que reúne `atoms` planos sobre `<input>`/`<textarea>` nativos; o RichTextEditor é um `organism` TipTap com toolbar. Segue o critério do FileUpload no Adendo 2026-07-09: leaf direta quando não há variantes irmãs.
+
+**5. `ConfirmDialog` corrigido de `Componentes/Sobreposição/ConfirmDialog` para `Componentes/Overlay/ConfirmDialog`.** `Sobreposição` nunca existiu no vocabulário fechado nem no `storySort`, então a story ordenava como órfã no menu.
+
+**6. Novo subgrupo `Componentes/Navigation/Sidebar/*`.** `Sidebar` e `SidebarNavItem` são a mesma relação pai/filho que `Section` e `SectionItem`, que já era subgrupo. Passam a `Navigation/Sidebar/Sidebar` e `Navigation/Sidebar/SidebarNavItem`.
+
+**7. Critério escrito para a fronteira `Content` × `Data`**, que faltava e era a origem das dúvidas de classificação:
+
+> **`Content`** reúne primitivos de apresentação sem dados de domínio: `Text`, `Icon`, `Logo`, `Avatar`.
+> **`Data`** reúne componentes que **exibem** registros ou dados estruturados: `Tag`, `ListItem`, `NotificationListItem`, `ClassCard`, `CourseRow`.
+> Controle que **captura** dado é `Inputs`, ainda que o dado seja um arquivo — é o que separa o `FileUpload` de `Data`.
+
+O `FileUpload` chegou a ser movido para `Data` nesta revisão, por espelhar a WEG, e o movimento foi **revertido**: o `Data` da WEG tem outro caráter (DualList, TreeView, SimpleTable são widgets de manipulação de coleção), enquanto o nosso é só de exibição. O **Adendo 2026-07-09 segue válido e não é superado**.
+
+**Renomear `Data` para `Dados` foi considerado e descartado.** Em português `Data` lê como *date*, e há um `DateInput` no DS ao lado — mas com o vocabulário em inglês o nome já está correto e a colisão não existe. A tentativa expôs uma lição que vale para qualquer mudança futura de vocabulário: **renomear um nó do menu não é confinável a um pacote quando o nó tem membros em outro.** A categoria tinha o `CourseRow` em `packages/core`, e renomeá-la só em `packages/ui` teria partido o menu em duas categorias, uma delas fora do `storySort`.
+
+Consequências:
+- O array de ordem do `storySort` passa a `['Actions', 'Inputs', 'Form', 'Feedback', 'Data', 'Overlay', 'Navigation', 'Content', 'Layout']`. Nenhuma categoria entra ou sai — `Pickers` e `Sidebar` são subgrupos que aninham sob categorias já ordenadas.
+- 19 URLs de story mudam; custo já aceito na seção Consequências desta ADR.
+- **`Actions` custou uma linha em `packages/core`**: o `ShiftFilter` mora lá e precisava acompanhar a categoria, pelo mesmo motivo da lição acima. É a única pegada da revisão fora de `packages/ui`. As outras três stories de `core` sob `Componentes/*` (`AppLayout`, `CourseRow`, `CourseSearchField`) ficaram em categorias que já estavam em inglês e não foram tocadas.
+- Código atômico preservado: nenhum componente muda de pasta ou de camada, só o `title:`.
+- Fora de escopo desta revisão, registrado para issues próprias: a seção `Fundação` está declarada no `storySort` mas vazia (as páginas de tokens e guidelines são a [#110](https://github.com/Portal-Conecta/frontend/issues/110)); o padrão da WEG de abrir cada categoria com `Get Started` + `Changelog`; uma seção `Core` para hooks e providers (`useCombobox`, `useFocusTrap`), que a WEG tem como `Core Components`; e a raiz `Componentes`, que segue em português.
+- `Content` é hoje definida por negação — "primitivos que não são dados". É a categoria mais fraca do vocabulário; a WEG separa em `Typography`, `Icons` e `Media`, o que com quatro componentes daria três categorias de um a dois membros. Agregar é o certo por ora, mas é a primeira a revisitar conforme o DS cresce.

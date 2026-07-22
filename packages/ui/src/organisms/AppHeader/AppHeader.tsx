@@ -12,6 +12,12 @@
  * - Desktop (≥lg): bloco da logo alinhado à largura do rail (full quando
  *   `sidebarExpanded`, senão mark) + ações soltas à direita.
  * - Tablet/Mobile (<lg): logo-mark à esquerda + ações dentro de uma pílula.
+ *
+ * Botões de logo/ação são `inline-flex items-center justify-center`: um
+ * `<button>` nativo é `inline-block` e alinha o conteúdo por
+ * `vertical-align: baseline`, reservando espaço assimétrico abaixo do ícone
+ * (para descendentes de texto) e descentralizando-o verticalmente. Declarar
+ * flex no próprio botão remove essa dependência de baseline.
  */
 import { Icon, type IconName } from '../../atoms/Icon'
 import { Logo } from '../../atoms/Logo'
@@ -22,12 +28,14 @@ export interface AppHeaderProps {
   sidebarExpanded?: boolean
   /** Clique na logo — navegação para a home. */
   onLogoClick?: () => void
-  /** Clique no ícone "mais opções" (ellipsis). */
-  onMoreOptionsClick?: () => void
   /** Clique no ícone de notificações (bell). */
   onNotificationsClick?: () => void
+  /** Há notificação não lida — sobrepõe um dot vermelho no sino. */
+  hasUnreadNotifications?: boolean
   /** Clique no ícone de perfil (circle-user). */
   onProfileClick?: () => void
+  /** Menu de perfil aberto — vira aria-expanded no botão (circle-user). */
+  profileMenuOpen?: boolean
   className?: string
 }
 
@@ -39,43 +47,49 @@ interface ActionItem {
   icon: IconName
   label: string
   onClick: (() => void) | undefined
+  /** Sobrepõe um dot vermelho (notificação não lida) no canto do ícone. */
+  showDot?: boolean
 }
 
-// Ícone de ação por breakpoint: 24px (md) abaixo de lg, 32px (lg) no desktop,
-// espelhando o Figma. O `size` do átomo Icon é fixo, então o tamanho responsivo
-// vem de duas instâncias alternadas por visibilidade — ambas decorativas, então
-// não duplicam leitura para o leitor de tela (o rótulo vive no botão).
+// O item `circle-user` é o único gatilho do ProfileMenu (@portal/core): o
+// `data-profile-trigger` e o ARIA de disclosure abaixo são fiados nesse ícone
+// específico. Trocar o ícone deste item sem atualizar as duas referências
+// quebra o clique-fora do menu e o aria-expanded/aria-controls.
+const PROFILE_TRIGGER_ICON: IconName = 'circle-user'
+
+// Ícone de ação: 24px (token `md` do átomo Icon) em todos os breakpoints.
 function ActionIcon({ name }: { name: IconName }) {
-  return (
-    <>
-      <Icon name={name} size="md" tone="primary" decorative className="lg:hidden" />
-      <Icon name={name} size="lg" tone="primary" decorative className="hidden lg:block" />
-    </>
-  )
+  return <Icon name={name} size="md" tone="primary" decorative />
 }
 
 export function AppHeader({
   sidebarExpanded = false,
   onLogoClick,
-  onMoreOptionsClick,
   onNotificationsClick,
+  hasUnreadNotifications = false,
   onProfileClick,
+  profileMenuOpen = false,
   className,
 }: AppHeaderProps) {
   const sidebarWidth = sidebarExpanded ? SIDEBAR_WIDTH_EXPANDED : SIDEBAR_WIDTH_COLLAPSED
-  // Alinha a logo ao recuo dos itens de nav do rail (SidebarNavItem: pl-4 expandido / pl-8 colapsado).
-  const logoPadding = sidebarExpanded ? 'pl-4' : 'pl-8'
+  // Alinha a logo ao recuo dos itens de nav do rail (SidebarNavItem: pl-4 expandido / pl-6 colapsado).
+  const logoPadding = sidebarExpanded ? 'pl-4' : 'pl-6'
 
   const actions: ActionItem[] = [
-    { icon: 'ellipsis', label: 'Mais opções', onClick: onMoreOptionsClick },
-    { icon: 'bell', label: 'Notificações', onClick: onNotificationsClick },
-    { icon: 'circle-user', label: 'Perfil', onClick: onProfileClick },
+    {
+      icon: 'bell',
+      // Comunica ao leitor de tela o mesmo que o dot vermelho comunica visualmente.
+      label: hasUnreadNotifications ? 'Notificações (novas)' : 'Notificações',
+      onClick: onNotificationsClick,
+      showDot: hasUnreadNotifications,
+    },
+    { icon: PROFILE_TRIGGER_ICON, label: 'Perfil', onClick: onProfileClick },
   ]
 
   // Mobile/tablet: a sidebar é separada (drawer/FAB), então o header é branco.
   // Desktop: o header se conecta ao rail da sidebar — ambos em background/default.
   const headerClasses = [
-    'flex w-full items-center bg-background-surface lg:bg-background-default min-h-[64px] md:h-[64px]',
+    'flex w-full items-center bg-background-surface lg:bg-background-default min-h-[60px] md:h-[60px]',
     className,
   ]
     .filter(Boolean)
@@ -92,7 +106,7 @@ export function AppHeader({
           type="button"
           onClick={onLogoClick}
           aria-label="Página inicial"
-          className={`rounded-md ${focusRing}`}
+          className={`inline-flex items-center justify-center cursor-pointer rounded-md ${focusRing}`}
         >
           <Logo variant={sidebarExpanded ? 'full' : 'mark'} tone="brand" size={54} decorative />
         </button>
@@ -104,7 +118,7 @@ export function AppHeader({
           type="button"
           onClick={onLogoClick}
           aria-label="Página inicial"
-          className={`rounded-md lg:hidden ${focusRing}`}
+          className={`inline-flex items-center justify-center cursor-pointer rounded-md lg:hidden ${focusRing}`}
         >
           <Logo variant="mark" tone="brand" size={32} decorative className="md:hidden" />
           <Logo variant="mark" tone="brand" size={44} decorative className="hidden md:block" />
@@ -112,15 +126,43 @@ export function AppHeader({
 
         {/* Pílula (background/default) no mobile/tablet; sem container no desktop. Cada botão tem rótulo próprio. */}
         <div className="ml-auto flex items-center gap-4 rounded-full border-sm border-border-default bg-background-default px-6 py-1.5 lg:gap-6 lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0">
-          {actions.map(({ icon, label, onClick }) => (
+          {actions.map(({ icon, label, onClick, showDot }) => (
             <button
               key={icon}
               type="button"
               onClick={onClick}
               aria-label={label}
-              className={`rounded-md ${focusRing}`}
+              className={`inline-flex items-center justify-center cursor-pointer rounded-md ${focusRing}`}
+              // Deixa o `ProfileMenu` (@portal/core) reconhecer este botão como o
+              // próprio gatilho: sem isso, o listener de "clique fora" que fecha o
+              // menu dispara no `pointerdown` do mesmo clique que o reabre — o
+              // toggle nunca fecha (issue #328).
+              {...(icon === PROFILE_TRIGGER_ICON
+                ? {
+                    'data-profile-trigger': true,
+                    'aria-haspopup': 'menu' as const,
+                    'aria-expanded': profileMenuOpen,
+                    'aria-controls': 'profile-menu',
+                  }
+                : {})}
             >
-              <ActionIcon name={icon} />
+              <span className="relative inline-flex">
+                <ActionIcon name={icon} />
+                {/* Dot de notificação: sino azul (tone primary), só o dot é vermelho.
+                    Posicionado no ombro do sino como o `bell-dot` do DS (Lucide: centro
+                    ~75%/33% da caixa). O anel na cor do fundo recria o notch que separa
+                    o dot do traço do sino.
+                    Os valores arbitrários de posição (top-[28%] e os -translate-*) não
+                    têm token equivalente — não existe token de posicionamento de badge no
+                    DS, então é exceção consciente (como rounded-[20px] em outros pontos por
+                    falta de token de radius). Dívida conhecida a registrar com o squad. */}
+                {showDot ? (
+                  <span
+                    aria-hidden
+                    className="absolute left-3/4 top-[28%] h-2 w-2 -translate-x-[50%] -translate-y-[50%] rounded-full bg-feedback-error ring-2 ring-background-default lg:h-2.5 lg:w-2.5"
+                  />
+                ) : null}
+              </span>
             </button>
           ))}
         </div>

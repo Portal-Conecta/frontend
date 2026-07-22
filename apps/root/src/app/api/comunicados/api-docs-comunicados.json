@@ -1,0 +1,2247 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Comunicados API",
+        "description": "Documentação navegável dos contratos HTTP do módulo de Comunicados.",
+        "version": "0.0.1-SNAPSHOT"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8085",
+            "description": "Generated server url"
+        }
+    ],
+    "tags": [
+        {
+            "name": "Postagens",
+            "description": "Endpoints de comunicados"
+        },
+        {
+            "name": "Tags",
+            "description": "Endpoints de tags"
+        },
+        {
+            "name": "Imagens",
+            "description": "Endpoints de imagens do comunicado"
+        }
+    ],
+    "paths": {
+        "/api/posts/{id}": {
+            "get": {
+                "tags": [
+                    "Postagens"
+                ],
+                "summary": "Buscar comunicado por ID",
+                "operationId": "getById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Comunicado encontrado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementDetailResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Não encontrado ou fora do escopo",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementDetailResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementDetailResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Postagens"
+                ],
+                "summary": "Atualizar comunicado",
+                "description": "Atualiza um comunicado. Campos ausentes (null) são preservados; envie apenas os campos que deseja alterar. `destinations` é opcional — quando omitido, os destinos atuais são mantidos; quando enviado, substitui a lista.",
+                "operationId": "update",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateAnnouncementRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Atualizado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Sem permissao",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Nao encontrado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementResponse"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Comunicado removido nao pode ser editado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Postagens"
+                ],
+                "summary": "Remover comunicado",
+                "operationId": "delete",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Removido"
+                    },
+                    "403": {
+                        "description": "Sem permissão"
+                    },
+                    "404": {
+                        "description": "Não encontrado"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/posts/{postId}/images": {
+            "get": {
+                "tags": [
+                    "Imagens"
+                ],
+                "summary": "Listar arquivos do comunicado",
+                "operationId": "list",
+                "parameters": [
+                    {
+                        "name": "postId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista retornada",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/AnnouncementFileResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Comunicado não encontrado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/AnnouncementFileResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Imagens"
+                ],
+                "summary": "Anexar arquivo ao comunicado",
+                "operationId": "upload",
+                "parameters": [
+                    {
+                        "name": "postId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "thumbnail",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "required": [
+                                    "file"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Arquivo anexado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementFileResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "ARQ02 — limite de 5 arquivos atingido ou tipo inválido",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementFileResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Sem permissão de edição",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementFileResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Comunicado não encontrado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementFileResponse"
+                                }
+                            }
+                        }
+                    },
+                    "413": {
+                        "description": "ARQ06 — arquivo maior que 10MB",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementFileResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/posts/{postId}/images/presign": {
+            "post": {
+                "tags": [
+                    "Imagens"
+                ],
+                "summary": "Solicitar URL pré-assinada para upload direto ao S3",
+                "operationId": "presign",
+                "parameters": [
+                    {
+                        "name": "postId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PresignUploadRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "URL gerada — faça PUT direto ao S3",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PresignUploadResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "ARQ02 — limite de 5 arquivos atingido, tipo inválido ou tamanho excedido",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PresignUploadResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Sem permissão de edição",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PresignUploadResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Comunicado não encontrado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PresignUploadResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/posts/{id}/tags": {
+            "get": {
+                "tags": [
+                    "Tags"
+                ],
+                "summary": "Listar tags do comunicado",
+                "operationId": "listAnnouncementTags",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tags retornadas",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/TagResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Sem permissão",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/TagResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Comunicado não encontrado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/TagResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Tags"
+                ],
+                "summary": "Associar tags ao comunicado",
+                "operationId": "linkTags",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LinkAnnouncementTagRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Tags associadas",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/TagResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Sem permissão",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/TagResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Comunicado ou tag não encontrada",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/TagResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Tag já associada",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/TagResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/posts/schedule": {
+            "post": {
+                "tags": [
+                    "Postagens"
+                ],
+                "summary": "Agendar comunicado",
+                "description": "Cria e agenda o comunicado numa única transação (#108): nasce SCHEDULED, com destinos e histórico (CREATION + SCHEDULED). scheduledFor precisa ser futuro.",
+                "operationId": "schedule",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ScheduleAnnouncementRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Comunicado criado e agendado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Data no passado ou dados obrigatórios ausentes",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Sem permissão / fora do escopo",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/posts/publish": {
+            "post": {
+                "tags": [
+                    "Postagens"
+                ],
+                "summary": "Publicar comunicado",
+                "description": "Cria e publica o comunicado numa única transação (#107): nasce PUBLISHED, com destinos e histórico (CREATION + PUBLICATION). O autor/publicador é o usuário autenticado.",
+                "operationId": "publish",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PublishAnnouncementRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Comunicado criado e publicado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Dados obrigatórios ausentes ou inválidos",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Sem permissão / fora do escopo (PA02/PA03)",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/posts/{postId}/images/{imageId}/thumbnail": {
+            "patch": {
+                "tags": [
+                    "Imagens"
+                ],
+                "summary": "Definir miniatura do comunicado",
+                "operationId": "setThumbnail",
+                "parameters": [
+                    {
+                        "name": "postId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "imageId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Miniatura definida",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementFileResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Sem permissão de edição",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementFileResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Arquivo não encontrado no comunicado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementFileResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/posts/{id}/unpin": {
+            "patch": {
+                "tags": [
+                    "Postagens"
+                ],
+                "summary": "Desafixar comunicado",
+                "operationId": "unpin",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Desafixado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Sem permissão",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/posts/{id}/schedule": {
+            "patch": {
+                "tags": [
+                    "Postagens"
+                ],
+                "summary": "Reagendar comunicado",
+                "operationId": "reschedule",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RescheduleAnnouncementRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Comunicado reagendado com sucesso",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Data ausente, inválida ou no passado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Sem permissão",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Comunicado inexistente ou removido",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementResponse"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Comunicado não está em status SCHEDULED",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/posts/{id}/pin": {
+            "patch": {
+                "tags": [
+                    "Postagens"
+                ],
+                "summary": "Fixar comunicado",
+                "operationId": "pin",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PinAnnouncementRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Fixado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Sem permissão — DOCENTE/APRENDIZ",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AnnouncementResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/tags": {
+            "get": {
+                "tags": [
+                    "Tags"
+                ],
+                "summary": "Listar tags ativas",
+                "operationId": "listTags",
+                "parameters": [
+                    {
+                        "name": "entityType",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "COURSE",
+                                "CLASS",
+                                "USER",
+                                "GENERAL",
+                                "SHIFT"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista retornada",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/TagResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Sem permissão",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/TagResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/posts": {
+            "get": {
+                "tags": [
+                    "Postagens"
+                ],
+                "summary": "Listar comunicados",
+                "description": "Retorna comunicados visíveis ao perfil em dois arrays: `pinned` (fixados, ordenados por pinnedOrder ASC, sem paginação) e `items` (não fixados, paginados por publishedAt DESC). A paginação (`page`, `size`, `totalElements`, `totalPages`) refere-se apenas a `items`. Comunicados removidos nunca aparecem. Aceita filtros por origem (WEG/SENAI/BOTH), turma, intervalo de publicação, tag (`tagId` ou `tagIds` com semântica OR) e termo de busca textual (`search`) — aplicados a ambos os arrays. Tag inexistente retorna listas vazias. Use `mine=true` para a tela \"Meus Comunicados\": restringe aos comunicados do próprio autor, inclui os agendados (SCHEDULED) e dispensa a regra de visibilidade; exige permissão de criação (403 caso contrário).",
+                "operationId": "list_1",
+                "parameters": [
+                    {
+                        "name": "origin",
+                        "in": "query",
+                        "description": "Filtra por origem do comunicado",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "description": "Filtra por origem do comunicado",
+                            "enum": [
+                                "WEG",
+                                "SENAI",
+                                "BOTH",
+                                "WEG",
+                                "SENAI",
+                                "BOTH"
+                            ],
+                            "example": "SENAI"
+                        },
+                        "example": "SENAI"
+                    },
+                    {
+                        "name": "filterType",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "classId",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "publishedFrom",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "name": "publishedTo",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Termo de busca textual (título, descriptionPlain, nome de tag ou destinatário)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "description": "Termo de busca textual (título, descriptionPlain, nome de tag ou destinatário)",
+                            "example": "retirada"
+                        },
+                        "example": "retirada"
+                    },
+                    {
+                        "name": "tagId",
+                        "in": "query",
+                        "description": "Filtra comunicados vinculados à tag informada",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "description": "Filtra comunicados vinculados à tag informada",
+                            "example": "66666666-6666-6666-6666-666666666666"
+                        },
+                        "example": "66666666-6666-6666-6666-666666666666"
+                    },
+                    {
+                        "name": "tagIds",
+                        "in": "query",
+                        "description": "Filtra por uma ou mais tags (semântica OR). Repita o parâmetro (`tagIds=uuid1&tagIds=uuid2`) ou separe por vírgula. Tag inexistente retorna lista vazia.",
+                        "required": false,
+                        "schema": {
+                            "type": "array",
+                            "description": "Filtra por uma ou mais tags (semântica OR). Repita o parâmetro (`tagIds=uuid1&tagIds=uuid2`) ou separe por vírgula. Tag inexistente retorna lista vazia.",
+                            "example": [
+                                "66666666-6666-6666-6666-666666666666"
+                            ],
+                            "items": {
+                                "type": "string",
+                                "format": "uuid",
+                                "description": "Filtra por uma ou mais tags (semântica OR). Repita o parâmetro (`tagIds=uuid1&tagIds=uuid2`) ou separe por vírgula. Tag inexistente retorna lista vazia.",
+                                "example": [
+                                    "66666666-6666-6666-6666-666666666666"
+                                ]
+                            }
+                        },
+                        "example": [
+                            "66666666-6666-6666-6666-666666666666"
+                        ]
+                    },
+                    {
+                        "name": "mine",
+                        "in": "query",
+                        "description": "Quando true, restringe a listagem aos comunicados criados pelo próprio usuário autenticado (tela \"Meus Comunicados\"). Nesse modo os agendados (SCHEDULED) também aparecem e a regra de visibilidade não se aplica. Exige permissão de criação — perfis sem essa permissão recebem 403.",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "description": "Quando true, restringe a listagem aos comunicados criados pelo próprio usuário autenticado (tela \"Meus Comunicados\"). Nesse modo os agendados (SCHEDULED) também aparecem e a regra de visibilidade não se aplica. Exige permissão de criação — perfis sem essa permissão recebem 403.",
+                            "example": true
+                        },
+                        "example": true
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "minimum": 0
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "maximum": 100,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista retornada",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListAnnouncementsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Parâmetros de filtro inválidos",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListAnnouncementsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListAnnouncementsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Sem permissão de criação para `mine=true`",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListAnnouncementsResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/posts/{id}/history": {
+            "get": {
+                "tags": [
+                    "Postagens"
+                ],
+                "summary": "Consultar histórico do comunicado",
+                "description": "Lista o histórico de auditoria do comunicado, respeitando a mesma regra de visibilidade da consulta por ID.",
+                "operationId": "history",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Página da consulta",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "description": "Página da consulta",
+                            "example": 0,
+                            "minimum": 0
+                        },
+                        "example": 0
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "description": "Quantidade de itens por página",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "description": "Quantidade de itens por página",
+                            "example": 20,
+                            "maximum": 100,
+                            "minimum": 1
+                        },
+                        "example": 20
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Histórico retornado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListAnnouncementHistoryResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Parâmetros de paginação inválidos",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListAnnouncementHistoryResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListAnnouncementHistoryResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Não encontrado ou fora do escopo",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListAnnouncementHistoryResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/posts/pinned": {
+            "get": {
+                "tags": [
+                    "Postagens"
+                ],
+                "summary": "Listar comunicados fixados",
+                "description": "Retorna comunicados publicados e fixados visíveis ao perfil autenticado, ordenados por pinnedOrder crescente. Lista vazia quando não houver fixados.",
+                "operationId": "listPinned",
+                "responses": {
+                    "200": {
+                        "description": "Lista retornada",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListPinnedAnnouncementsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListPinnedAnnouncementsResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/posts/{postId}/images/{imageId}": {
+            "delete": {
+                "tags": [
+                    "Imagens"
+                ],
+                "summary": "Remover arquivo do comunicado",
+                "operationId": "delete_1",
+                "parameters": [
+                    {
+                        "name": "postId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "imageId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Arquivo removido"
+                    },
+                    "403": {
+                        "description": "Sem permissão de edição"
+                    },
+                    "404": {
+                        "description": "Arquivo não encontrado"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/posts/{id}/tags/{tagId}": {
+            "delete": {
+                "tags": [
+                    "Tags"
+                ],
+                "summary": "Desassociar tag do comunicado",
+                "operationId": "unlinkTag",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "tagId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Tag desassociada"
+                    },
+                    "403": {
+                        "description": "Sem permissão"
+                    },
+                    "404": {
+                        "description": "Comunicado não encontrado"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "CreateAnnouncementDestinationRequest": {
+                "type": "object",
+                "properties": {
+                    "announcementId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "GENERAL",
+                            "COURSE",
+                            "CLASS",
+                            "USER"
+                        ]
+                    },
+                    "referenceId": {
+                        "type": "string",
+                        "format": "uuid"
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "UpdateAnnouncementRequest": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "description": "Título do comunicado.",
+                        "example": "Reunião de alinhamento",
+                        "maxLength": 255,
+                        "minLength": 0
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Conteúdo do comunicado em HTML sanitizado (allowlist TipTap). O servidor deriva descriptionPlain automaticamente; não enviar plain no request."
+                    },
+                    "origin": {
+                        "type": "string",
+                        "enum": [
+                            "WEG",
+                            "SENAI",
+                            "BOTH"
+                        ]
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "SCHEDULED",
+                            "PUBLISHED",
+                            "REMOVED"
+                        ]
+                    },
+                    "pinned": {
+                        "type": "boolean"
+                    },
+                    "pinnedOrder": {
+                        "type": "integer",
+                        "format": "int32",
+                        "minimum": 0
+                    },
+                    "scheduledFor": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "destinations": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CreateAnnouncementDestinationRequest"
+                        }
+                    }
+                }
+            },
+            "AnnouncementResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "title": {
+                        "type": "string",
+                        "description": "Título do comunicado.",
+                        "maxLength": 255
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Conteúdo do comunicado em HTML sanitizado (TipTap)."
+                    },
+                    "descriptionPlain": {
+                        "type": "string",
+                        "description": "Versão plain-text da descrição, sem HTML — gerada no servidor."
+                    },
+                    "origin": {
+                        "type": "string",
+                        "enum": [
+                            "WEG",
+                            "SENAI",
+                            "BOTH"
+                        ]
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "SCHEDULED",
+                            "PUBLISHED",
+                            "REMOVED"
+                        ]
+                    },
+                    "pinned": {
+                        "type": "boolean"
+                    },
+                    "pinnedOrder": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "createdByUserId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "publishedByUserId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "scheduledFor": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "publishedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "removedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "AnnouncementFileResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "announcementId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "originalName": {
+                        "type": "string"
+                    },
+                    "s3Key": {
+                        "type": "string"
+                    },
+                    "s3Bucket": {
+                        "type": "string"
+                    },
+                    "processedS3Key": {
+                        "type": "string"
+                    },
+                    "displayUrl": {
+                        "type": "string"
+                    },
+                    "contentType": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "IMAGE",
+                            "DOCUMENT",
+                            "VIDEO"
+                        ]
+                    },
+                    "fileStatus": {
+                        "type": "string",
+                        "enum": [
+                            "PENDING",
+                            "READY",
+                            "FAILED"
+                        ]
+                    },
+                    "sizeBytes": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "isThumbnail": {
+                        "type": "boolean"
+                    },
+                    "uploadedByUserId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "PresignUploadRequest": {
+                "type": "object",
+                "properties": {
+                    "contentType": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "sizeBytes": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "originalName": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "thumbnail": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "contentType",
+                    "originalName"
+                ]
+            },
+            "PresignUploadResponse": {
+                "type": "object",
+                "properties": {
+                    "fileId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "uploadUrl": {
+                        "type": "string"
+                    },
+                    "fields": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "LinkAnnouncementTagRequest": {
+                "type": "object",
+                "properties": {
+                    "tagIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "minItems": 1
+                    }
+                },
+                "required": [
+                    "tagIds"
+                ]
+            },
+            "TagResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "entityType": {
+                        "type": "string",
+                        "enum": [
+                            "COURSE",
+                            "CLASS",
+                            "USER",
+                            "GENERAL",
+                            "SHIFT"
+                        ]
+                    },
+                    "hubEntityId": {
+                        "type": "string"
+                    },
+                    "active": {
+                        "type": "boolean"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "CreateAnnouncementDestinationInput": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "GENERAL",
+                            "COURSE",
+                            "CLASS",
+                            "USER"
+                        ]
+                    },
+                    "referenceId": {
+                        "type": "string",
+                        "format": "uuid"
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "ScheduleAnnouncementRequest": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "description": "Título do comunicado.",
+                        "example": "Reunião de alinhamento",
+                        "maxLength": 255,
+                        "minLength": 0
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Conteúdo do comunicado em HTML sanitizado (allowlist TipTap: p, br, strong/b, em/i, u, ul/ol/li, a[href]). O servidor strip tags perigosas e deriva descriptionPlain automaticamente.",
+                        "minLength": 1
+                    },
+                    "origin": {
+                        "type": "string",
+                        "enum": [
+                            "WEG",
+                            "SENAI",
+                            "BOTH"
+                        ]
+                    },
+                    "scheduledFor": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "destinations": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CreateAnnouncementDestinationInput"
+                        },
+                        "minItems": 1
+                    },
+                    "pinned": {
+                        "type": "boolean"
+                    },
+                    "tagIds": {
+                        "type": "array",
+                        "description": "UUIDs internos da tabela tag (tag.id), não hub_entity_id do Core. Opcional.",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    "shiftCodes": {
+                        "type": "array",
+                        "description": "Turnos do comunicado (enum Shift do Core). Opcional; vazio = sem restrição de turno.",
+                        "example": [
+                            "FULL_AM_PM"
+                        ],
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "FULL_AM_PM",
+                                "FULL_PM_NT"
+                            ]
+                        }
+                    },
+                    "roles": {
+                        "type": "array",
+                        "description": "Papéis de usuário que podem ver o comunicado. Opcional; vazio = sem restrição de papel.",
+                        "example": [
+                            "STUDENT"
+                        ],
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "STUDENT",
+                                "REPRESENTATIVE",
+                                "TEACHER",
+                                "SENAI",
+                                "WEG",
+                                "ADMIN"
+                            ]
+                        }
+                    }
+                },
+                "required": [
+                    "description",
+                    "destinations",
+                    "origin",
+                    "scheduledFor",
+                    "title"
+                ]
+            },
+            "PublishAnnouncementRequest": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "description": "Título do comunicado.",
+                        "example": "Reunião de alinhamento",
+                        "maxLength": 255,
+                        "minLength": 0
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Conteúdo do comunicado em HTML sanitizado (allowlist TipTap: p, br, strong/b, em/i, u, ul/ol/li, a[href]). O servidor strip tags perigosas e deriva descriptionPlain automaticamente.",
+                        "minLength": 1
+                    },
+                    "origin": {
+                        "type": "string",
+                        "enum": [
+                            "WEG",
+                            "SENAI",
+                            "BOTH"
+                        ]
+                    },
+                    "destinations": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CreateAnnouncementDestinationInput"
+                        },
+                        "minItems": 1
+                    },
+                    "pinned": {
+                        "type": "boolean"
+                    },
+                    "tagIds": {
+                        "type": "array",
+                        "description": "UUIDs internos da tabela tag (tag.id), não hub_entity_id do Core. Opcional.",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    "shiftCodes": {
+                        "type": "array",
+                        "description": "Turnos do comunicado (enum Shift do Core). Opcional; vazio = sem restrição de turno.",
+                        "example": [
+                            "FULL_AM_PM"
+                        ],
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "FULL_AM_PM",
+                                "FULL_PM_NT"
+                            ]
+                        }
+                    },
+                    "roles": {
+                        "type": "array",
+                        "description": "Papéis de usuário que podem ver o comunicado. Opcional; vazio = sem restrição de papel.",
+                        "example": [
+                            "STUDENT"
+                        ],
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "STUDENT",
+                                "REPRESENTATIVE",
+                                "TEACHER",
+                                "SENAI",
+                                "WEG",
+                                "ADMIN"
+                            ]
+                        }
+                    }
+                },
+                "required": [
+                    "description",
+                    "destinations",
+                    "origin",
+                    "title"
+                ]
+            },
+            "RescheduleAnnouncementRequest": {
+                "type": "object",
+                "properties": {
+                    "scheduledFor": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "scheduledFor"
+                ]
+            },
+            "PinAnnouncementRequest": {
+                "type": "object",
+                "properties": {
+                    "pinnedOrder": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                }
+            },
+            "AnnouncementSummaryResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "title": {
+                        "type": "string",
+                        "description": "Título do comunicado.",
+                        "maxLength": 255
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Prévia plain-text da descrição (sem HTML) para mural/cards. Compatível: mesmo valor de descriptionPlain."
+                    },
+                    "descriptionPlain": {
+                        "type": "string",
+                        "description": "Versão plain-text da descrição, sem HTML — uso recomendado no mural."
+                    },
+                    "origin": {
+                        "type": "string",
+                        "enum": [
+                            "WEG",
+                            "SENAI",
+                            "BOTH"
+                        ]
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "SCHEDULED",
+                            "PUBLISHED",
+                            "REMOVED"
+                        ]
+                    },
+                    "pinned": {
+                        "type": "boolean"
+                    },
+                    "pinnedOrder": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "scheduledFor": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "publishedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "thumbnailUrl": {
+                        "type": "string",
+                        "description": "URL pré-assinada da miniatura do comunicado, se houver e estiver pronta."
+                    },
+                    "tags": {
+                        "type": "array",
+                        "description": "Tags vinculadas ao comunicado (curso, turma, turno, etc.).",
+                        "items": {
+                            "$ref": "#/components/schemas/TagResponse"
+                        }
+                    }
+                }
+            },
+            "ListAnnouncementsResponse": {
+                "type": "object",
+                "properties": {
+                    "pinned": {
+                        "type": "array",
+                        "description": "Comunicados fixados visíveis ao perfil, ordenados por pinnedOrder ASC",
+                        "items": {
+                            "$ref": "#/components/schemas/AnnouncementSummaryResponse"
+                        }
+                    },
+                    "items": {
+                        "type": "array",
+                        "description": "Comunicados não fixados, paginados por publishedAt DESC",
+                        "items": {
+                            "$ref": "#/components/schemas/AnnouncementSummaryResponse"
+                        }
+                    },
+                    "page": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "AnnouncementDestinationResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "announcementId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "GENERAL",
+                            "COURSE",
+                            "CLASS",
+                            "USER"
+                        ]
+                    },
+                    "referenceId": {
+                        "type": "string",
+                        "format": "uuid"
+                    }
+                }
+            },
+            "AnnouncementDetailResponse": {
+                "type": "object",
+                "properties": {
+                    "announcement": {
+                        "$ref": "#/components/schemas/AnnouncementResponse"
+                    },
+                    "destinations": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AnnouncementDestinationResponse"
+                        }
+                    },
+                    "files": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AnnouncementFileResponse"
+                        }
+                    },
+                    "tags": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AnnouncementTagResponse"
+                        }
+                    },
+                    "mentions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AnnouncementMentionResponse"
+                        }
+                    }
+                }
+            },
+            "AnnouncementMentionResponse": {
+                "type": "object",
+                "properties": {
+                    "announcementId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "userId": {
+                        "type": "string",
+                        "format": "uuid"
+                    }
+                }
+            },
+            "AnnouncementTagResponse": {
+                "type": "object",
+                "properties": {
+                    "announcementId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "tagId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "tagName": {
+                        "type": "string"
+                    }
+                }
+            },
+            "AnnouncementHistoryResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "announcementId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "userId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "action": {
+                        "type": "string",
+                        "enum": [
+                            "CREATION",
+                            "EDIT",
+                            "SCHEDULED",
+                            "PUBLICATION",
+                            "REMOVAL",
+                            "PINNED",
+                            "UNPINNED"
+                        ]
+                    },
+                    "snapshot": {
+                        "type": "string"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "ListAnnouncementHistoryResponse": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AnnouncementHistoryResponse"
+                        }
+                    },
+                    "page": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "ListPinnedAnnouncementsResponse": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AnnouncementSummaryResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "name": "bearerAuth",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    }
+}

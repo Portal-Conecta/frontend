@@ -12,8 +12,10 @@ A página do domínio nasce em `src/pages/` e é montada em uma rota do App Rout
 
 ```
 packages/checklist/src/pages/PageChecklist.tsx   ← componente de página (este pacote)
-apps/root/src/app/checklist/page.tsx             ← rota que importa de @portal/checklist
+apps/root/src/app/(authenticated)/checklist/page.tsx  ← rota que importa de @portal/checklist
 ```
+
+Este pacote ainda é scaffolding (`src/pages/` vazio, sem rota em `apps/root`). O padrão de página + rota já foi fechado no piloto de `@portal/comunicados`: a página renderiza só o conteúdo e a rota fina vive no grupo `(authenticated)` do `apps/root` — o `AppShell` vem do layout do grupo (#405). Espelhe esse pacote como referência ao implementar a primeira página aqui.
 
 ## Fronteiras
 

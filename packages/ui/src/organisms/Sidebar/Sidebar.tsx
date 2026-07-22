@@ -5,7 +5,7 @@
  * Next.js — navegação via `onClick`/`activeKey` (ADR-0004).
  *
  * Dois comportamentos por breakpoint (corte em `lg` = 1024px):
- * - Desktop (≥lg): rail persistente que anima 96px↔254px e empurra o conteúdo.
+ * - Desktop (≥lg): rail persistente que anima 72px↔248px e empurra o conteúdo.
  * - Tablet/Mobile (<lg): drawer sobreposto com scrim (expandido) ou um FAB
  *   circular no canto inferior esquerdo (colapsado).
  */
@@ -177,11 +177,11 @@ export function Sidebar({ items, activeKey, expanded, onToggle, railToggle = tru
             style={{ '--sb-drawer-w': `${SIDEBAR_WIDTH_EXPANDED}px` } as CSSProperties}
             className="relative flex h-full w-[280px] max-w-[80%] flex-col rounded-r-xl bg-background-default shadow-lg md:w-[var(--sb-drawer-w)]"
           >
-            {/* Espelha o bloco da logo do AppHeader (altura de 64px, `px-6`,
+            {/* Espelha o bloco da logo do AppHeader (altura de 60px, `px-6`,
                 centralizado) para que a marca não "salte" de posição ao abrir/
                 fechar o drawer. Tamanho responsivo: 32px no mobile, 44px no tablet.
                 Manter em sincronia com o AppHeader. */}
-            <div className="flex h-16 shrink-0 items-center px-6">
+            <div className="flex h-15 shrink-0 items-center px-6">
               <Logo variant="mark" tone="brand" size={32} className="md:hidden" />
               <Logo variant="mark" tone="brand" size={44} className="hidden md:block" />
             </div>

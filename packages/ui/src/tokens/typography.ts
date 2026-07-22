@@ -2,9 +2,10 @@
  * Tokens de tipografia do Portal Conecta.
  *
  * Desmembrado por propriedade para integração direta com o Tailwind:
- * - fontFamily → theme.extend.fontFamily
- * - fontSize   → theme.extend.fontSize  (lineHeight e fontWeight embutidos)
- * - fontWeight → theme.extend.fontWeight
+ * - fontFamily    → theme.extend.fontFamily
+ * - fontSize      → theme.extend.fontSize  (lineHeight e fontWeight embutidos)
+ * - fontWeight    → theme.extend.fontWeight
+ * - letterSpacing → theme.extend.letterSpacing (classe `tracking-*`)
  *
  * Tokens de tamanho seguem o formato [tamanho, { lineHeight, fontWeight? }].
  * Tokens com peso ≠ 400 — *-emphasis e os headings (SemiBold por definição no
@@ -16,15 +17,34 @@
  */
 
 export const typography = {
+  // As famílias vêm de CSS vars injetadas pelo next/font/google (modo variable):
+  // --font-inter / --font-afacad são definidas no <html> do RootLayout
+  // (apps/root) em runtime e replicadas no iframe do canvas pelo decorator do
+  // Storybook em dev. Editado à mão (aprovação TL, #407); scripts/sync-tokens.ts
+  // só lê o Figma e loga — não reescreve este arquivo.
   fontFamily: {
-    inter:  ['Inter', 'sans-serif'],
-    afacad: ['Afacad', 'sans-serif'],
+    inter:  ['var(--font-inter)', 'sans-serif'],
+    afacad: ['var(--font-afacad)', 'sans-serif'],
   },
 
   fontSize: {
-    // Headings — Inter SemiBold (peso embutido: headings são sempre 600 no DS)
-    'heading-h1': ['3rem',    { lineHeight: '1.2',  fontWeight: '600' }], // 48px / 120% SemiBold
-    'heading-h2': ['2.25rem', { lineHeight: '1.25', fontWeight: '600' }], // 36px / 125% SemiBold
+    // Display — números gigantes das páginas de erro (404/403/500). Escala
+    // responsiva aplicada por breakpoint no consumidor (text-display-sm →
+    // sm:text-display-md → md:text-display-lg → lg:text-display-xl). lineHeight 1
+    // (número isolado, sem entrelinha). Pareia com o letterSpacing `display`.
+    'display-sm': ['5rem',  { lineHeight: '1' }], //  80px
+    'display-md': ['7rem',  { lineHeight: '1' }], // 112px
+    'display-lg': ['10rem', { lineHeight: '1' }], // 160px
+    'display-xl': ['15rem', { lineHeight: '1' }], // 240px
+
+    // Headings — Inter SemiBold (peso embutido: headings são sempre 600 no DS).
+    // Tamanho e lineHeight seguem a escala Headline do Material Design 3
+    // (Large/Medium/Small) — promovido no código (aprovação TL, issue #328),
+    // ainda não refletido na coleção Typography do Figma DS (ver AGENTS.md §
+    // Dívidas técnicas).
+    'heading-h1': ['2rem',    { lineHeight: '1.25', fontWeight: '600' }], // 32px / 125% SemiBold (MD3 Headline Large)
+    'heading-h2': ['1.75rem', { lineHeight: '1.29', fontWeight: '600' }], // 28px / 129% SemiBold (MD3 Headline Medium)
+    'heading-h3': ['1.5rem',  { lineHeight: '1.33', fontWeight: '600' }], // 24px / 133% SemiBold (MD3 Headline Small)
 
     // Body — Afacad
     'body-xl':          ['1.5rem',  { lineHeight: '1.5' }],                    // 24px / 150% Regular
@@ -47,6 +67,12 @@ export const typography = {
   fontWeight: {
     regular:  '400',
     semibold: '600',
+  },
+
+  // letterSpacing → theme.extend.letterSpacing (classe `tracking-*`).
+  // `display`: espaçamento largo do número das páginas de erro (tracking-display).
+  letterSpacing: {
+    display: '0.6em',
   },
 } as const
 

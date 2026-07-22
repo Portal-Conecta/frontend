@@ -39,10 +39,12 @@ export interface AppLayoutProps {
   onLogoClick?: () => void
   /** Clique no perfil (header). */
   onProfileClick?: () => void
+  /** Menu de perfil aberto (header) — alimenta aria-expanded do gatilho. */
+  profileMenuOpen?: boolean
   /** Clique nas notificações (header). */
   onNotificationsClick?: () => void
-  /** Clique em "mais opções" (header). */
-  onMoreOptionsClick?: () => void
+  /** Há notificação não lida — sobrepõe um dot vermelho no sino do header. */
+  hasUnreadNotifications?: boolean
 }
 
 export function AppLayout({
@@ -52,8 +54,9 @@ export function AppLayout({
   defaultExpanded = false,
   onLogoClick,
   onProfileClick,
+  profileMenuOpen = false,
   onNotificationsClick,
-  onMoreOptionsClick,
+  hasUnreadNotifications = false,
 }: AppLayoutProps) {
   const [expanded, setExpanded] = useState(defaultExpanded)
   // Estável: a Sidebar usa `onToggle` num efeito de focus-trap; uma identidade
@@ -66,12 +69,16 @@ export function AppLayout({
     ...(onLogoClick ? { onLogoClick } : {}),
     ...(onProfileClick ? { onProfileClick } : {}),
     ...(onNotificationsClick ? { onNotificationsClick } : {}),
-    ...(onMoreOptionsClick ? { onMoreOptionsClick } : {}),
   }
 
   return (
     <div className="flex h-screen flex-col bg-background-surface lg:bg-background-default">
-      <AppHeader sidebarExpanded={expanded} {...headerActions} />
+      <AppHeader
+        sidebarExpanded={expanded}
+        hasUnreadNotifications={hasUnreadNotifications}
+        profileMenuOpen={profileMenuOpen}
+        {...headerActions}
+      />
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <Sidebar

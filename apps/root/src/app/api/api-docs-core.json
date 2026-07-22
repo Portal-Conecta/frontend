@@ -1,0 +1,4463 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Hub Core API",
+        "description": "Documentação navegável dos contratos HTTP do Hub Core.",
+        "version": "0.0.1-SNAPSHOT"
+    },
+    "servers": [
+        {
+            "url": "/"
+        }
+    ],
+    "tags": [
+        {
+            "name": "Usuários",
+            "description": "Operações para administração e consulta de usuários do Hub."
+        },
+        {
+            "name": "Salas",
+            "description": "Operações para consulta e administração de salas físicas do Hub."
+        },
+        {
+            "name": "Notificações",
+            "description": "Operações para gerenciamento, leitura e descarte de notificações do usuário."
+        },
+        {
+            "name": "Autenticação",
+            "description": "Operações para autenticação e gestão de sessão do Hub."
+        },
+        {
+            "name": "Turmas",
+            "description": "Operações para o gerenciamento de turmas e vínculos de membros no Hub."
+        },
+        {
+            "name": "Cursos",
+            "description": "Operações para cadastro, edição e consulta de cursos do Hub."
+        },
+        {
+            "name": "Meu Perfil",
+            "description": "Operações relacionadas ao contexto e vínculos do usuário autenticado."
+        }
+    ],
+    "paths": {
+        "/users": {
+            "get": {
+                "tags": [
+                    "Usuários"
+                ],
+                "summary": "Lista usuários",
+                "description": "Retorna uma lista paginada e filtrada de usuários cadastrados. Acesso permitido apenas para perfis autorizados (Administradores, e usuários WEG ou SENAI).",
+                "operationId": "list",
+                "parameters": [
+                    {
+                        "name": "request",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/ListUsersRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de usuários retornada com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListUsersResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Parâmetros de paginação ou filtro inválidos.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Usuário não possui permissão para listar usuários.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Usuários"
+                ],
+                "summary": "Cria um novo usuário",
+                "description": "Registra um novo usuário no sistema. O e-mail fornecido deve pertencer aos domínios institucionais da WEG ou SENAI. O usuário logado precisa ter as permissões adequadas para criar o perfil solicitado.",
+                "operationId": "create",
+                "requestBody": {
+                    "description": "Dados para criação do novo usuário.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateUserRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Usuário criado com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CreateUserResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Dados da requisição inválidos ou e-mail com formato/domínio não permitido.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Usuário autenticado não tem permissão para criar este tipo de perfil.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "E-mail já está em uso por outro usuário.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/users/bulk": {
+            "post": {
+                "tags": [
+                    "Usuários"
+                ],
+                "summary": "Consulta usuários em lote",
+                "description": "Retorna usuários ativos pelos IDs informados. IDs duplicados na requisição são filtrados. IDs inexistentes, inativos ou deletados serão mapeados no array missingIds.",
+                "operationId": "getBulkUsers",
+                "requestBody": {
+                    "description": "Lista de identificadores de usuários.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BulkUserRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Consulta realizada com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BulkUserResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Payload malformado ou lista de IDs inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/rooms": {
+            "get": {
+                "tags": [
+                    "Salas"
+                ],
+                "summary": "Lista salas ativas",
+                "description": "Retorna todas as salas físicas ativas cadastradas no Hub. Salas removidas logicamente não são retornadas.",
+                "operationId": "findAll",
+                "responses": {
+                    "200": {
+                        "description": "Lista de salas ativas retornada com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/RoomResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Salas"
+                ],
+                "summary": "Cria sala",
+                "description": "Cadastra uma nova sala física no Hub. Apenas perfis autorizados podem executar esta operação.",
+                "operationId": "create_1",
+                "requestBody": {
+                    "description": "Dados para criação da sala.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateRoomRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Sala criada com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CreateRoomResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Dados inválidos ou número de sala já em uso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Usuário autenticado sem permissão para criar salas.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/rooms/{roomId}/restore": {
+            "post": {
+                "tags": [
+                    "Salas"
+                ],
+                "summary": "Restaura sala removida",
+                "description": "Restaura uma sala removida logicamente. Apenas perfis autorizados podem executar esta operação.",
+                "operationId": "restore",
+                "parameters": [
+                    {
+                        "name": "roomId",
+                        "in": "path",
+                        "description": "Identificador da sala.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Sala restaurada com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RestoreRoomResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Sala não está removida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Usuário autenticado sem permissão para restaurar salas.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Sala inexistente.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/rooms/bulk": {
+            "post": {
+                "tags": [
+                    "Salas"
+                ],
+                "summary": "Consulta salas em lote",
+                "description": "Retorna salas ativas pelos IDs informados. IDs duplicados são ignorados. IDs inexistentes ou removidos aparecem em missingIds.",
+                "operationId": "getBulkRooms",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BulkRoomRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Consulta realizada com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BulkRoomResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Request malformado ou IDs inválidos.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/courses": {
+            "get": {
+                "tags": [
+                    "Cursos"
+                ],
+                "summary": "Lista todos os cursos",
+                "description": "Retorna uma lista contendo todos os cursos cadastrados.",
+                "operationId": "findAll_1",
+                "responses": {
+                    "200": {
+                        "description": "Lista de cursos retornada com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListCoursesResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Usuário autenticado sem permissão para executar a operação.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Cursos"
+                ],
+                "summary": "Cria um novo curso",
+                "description": "Registra um novo curso na plataforma informando nome e código.",
+                "operationId": "create_2",
+                "requestBody": {
+                    "description": "Dados para criação do curso.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateCourseRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Curso criado com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CreateCourseResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Requisição inválida (ex: payload incorreto ou incompleto).",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Usuário autenticado sem permissão para executar a operação.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/classes": {
+            "get": {
+                "tags": [
+                    "Turmas"
+                ],
+                "summary": "Lista turmas",
+                "description": "Retorna uma lista paginada de turmas ativas. É possível filtrar e paginar o resultado através dos parâmetros de query.",
+                "operationId": "listAll",
+                "parameters": [
+                    {
+                        "name": "request",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/ListClassesRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listagem realizada com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListClassesResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Requisição inválida. Parâmetros incorretos.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Turmas"
+                ],
+                "summary": "Cria uma nova turma",
+                "description": "Registra uma nova turma no sistema, vinculando-a a um curso e a um turno específico.",
+                "operationId": "create_3",
+                "requestBody": {
+                    "description": "Dados obrigatórios para a criação da turma.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateClassRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Turma criada com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CreateClassResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Requisição inválida. Parâmetros incorretos ou ausentes.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Usuário sem permissão para criar turmas.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Curso não encontrado.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Já existe turma com esse número neste curso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/classes/{classId}/restore": {
+            "post": {
+                "tags": [
+                    "Turmas"
+                ],
+                "summary": "Restaura turma desativada",
+                "description": "Restaura uma turma removida logicamente. Apenas ADMIN, SENAI e WEG podem executar esta operação.",
+                "operationId": "restore_1",
+                "parameters": [
+                    {
+                        "name": "classId",
+                        "in": "path",
+                        "description": "Identificador da turma.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Turma restaurada com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RestoreClassResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Turma já está ativa.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Usuário sem permissão para restaurar turma.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Turma inexistente.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/classes/{classId}/reactivate": {
+            "post": {
+                "tags": [
+                    "Turmas"
+                ],
+                "summary": "Reativa uma turma inativa",
+                "description": "Restaura o status ativo de uma turma previamente inativada. Apenas ADMIN, SENAI e WEG podem executar esta operação.",
+                "operationId": "reactivate",
+                "parameters": [
+                    {
+                        "name": "classId",
+                        "in": "path",
+                        "description": "Identificador da turma.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Turma reativada com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReactivateClassResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Turma já está ativa.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Usuário sem permissão para reativar turma.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Turma inexistente.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/classes/{classId}/members": {
+            "get": {
+                "tags": [
+                    "Turmas"
+                ],
+                "summary": "Lista membros da turma",
+                "description": "Retorna todos os membros vinculados a uma turma, com opção de filtrar por papel (role).",
+                "operationId": "listMembers",
+                "parameters": [
+                    {
+                        "name": "classId",
+                        "in": "path",
+                        "description": "Identificador da turma.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                    },
+                    {
+                        "name": "role",
+                        "in": "query",
+                        "description": "Papel do membro na turma. Quando ausente, retorna todos os papéis.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "STUDENT",
+                                "TEACHER",
+                                "REPRESENTATIVE"
+                            ]
+                        },
+                        "example": "TEACHER"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Membros da turma listados com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ClassMemberResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Parâmetro role inválido.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Usuário sem permissão para visualizar membros.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Turma não encontrada.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Turmas"
+                ],
+                "summary": "Adiciona membro à turma",
+                "description": "Vincula um usuário a uma turma, atribuindo-lhe um papel específico (ex: STUDENT, TEACHER).",
+                "operationId": "addMember",
+                "parameters": [
+                    {
+                        "name": "classId",
+                        "in": "path",
+                        "description": "Identificador único da turma.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "123e4567-e89b-12d3-a456-426614174000"
+                    }
+                ],
+                "requestBody": {
+                    "description": "Dados do usuário a ser vinculado e seu respectivo papel.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AddMemberRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Membro adicionado com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AddMemberResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Requisição inválida ou o usuário já é membro desta turma.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Usuário sem permissão para adicionar membros.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Turma ou usuário não encontrados.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/classes/{classId}/members/bulk": {
+            "post": {
+                "tags": [
+                    "Turmas"
+                ],
+                "summary": "Adiciona múltiplos membros à turma",
+                "description": "Vincula vários usuários a uma turma em uma única requisição. A operação é transacional: se qualquer item for inválido, nenhum vínculo é criado.",
+                "operationId": "bulkAddMembers",
+                "parameters": [
+                    {
+                        "name": "classId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BulkAddMembersRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Todos os membros foram adicionados com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BulkAddMemberResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Payload inválido, lista vazia, ou algum item violou regra de vínculo.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Usuário sem permissão para adicionar membros.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Turma não encontrada ou inativa.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/classes/{classId}/deactivate": {
+            "post": {
+                "tags": [
+                    "Turmas"
+                ],
+                "summary": "Inativa uma turma",
+                "description": "Marca a turma como inativa. A turma permanece no banco para consulta histórica, mas deixa de participar dos fluxos normais. Apenas ADMIN, SENAI e WEG podem executar esta operação.",
+                "operationId": "deactivate",
+                "parameters": [
+                    {
+                        "name": "classId",
+                        "in": "path",
+                        "description": "Identificador da turma.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Turma inativada com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeactivateClassResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Turma já está inativa.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Usuário sem permissão para inativar turma.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Turma inexistente.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/classes/bulk": {
+            "post": {
+                "tags": [
+                    "Turmas"
+                ],
+                "summary": "Consulta turmas em lote",
+                "description": "Retorna turmas pelos IDs informados. IDs duplicados são ignorados.\nPor padrão, apenas turmas ativas são retornadas e IDs de turmas desativadas aparecem em missingIds.\nUse includeInactive=true para incluir turmas desativadas em items.\n",
+                "operationId": "bulk",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BulkClassRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Consulta realizada com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BulkClassResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Request malformado ou IDs inválidos.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/auth/refresh": {
+            "post": {
+                "tags": [
+                    "Autenticação"
+                ],
+                "summary": "Renova os tokens de sessão",
+                "description": "Recebe um refresh token válido e retorna novos tokens de acesso e refresh.",
+                "operationId": "updateToken",
+                "requestBody": {
+                    "description": "Refresh token necessário para renovar a sessão.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RefreshTokenRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Tokens renovados com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RefreshTokenResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Requisição inválida (ex: refresh token ausente ou em branco).",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Refresh token inválido, expirado ou com tipo incorreto.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Usuário inexistente, inativo ou bloqueado.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/logout": {
+            "post": {
+                "tags": [
+                    "Autenticação"
+                ],
+                "summary": "Encerra a sessão do usuário",
+                "description": "Invalida o refresh token informado, impedindo sua reutilização. Nenhum novo token é emitido.",
+                "operationId": "logout",
+                "requestBody": {
+                    "description": "Refresh token da sessão a ser encerrada.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LogoutRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "204": {
+                        "description": "Sessão encerrada com sucesso."
+                    },
+                    "400": {
+                        "description": "Requisição inválida (ex: refresh token ausente ou em branco).",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Refresh token inválido, expirado, já revogado ou inexistente.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "tags": [
+                    "Autenticação"
+                ],
+                "summary": "Realiza login do usuário",
+                "description": "Recebe as credenciais do usuário e retorna os tokens de acesso para a sessão.",
+                "operationId": "login",
+                "requestBody": {
+                    "description": "Credenciais necessárias para realizar a autenticação.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoginRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Usuário autenticado com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LoginResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Requisição inválida (ex: payload incorreto ou incompleto).",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Credenciais inválidas ou não autorizadas.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/activate": {
+            "post": {
+                "tags": [
+                    "Autenticação"
+                ],
+                "summary": "Ativa conta de usuario",
+                "description": "Recebe token de ativacao e nova senha para concluir a ativacao da conta.",
+                "operationId": "activate",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ActivateAccountRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "204": {
+                        "description": "Conta ativada com sucesso."
+                    },
+                    "400": {
+                        "description": "Payload invalido, token expirado ou ja utilizado.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Usuario vinculado ao token nao encontrado.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{id}": {
+            "delete": {
+                "tags": [
+                    "Usuários"
+                ],
+                "summary": "Desativa usuário",
+                "description": "Realiza a desativação (exclusão lógica) do usuário especificado. Requer permissões administrativas ou níveis superiores de hierarquia.",
+                "operationId": "deactivate_1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Identificador do usuário a ser desativado.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Usuário desativado com sucesso."
+                    },
+                    "400": {
+                        "description": "Formato de identificador inválido.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Usuário autenticado não tem permissão para desativar este perfil.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Usuário não encontrado.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "patch": {
+                "tags": [
+                    "Usuários"
+                ],
+                "summary": "Atualiza dados do usuário",
+                "description": "Permite a atualização dos dados do usuário. Um usuário pode alterar seu próprio perfil, ou alterar outros perfis conforme regra de hierarquia permitida.",
+                "operationId": "update",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Identificador do usuário a ser atualizado.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                    }
+                ],
+                "requestBody": {
+                    "description": "Dados para atualização.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateUserRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Usuário atualizado com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UpdateUserResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Dados fornecidos são inválidos.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Usuário não possui permissão para editar este perfil.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Usuário não encontrado.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "E-mail já está em uso por outro usuário.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/rooms/{roomId}": {
+            "delete": {
+                "tags": [
+                    "Salas"
+                ],
+                "summary": "Remove sala",
+                "description": "Remove uma sala ativa. O registro é preservado no banco.",
+                "operationId": "remove",
+                "parameters": [
+                    {
+                        "name": "roomId",
+                        "in": "path",
+                        "description": "Identificador da sala.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Sala removida com sucesso."
+                    },
+                    "400": {
+                        "description": "Sala já removida logicamente.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Usuário sem permissão.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Sala inexistente.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "patch": {
+                "tags": [
+                    "Salas"
+                ],
+                "summary": "Edita sala",
+                "description": "Atualiza dados de uma sala ativa. Permite atualização parcial de number e type.",
+                "operationId": "update_1",
+                "parameters": [
+                    {
+                        "name": "roomId",
+                        "in": "path",
+                        "description": "Identificador da sala.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateRoomRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Sala atualizada com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RoomResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Dados inválidos ou nenhum campo informado.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Usuário sem permissão.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Sala inexistente ou removida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Número de sala já em uso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/notifications/{notificationId}/read": {
+            "patch": {
+                "tags": [
+                    "Notificações"
+                ],
+                "summary": "Marcar notificação como lida",
+                "description": "Altera o status de uma notificação específica do usuário autenticado para lida.",
+                "operationId": "markAsRead",
+                "parameters": [
+                    {
+                        "name": "notificationId",
+                        "in": "path",
+                        "description": "Identificador da notificação.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Notificação marcada como lida com sucesso."
+                    },
+                    "400": {
+                        "description": "Formato de identificador inválido.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Notificação não encontrada para o usuário informado.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/notifications/{notificationId}/dismiss": {
+            "patch": {
+                "tags": [
+                    "Notificações"
+                ],
+                "summary": "Descartar/ocultar notificação",
+                "description": "Arquiva ou oculta uma notificação do painel do usuário autenticado.",
+                "operationId": "dismiss",
+                "parameters": [
+                    {
+                        "name": "notificationId",
+                        "in": "path",
+                        "description": "Identificador da notificação.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Notificação descartada com sucesso."
+                    },
+                    "400": {
+                        "description": "Formato de identificador inválido.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Notificação não encontrada para o usuário informado.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/notifications/read": {
+            "patch": {
+                "tags": [
+                    "Notificações"
+                ],
+                "summary": "Marcar notificações como lidas",
+                "description": "Altera o status de várias notificações do usuário autenticado para lidas, com base nos IDs fornecidos.",
+                "operationId": "markAsRead_1",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MarkAsReadNotificationsRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "204": {
+                        "description": "Notificações marcadas como lidas com sucesso."
+                    },
+                    "400": {
+                        "description": "Formato de identificador inválido ou lista de IDs vazia.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/notifications/read-all": {
+            "patch": {
+                "tags": [
+                    "Notificações"
+                ],
+                "summary": "Marcar todas as notificações como lidas",
+                "description": "Altera o status de todas as notificações não lidas do usuário autenticado para lidas em lote.",
+                "operationId": "markAllAsRead",
+                "responses": {
+                    "204": {
+                        "description": "Todas as notificações foram marcadas como lidas."
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/courses/{courseId}": {
+            "get": {
+                "tags": [
+                    "Cursos"
+                ],
+                "summary": "Consulta curso pelo ID",
+                "description": "Retorna os detalhes de um curso específico com base no identificador informado.",
+                "operationId": "findById",
+                "parameters": [
+                    {
+                        "name": "courseId",
+                        "in": "path",
+                        "description": "Identificador do curso.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Curso encontrado com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CourseResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Usuário autenticado sem permissão para executar a operação.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Recurso não encontrado. O curso com o ID informado não existe.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "patch": {
+                "tags": [
+                    "Cursos"
+                ],
+                "summary": "Atualiza dados de um curso",
+                "description": "Altera as informações de um curso existente. Apenas os campos enviados serão alterados.",
+                "operationId": "update_2",
+                "parameters": [
+                    {
+                        "name": "courseId",
+                        "in": "path",
+                        "description": "Identificador do curso a ser atualizado.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                    }
+                ],
+                "requestBody": {
+                    "description": "Dados para atualização do curso.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateCourseRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Curso atualizado com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UpdateCourseResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Requisição inválida (ex: regras de validação violadas).",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Usuário autenticado sem permissão para executar a operação.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Recurso não encontrado. O curso com o ID informado não existe.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/classes/{classId}/members/{userId}/representative": {
+            "delete": {
+                "tags": [
+                    "Turmas"
+                ],
+                "summary": "Rebaixa representante",
+                "description": "Remove o status de representante de um membro, retornando-o às permissões do seu papel padrão.",
+                "operationId": "demoteFromRepresentative",
+                "parameters": [
+                    {
+                        "name": "classId",
+                        "in": "path",
+                        "description": "Identificador único da turma.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "123e4567-e89b-12d3-a456-426614174000"
+                    },
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "description": "Identificador único do usuário.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "987e6543-e21b-34d5-c678-426614174999"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Status de representante removido com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DemoteMemberResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Membro não é um representante atual.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Usuário sem permissão para alterar papéis de membros.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Vínculo entre usuário e turma não encontrado.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "patch": {
+                "tags": [
+                    "Turmas"
+                ],
+                "summary": "Promove membro a representante",
+                "description": "Altera o vínculo de um membro existente na turma para lhe conceder o status de representante.",
+                "operationId": "promoteToRepresentative",
+                "parameters": [
+                    {
+                        "name": "classId",
+                        "in": "path",
+                        "description": "Identificador único da turma.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "123e4567-e89b-12d3-a456-426614174000"
+                    },
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "description": "Identificador único do usuário.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "987e6543-e21b-34d5-c678-426614174999"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Membro promovido a representante com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PromoteMemberResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Membro já é um representante ou estado inválido.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Usuário sem permissão para alterar papéis de membros.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Vínculo entre usuário e turma não encontrado.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/users/{userId}": {
+            "get": {
+                "tags": [
+                    "Usuários"
+                ],
+                "summary": "Consulta usuário por ID",
+                "description": "Retorna os dados básicos de um usuário ativo para integração. Se o usuário estiver inativo ou removido logicamente, retornará 404.",
+                "operationId": "getUserById",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "description": "Identificador do usuário.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Usuário encontrado com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Formato de identificador inválido.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Usuário inexistente, removido ou inativo.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/users/{userId}/class": {
+            "get": {
+                "tags": [
+                    "Usuários"
+                ],
+                "summary": "Consulta a turma ativa de um usuário",
+                "description": "Retorna o UUID da turma ativa vinculada a um usuário com papel STUDENT ou REPRESENTATIVE. Turmas desativadas ou removidas não são retornadas. Um aprendiz possui, no máximo, uma turma ativa elegível.",
+                "operationId": "getActiveClass",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "description": "Identificador único do usuário.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Turma ativa encontrada.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Usuário inexistente, inativo ou removido.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/rooms/{id}": {
+            "get": {
+                "tags": [
+                    "Salas"
+                ],
+                "summary": "Consulta sala por ID",
+                "description": "Retorna os dados de uma sala ativa pelo identificador informado. Salas removidas logicamente retornam 404.",
+                "operationId": "findById_1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Identificador da sala.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Sala encontrada com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RoomResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Sala inexistente ou removida logicamente.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/notifications": {
+            "get": {
+                "tags": [
+                    "Notificações"
+                ],
+                "summary": "Listar notificações do usuário autenticado",
+                "description": "Retorna as notificações do usuário autenticado filtradas por status (lida ou não lida), com paginação, ordenadas da mais recente para a mais antiga. Notificações ocultadas não são retornadas.",
+                "operationId": "listNotifications",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Filtra por notificações lidas ou não lidas.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "READ",
+                                "UNREAD"
+                            ]
+                        },
+                        "example": "UNREAD"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Número da página (base 0).",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 0,
+                            "minimum": 0
+                        },
+                        "example": 0
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "description": "Tamanho da página. Máximo 50.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 20,
+                            "maximum": 50,
+                            "minimum": 1
+                        },
+                        "example": 20
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de notificações retornada com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PagedNotificationsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Status inválido ou parâmetro de paginação fora do limite.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/notifications/unread-count": {
+            "get": {
+                "tags": [
+                    "Notificações"
+                ],
+                "summary": "Contar notificações não lidas",
+                "description": "Retorna a quantidade de notificações não lidas e não ocultadas do usuário autenticado.",
+                "operationId": "unreadCount",
+                "responses": {
+                    "200": {
+                        "description": "Contagem retornada com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnreadCountResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/me": {
+            "get": {
+                "tags": [
+                    "Meu Perfil"
+                ],
+                "summary": "Consulta o perfil do usuário autenticado",
+                "description": "Retorna os dados principais do usuário autenticado. O usuário é identificado automaticamente pelo token JWT, sem necessidade de enviar ID na requisição. A resposta não inclui senha, dados administrativos, auditoria ou vínculos acadêmicos.",
+                "operationId": "getMe",
+                "responses": {
+                    "200": {
+                        "description": "Perfil retornado com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MyProfileResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Usuário autenticado não encontrado na base de dados.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/me/courses": {
+            "get": {
+                "tags": [
+                    "Meu Perfil"
+                ],
+                "summary": "Consulta os próprios vínculos acadêmicos",
+                "description": "Retorna os cursos e turmas vinculados ao usuário autenticado. O usuário é identificado automaticamente pelo token JWT, sem necessidade de enviar ID na requisição. A resposta exibe o papel contextual do usuário em cada turma, sem expor dados de outros membros. Caso não possua vínculos, retorna a estrutura com courses: [].",
+                "operationId": "getMyCourses",
+                "responses": {
+                    "200": {
+                        "description": "Vínculos retornados com sucesso.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MyListCourseResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Usuário autenticado não encontrado na base de dados.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/classes/{classId}": {
+            "get": {
+                "tags": [
+                    "Turmas"
+                ],
+                "summary": "Consulta turma por ID",
+                "description": "Retorna dados básicos de uma turma ativa. Turmas removidas ou inexistentes retornam 404.",
+                "operationId": "getById",
+                "parameters": [
+                    {
+                        "name": "classId",
+                        "in": "path",
+                        "description": "Identificador da turma.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Turma encontrada.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ClassResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Turma inexistente ou removida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/classes/{id}": {
+            "delete": {
+                "tags": [
+                    "Turmas"
+                ],
+                "summary": "Exclui uma turma",
+                "description": "Remove permanentemente uma turma do sistema com base no seu identificador.",
+                "operationId": "delete",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Identificador único da turma.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "123e4567-e89b-12d3-a456-426614174000"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Turma excluída com sucesso."
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Usuário sem permissão para excluir turmas.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Turma não encontrada.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/classes/{classId}/members/{userId}": {
+            "delete": {
+                "tags": [
+                    "Turmas"
+                ],
+                "summary": "Remove membro da turma",
+                "description": "Desvincula um usuário de uma turma. O usuário perde o acesso associado a essa classe.",
+                "operationId": "deleteMembership",
+                "parameters": [
+                    {
+                        "name": "classId",
+                        "in": "path",
+                        "description": "Identificador único da turma.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "123e4567-e89b-12d3-a456-426614174000"
+                    },
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "description": "Identificador único do usuário a ser removido.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "987e6543-e21b-34d5-c678-426614174999"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Membro removido da turma com sucesso."
+                    },
+                    "400": {
+                        "description": "Usuário tentou remover o próprio vínculo ou a regra de negócio é inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Autenticação ausente ou inválida.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Usuário sem permissão para remover membros.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Vínculo entre usuário e turma não encontrado.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "CreateUserRequest": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 150,
+                        "minLength": 0
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 180,
+                        "minLength": 0
+                    },
+                    "typeUser": {
+                        "type": "string",
+                        "enum": [
+                            "STUDENT",
+                            "REPRESENTATIVE",
+                            "TEACHER",
+                            "SENAI",
+                            "WEG",
+                            "ADMIN"
+                        ]
+                    }
+                },
+                "required": [
+                    "email",
+                    "name",
+                    "typeUser"
+                ]
+            },
+            "CreateUserResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "typeUser": {
+                        "type": "string",
+                        "enum": [
+                            "STUDENT",
+                            "REPRESENTATIVE",
+                            "TEACHER",
+                            "SENAI",
+                            "WEG",
+                            "ADMIN"
+                        ]
+                    },
+                    "active": {
+                        "type": "boolean"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "deletedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "ApiError": {
+                "type": "object",
+                "properties": {
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "status": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "error": {
+                        "type": "string"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "path": {
+                        "type": "string"
+                    },
+                    "errors": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FieldErrorDetail"
+                        }
+                    }
+                }
+            },
+            "FieldErrorDetail": {
+                "type": "object",
+                "properties": {
+                    "field": {
+                        "type": "string"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            },
+            "BulkUserRequest": {
+                "type": "object",
+                "properties": {
+                    "ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "minItems": 1
+                    }
+                },
+                "required": [
+                    "ids"
+                ]
+            },
+            "BulkUserResponse": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/UserResponse"
+                        }
+                    },
+                    "foundIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    "missingIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                }
+            },
+            "UserResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "typeUser": {
+                        "type": "string",
+                        "enum": [
+                            "STUDENT",
+                            "REPRESENTATIVE",
+                            "TEACHER",
+                            "SENAI",
+                            "WEG",
+                            "ADMIN"
+                        ]
+                    },
+                    "active": {
+                        "type": "boolean"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "CreateRoomRequest": {
+                "type": "object",
+                "properties": {
+                    "number": {
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Número identificador da sala.",
+                        "example": 101
+                    },
+                    "type": {
+                        "type": "string",
+                        "description": "Tipo da sala. Valores aceitos: classroom, laboratory, auditorium, other.",
+                        "enum": [
+                            "CLASSROOM",
+                            "LABORATORY",
+                            "AUDITORIUM",
+                            "OTHER"
+                        ],
+                        "example": "classroom"
+                    }
+                },
+                "required": [
+                    "number",
+                    "type"
+                ]
+            },
+            "CreateRoomResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "CLASSROOM",
+                            "LABORATORY",
+                            "AUDITORIUM",
+                            "OTHER"
+                        ]
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "RestoreRoomResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "typeRoom": {
+                        "type": "string",
+                        "enum": [
+                            "CLASSROOM",
+                            "LABORATORY",
+                            "AUDITORIUM",
+                            "OTHER"
+                        ]
+                    },
+                    "deletedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "BulkRoomRequest": {
+                "type": "object",
+                "properties": {
+                    "ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "minItems": 1
+                    }
+                },
+                "required": [
+                    "ids"
+                ]
+            },
+            "BulkRoomResponse": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/RoomResponse"
+                        }
+                    },
+                    "foundIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    "missingIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                }
+            },
+            "RoomResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "typeRoom": {
+                        "type": "string",
+                        "enum": [
+                            "CLASSROOM",
+                            "LABORATORY",
+                            "AUDITORIUM",
+                            "OTHER"
+                        ]
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "CreateCourseRequest": {
+                "type": "object",
+                "description": "Payload para criação de um novo curso.",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Nome descritivo do curso.",
+                        "example": "Desenvolvimento de Sistemas",
+                        "minLength": 1
+                    },
+                    "code": {
+                        "type": "string",
+                        "description": "Código identificador do curso.",
+                        "example": "DEV-01",
+                        "minLength": 1
+                    }
+                },
+                "required": [
+                    "code",
+                    "name"
+                ]
+            },
+            "CreateCourseResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "code": {
+                        "type": "string"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "CreateClassRequest": {
+                "type": "object",
+                "description": "Payload para criação de uma nova turma.",
+                "properties": {
+                    "shift": {
+                        "type": "string",
+                        "description": "Turno em que a turma será ministrada.",
+                        "enum": [
+                            "FULL_AM_PM",
+                            "FULL_PM_NT"
+                        ],
+                        "example": "FULL_AM_PM"
+                    },
+                    "courseId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Identificador único do curso ao qual a nova turma será vinculada.",
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Número da turma, representando a leva atual do curso.",
+                        "example": 78,
+                        "minimum": 1
+                    }
+                },
+                "required": [
+                    "courseId",
+                    "number",
+                    "shift"
+                ]
+            },
+            "CreateClassResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "shift": {
+                        "type": "string",
+                        "enum": [
+                            "FULL_AM_PM",
+                            "FULL_PM_NT"
+                        ]
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "courseId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "RestoreClassResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "shift": {
+                        "type": "string"
+                    },
+                    "courseId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "active": {
+                        "type": "boolean"
+                    },
+                    "deletedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "ClassResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "shift": {
+                        "type": "string",
+                        "enum": [
+                            "FULL_AM_PM",
+                            "FULL_PM_NT"
+                        ]
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "active": {
+                        "type": "boolean"
+                    },
+                    "courseId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "ReactivateClassResponse": {
+                "type": "object",
+                "properties": {
+                    "classResponse": {
+                        "$ref": "#/components/schemas/ClassResponse"
+                    }
+                }
+            },
+            "AddMemberRequest": {
+                "type": "object",
+                "description": "Payload para vincular um usuário a uma turma.",
+                "properties": {
+                    "userId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Identificador único do usuário que será adicionado à turma.",
+                        "example": "987e6543-e21b-34d5-c678-426614174999"
+                    },
+                    "classRole": {
+                        "type": "string",
+                        "description": "Papel que o usuário exercerá na turma (ex: STUDENT, TEACHER).",
+                        "enum": [
+                            "STUDENT",
+                            "TEACHER",
+                            "REPRESENTATIVE"
+                        ],
+                        "example": "STUDENT"
+                    }
+                },
+                "required": [
+                    "classRole",
+                    "userId"
+                ]
+            },
+            "AddMemberResponse": {
+                "type": "object",
+                "properties": {
+                    "userId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "classId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "classRole": {
+                        "type": "string",
+                        "enum": [
+                            "STUDENT",
+                            "TEACHER",
+                            "REPRESENTATIVE"
+                        ]
+                    }
+                }
+            },
+            "BulkAddMembersRequest": {
+                "type": "object",
+                "properties": {
+                    "members": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MemberItem"
+                        },
+                        "minItems": 1
+                    }
+                },
+                "required": [
+                    "members"
+                ]
+            },
+            "MemberItem": {
+                "type": "object",
+                "properties": {
+                    "userId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "classRole": {
+                        "type": "string",
+                        "enum": [
+                            "STUDENT",
+                            "TEACHER",
+                            "REPRESENTATIVE"
+                        ]
+                    }
+                },
+                "required": [
+                    "classRole",
+                    "userId"
+                ]
+            },
+            "BulkAddMemberResponse": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AddMemberResponse"
+                        }
+                    }
+                }
+            },
+            "DeactivateClassResponse": {
+                "type": "object",
+                "properties": {
+                    "classResponse": {
+                        "$ref": "#/components/schemas/ClassResponse"
+                    }
+                }
+            },
+            "BulkClassRequest": {
+                "type": "object",
+                "properties": {
+                    "ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "minItems": 1
+                    },
+                    "includeInactive": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Quando true, turmas ativas e inativas são retornadas. Turmas deletadas nunca são retornadas. Padrão: false."
+                    }
+                },
+                "required": [
+                    "ids"
+                ]
+            },
+            "BulkClassResponse": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ClassResponse"
+                        }
+                    },
+                    "foundIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    "missingIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                }
+            },
+            "RefreshTokenRequest": {
+                "type": "object",
+                "description": "Payload contendo o refresh token para renovação da sessão.",
+                "properties": {
+                    "refreshToken": {
+                        "type": "string",
+                        "description": "Refresh token JWT emitido no login ou na última renovação.",
+                        "example": "eyJhbGci...",
+                        "minLength": 1
+                    }
+                },
+                "required": [
+                    "refreshToken"
+                ]
+            },
+            "RefreshTokenResponse": {
+                "type": "object",
+                "properties": {
+                    "accessToken": {
+                        "type": "string"
+                    },
+                    "refreshToken": {
+                        "type": "string"
+                    },
+                    "expiresIn": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "LogoutRequest": {
+                "type": "object",
+                "description": "Payload para encerramento de sessão.",
+                "properties": {
+                    "refreshToken": {
+                        "type": "string",
+                        "description": "Refresh token da sessão a ser encerrada.",
+                        "minLength": 1
+                    }
+                },
+                "required": [
+                    "refreshToken"
+                ]
+            },
+            "LoginRequest": {
+                "type": "object",
+                "description": "Payload contendo as credenciais para realizar o login na plataforma.",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "description": "E-mail de acesso do usuário.",
+                        "example": "maria.silva@example.com",
+                        "minLength": 1
+                    },
+                    "password": {
+                        "type": "string",
+                        "description": "Senha de acesso do usuário.",
+                        "example": "senhaSegura123",
+                        "minLength": 1
+                    }
+                },
+                "required": [
+                    "email",
+                    "password"
+                ]
+            },
+            "LoginResponse": {
+                "type": "object",
+                "properties": {
+                    "accessToken": {
+                        "type": "string"
+                    },
+                    "refreshToken": {
+                        "type": "string"
+                    },
+                    "expiresIn": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "ActivateAccountRequest": {
+                "type": "object",
+                "properties": {
+                    "token": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "newPassword": {
+                        "type": "string",
+                        "maxLength": 2147483647,
+                        "minLength": 6
+                    }
+                },
+                "required": [
+                    "newPassword",
+                    "token"
+                ]
+            },
+            "UpdateUserRequest": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    }
+                }
+            },
+            "UpdateUserResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "avatarUrl": {
+                        "type": "string"
+                    },
+                    "typeUser": {
+                        "type": "string"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "UpdateRoomRequest": {
+                "type": "object",
+                "properties": {
+                    "number": {
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Número identificador da sala.",
+                        "example": 204
+                    },
+                    "type": {
+                        "type": "string",
+                        "description": "Tipo da sala. Valores aceitos: CLASSROOM, LABORATORY, AUDITORIUM, OTHER",
+                        "enum": [
+                            "CLASSROOM",
+                            "LABORATORY",
+                            "AUDITORIUM",
+                            "OTHER"
+                        ],
+                        "example": "LABORATORY"
+                    }
+                }
+            },
+            "MarkAsReadNotificationsRequest": {
+                "type": "object",
+                "properties": {
+                    "notificationIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                }
+            },
+            "UpdateCourseRequest": {
+                "type": "object",
+                "description": "Payload para atualização de um curso. Envie apenas os campos que deseja alterar.",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Novo nome descritivo do curso.",
+                        "example": "Manutenção e Configuração de Redes Locais"
+                    },
+                    "code": {
+                        "type": "string",
+                        "description": "Novo código identificador do curso.",
+                        "example": "RED-02"
+                    }
+                }
+            },
+            "UpdateCourseResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "code": {
+                        "type": "string"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "PromoteMemberResponse": {
+                "type": "object",
+                "properties": {
+                    "userId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "classId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "classRole": {
+                        "type": "string",
+                        "enum": [
+                            "STUDENT",
+                            "TEACHER",
+                            "REPRESENTATIVE"
+                        ]
+                    },
+                    "userType": {
+                        "type": "string",
+                        "enum": [
+                            "STUDENT",
+                            "REPRESENTATIVE",
+                            "TEACHER",
+                            "SENAI",
+                            "WEG",
+                            "ADMIN"
+                        ]
+                    }
+                }
+            },
+            "ListUsersRequest": {
+                "type": "object",
+                "properties": {
+                    "page": {
+                        "type": "integer",
+                        "format": "int32",
+                        "minimum": 0
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32",
+                        "maximum": 100,
+                        "minimum": 1
+                    },
+                    "typeUser": {
+                        "type": "string",
+                        "enum": [
+                            "STUDENT",
+                            "REPRESENTATIVE",
+                            "TEACHER",
+                            "SENAI",
+                            "WEG",
+                            "ADMIN"
+                        ]
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Filtra usuários ativos cujo nome contenha o valor informado, sem diferenciar maiúsculas de minúsculas."
+                    },
+                    "status": {
+                        "type": "array",
+                        "description": "Filtra por um ou mais status da conta. Quando ausente, retorna somente usuários ACTIVE.",
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "PENDING_ACTIVATION",
+                                "ACTIVE",
+                                "DISABLED",
+                                "PENDING_DELETION"
+                            ]
+                        }
+                    }
+                }
+            },
+            "ListUserResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "typeUser": {
+                        "type": "string",
+                        "enum": [
+                            "STUDENT",
+                            "REPRESENTATIVE",
+                            "TEACHER",
+                            "SENAI",
+                            "WEG",
+                            "ADMIN"
+                        ]
+                    },
+                    "active": {
+                        "type": "boolean"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "ListUsersResponse": {
+                "type": "object",
+                "properties": {
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ListUserResponse"
+                        }
+                    },
+                    "page": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                }
+            },
+            "JsonNode": {
+                "type": "object",
+                "properties": {
+                    "integralNumber": {
+                        "type": "boolean"
+                    },
+                    "missingNode": {
+                        "type": "boolean"
+                    },
+                    "floatingPointNumber": {
+                        "type": "boolean"
+                    },
+                    "boolean": {
+                        "type": "boolean"
+                    },
+                    "binary": {
+                        "type": "boolean"
+                    },
+                    "nodeType": {
+                        "type": "string",
+                        "enum": [
+                            "ARRAY",
+                            "BINARY",
+                            "BOOLEAN",
+                            "MISSING",
+                            "NULL",
+                            "NUMBER",
+                            "OBJECT",
+                            "POJO",
+                            "STRING"
+                        ]
+                    },
+                    "string": {
+                        "type": "boolean"
+                    },
+                    "valueNode": {
+                        "type": "boolean"
+                    },
+                    "container": {
+                        "type": "boolean"
+                    },
+                    "object": {
+                        "type": "boolean"
+                    },
+                    "pojo": {
+                        "type": "boolean"
+                    },
+                    "short": {
+                        "type": "boolean"
+                    },
+                    "int": {
+                        "type": "boolean"
+                    },
+                    "long": {
+                        "type": "boolean"
+                    },
+                    "double": {
+                        "type": "boolean"
+                    },
+                    "bigDecimal": {
+                        "type": "boolean"
+                    },
+                    "bigInteger": {
+                        "type": "boolean"
+                    },
+                    "textual": {
+                        "type": "boolean",
+                        "deprecated": true
+                    },
+                    "number": {
+                        "type": "boolean"
+                    },
+                    "array": {
+                        "type": "boolean"
+                    },
+                    "empty": {
+                        "type": "boolean"
+                    },
+                    "null": {
+                        "type": "boolean"
+                    },
+                    "float": {
+                        "type": "boolean"
+                    },
+                    "embeddedValue": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "NotificationResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "notificationId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "body": {
+                        "type": "string"
+                    },
+                    "source": {
+                        "type": "string"
+                    },
+                    "eventType": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "CHECKLIST",
+                            "MAPA",
+                            "COMUNICADO",
+                            "OUTRO"
+                        ]
+                    },
+                    "occurredAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "readAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "read": {
+                        "type": "boolean"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "metadata": {
+                        "$ref": "#/components/schemas/JsonNode"
+                    }
+                }
+            },
+            "PagedNotificationsResponse": {
+                "type": "object",
+                "properties": {
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/NotificationResponse"
+                        }
+                    },
+                    "page": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                }
+            },
+            "UnreadCountResponse": {
+                "type": "object",
+                "properties": {
+                    "unreadCount": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "MyProfileResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "typeUser": {
+                        "type": "string",
+                        "enum": [
+                            "STUDENT",
+                            "REPRESENTATIVE",
+                            "TEACHER",
+                            "SENAI",
+                            "WEG",
+                            "ADMIN"
+                        ]
+                    },
+                    "avatarUrl": {
+                        "type": "string"
+                    }
+                }
+            },
+            "MyClassResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "shift": {
+                        "type": "string",
+                        "enum": [
+                            "FULL_AM_PM",
+                            "FULL_PM_NT"
+                        ]
+                    },
+                    "classRole": {
+                        "type": "string",
+                        "enum": [
+                            "STUDENT",
+                            "TEACHER",
+                            "REPRESENTATIVE"
+                        ]
+                    }
+                }
+            },
+            "MyCourseResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "code": {
+                        "type": "string"
+                    },
+                    "classes": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MyClassResponse"
+                        }
+                    }
+                }
+            },
+            "MyListCourseResponse": {
+                "type": "object",
+                "properties": {
+                    "courses": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MyCourseResponse"
+                        }
+                    }
+                }
+            },
+            "CourseResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "code": {
+                        "type": "string"
+                    }
+                }
+            },
+            "ListCoursesResponse": {
+                "type": "object",
+                "properties": {
+                    "courses": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CourseResponse"
+                        }
+                    }
+                }
+            },
+            "ListClassesRequest": {
+                "type": "object",
+                "properties": {
+                    "page": {
+                        "type": "integer",
+                        "format": "int32",
+                        "minimum": 0
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32",
+                        "maximum": 100,
+                        "minimum": 1
+                    },
+                    "includeInactive": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Quando true, retorna turmas ativas e inativas não deletadas. Padrão: false."
+                    },
+                    "onlyInactive": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Quando true, retorna apenas turmas inativas não deletadas. Padrão: false."
+                    }
+                }
+            },
+            "ListClassItemResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "shift": {
+                        "type": "string"
+                    },
+                    "courseId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "active": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "ListClassesResponse": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ListClassItemResponse"
+                        }
+                    },
+                    "page": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "ClassMemberResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "classRole": {
+                        "type": "string",
+                        "enum": [
+                            "STUDENT",
+                            "TEACHER",
+                            "REPRESENTATIVE"
+                        ]
+                    }
+                }
+            },
+            "DemoteMemberResponse": {
+                "type": "object",
+                "properties": {
+                    "userId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "classId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "classRole": {
+                        "type": "string",
+                        "enum": [
+                            "STUDENT",
+                            "TEACHER",
+                            "REPRESENTATIVE"
+                        ]
+                    },
+                    "userType": {
+                        "type": "string",
+                        "enum": [
+                            "STUDENT",
+                            "REPRESENTATIVE",
+                            "TEACHER",
+                            "SENAI",
+                            "WEG",
+                            "ADMIN"
+                        ]
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "name": "bearerAuth",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    }
+}

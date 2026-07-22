@@ -11,11 +11,11 @@ Domínio de **comunicados**: mural de comunicados do Portal, destino pós-login.
 A página do domínio nasce em `src/pages/` e é montada em uma rota do App Router pelo shell:
 
 ```
-packages/comunicados/src/pages/PageComunicados.tsx   ← componente de página (este pacote)
-apps/root/src/app/comunicados/page.tsx               ← rota que importa de @portal/comunicados
+packages/comunicados/src/pages/PageAnnouncements.tsx   ← componente de página (este pacote)
+apps/root/src/app/(authenticated)/comunicados/page.tsx  ← rota que importa de @portal/comunicados
 ```
 
-> Hoje `apps/root/src/app/comunicados/page.tsx` é um placeholder. Substitua-o pelo componente real assim que a página deste domínio existir.
+O padrão de página + rota foi fechado no piloto de Comunicados: `PageAnnouncements` em `src/pages/` e rota fina em `apps/root` (grupo `(authenticated)`) importando `@portal/comunicados`. A página renderiza só o conteúdo — o `AppShell` (`@portal/core`) vem do layout do grupo (#405) e o item ativo da nav é derivado da rota.
 
 ## Fronteiras
 

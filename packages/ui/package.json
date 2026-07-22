@@ -1,7 +1,10 @@
 {
   "name": "@portal/ui",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
+  "sideEffects": [
+    "**/*.css"
+  ],
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
@@ -20,6 +23,11 @@
     "@types/react-dom": "^19.0.0"
   },
   "dependencies": {
+    "@tiptap/extension-link": "^3.27.4",
+    "@tiptap/extension-underline": "^3.27.4",
+    "@tiptap/pm": "^3.27.4",
+    "@tiptap/react": "^3.27.4",
+    "@tiptap/starter-kit": "^3.27.4",
     "lucide-react": "^1.17.0"
   }
 }

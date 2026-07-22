@@ -12,8 +12,10 @@ A página do domínio nasce em `src/pages/` e é montada em uma rota do App Rout
 
 ```
 packages/mapa-salas/src/pages/PageMapaSalas.tsx   ← componente de página (este pacote)
-apps/root/src/app/mapa-salas/page.tsx             ← rota que importa de @portal/mapa-salas
+apps/root/src/app/(authenticated)/mapa-salas/page.tsx  ← rota que importa de @portal/mapa-salas
 ```
+
+O padrão de página + rota segue o piloto de `@portal/comunicados`: a página (`PageMapaSalas` em `src/pages/`) renderiza só o conteúdo e a rota fina vive no grupo `(authenticated)` do `apps/root` — o `AppShell` vem do layout do grupo (#405).
 
 ## Fronteiras
 
