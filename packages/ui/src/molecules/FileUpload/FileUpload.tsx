@@ -321,10 +321,16 @@ function FileCell({
         'relative h-full w-full overflow-hidden rounded-md border-sm border-border-default ' + className
       }
     >
-      {/* <img> nativo: o preview é object URL (blob), que o next/image não trata bem. */}
+      {/*
+        <img> nativo: o preview é object URL (blob), que o next/image não trata bem.
+        `draggable={false}`: sem isso o browser deixa arrastar a própria miniatura já
+        adicionada; ao soltá-la de volta na área (mesmo container do onDrop), ele
+        resintetiza um File novo a partir do blob e duplica o anexo.
+      */}
       <img
         src={item.previewUrl}
         alt={item.name ?? 'Arquivo anexado'}
+        draggable={false}
         className="h-full w-full object-cover"
       />
 
