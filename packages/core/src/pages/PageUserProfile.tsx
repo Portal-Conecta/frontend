@@ -45,10 +45,19 @@ export async function PageUserProfile({ userId }: PageUserProfileProps) {
 }
 
 async function UserProfileLoader({ userId, token }: { userId: string; token: string }) {
-  let user: UserById
-  try {
-    user = await getUserById(userId, token)
-  } catch (err) {
+  // Dispara em paralelo (elimina o waterfall — #484, mesmo padrão do #407 em
+  // PageProfile.tsx): getUserById não depende do resultado de
+  // loadUserClassCard nem vice-versa, ambos só precisam de userId+token.
+  // Trade-off aceito: toda visualização de perfil passa a chamar
+  // GET /users/{id}/class, mesmo pra quem nunca tem turma (professor/admin) —
+  // resposta 404 vira null e é descartada abaixo quando o papel não se aplica.
+  const [userResult, classCardResult] = await Promise.allSettled([
+    getUserById(userId, token),
+    loadUserClassCard(userId, token),
+  ])
+
+  if (userResult.status === 'rejected') {
+    const err = userResult.reason
     if (err instanceof HttpError) {
       if (err.kind === 'unauthorized') redirect('/login')
       if (err.kind === 'forbidden') {
@@ -60,15 +69,18 @@ async function UserProfileLoader({ userId, token }: { userId: string; token: str
     }
     return <ErrorPage {...ERROR_PRESENTATION.server} />
   }
+  const user: UserById = userResult.value
 
   let classCard: ClassCardItem | null = null
   let classesFailed = false
 
-  // Turma só faz sentido para papéis com vínculo de turma no hub.
+  // Turma só faz sentido para papéis com vínculo de turma no hub — descarta o
+  // resultado (sucesso ou falha) de loadUserClassCard pra outros papéis.
   if (user.typeUser === 'STUDENT' || user.typeUser === 'REPRESENTATIVE') {
-    try {
-      classCard = await loadUserClassCard(userId, token)
-    } catch (err) {
+    if (classCardResult.status === 'fulfilled') {
+      classCard = classCardResult.value
+    } else {
+      const err = classCardResult.reason
       if (err instanceof HttpError && err.kind === 'unauthorized') {
         redirect('/login')
       }
