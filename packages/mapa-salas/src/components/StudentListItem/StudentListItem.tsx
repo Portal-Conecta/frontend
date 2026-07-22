@@ -30,8 +30,21 @@ export function StudentListItem({
 }: StudentListItemProps) {
   const colorClass = isHighlighted ? 'text-interactive-default' : 'text-text-secondary'
 
+  // Hover só faz sentido quando o item é clicável (isEditing) — usa
+  // `interactive-focus-ring` (blue/300), mesmo tom do hover do SeatCard.
+  // `currentColor` no bullet e no `Text` (sem `tone` prop) faz os dois
+  // seguirem a cor do `<li>` — não precisa hover em cada um. Sem hover quando
+  // `isHighlighted`: senão a cor "pisca" entre `interactive-default` (estado
+  // selecionado) e `interactive-focus-ring` (hover) ao passar o mouse no item
+  // já selecionado.
   const interactiveClass = isEditing
-    ? 'cursor-pointer rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus'
+    ? [
+        'cursor-pointer rounded-sm transition-colors',
+        isHighlighted ? '' : 'hover:text-interactive-focus-ring',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus',
+      ]
+        .filter(Boolean)
+        .join(' ')
     : 'cursor-default'
 
   const classes = ['flex items-center gap-2 py-1 select-none', colorClass, interactiveClass, className]
@@ -60,10 +73,10 @@ export function StudentListItem({
 
   return (
     <li className={classes} {...interactiveProps}>
-      <span aria-hidden="true" className="text-label-sm">
+      <span aria-hidden="true" className="text-body-md">
         {isHighlighted ? '●' : '○'}
       </span>
-      <Text as="span" variant={isHighlighted ? 'label-sm-emphasis' : 'label-sm'}>
+      <Text as="span" variant={isHighlighted ? 'body-md-emphasis' : 'body-md'}>
         {name}
       </Text>
     </li>

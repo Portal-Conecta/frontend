@@ -3,16 +3,7 @@ import { NextResponse } from 'next/server'
 import { getSession } from '@portal/core/auth/session'
 import { HttpError } from '@portal/core/http/errors'
 import { searchUsers } from '@portal/core/classes/userDirectoryService'
-import type { TypeUser } from '@portal/core/rbac'
-
-const USER_TYPES = new Set<TypeUser>([
-  'STUDENT',
-  'REPRESENTATIVE',
-  'TEACHER',
-  'SENAI',
-  'WEG',
-  'ADMIN',
-])
+import { isTypeUser, TYPE_USER_VALUES } from '@portal/core/rbac'
 
 export async function GET(req: Request) {
   const token = await getSession()
@@ -22,12 +13,14 @@ export async function GET(req: Request) {
 
   const { searchParams } = new URL(req.url)
   const typeUserParam = searchParams.get('typeUser')
+  const typeUser = typeUserParam && isTypeUser(typeUserParam) ? typeUserParam : undefined
+  const search = searchParams.get('search')?.trim()
 
   // Mesma normalização do `GET /api/users` (ambos proxiam o `searchUsers` do
   // core): `typeUser` inválido é 400 e `size` tem teto — sem drift entre as duas.
-  if (typeUserParam && !USER_TYPES.has(typeUserParam as TypeUser)) {
+  if (typeUserParam && !typeUser) {
     return NextResponse.json(
-      { code: 'validation', message: `typeUser deve ser um de: ${[...USER_TYPES].join(', ')}.` },
+      { code: 'validation', message: `typeUser deve ser um de: ${TYPE_USER_VALUES.join(', ')}.` },
       { status: 400 },
     )
   }
@@ -40,7 +33,8 @@ export async function GET(req: Request) {
       {
         page: Number.isFinite(page) && page >= 0 ? Math.floor(page) : 0,
         size: Number.isFinite(size) ? Math.min(Math.max(Math.floor(size), 1), 100) : 20,
-        ...(typeUserParam ? { typeUser: typeUserParam as TypeUser } : {}),
+        ...(typeUser ? { typeUser } : {}),
+        ...(search ? { name: search } : {}),
       },
       token,
     )

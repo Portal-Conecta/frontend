@@ -3,6 +3,8 @@
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 
+import { Button } from '@portal/ui'
+
 interface UnreadBatchControlsProps {
   /** Quantas notificações a página atual exibe. */
   shown: number
@@ -24,18 +26,20 @@ export function UnreadBatchControls({ shown, totalElements }: UnreadBatchControl
   const remaining = Math.max(totalElements - shown, 0)
 
   return (
-    <div>
-      <span>
+    <div className="flex items-center gap-4">
+      <span className="text-body-md text-text-subtle">
         {shown} de {totalElements} não lidas
       </span>
       {remaining > 0 && (
-        <button
-          type="button"
-          disabled={isPending}
+        <Button
+          variant="outlined"
+          tone="brand"
+          size="sm"
+          loading={isPending}
           onClick={() => startTransition(() => router.refresh())}
         >
-          {isPending ? 'Carregando…' : 'Próximas'}
-        </button>
+          Próximas
+        </Button>
       )}
     </div>
   )

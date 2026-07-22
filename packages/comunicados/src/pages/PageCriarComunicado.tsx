@@ -1,6 +1,5 @@
 import { redirect, notFound } from 'next/navigation'
 
-import { AppShell } from '@portal/core'
 import { getCurrentUser } from '@portal/core/auth/getCurrentUser'
 
 import { canCreateAnnouncement } from '../auth/canCreateAnnouncement'
@@ -22,11 +21,9 @@ export async function PageCriarComunicado() {
   }
 
   return (
-    <AppShell user={user} activeKey="comunicados">
-      <div className="p-8">
-        <CreateAnnouncementWizard />
-      </div>
-    </AppShell>
+    <div className="p-8">
+      <CreateAnnouncementWizard />
+    </div>
   )
 }
 

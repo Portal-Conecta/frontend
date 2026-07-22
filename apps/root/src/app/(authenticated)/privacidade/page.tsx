@@ -1,7 +1,5 @@
 import type { Metadata } from 'next'
 
-import { AppShell } from '@portal/core'
-import { getCurrentUser } from '@portal/core/auth/getCurrentUser'
 import { Text } from '@portal/ui'
 
 export const metadata: Metadata = {
@@ -16,11 +14,9 @@ const sectionLinks = [
   { href: '#contato', label: '5. Contato e Alterações' },
 ] as const
 
-export default async function PrivacidadePage() {
-  const user = await getCurrentUser()
-
+export default function PrivacidadePage() {
   return (
-    <AppShell user={user} activeKey="">
+    <>
       <Text
         as="h1"
         variant="heading-h3"
@@ -250,6 +246,6 @@ export default async function PrivacidadePage() {
           </section>
         </div>
       </div>
-    </AppShell>
+    </>
   )
 }

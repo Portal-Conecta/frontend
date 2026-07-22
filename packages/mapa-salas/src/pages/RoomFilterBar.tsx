@@ -99,7 +99,9 @@ export function RoomFilterBar({
 }: RoomFilterBarProps) {
   const [step, setStep] = useState<Step>('sala')
   // Filtro da etapa "sala": a `SearchBar` base é controlada (não busca sozinha),
-  // então o filtro por texto sobre a lista já carregada continua aqui.
+  // então o filtro por texto sobre a lista já carregada continua aqui. Com
+  // `openOnFocus`, focar já abre a lista completa — o usuário não precisa
+  // adivinhar um termo para descobrir quais salas existem (#435).
   const [roomQuery, setRoomQuery] = useState('')
 
   const canSelectTurma = Boolean(selectedRoomId)
@@ -159,6 +161,7 @@ export function RoomFilterBar({
           selectedItem={selectedRoom ? toSearchBarItem(selectedRoom) : null}
           onSelect={handleSelectRoom}
           onQueryChange={setRoomQuery}
+          openOnFocus
           clearOnSelect={false}
           placeholder="Buscar sala"
           aria-label="Buscar sala"

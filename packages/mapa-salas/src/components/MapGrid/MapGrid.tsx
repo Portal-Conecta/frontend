@@ -1,3 +1,6 @@
+import type { CSSProperties } from 'react'
+
+import { MAP_GRID_MIN_SEAT_WIDTH } from '../seatSizing'
 import type { RoomMapGrid, RoomMapGridPosition, UnassignedStudent } from '../../types'
 import { SeatCard } from '../SeatCard'
 import { isSpacerPosition, positionKey, resolveStudentSeatState } from './MapGrid.logic'
@@ -96,15 +99,35 @@ export function MapGrid({
   // TODO(design): grid não define gap próprio hoje — se o frame tem respiro
   // fixo entre assentos, esse espaçamento deveria virar token do componente
   // em vez de cada consumidor lembrar de passar via `className`.
+  //
+  // Abaixo de `lg`: `minmax(MAP_GRID_MIN_SEAT_WIDTH, 1fr)` — piso fluido
+  // (seatSizing.ts) + scroll horizontal quando a sala não cabe.
+  // Em `lg+`: `minmax(0, 1fr)` — comportamento desktop anterior (#427), sem
+  // piso artificial nem scroll forçado. `--map-grid-cols` alimenta o override
+  // responsivo via `repeat(var(--map-grid-cols), …)`.
+  const gridStyle = {
+    ['--map-grid-cols' as string]: String(grid.columns),
+    gridTemplateColumns: `repeat(${grid.columns}, minmax(${MAP_GRID_MIN_SEAT_WIDTH}, 1fr))`,
+    gridTemplateRows: `repeat(${grid.rows}, minmax(0, 1fr))`,
+  } satisfies CSSProperties
+
   return (
-    <div
-      className={classes}
-      style={{
-        gridTemplateColumns: `repeat(${grid.columns}, minmax(0, 1fr))`,
-        gridTemplateRows: `repeat(${grid.rows}, minmax(0, 1fr))`,
-      }}
-    >
-      {cells}
+    // `-webkit-overflow-scrolling` não tem utility no DS nem no Tailwind
+    // core — arbitrary property (docs/conventions/tokens-e-theming.md §5:
+    // não é hex/tamanho arbitrário, é sintaxe padrão do Tailwind para
+    // propriedade CSS sem utility própria). Scroll só abaixo de `lg`.
+    <div className="overflow-x-auto [-webkit-overflow-scrolling:touch] lg:overflow-x-visible">
+      <div
+        className={[
+          classes,
+          'lg:[grid-template-columns:repeat(var(--map-grid-cols),minmax(0,1fr))]',
+        ]
+          .filter(Boolean)
+          .join(' ')}
+        style={gridStyle}
+      >
+        {cells}
+      </div>
     </div>
   )
 }

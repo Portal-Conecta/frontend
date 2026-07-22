@@ -11,7 +11,7 @@ const salaOptions = [
 ] as const
 
 const meta: Meta<typeof Section> = {
-  title: 'Componentes/Navegação/Section/Section',
+  title: 'Componentes/Navigation/Section/Section',
   component: Section,
   parameters: { layout: 'padded' },
   argTypes: {
