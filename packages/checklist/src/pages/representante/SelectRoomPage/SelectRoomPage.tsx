@@ -17,8 +17,6 @@ export function SelectRoomPage({ onRoomSelected }: SelectRoomPageProps) {
     return (
       <div className="h-full overflow-y-auto">
         <div className="flex min-h-full items-center justify-center py-6">
-          {/* Mesma estrutura do RoomSelector real (heading + Input + lista),
-              pra não "saltar" quando os dados chegam. */}
           <div className="flex flex-col items-center gap-6 px-3 md:gap-10 md:px-8">
             <Skeleton variant="text" width={340} height={36} />
 
@@ -52,18 +50,16 @@ export function SelectRoomPage({ onRoomSelected }: SelectRoomPageProps) {
   }
 
   return (
-    <div className="h-full overflow-y-auto">
-      <div className="flex min-h-full items-center justify-center py-6">
-        <RoomSelector
-          rooms={rooms}
-          onSelect={(room) => {
-            onRoomSelected({
-              roomId: room.id,
-              roomLabel: `${room.number} - ${room.name}`,
-            });
-          }}
-        />
-      </div>
+    <div className="h-full w-full overflow-hidden">
+      <RoomSelector
+        rooms={rooms}
+        onSelect={(room) => {
+          onRoomSelected({
+            roomId: room.id,
+            roomLabel: `${room.number} - ${room.name}`,
+          });
+        }}
+      />
     </div>
   );
 }
