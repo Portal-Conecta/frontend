@@ -14,6 +14,8 @@
  *   alvo tocável que abre Gerenciar. Um único elemento interativo por breakpoint
  *   (sem aninhar interativos).
  */
+import { memo } from 'react'
+
 import { Button, Text } from '@portal/ui'
 
 import type { Course } from '../../types'
@@ -49,7 +51,13 @@ function CourseIdentity({ course }: { course: Course }) {
   )
 }
 
-export function CourseRow({ course, onManage }: CourseRowProps) {
+/**
+ * Memoizado (#497, mesmo padrão do UserRow #483): sem o memo, qualquer
+ * re-render do pai (ex.: cada tecla digitada na busca, antes do debounce)
+ * força o re-render de todas as linhas à toa. `onManage` chega estável
+ * (`useCallback` em `PageCursosContent`).
+ */
+export const CourseRow = memo(function CourseRow({ course, onManage }: CourseRowProps) {
   return (
     <>
       {/* Mobile: linha inteira tocável (o frame mobile não tem botão na linha). */}
@@ -77,4 +85,4 @@ export function CourseRow({ course, onManage }: CourseRowProps) {
       </div>
     </>
   )
-}
+})
