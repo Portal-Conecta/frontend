@@ -1,5 +1,6 @@
 import type { HubShift } from '@portal/shared'
 
+import type { UserAccountStatus } from '../classes/types'
 import type { ClassRole, TypeUser } from '../rbac'
 
 export interface MyProfile {
@@ -53,4 +54,11 @@ export interface MyCourse {
 
 export interface MyListCourseResponse {
   courses: MyCourse[]
+}
+
+/** Resposta compacta de operações de ciclo de vida (`deactivate`/`reactivate`/`delete`). */
+export interface UserLifecycleResult {
+  id: string
+  accountStatus: UserAccountStatus
+  deletedAt: string | null
 }

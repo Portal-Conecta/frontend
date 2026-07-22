@@ -10,7 +10,7 @@ const meta = {
   argTypes: {
     defaultValue: {
       control: "inline-radio",
-      options: [null, "conforme", "nao-conforme"],
+      options: [null, "COMPLIANT", "NON_COMPLIANT"],
     },
   },
 } satisfies Meta<typeof StatusToggle>;
@@ -22,15 +22,15 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
 
 export const ConformeSelecionado: Story = {
-  args: { defaultValue: "conforme" },
+  args: { defaultValue: "COMPLIANT" },
 };
 
 export const NaoConformeSelecionado: Story = {
-  args: { defaultValue: "nao-conforme" },
+  args: { defaultValue: "NON_COMPLIANT" },
 };
 
 export const Disabled: Story = {
-  args: { defaultValue: "conforme", disabled: true },
+  args: { defaultValue: "COMPLIANT", disabled: true },
 };
 
 export const Controlado: Story = {
@@ -48,6 +48,6 @@ export const Controlado: Story = {
 };
 
 export const Mobile: Story = {
-  args: { defaultValue: "nao-conforme" },
+  args: { defaultValue: "NON_COMPLIANT" },
   parameters: { viewport: { defaultViewport: "mobile1" } },
 };

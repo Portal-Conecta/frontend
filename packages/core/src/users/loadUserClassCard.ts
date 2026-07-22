@@ -1,34 +1,41 @@
-import { HUB_SHIFT_LABELS } from '@portal/shared'
+import { HUB_SHIFT_LABELS, type HubShift } from '@portal/shared'
 import type { ClassCardItem } from '@portal/ui'
 
-import { getClassDetail } from '../classes/classesService'
+import type { Course } from '../courses/types'
 import { createHttpClient } from '../http/httpClient'
 import { hubGatewayPath } from '../http/hubGateway'
-import type { Course } from '../courses/types'
-import { HttpError } from '../http/errors'
+import type { ClassRole } from '../rbac'
 
 const http = createHttpClient('API_GATEWAY_URL')
 
 /**
- * UUID da turma ativa do usuário (`GET /hub/users/{userId}/class`).
- * Só aplica a STUDENT/REPRESENTATIVE; demais papéis / sem turma → `null`
- * (404 tratado como ausência de turma quando o usuário já foi carregado).
+ * `GET /hub/users/{userId}/class` devolve um array — a regra "1 aluno = 1
+ * turma" garante no máximo 1 item pra STUDENT/REPRESENTATIVE. Sem vínculo
+ * ativo, o hub devolve array vazio (200), não 404.
  */
-export async function getUserActiveClassId(
-  userId: string,
-  token: string,
-): Promise<string | null> {
-  try {
-    const classId = await http.get<string>(
-      hubGatewayPath(`/users/${encodeURIComponent(userId)}/class`),
-      { token },
-    )
-    const normalized = typeof classId === 'string' ? classId.trim() : ''
-    return normalized || null
-  } catch (err) {
-    if (err instanceof HttpError && err.kind === 'not_found') return null
-    throw err
-  }
+interface ActiveClassMembership {
+  id: string
+  name: string
+  shift: HubShift
+  number: number
+  active: boolean
+  courseId: string
+  createdAt: string
+  classRole: ClassRole
+}
+
+async function getActiveMembership(userId: string, token: string): Promise<ActiveClassMembership | null> {
+  const memberships = await http.get<ActiveClassMembership[]>(
+    hubGatewayPath(`/users/${encodeURIComponent(userId)}/class`),
+    { token },
+  )
+  return memberships[0] ?? null
+}
+
+/** UUID da turma ativa do usuário, ou `null` sem vínculo. */
+export async function getUserActiveClassId(userId: string, token: string): Promise<string | null> {
+  const membership = await getActiveMembership(userId, token)
+  return membership?.id ?? null
 }
 
 async function getCourse(courseId: string, token: string): Promise<Course> {
@@ -37,21 +44,18 @@ async function getCourse(courseId: string, token: string): Promise<Course> {
 
 /**
  * Monta o `ClassCardItem` da turma ativa de um terceiro (visão admin #443).
- * Compõe `GET /users/{id}/class` + detalhe da turma + curso.
+ * `GET /users/{id}/class` já traz turno/número/`courseId` — só falta resolver
+ * nome/código do curso numa segunda chamada.
  */
-export async function loadUserClassCard(
-  userId: string,
-  token: string,
-): Promise<ClassCardItem | null> {
-  const classId = await getUserActiveClassId(userId, token)
-  if (!classId) return null
+export async function loadUserClassCard(userId: string, token: string): Promise<ClassCardItem | null> {
+  const membership = await getActiveMembership(userId, token)
+  if (!membership) return null
 
-  const detail = await getClassDetail(classId, token)
-  const course = await getCourse(detail.courseId, token)
+  const course = await getCourse(membership.courseId, token)
 
   return {
-    tag: `${course.code} - ${detail.number}`,
+    tag: `${course.code} - ${membership.number}`,
     title: course.name,
-    meta: HUB_SHIFT_LABELS[detail.shift],
+    meta: HUB_SHIFT_LABELS[membership.shift],
   }
 }

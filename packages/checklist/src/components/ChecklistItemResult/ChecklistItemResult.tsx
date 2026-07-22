@@ -3,7 +3,7 @@ import { Icon, Text } from "@portal/ui";
 export interface ChecklistItemResultProps {
   title: string;
   description?: string;
-  status: "conforme" | "nao-conforme";
+  status: "COMPLIANT" | "NON_COMPLIANT";
   observation?: string;
   className?: string;
 }
@@ -15,7 +15,7 @@ export function ChecklistItemResult({
   observation,
   className,
 }: ChecklistItemResultProps) {
-  const isConforme = status === "conforme";
+  const isConforme = status === "COMPLIANT";
 
   return (
     <div
@@ -43,7 +43,7 @@ export function ChecklistItemResult({
         <div
           className={[
             "flex h-8 w-10 shrink-0 items-center justify-center gap-2 rounded-md border-sm",
-            "md:h-auto md:w-30 md:px-3 md:py-2",
+            "md:h-auto md:w-auto md:px-3 md:py-2",
             isConforme
               ? "border-feedback-success text-feedback-success"
               : "border-feedback-error text-feedback-error",
