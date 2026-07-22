@@ -36,10 +36,17 @@ export function TurmaMembrosManager({ classId, initialMembers }: TurmaMembrosMan
   const [linkedMembers, setLinkedMembers] = useState(initialMembers)
   const [saving, setSaving] = useState(false)
   const [discardDialogOpen, setDiscardDialogOpen] = useState(false)
+  // Muda a cada save bem-sucedido — força o painel de busca a refazer a
+  // consulta (`withoutActiveClass`), senão quem acabou de ser desvinculado só
+  // reaparece como disponível se o admin mexer manualmente na busca/aba.
+  const [refreshToken, setRefreshToken] = useState(0)
 
   const isDirty = isMembersDirty(originalMembers, linkedMembers)
+  // Quem foi removido no rascunho (ainda não salvo) — volta a aparecer como
+  // disponível na busca sem esperar o "Salvar Edições" (client-side puro).
+  const { toRemove: pendingRemovals } = computeMembersDiff(originalMembers, linkedMembers)
 
-  function handleAdd(user: DirectoryUser, classRole: ClassRole) {
+  function handleAdd(user: Pick<DirectoryUser, 'id' | 'name'>, classRole: ClassRole) {
     setLinkedMembers((current) =>
       current.some((member) => member.id === user.id)
         ? current
@@ -77,6 +84,12 @@ export function TurmaMembrosManager({ classId, initialMembers }: TurmaMembrosMan
     // Falhas continuam como diff pendente: `linkedMembers` já reflete o estado
     // desejado, só a baseline reconciliou o que o servidor de fato confirmou.
 
+    // Só refaz a busca se algo realmente mudou no servidor — evita um refetch
+    // à toa quando tudo falhou (nada mudou pra reaparecer/sumir).
+    if (succeededAdds.length > 0 || succeededRemoveIds.length > 0) {
+      setRefreshToken((token) => token + 1)
+    }
+
     setSaving(false)
 
     if (failedReasons.length > 0) {
@@ -101,11 +114,13 @@ export function TurmaMembrosManager({ classId, initialMembers }: TurmaMembrosMan
 
       <TurmaMemberSearchPanel
         linkedMembers={linkedMembers}
+        pendingRemovals={pendingRemovals}
         onAdd={handleAdd}
         isDirty={isDirty}
         saving={saving}
         onSave={() => void handleSave()}
         onDiscard={() => setDiscardDialogOpen(true)}
+        refreshToken={refreshToken}
       />
 
       <ConfirmDialog
