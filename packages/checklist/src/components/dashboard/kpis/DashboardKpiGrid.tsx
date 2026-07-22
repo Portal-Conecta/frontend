@@ -1,8 +1,7 @@
 "use client";
 
-import { Icon, Skeleton, Text, type IconName } from "@portal/ui";
+import { Icon, Skeleton, Text } from "@portal/ui";
 
-import { DASHBOARD_KPIS } from "../data/dashboardDemoData";
 import type { DashboardKpiItem } from "./deriveDashboardKpis";
 
 const toneIcon: Record<DashboardKpiItem["tone"], string> = {
@@ -13,25 +12,14 @@ const toneIcon: Record<DashboardKpiItem["tone"], string> = {
 
 export interface DashboardKpiGridProps {
   loading?: boolean | undefined;
-  /** KPIs calculados a partir do dashboard real; se omitido, usa demo. */
+  /** KPIs calculados a partir do dashboard real. Vazio/omitido não renderiza nada — nunca cai em dado de demo. */
   items?: readonly DashboardKpiItem[] | undefined;
 }
 
 export function DashboardKpiGrid({
   loading = false,
-  items,
+  items = [],
 }: DashboardKpiGridProps) {
-  const kpis: readonly DashboardKpiItem[] =
-    items ??
-    DASHBOARD_KPIS.map((k) => ({
-      id: k.id,
-      label: k.label,
-      value: k.value,
-      hint: k.hint,
-      icon: k.icon as IconName,
-      tone: k.tone,
-    }));
-
   if (loading) {
     return (
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -50,7 +38,7 @@ export function DashboardKpiGrid({
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      {kpis.map((kpi) => (
+      {items.map((kpi) => (
         <article
           key={kpi.id}
           className="flex flex-col gap-3 rounded-md border border-border-default bg-background-surface p-4 shadow-sm"

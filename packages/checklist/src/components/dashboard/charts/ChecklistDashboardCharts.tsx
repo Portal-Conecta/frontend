@@ -9,6 +9,8 @@ import type { DashboardStats } from "../../../types/dashboard";
 import { DsBarChart } from "./DsBarChart";
 import { DsDoughnutChart } from "./DsDoughnutChart";
 import { DsLineChart } from "./DsLineChart";
+import { DsStackedBarChart } from "./DsStackedBarChart";
+import { DsTrendLineChart } from "./DsTrendLineChart";
 import { taxaConclusaoToChartEntries } from "./taxaConclusao";
 
 export interface ChecklistDashboardChartsProps {
@@ -64,6 +66,14 @@ export function ChecklistDashboardCharts({
         data={stats?.issuesPorDia ?? []}
         loading={loading}
         datasetLabel="Pendências"
+      />
+      <DsStackedBarChart
+        data={stats?.performancePorTurno ?? []}
+        loading={loading}
+      />
+      <DsTrendLineChart
+        data={stats?.tendenciaConformidade ?? []}
+        loading={loading}
       />
     </div>
   );

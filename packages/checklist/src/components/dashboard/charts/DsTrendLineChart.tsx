@@ -11,33 +11,36 @@ import {
   registerLineCharts,
   useDsChartTheme,
 } from "../../charts";
-import {
-  TENDENCIA_CONFORMIDADE_LABELS,
-  TENDENCIA_CONFORMIDADE_VALUES,
-  TENDENCIA_META,
-} from "../data/dashboardDemoData";
+import type { StatsEntry } from "../../../types/dashboard";
+import { isEmptyStats } from "./statsToChartData";
 
 registerLineCharts();
 
+/** Meta de conformidade exibida como linha de referência — configuração de produto, não dado do backend. */
+const TENDENCIA_META = 90;
+
 export interface DsTrendLineChartProps {
+  data: StatsEntry[];
   loading?: boolean;
   height?: number;
 }
 
 export function DsTrendLineChart({
+  data,
   loading = false,
   height = 300,
 }: DsTrendLineChartProps) {
   const theme = useDsChartTheme();
   const brand = DS_CATEGORICAL[0] ?? theme.textBrand;
+  const empty = !loading && isEmptyStats(data);
 
   const chartData = useMemo(
     () => ({
-      labels: [...TENDENCIA_CONFORMIDADE_LABELS],
+      labels: data.map((e) => e.label),
       datasets: [
         {
           label: "Conformidade",
-          data: [...TENDENCIA_CONFORMIDADE_VALUES],
+          data: data.map((e) => e.value),
           borderColor: brand,
           backgroundColor: brand,
           ...dsLineDatasetDefaults(theme),
@@ -45,8 +48,8 @@ export function DsTrendLineChart({
           pointHoverRadius: 6,
         },
         {
-          label: "Meta 90%",
-          data: TENDENCIA_CONFORMIDADE_LABELS.map(() => TENDENCIA_META),
+          label: `Meta ${TENDENCIA_META}%`,
+          data: data.map(() => TENDENCIA_META),
           borderColor: theme.textMuted,
           backgroundColor: theme.textMuted,
           borderDash: [6, 4],
@@ -58,7 +61,7 @@ export function DsTrendLineChart({
         },
       ],
     }),
-    [theme, brand],
+    [data, theme, brand],
   );
 
   const options = useMemo(
@@ -69,7 +72,7 @@ export function DsTrendLineChart({
         overrides: {
           scales: {
             y: {
-              min: 70,
+              min: 0,
               max: 100,
               ticks: {
                 callback: (v: string | number) => `${v}%`,
@@ -86,9 +89,10 @@ export function DsTrendLineChart({
       title="Tendência de Conformidade"
       height={height}
       loading={loading}
+      empty={empty}
       action={
         <span className="rounded-full bg-background-default px-2 py-1 text-label-xs text-text-secondary">
-          Meta 90%
+          Meta {TENDENCIA_META}%
         </span>
       }
     >

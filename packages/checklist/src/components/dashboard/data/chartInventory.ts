@@ -60,4 +60,19 @@ export const DASHBOARD_CHART_INVENTORY: readonly DashboardChartSpec[] = [
     kind: "line",
     dataShape: "time-series",
   },
+  {
+    id: "performancePorTurno",
+    title: "Performance por turno",
+    kind: "bar",
+    dataShape: "categorical",
+    notes:
+      "Backend: contagem SHIFT|bucket (ok/atencao/critico). UI: barra empilhada em % por turno.",
+  },
+  {
+    id: "tendenciaConformidade",
+    title: "Tendência de conformidade",
+    kind: "line",
+    dataShape: "time-series",
+    notes: "Backend: média de compliance_score por semana. Meta é config de UI, não vem do backend.",
+  },
 ] as const;

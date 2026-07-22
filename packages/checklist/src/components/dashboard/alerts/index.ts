@@ -1,1 +1,0 @@
-export { AlertaOrientacao } from "./AlertaOrientacao";

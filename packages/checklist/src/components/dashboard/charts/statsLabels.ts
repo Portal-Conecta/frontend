@@ -23,6 +23,9 @@ const LABEL_PT: Record<string, string> = {
   SUBMITTEDCOUNT: "Submetidas",
   TOTAL: "Total",
   RATEPERCENT: "Taxa %",
+  // turno (Shift do Hub, snapshot na execução)
+  FULLAMPM: "Manhã/Tarde",
+  FULLPMNT: "Tarde/Noite",
 };
 
 function normalizeKey(label: string): string {

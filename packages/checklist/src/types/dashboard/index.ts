@@ -20,6 +20,10 @@ export interface DashboardStatsResponse {
   issuesPorStatus: StatsEntry[];
   issuesPorPrioridade: StatsEntry[];
   issuesPorDia: StatsEntry[];
+  /** Execuções submetidas por turno e faixa de compliance (label = `SHIFT|ok|atencao|critico`). */
+  performancePorTurno: StatsEntry[];
+  /** Média de compliance por semana no período (label = data ISO de início da semana). */
+  tendenciaConformidade: StatsEntry[];
 }
 
 /** Alias usado pelos componentes de gráfico. */

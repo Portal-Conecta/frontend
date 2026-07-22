@@ -45,4 +45,19 @@ export const MOCK_DASHBOARD_STATS: DashboardStats = {
     { label: "06/06", value: 6 },
     { label: "07/06", value: 2 },
   ],
+  performancePorTurno: [
+    { label: "FULL_AM_PM|ok", value: 22 },
+    { label: "FULL_AM_PM|atencao", value: 6 },
+    { label: "FULL_AM_PM|critico", value: 2 },
+    { label: "FULL_PM_NT|ok", value: 15 },
+    { label: "FULL_PM_NT|atencao", value: 5 },
+    { label: "FULL_PM_NT|critico", value: 3 },
+  ],
+  tendenciaConformidade: [
+    { label: "2026-05-04", value: 82 },
+    { label: "2026-05-11", value: 84.5 },
+    { label: "2026-05-18", value: 86 },
+    { label: "2026-05-25", value: 88.2 },
+    { label: "2026-06-01", value: 91 },
+  ],
 };

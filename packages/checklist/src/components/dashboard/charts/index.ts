@@ -21,6 +21,10 @@ export {
 } from "./statsToChartData";
 export { humanizeStatsEntries, humanizeStatsLabel } from "./statsLabels";
 export {
+  parsePerformancePorTurno,
+  type ComplianceBucket,
+} from "./performancePorTurno";
+export {
   findStatsValue,
   parseTaxaConclusao,
   taxaConclusaoToChartEntries,

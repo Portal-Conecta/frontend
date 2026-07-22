@@ -36,6 +36,8 @@ export const Vazio: Story = {
       issuesPorStatus: [],
       issuesPorPrioridade: [],
       issuesPorDia: [],
+      performancePorTurno: [],
+      tendenciaConformidade: [],
     },
     loading: false,
   },

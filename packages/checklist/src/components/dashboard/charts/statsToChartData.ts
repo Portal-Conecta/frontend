@@ -90,6 +90,8 @@ export function isDashboardEmpty(
         issuesPorStatus?: StatsEntry[] | null
         issuesPorPrioridade?: StatsEntry[] | null
         issuesPorDia?: StatsEntry[] | null
+        performancePorTurno?: StatsEntry[] | null
+        tendenciaConformidade?: StatsEntry[] | null
       }
     | null
     | undefined,
@@ -101,6 +103,8 @@ export function isDashboardEmpty(
     isEmptyStats(stats.issuesPorStatus) &&
     isEmptyStats(stats.issuesPorPrioridade) &&
     isEmptyStats(stats.issuesPorDia) &&
+    isEmptyStats(stats.performancePorTurno) &&
+    isEmptyStats(stats.tendenciaConformidade) &&
     (isEmptyStats(stats.taxaConclusao) ||
       stats.taxaConclusao?.every((e) => !e.value) === true)
   )
