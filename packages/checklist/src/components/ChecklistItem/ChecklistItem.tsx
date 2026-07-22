@@ -1,6 +1,6 @@
 "use client";
 
-import { Text, Textarea } from "@portal/ui";
+import { Banner, Text, Textarea } from "@portal/ui";
 import { useState } from "react";
 
 import { StatusToggle } from "../StatusToggle/StatusToggle";
@@ -15,6 +15,12 @@ export interface ChecklistItemProps {
   justification?: string;
   onJustificationChange?: (text: string) => void;
   disabled?: boolean;
+  /**
+   * Motivo do bloqueio (ex: "Pendência aguardando validação"). Quando
+   * informado, mostra um Banner de aviso — evita que o usuário só descubra
+   * o porquê ao tentar editar e cair num modal de erro.
+   */
+  lockedReason?: string;
   className?: string;
 }
 
@@ -27,6 +33,7 @@ export function ChecklistItem({
   justification,
   onJustificationChange,
   disabled = false,
+  lockedReason,
   className,
 }: ChecklistItemProps) {
   const isControlled = value !== undefined;
@@ -51,7 +58,7 @@ export function ChecklistItem({
     onJustificationChange?.(text);
   };
 
-  const showJustification = selected === "nao-conforme";
+  const showJustification = selected === "NON_COMPLIANT";
 
   return (
     <div
@@ -68,6 +75,9 @@ export function ChecklistItem({
             <Text variant="label-sm" tone="secondary" className="break-words">
               {description}
             </Text>
+          )}
+          {lockedReason && (
+            <Banner variant="warning">{lockedReason}</Banner>
           )}
         </div>
 
@@ -99,7 +109,7 @@ export function ChecklistItem({
               aria-label="Justificativa do item não conforme"
               value={justificationValue}
               onChange={(e) => handleJustificationChange(e.target.value)}
-              disabled={disabled || !showJustification}
+              disabled={!showJustification}
             />
           </div>
         </div>

@@ -16,7 +16,7 @@ export const Conforme: Story = {
   args: {
     title: "Ar Condicionado",
     description: desc,
-    status: "conforme",
+    status: "COMPLIANT",
   },
 };
 
@@ -24,31 +24,31 @@ export const NaoConforme: Story = {
   args: {
     title: "Computadores",
     description: desc,
-    status: "nao-conforme",
+    status: "NON_COMPLIANT",
     observation:
       "3 Computadores apresentam problemas para se conectar com a internet. Acho que os cabos de rede estão com algum mal contato.",
   },
 };
 
 export const Lista: Story = {
-  args: { title: "", status: "conforme" },
+  args: { title: "", status: "COMPLIANT" },
   render: () => (
     <div className="max-w-5xl">
       <ChecklistItemResult
         title="Ar Condicionado"
         description={desc}
-        status="conforme"
+        status="COMPLIANT"
       />
       <ChecklistItemResult
         title="Computadores"
         description={desc}
-        status="nao-conforme"
+        status="NON_COMPLIANT"
         observation="3 Computadores apresentam problemas para se conectar com a internet. Acho que os cabos de rede estão com algum mal contato."
       />
       <ChecklistItemResult
         title="Periféricos"
         description={desc}
-        status="conforme"
+        status="COMPLIANT"
       />
     </div>
   ),

@@ -39,9 +39,9 @@ export function RoomChecklistItem({
           size="sm"
           onClick={onView}
           iconLeft="eye"
-          className="shrink-0"
+          className="w-44 shrink-0"
         >
-          Ver Checklist
+          Ver Template
         </Button>
       ) : (
         <Button
@@ -50,9 +50,9 @@ export function RoomChecklistItem({
           size="sm"
           iconLeft="plus"
           onClick={onCreate}
-          className="shrink-0"
+          className="w-44 shrink-0"
         >
-          Criar Checklist
+          Criar Template
         </Button>
       )}
     </div>
