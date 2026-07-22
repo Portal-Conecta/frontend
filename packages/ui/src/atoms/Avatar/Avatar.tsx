@@ -9,26 +9,33 @@
  * 24×24) escala pouco (até ~1,33×) e o traço fica fino; em 80px a escala é
  * bem maior (80/24 ≈ 3,3×), então herdar `strokeWidth=2` deixaria o traço
  * visivelmente mais grosso que o resto do DS. `AVATAR_STROKE_WIDTH` compensa
- * isso pra manter a espessura visual consistente.
+ * isso por tamanho, pra manter a espessura visual consistente em cada escala.
  */
 import { iconRegistry } from '../Icon'
 
+export type AvatarSize = 'sm' | 'lg'
+
 export interface AvatarProps {
+  /** `sm` = 32px (linha de lista, ex.: `AssociateUsersCard`) · `lg` = 80px (cabeçalho de perfil). Default `lg`. */
+  size?: AvatarSize
   className?: string
 }
 
-const AVATAR_SIZE = 80
-const AVATAR_STROKE_WIDTH = 1.2
+const AVATAR_SIZE_PX: Record<AvatarSize, number> = { sm: 32, lg: 80 }
+// Em 32px a escala em relação ao viewBox (24) é próxima da faixa do `Icon` (até
+// 1,33×), então usa o mesmo strokeWidth=2; em 80px a escala é maior (~3,3×) e
+// precisa do traço mais fino pra não engrossar visualmente.
+const AVATAR_STROKE_WIDTH: Record<AvatarSize, number> = { sm: 2, lg: 1.2 }
 
 const CircleUserGlyph = iconRegistry['circle-user']
 
-export function Avatar({ className }: AvatarProps) {
+export function Avatar({ size = 'lg', className }: AvatarProps) {
   const classes = ['shrink-0 text-text-brand', className].filter(Boolean).join(' ')
 
   return (
     <CircleUserGlyph
-      size={AVATAR_SIZE}
-      strokeWidth={AVATAR_STROKE_WIDTH}
+      size={AVATAR_SIZE_PX[size]}
+      strokeWidth={AVATAR_STROKE_WIDTH[size]}
       aria-hidden="true"
       className={classes}
     />

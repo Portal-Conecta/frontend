@@ -60,10 +60,7 @@ export function ClassMembersTabs({ students, teachers }: ClassMembersTabsProps) 
        * `Section` ganhar `tablist`/`tabpanel` — aí o vínculo tab↔painel torna
        * isto desnecessário.
        */}
-      <div
-        aria-live="polite"
-        className="mt-4 rounded-md border-sm border-border-default px-2.5 pt-2.5"
-      >
+      <div aria-live="polite" className="mt-4 rounded-md border-sm border-border-default p-2.5">
         {members.length === 0 ? (
           /*
            * Estado vazio composto aqui em vez de usar o `EmptyState` do DS: o

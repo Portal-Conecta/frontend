@@ -85,7 +85,8 @@ async function TurmaDetalhe({ classId, accessToken }: { classId: string; accessT
 
   return (
     <div className="px-8 py-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      {/* Régua sob o cabeçalho (Figma 1683:29406) — mesma da `PageTurmaMembros`. */}
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border-default pb-4">
         <div className="flex min-w-0 items-center gap-2">
           <Link
             href="/turmas"
@@ -100,20 +101,10 @@ async function TurmaDetalhe({ classId, accessToken }: { classId: string; accessT
           </Text>
         </div>
 
-        {/*
-         * Os dois botões de navegação da tela ficam `disabled` enquanto as telas
-         * irmãs não existem: hoje só há as rotas `turmas/` e
-         * `turmas/[classId]/`, então o clique levava a um 404 sem explicação — e
-         * o usuário final não lê a descrição da PR. Eles seguem no layout que o
-         * Figma pede e a navegação prevista na DoD da #363 continua visível;
-         * quando cada tela shipar, é remover `disabled` e `title` do seu botão.
-         */}
         <TurmaNavButton
-          href={`/turmas/${classId}/usuarios`}
+          href={`/turmas/${classId}/membros`}
           iconLeft="plus"
           size="xs"
-          disabled
-          title="Disponível em breve"
           className="shrink-0"
         >
           Gerenciar usuário da turma
@@ -125,18 +116,27 @@ async function TurmaDetalhe({ classId, accessToken }: { classId: string; accessT
           Não foi possível carregar esta turma.
         </Banner>
       ) : (
-        <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-3">
+        <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2">
             <ClassMembersTabs students={students} teachers={teachers} />
           </div>
 
-          <aside className="flex flex-col gap-4 lg:py-3">
+          <aside className="flex flex-col gap-4 lg:py-6">
+            {/* Cabeçalho do painel (Figma 1689:4293): título + atalho à direita. */}
             <div className="flex flex-wrap items-center justify-between gap-4">
               <Text as="h2" variant="body-md" tone="brand">
                 Representantes
               </Text>
 
-              {/* `disabled` pelo mesmo motivo do botão do cabeçalho. */}
+              {/*
+               * `disabled` enquanto a tela de representantes não existe: as
+               * rotas de turma hoje são `turmas/`, `turmas/criar`,
+               * `turmas/[classId]/` e `turmas/[classId]/membros/`. O clique
+               * levava a um 404 sem explicação — e o usuário final não lê a
+               * descrição da PR. O botão segue no layout que o Figma pede e a
+               * navegação prevista na DoD da #363 continua visível; quando a
+               * tela shipar, é remover `disabled` e `title`.
+               */}
               <TurmaNavButton
                 href={`/turmas/${classId}/representantes`}
                 variant="outlined"
