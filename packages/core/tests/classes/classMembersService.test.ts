@@ -43,14 +43,19 @@ afterEach(() => {
 })
 
 describe('listClassMembers', () => {
+  // O core devolve `classRole` (`ClassMemberResponse`), mapeado pro `role` do `ClassMember`.
+  const rawMembers = [
+    { id: 'a1', name: 'Ana Souza', classRole: 'STUDENT', active: true, accountStatus: 'ACTIVE' },
+    { id: 'b2', name: 'Bruno Dias', classRole: 'REPRESENTATIVE', active: true, accountStatus: 'ACTIVE' },
+  ]
   const members: ClassMember[] = [
     { id: 'a1', name: 'Ana Souza', role: 'STUDENT' },
     { id: 'b2', name: 'Bruno Dias', role: 'REPRESENTATIVE' },
   ]
 
-  it('filtra por papel via ?role= sob /hub/classes/{classId}/members', async () => {
+  it('filtra por papel via ?role= sob /hub/classes/{classId}/members e mapeia classRole → role', async () => {
     const fetchMock = stubFetch()
-    fetchMock.mockResolvedValue(response(200, members))
+    fetchMock.mockResolvedValue(response(200, rawMembers))
 
     await expect(listClassMembers(CLASS_ID, 'STUDENT', TOKEN)).resolves.toEqual(members)
 
@@ -64,7 +69,7 @@ describe('listClassMembers', () => {
 
   it('sem papel, não envia query (backend retorna todos os membros)', async () => {
     const fetchMock = stubFetch()
-    fetchMock.mockResolvedValue(response(200, members))
+    fetchMock.mockResolvedValue(response(200, rawMembers))
 
     await expect(listClassMembers(CLASS_ID, undefined, TOKEN)).resolves.toEqual(members)
 
