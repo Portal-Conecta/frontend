@@ -2,22 +2,29 @@
 
 /**
  * Card de usuário reutilizável na tela de gestão de turma (#457): avatar,
- * nome e uma ação opcional — associar (`+` verde), desassociar (`×` vermelho)
- * ou nenhuma (`none`, só exibição). Consumido por `TurmaMembersList` (remove)
- * e `TurmaMemberSearchPanel` (add), que antes duplicavam essa mesma marcação.
+ * nome e uma ação opcional — associar (`+` verde), desassociar (`×` vermelho),
+ * promover a representante ou apenas exibir. Consumido pelos fluxos de membros
+ * e representantes, mantendo avatar, nome e ação consistentes entre as telas.
  */
 import { Avatar, Button, ListItem, Text } from '@portal/ui'
 
-export type AssociateUsersCardVariant = 'add' | 'remove' | 'none'
+export type AssociateUsersCardVariant = 'add' | 'remove' | 'promote' | 'none'
 
 export interface AssociateUsersCardProps {
   name: string
   variant: AssociateUsersCardVariant
   onAction?: () => void
   disabled?: boolean
+  loading?: boolean
 }
 
-export function AssociateUsersCard({ name, variant, onAction, disabled = false }: AssociateUsersCardProps) {
+export function AssociateUsersCard({
+  name,
+  variant,
+  onAction,
+  disabled = false,
+  loading = false,
+}: AssociateUsersCardProps) {
   return (
     <ListItem className="flex items-center justify-between gap-3">
       <span className="flex items-center gap-3">
@@ -33,6 +40,7 @@ export function AssociateUsersCard({ name, variant, onAction, disabled = false }
           icon="plus"
           aria-label={`Adicionar ${name}`}
           disabled={disabled}
+          loading={loading}
           onClick={onAction}
         />
       )}
@@ -43,8 +51,20 @@ export function AssociateUsersCard({ name, variant, onAction, disabled = false }
           icon="x"
           aria-label={`Remover ${name}`}
           disabled={disabled}
+          loading={loading}
           onClick={onAction}
         />
+      )}
+      {variant === 'promote' && (
+        <Button
+          size="xs"
+          variant="outlined"
+          disabled={disabled}
+          loading={loading}
+          onClick={onAction}
+        >
+          Tornar Representante
+        </Button>
       )}
     </ListItem>
   )

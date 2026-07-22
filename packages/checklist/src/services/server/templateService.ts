@@ -4,6 +4,7 @@ import type {
   ChecklistTemplateResponse,
   ChecklistTemplateCreateRequest,
   ChecklistTemplateEditRequest,
+  ChecklistTemplateStatus,
   ChecklistItemSearchResult,
   ChecklistItemByCategorySearchResult,
 } from "../../types/template";
@@ -35,9 +36,21 @@ export async function findTemplateById(
   );
 }
 
-export async function listTemplates(): Promise<ChecklistTemplateResponse[]> {
+export interface TemplateListFilters {
+  roomId?: string;
+  status?: ChecklistTemplateStatus;
+}
+
+export async function listTemplates(
+  filters: TemplateListFilters = {},
+): Promise<ChecklistTemplateResponse[]> {
+  const params: Record<string, string> = {};
+  if (filters.roomId) params.roomId = filters.roomId;
+  if (filters.status) params.status = filters.status;
+
   return http.get<ChecklistTemplateResponse[]>(
     checklistGatewayPath("/api/checklist-templates"),
+    { params },
   );
 }
 
