@@ -1,6 +1,6 @@
 "use client";
 
-import { Tag, Text, Textarea } from "@portal/ui";
+import { Banner, Text, Textarea } from "@portal/ui";
 import { useState } from "react";
 
 import { StatusToggle } from "../StatusToggle/StatusToggle";
@@ -17,8 +17,8 @@ export interface ChecklistItemProps {
   disabled?: boolean;
   /**
    * Motivo do bloqueio (ex: "Pendência aguardando validação"). Quando
-   * informado, mostra uma tag ao lado do título — evita que o usuário só
-   * descubra o porquê ao tentar editar e cair num modal de erro.
+   * informado, mostra um Banner de aviso — evita que o usuário só descubra
+   * o porquê ao tentar editar e cair num modal de erro.
    */
   lockedReason?: string;
   className?: string;
@@ -68,20 +68,16 @@ export function ChecklistItem({
     >
       <div className="flex items-center justify-between gap-4">
         <div className="flex min-w-0 flex-col gap-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <Text variant="label-sm" tone="brand" className="md:text-label-md">
-              {title}
-            </Text>
-            {lockedReason && (
-              <Tag tone="warning" icon="lock" size="sm">
-                {lockedReason}
-              </Tag>
-            )}
-          </div>
+          <Text variant="label-sm" tone="brand" className="md:text-label-md">
+            {title}
+          </Text>
           {description && (
             <Text variant="label-sm" tone="secondary" className="break-words">
               {description}
             </Text>
+          )}
+          {lockedReason && (
+            <Banner variant="warning">{lockedReason}</Banner>
           )}
         </div>
 
