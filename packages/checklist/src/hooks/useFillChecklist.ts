@@ -13,6 +13,7 @@ import {
 } from "../services/client/executionClient";
 import type {
   ChecklistAnswerRequest,
+  ChecklistAnswerResponse,
   ChecklistExecutionDraftCreateRequest,
   ChecklistExecutionResponse,
   ConformityAnswerValue,
@@ -106,6 +107,39 @@ function toAnswerRequestList(
   }));
 }
 
+/** Converte as respostas salvas de uma execução para o formato usado pelo estado local do form. */
+export function answerStateFromResponses(
+  answers: ChecklistAnswerResponse[],
+): Record<string, ChecklistAnswerState> {
+  return Object.fromEntries(
+    answers.map((answer) => [
+      answer.itemKey,
+      {
+        value: answer.value,
+        ...(answer.observation ? { observation: answer.observation } : {}),
+      },
+    ]),
+  );
+}
+
+/**
+ * Funde respostas dadas localmente (ex.: antes de escolher a turma) com as
+ * já salvas na execução retomada — local tem prioridade por item, o resto
+ * das respostas já salvas é preservado em vez de descartado.
+ *
+ * Extraída como função pura (sem depender do hook) pra ser testável direto:
+ * é a reconciliação que causava tanto perda silenciosa de respostas num
+ * rascunho quanto o erro "Item obrigatorio sem resposta" ao editar um
+ * checklist já enviado, quando o usuário respondia algo antes de escolher a
+ * turma.
+ */
+export function mergeAnswersWithExisting(
+  existing: Record<string, ChecklistAnswerState>,
+  local: Record<string, ChecklistAnswerState>,
+): Record<string, ChecklistAnswerState> {
+  return { ...existing, ...local };
+}
+
 function lockedItemKeysFrom(
   execution: ChecklistExecutionResponse | null,
 ): Set<string> {
@@ -195,19 +229,7 @@ export function useFillChecklist({
 
         const loadFromServer = () => {
           setExecution(data);
-          setAnswers(
-            Object.fromEntries(
-              data.answersJson.answers.map((answer) => [
-                answer.itemKey,
-                {
-                  value: answer.value,
-                  ...(answer.observation
-                    ? { observation: answer.observation }
-                    : {}),
-                },
-              ]),
-            ),
-          );
+          setAnswers(answerStateFromResponses(data.answersJson.answers));
         };
 
         if (isFirstResolution && Object.keys(localAnswersSnapshot).length > 0) {
@@ -216,19 +238,13 @@ export function useFillChecklist({
           // por item) em vez de sobrescrever o resto das respostas já salvas.
           // Se a execução retomada já foi enviada, `/draft` rejeita (só vale
           // pra status DRAFT) — nesse caso usa `/answers` mesmo.
-          const existingAnswers: Record<string, ChecklistAnswerState> =
-            Object.fromEntries(
-              data.answersJson.answers.map((answer) => [
-                answer.itemKey,
-                {
-                  value: answer.value,
-                  ...(answer.observation
-                    ? { observation: answer.observation }
-                    : {}),
-                },
-              ]),
-            );
-          const mergedAnswers = { ...existingAnswers, ...localAnswersSnapshot };
+          const existingAnswers = answerStateFromResponses(
+            data.answersJson.answers,
+          );
+          const mergedAnswers = mergeAnswersWithExisting(
+            existingAnswers,
+            localAnswersSnapshot,
+          );
           const answerBody = {
             answers: toAnswerRequestList(mergedAnswers),
           };

@@ -207,7 +207,7 @@ export function PageChecklistDashboardContent({
         </div>
       ) : null}
 
-      <DashboardKpiGrid loading={loading} {...(kpis ? { items: kpis } : {})} />
+      <DashboardKpiGrid loading={loading} items={kpis ?? []} />
 
       <ChecklistDashboardCharts stats={stats} loading={loading} />
     </div>

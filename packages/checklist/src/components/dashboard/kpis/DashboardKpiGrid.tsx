@@ -1,5 +1,3 @@
-"use client";
-
 import { Icon, Skeleton, Text } from "@portal/ui";
 
 import type { DashboardKpiItem } from "./deriveDashboardKpis";
@@ -12,13 +10,13 @@ const toneIcon: Record<DashboardKpiItem["tone"], string> = {
 
 export interface DashboardKpiGridProps {
   loading?: boolean | undefined;
-  /** KPIs calculados a partir do dashboard real. Vazio/omitido não renderiza nada — nunca cai em dado de demo. */
-  items?: readonly DashboardKpiItem[] | undefined;
+  /** KPIs calculados a partir do dashboard real. Obrigatório — chamador decide o array vazio, nunca cai em dado de demo. */
+  items: readonly DashboardKpiItem[];
 }
 
 export function DashboardKpiGrid({
   loading = false,
-  items = [],
+  items,
 }: DashboardKpiGridProps) {
   if (loading) {
     return (
