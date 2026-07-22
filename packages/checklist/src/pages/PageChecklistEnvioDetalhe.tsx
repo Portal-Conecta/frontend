@@ -175,7 +175,7 @@ async function EnvioDetalheData({ id, token }: { id: string; token: string }) {
           <ChecklistItemResult
             key={item.key}
             title={item.title}
-            status={item.compliant ? "conforme" : "nao-conforme"}
+            status={item.compliant ? "COMPLIANT" : "NON_COMPLIANT"}
             {...(item.description ? { description: item.description } : {})}
             {...(item.observation ? { observation: item.observation } : {})}
           />
