@@ -22,12 +22,13 @@ import { HttpError } from "@portal/core/http/errors";
 import { ERROR_PRESENTATION } from "@portal/core/http/errorPresentation";
 import { PermissionGate } from "@portal/core";
 import { listClasses } from "@portal/core/classes/classesService";
-import { ErrorPage, Icon, Text } from "@portal/ui";
+import { Banner, ErrorPage, Icon, Text } from "@portal/ui";
 
 import { ChecklistItemResult } from "../components/ChecklistItemResult";
 import { getExecutionDetail } from "../services/server/executionDetailService";
 import type { ChecklistExecutionDetailItem } from "../types/executionDetail";
 import type { ChecklistExecutionResponse } from "../types/execution";
+import { formatRoomLabel } from "../utils/roomLabel";
 import {
   MOCK_CLASS_NAMES,
   MOCK_EXECUTION_DETAIL_ITEMS,
@@ -128,24 +129,21 @@ async function EnvioDetalheData({ id, token }: { id: string; token: string }) {
           </Text>
         </Link>
 
-        {/* Mobile: "Enviado dia" + Sala/Turma/Preenchido numa única caixa cinza. */}
+        {/* Mobile: "Enviado dia" + Sala/Turma numa única caixa cinza. */}
         <div className="flex flex-col gap-1 rounded-md bg-background-default p-3 md:hidden">
           <Text variant="label-xs" tone="brand">
             Enviado dia{" "}
             {formatDateTime(execution.submittedAt ?? execution.startedAt)}
           </Text>
           <Text variant="label-xs" className="text-interactive-pressed">
-            Sala: {execution.roomLabel ?? "—"}
+            Sala: {formatRoomLabel(execution.room, "—")}
           </Text>
           <Text variant="label-xs" className="text-interactive-pressed">
             Turma: {execution.className ?? className ?? "—"}
           </Text>
-          <Text variant="label-xs" className="text-interactive-pressed">
-            Preenchido por: {execution.filledByName ?? "—"}
-          </Text>
         </div>
 
-        {/* Desktop: "Enviado dia" sem fundo, separado da linha Sala/Turma/Preenchido —
+        {/* Desktop: "Enviado dia" sem fundo, separado da linha Sala/Turma —
             pl-10 (40px) alinha com o mesmo recuo do título (ícone 32px + gap-2 8px). */}
         <Text
           variant="label-md-emphasis"
@@ -157,29 +155,34 @@ async function EnvioDetalheData({ id, token }: { id: string; token: string }) {
         </Text>
       </div>
 
-      {/* Desktop: Sala/Turma/Preenchido em linha, sem fundo, mesmo recuo do título. */}
+      {/* Desktop: Sala/Turma em linha, sem fundo, mesmo recuo do título. */}
       <div className="hidden items-center gap-x-6 md:flex md:pl-10">
         <Text variant="label-md" className="text-interactive-pressed">
-          Sala: {execution.roomLabel ?? "—"}
+          Sala: {formatRoomLabel(execution.room, "—")}
         </Text>
         <Text variant="label-md" className="text-interactive-pressed">
           Turma: {execution.className ?? className ?? "—"}
         </Text>
-        <Text variant="label-md" className="text-interactive-pressed">
-          Preenchido por: {execution.filledByName ?? "—"}
-        </Text>
       </div>
 
       <div>
-        {items.map((item) => (
-          <ChecklistItemResult
-            key={item.key}
-            title={item.title}
-            status={item.compliant ? "COMPLIANT" : "NON_COMPLIANT"}
-            {...(item.description ? { description: item.description } : {})}
-            {...(item.observation ? { observation: item.observation } : {})}
-          />
-        ))}
+        {items.length === 0 ? (
+          <Banner variant="info">
+            {execution.status === "DRAFT"
+              ? "Este checklist ainda está em rascunho — nenhum item foi respondido."
+              : "Nenhum item respondido encontrado para este envio."}
+          </Banner>
+        ) : (
+          items.map((item) => (
+            <ChecklistItemResult
+              key={item.key}
+              title={item.title}
+              status={item.compliant ? "COMPLIANT" : "NON_COMPLIANT"}
+              {...(item.description ? { description: item.description } : {})}
+              {...(item.observation ? { observation: item.observation } : {})}
+            />
+          ))
+        )}
       </div>
     </div>
   );

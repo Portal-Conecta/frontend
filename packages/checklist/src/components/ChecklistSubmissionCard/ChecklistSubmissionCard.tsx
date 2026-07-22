@@ -54,7 +54,7 @@ export function ChecklistSubmissionListHeader({
         tone="brand"
         className="min-w-0 truncate text-left"
       >
-        Preenchido por
+        Turma
       </Text>
       {/* Reserva a coluna do botão para alinhar com as linhas */}
       <span className="block w-[7.5rem]" aria-hidden />
@@ -66,7 +66,6 @@ export function ChecklistSubmissionCard({
   room,
   checklistType,
   submittedAt,
-  filledBy,
   group,
   hasNonConformity = false,
   onView,
@@ -119,12 +118,8 @@ export function ChecklistSubmissionCard({
         tone="brand"
         className="min-w-0 md:truncate md:text-left md:text-label-md"
       >
-        <span className="md:hidden">
-          Preenchido por: {filledBy} | {group}
-        </span>
-        <span className="hidden md:inline">
-          {filledBy} | {group}
-        </span>
+        <span className="md:hidden">Turma: {group}</span>
+        <span className="hidden md:inline">{group}</span>
       </Text>
 
       <Button

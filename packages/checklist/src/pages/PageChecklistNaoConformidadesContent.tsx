@@ -7,6 +7,7 @@ import { bffFetch } from "@portal/core/http/bffClient";
 import { HttpError } from "@portal/core/http/errors";
 import { Banner, Button, Icon, Text, type SelectOption } from "@portal/ui";
 
+import type { SectionTab } from "../components/SectionTabs";
 import { SectionTabs } from "../components/SectionTabs";
 import {
   ChecklistFilters,
@@ -23,6 +24,7 @@ import {
 import type { NonConformityItem } from "../types/nonConformity";
 import type { ChecklistIssueResponse } from "../types/issue";
 import type { ChecklistExecutionResponse } from "../types/execution";
+import { formatRoomLabel } from "../utils/roomLabel";
 
 export interface PageChecklistNaoConformidadesContentProps {
   initialItems: NonConformityItem[];
@@ -32,6 +34,8 @@ export interface PageChecklistNaoConformidadesContentProps {
   classNames: Record<string, string>;
   /** Só o coordenador SENAI vê "Validar"/"Reabrir" (backend rejeita os demais). */
   canValidate: boolean;
+  /** Abas do módulo já resolvidas por papel (`resolveChecklistSectionTabs`). */
+  sectionTabs: readonly SectionTab[];
   initialError?: boolean;
   /** TEMPORÁRIO: com dados mockados as ações só atualizam o estado local, sem chamar a API. */
   mockMode?: boolean;
@@ -46,12 +50,6 @@ const MOCK_TRANSITIONS: Record<string, ChecklistIssueResponse["status"]> = {
   "restart-progress": "IN_PROGRESS",
   cancel: "CANCELED",
 };
-
-const CHECKLIST_TABS = [
-  { label: "Preenchimento", href: "/checklist" },
-  { label: "Não Conformidades", href: "/checklist/nao-conformidades" },
-  { label: "Gestão de Itens", href: "/checklist/gestao-itens" },
-];
 
 const CHECKLIST_TYPE_LABEL: Record<string, string> = {
   ARRIVAL: "Checklist de chegada",
@@ -212,6 +210,7 @@ export function PageChecklistNaoConformidadesContent({
   initialSubmissions,
   classNames,
   canValidate,
+  sectionTabs,
   initialError = false,
   mockMode = false,
 }: PageChecklistNaoConformidadesContentProps) {
@@ -220,6 +219,7 @@ export function PageChecklistNaoConformidadesContent({
   const [items, setItems] = useState(initialItems);
   const [submissions] = useState(initialSubmissions);
   const [error, setError] = useState(initialError);
+  const [pendingIssueId, setPendingIssueId] = useState<string | null>(null);
   const [filters, setFilters] = useState<ChecklistFiltersValues>({});
   const [submissionFilters, setSubmissionFilters] =
     useState<ChecklistFiltersValues>({});
@@ -228,7 +228,7 @@ export function PageChecklistNaoConformidadesContent({
     const byId = new Map<string, string>();
     for (const { execution } of items) {
       if (!byId.has(execution.roomId)) {
-        byId.set(execution.roomId, execution.roomLabel ?? "Sala");
+        byId.set(execution.roomId, formatRoomLabel(execution.room));
       }
     }
     return [...byId.entries()].map(([value, label]) => ({ value, label }));
@@ -253,20 +253,25 @@ export function PageChecklistNaoConformidadesContent({
       ? Date.now() - minDays * 24 * 60 * 60 * 1000
       : undefined;
 
-    return items.filter(({ execution }) => {
+    return items.filter(({ issue, execution }) => {
+      // Encerradas (CANCELED/VALIDATED) somem pra todo mundo; RESOLVED só
+      // continua visível pra quem ainda tem ação nela (Validar/Reabrir).
+      if (issue.status === "CANCELED" || issue.status === "VALIDATED")
+        return false;
+      if (issue.status === "RESOLVED" && !canValidate) return false;
       if (filters.room && execution.roomId !== filters.room) return false;
       if (filters.group && execution.classId !== filters.group) return false;
       if (cutoff && new Date(execution.startedAt).getTime() < cutoff)
         return false;
       return true;
     });
-  }, [items, filters]);
+  }, [items, filters, canValidate]);
 
   const submissionRoomOptions = useMemo<SelectOption[]>(() => {
     const byId = new Map<string, string>();
     for (const execution of submissions) {
       if (!byId.has(execution.roomId)) {
-        byId.set(execution.roomId, execution.roomLabel ?? "Sala");
+        byId.set(execution.roomId, formatRoomLabel(execution.room));
       }
     }
     return [...byId.entries()].map(([value, label]) => ({ value, label }));
@@ -324,6 +329,7 @@ export function PageChecklistNaoConformidadesContent({
       return;
     }
 
+    setPendingIssueId(issueId);
     transitionIssue(issueId, action)
       .then((updated) => updateIssue(issueId, updated))
       .catch((err) => {
@@ -332,12 +338,13 @@ export function PageChecklistNaoConformidadesContent({
           return;
         }
         setError(true);
-      });
+      })
+      .finally(() => setPendingIssueId(null));
   }
 
   return (
     <div className="flex flex-col gap-6 p-6 md:p-8">
-      <SectionTabs tabs={CHECKLIST_TABS} />
+      <SectionTabs tabs={[...sectionTabs]} />
 
       <Text as="h1" variant="heading-h2" tone="brand" className="sr-only">
         Não Conformidades
@@ -373,7 +380,7 @@ export function PageChecklistNaoConformidadesContent({
             {filteredSubmissions.map((execution) => (
               <ChecklistSubmissionCard
                 key={execution.id}
-                room={execution.roomLabel ?? "Sala"}
+                room={formatRoomLabel(execution.room)}
                 checklistType={
                   CHECKLIST_TYPE_LABEL[execution.checklistType] ??
                   execution.checklistType
@@ -383,7 +390,6 @@ export function PageChecklistNaoConformidadesContent({
                     ? formatDateTime(execution.submittedAt)
                     : formatDateTime(execution.startedAt)
                 }
-                filledBy={execution.filledByName ?? "—"}
                 group={
                   execution.className ??
                   classNames[execution.classId] ??
@@ -426,7 +432,7 @@ export function PageChecklistNaoConformidadesContent({
             {filteredItems.map(({ issue, execution }) => (
               <ChecklistNonConformityCard
                 key={issue.id}
-                room={execution.roomLabel ?? "Sala"}
+                room={formatRoomLabel(execution.room)}
                 category={issue.itemTitleSnapshot}
                 checklistType={
                   CHECKLIST_TYPE_LABEL[execution.checklistType] ??
@@ -434,7 +440,6 @@ export function PageChecklistNaoConformidadesContent({
                 }
                 submittedDate={formatDate(execution.startedAt)}
                 submittedTime={formatTime(execution.startedAt)}
-                filledBy={execution.filledByName ?? "—"}
                 group={
                   execution.className ??
                   classNames[execution.classId] ??
@@ -450,6 +455,8 @@ export function PageChecklistNaoConformidadesContent({
                 onRestartProgress={() =>
                   handleAction(issue.id, "restart-progress")
                 }
+                onCancel={() => handleAction(issue.id, "cancel")}
+                pending={pendingIssueId === issue.id}
               />
             ))}
           </div>

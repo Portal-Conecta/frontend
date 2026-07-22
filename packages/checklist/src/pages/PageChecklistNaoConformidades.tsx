@@ -10,8 +10,9 @@
  * pra esta rota ainda; este gate cobre acesso direto pela URL. O gate real
  * continua sendo o 403 do backend em cada chamada (REVISION.md §5).
  *
- * Sala, turma e quem preencheu vêm enriquecidos do Hub
- * (`roomLabel`, `className`, `filledByName`) na listagem de execuções.
+ * Sala (`room`) vem enriquecida do Hub na listagem de execuções; turma usa
+ * `listClasses` à parte. Não mostra "preenchido por" — o backend não tem
+ * provider de usuário do Hub pra resolver isso ainda.
  */
 import { redirect } from "next/navigation";
 
@@ -23,6 +24,7 @@ import { PermissionGate } from "@portal/core";
 import { listClasses } from "@portal/core/classes/classesService";
 import { ErrorPage } from "@portal/ui";
 
+import { resolveChecklistSectionTabs } from "../components/checklistSectionTabs";
 import { getChecklistFeed } from "../services/server/nonConformityFeedService";
 import type { NonConformityItem } from "../types/nonConformity";
 import type { ChecklistExecutionResponse } from "../types/execution";
@@ -52,6 +54,7 @@ export async function PageChecklistNaoConformidades() {
       <NaoConformidadesData
         token={token}
         isSenai={user?.userType === "SENAI"}
+        sectionTabs={resolveChecklistSectionTabs(user)}
       />
     </PermissionGate>
   );
@@ -60,9 +63,11 @@ export async function PageChecklistNaoConformidades() {
 async function NaoConformidadesData({
   token,
   isSenai,
+  sectionTabs,
 }: {
   token: string;
   isSenai: boolean;
+  sectionTabs: ReturnType<typeof resolveChecklistSectionTabs>;
 }) {
   if (USE_MOCK_DATA) {
     return (
@@ -71,6 +76,7 @@ async function NaoConformidadesData({
         initialSubmissions={MOCK_SUBMISSIONS}
         classNames={MOCK_CLASS_NAMES}
         canValidate={isSenai}
+        sectionTabs={sectionTabs}
         mockMode
       />
     );
@@ -111,6 +117,7 @@ async function NaoConformidadesData({
       initialSubmissions={submissions}
       classNames={classNames}
       canValidate={isSenai}
+      sectionTabs={sectionTabs}
       initialError={loadFailed}
     />
   );

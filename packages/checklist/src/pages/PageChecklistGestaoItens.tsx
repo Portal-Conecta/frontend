@@ -13,17 +13,15 @@ import { redirect } from "next/navigation";
 
 import { getCurrentUser } from "@portal/core/auth/getCurrentUser";
 import { getSession } from "@portal/core/auth/session";
+import { HttpError } from "@portal/core/http/errors";
 import { PermissionGate } from "@portal/core";
 
-import { MOCK_CHECKLIST_ROOMS } from "./gestaoItensMockData";
+import { resolveChecklistSectionTabs } from "../components/checklistSectionTabs";
+import { listHubRooms } from "../services/server/hubRoomService";
+import { listTemplates } from "../services/server/templateService";
+import { roomTypeLabel } from "../utils/roomLabel";
 import { PageChecklistGestaoItensContent } from "./PageChecklistGestaoItensContent";
-
-/**
- * Fallback local: ainda não existe endpoint que liste TODAS as salas
- * (`listTemplates()` só retorna as que já têm template). Reverta pra `false`
- * quando esse endpoint existir.
- */
-const USE_MOCK_DATA = true;
+import type { ChecklistRoomSummary } from "./PageChecklistGestaoItensContent";
 
 export async function PageChecklistGestaoItens() {
   const token = await getSession();
@@ -35,20 +33,47 @@ export async function PageChecklistGestaoItens() {
 
   return (
     <PermissionGate user={user} permission="checklist:gerenciar">
-      <GestaoItensData />
+      <GestaoItensData sectionTabs={resolveChecklistSectionTabs(user)} />
     </PermissionGate>
   );
 }
 
-async function GestaoItensData() {
-  if (USE_MOCK_DATA) {
-    return (
-      <PageChecklistGestaoItensContent initialRooms={MOCK_CHECKLIST_ROOMS} />
+async function GestaoItensData({
+  sectionTabs,
+}: {
+  sectionTabs: ReturnType<typeof resolveChecklistSectionTabs>;
+}) {
+  let rooms: ChecklistRoomSummary[] = [];
+  let loadFailed = false;
+
+  try {
+    const hubRooms = await listHubRooms();
+    const activeTemplates = await listTemplates({ status: "ACTIVE" });
+    const roomIdsWithTemplate = new Set(
+      activeTemplates.map((template) => template.roomId),
     );
+
+    rooms = hubRooms
+      .map((room) => ({
+        id: room.id,
+        room: `${room.number} - ${roomTypeLabel(room.typeRoom)}`,
+        hasChecklist: roomIdsWithTemplate.has(room.id),
+      }))
+      .sort((a, b) => a.room.localeCompare(b.room, "pt-BR"));
+  } catch (err) {
+    if (err instanceof HttpError && err.kind === "unauthorized") {
+      redirect("/login");
+    }
+    loadFailed = true;
   }
 
-  // TODO: implementar chamada real assim que existir endpoint de listagem de salas.
-  return <PageChecklistGestaoItensContent initialRooms={[]} initialError />;
+  return (
+    <PageChecklistGestaoItensContent
+      initialRooms={rooms}
+      initialError={loadFailed}
+      sectionTabs={sectionTabs}
+    />
+  );
 }
 
 export default PageChecklistGestaoItens;

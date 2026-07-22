@@ -43,7 +43,7 @@ export function ChecklistItemResult({
         <div
           className={[
             "flex h-8 w-10 shrink-0 items-center justify-center gap-2 rounded-md border-sm",
-            "md:h-auto md:w-30 md:px-3 md:py-2",
+            "md:h-auto md:w-auto md:px-3 md:py-2",
             isConforme
               ? "border-feedback-success text-feedback-success"
               : "border-feedback-error text-feedback-error",

@@ -6,20 +6,12 @@ import { messageFor } from "@portal/core/http/errorPresentation";
 import { HttpError } from "@portal/core/http/errors";
 
 import { listRoomsClient } from "../services/client/roomClient";
+import { roomTypeLabel } from "../utils/roomLabel";
 
 export interface AvailableRoom {
   id: string;
   number: number;
   name: string;
-}
-
-const ROOM_TYPE_LABEL: Record<string, string> = {
-  LABORATORY: "Laboratório de Informática",
-  CLASSROOM: "Sala de aula",
-};
-
-function roomLabel(typeRoom: string): string {
-  return ROOM_TYPE_LABEL[typeRoom] ?? typeRoom;
 }
 
 /** Lista as salas do Hub disponíveis para preencher um checklist. */
@@ -43,7 +35,7 @@ export function useAvailableRooms() {
           hubRooms.map((room) => ({
             id: room.id,
             number: room.number,
-            name: roomLabel(room.typeRoom),
+            name: roomTypeLabel(room.typeRoom),
           })),
         );
       } catch (err) {

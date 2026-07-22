@@ -54,8 +54,8 @@ export interface ChecklistExecutionResponse {
   templateId: string;
   templateVersion: number;
   roomId: string;
-  /** Rótulo amigável da sala (ex.: "Sala 101"), resolvido no Hub. */
-  roomLabel?: string;
+  /** Dados da sala resolvidos no Hub — usar com `roomTypeLabel()` pra exibir. */
+  room?: RoomResponse;
   classId: string;
   /** Nome da turma (ex.: "MIDS1"), resolvido no Hub. */
   className?: string;

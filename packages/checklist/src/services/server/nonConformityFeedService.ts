@@ -20,11 +20,16 @@ export async function getChecklistFeed(
 ): Promise<ChecklistFeed> {
   const result = await listExecutions(page, size);
 
-  const nonConformities = result.content
+  // Rascunhos (DRAFT) nunca foram enviados de fato — não pertencem a "Envios".
+  const submitted = result.content.filter(
+    (execution) => execution.status === "SUBMITTED",
+  );
+
+  const nonConformities = submitted
     .filter((execution) => execution.issues.length > 0)
     .flatMap((execution) =>
       execution.issues.map((issue) => ({ issue, execution })),
     );
 
-  return { submissions: result.content, nonConformities };
+  return { submissions: submitted, nonConformities };
 }

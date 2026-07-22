@@ -5,23 +5,26 @@ import { useRouter } from "next/navigation";
 
 import { Banner, Input, Text } from "@portal/ui";
 
+import type { SectionTab } from "../components/SectionTabs";
 import { SectionTabs } from "../components/SectionTabs";
 import { RoomChecklistItem } from "../components/RoomChecklistItem";
-import type { MockChecklistRoom } from "./gestaoItensMockData";
+
+export interface ChecklistRoomSummary {
+  id: string;
+  room: string;
+  hasChecklist: boolean;
+}
 
 export interface PageChecklistGestaoItensContentProps {
-  initialRooms: MockChecklistRoom[];
+  initialRooms: ChecklistRoomSummary[];
+  /** Abas do módulo já resolvidas por papel (`resolveChecklistSectionTabs`). */
+  sectionTabs: readonly SectionTab[];
   initialError?: boolean;
 }
 
-const CHECKLIST_TABS = [
-  { label: "Preenchimento", href: "/checklist" },
-  { label: "Não Conformidades", href: "/checklist/nao-conformidades" },
-  { label: "Gestão de Itens", href: "/checklist/gestao-itens" },
-];
-
 export function PageChecklistGestaoItensContent({
   initialRooms,
+  sectionTabs,
   initialError = false,
 }: PageChecklistGestaoItensContentProps) {
   const router = useRouter();
@@ -38,7 +41,7 @@ export function PageChecklistGestaoItensContent({
 
   return (
     <div className="flex flex-col gap-6 p-6 md:p-8">
-      <SectionTabs tabs={CHECKLIST_TABS} />
+      <SectionTabs tabs={[...sectionTabs]} />
 
       <Text as="h1" variant="heading-h2" tone="brand" className="sr-only">
         Gestão de Itens

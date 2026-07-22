@@ -59,7 +59,7 @@ export function ChecklistNonConformityListHeader({
         tone="brand"
         className="min-w-0 truncate text-left"
       >
-        Preenchido por
+        Turma
       </Text>
       <span className="block w-[11rem]" aria-hidden />
     </div>
@@ -72,7 +72,6 @@ export interface ChecklistNonConformityCardProps {
   checklistType: string;
   submittedDate: string;
   submittedTime: string;
-  filledBy: string;
   group: string;
   nonConformity: string;
   defaultOpen?: boolean;
@@ -86,6 +85,9 @@ export interface ChecklistNonConformityCardProps {
   onValidate?: () => void;
   onReopen?: () => void;
   onRestartProgress?: () => void;
+  onCancel?: () => void;
+  /** Uma ação desta issue está em andamento — desabilita e mostra spinner nos botões. */
+  pending?: boolean;
   className?: string;
 }
 
@@ -95,7 +97,6 @@ export function ChecklistNonConformityCard({
   checklistType,
   submittedDate,
   submittedTime,
-  filledBy,
   group,
   nonConformity,
   defaultOpen = false,
@@ -107,6 +108,8 @@ export function ChecklistNonConformityCard({
   onValidate,
   onReopen,
   onRestartProgress,
+  onCancel,
+  pending = false,
   className,
 }: ChecklistNonConformityCardProps) {
   const [open, setOpen] = useState(defaultOpen);
@@ -155,7 +158,7 @@ export function ChecklistNonConformityCard({
             </Text>
 
             <Text variant="label-xs" className="text-interactive-hover">
-              Preenchido por: {filledBy} | {group}
+              Turma: {group}
             </Text>
           </div>
         </div>
@@ -192,7 +195,7 @@ export function ChecklistNonConformityCard({
           variant="label-md"
           className="hidden min-w-0 truncate text-interactive-hover lg:block lg:text-left"
         >
-          {filledBy} | {group}
+          {group}
         </Text>
 
         <Button
@@ -240,6 +243,7 @@ export function ChecklistNonConformityCard({
                     tone="brand"
                     size="sm"
                     onClick={onStart}
+                    loading={pending}
                   >
                     Iniciar atendimento
                   </Button>
@@ -251,8 +255,21 @@ export function ChecklistNonConformityCard({
                     tone="positive"
                     size="sm"
                     onClick={onResolve}
+                    loading={pending}
                   >
                     Marcar como resolvido
+                  </Button>
+                )}
+
+                {(status === "OPEN" || status === "IN_PROGRESS") && (
+                  <Button
+                    variant="outlined"
+                    tone="negative"
+                    size="sm"
+                    onClick={onCancel}
+                    disabled={pending}
+                  >
+                    Cancelar
                   </Button>
                 )}
 
@@ -263,6 +280,7 @@ export function ChecklistNonConformityCard({
                       tone="positive"
                       size="sm"
                       onClick={onValidate}
+                      loading={pending}
                     >
                       Validar
                     </Button>
@@ -271,6 +289,7 @@ export function ChecklistNonConformityCard({
                       tone="negative"
                       size="sm"
                       onClick={onReopen}
+                      disabled={pending}
                     >
                       Reabrir
                     </Button>
@@ -283,6 +302,7 @@ export function ChecklistNonConformityCard({
                     tone="brand"
                     size="sm"
                     onClick={onRestartProgress}
+                    loading={pending}
                   >
                     Reiniciar atendimento
                   </Button>
