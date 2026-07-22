@@ -10,6 +10,11 @@
  * cursos não fica montada na página — só a linha do curso escolhido aparece
  * abaixo. Após sucesso, navegação no cliente (`router.push`) para não depender
  * de `NEXT_REDIRECT` na action.
+ *
+ * Par container/apresentacional (mesmo contrato do `AnnouncementFeed`): quem
+ * chama `useRouter` é o `CreateClassForm`; o `CreateClassFormContent` recebe
+ * a navegação via `onSuccess`/`onCancel` e não depende de App Router, o que
+ * permite a story renderizá-lo direto sem `parameters.nextjs.appDirectory`.
  */
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -32,6 +37,13 @@ export interface CreateClassFormProps {
   /** Quando a listagem falhou no server — distingue "vazio" de "erro de carga". */
   coursesLoadFailed?: boolean
   onSubmitClass: (data: CreateClassPayload) => Promise<CreateClassSubmitResult>
+}
+
+export interface CreateClassFormContentProps extends CreateClassFormProps {
+  /** Chamado após `onSubmitClass` retornar sucesso. */
+  onSuccess?: () => void
+  /** Chamado ao clicar em "Descartar alterações". */
+  onCancel?: () => void
 }
 
 /**
@@ -65,13 +77,13 @@ function CourseIdentity({ course }: { course: Course }) {
   )
 }
 
-export function CreateClassForm({
+export function CreateClassFormContent({
   courses,
   coursesLoadFailed = false,
   onSubmitClass,
-}: CreateClassFormProps) {
-  const router = useRouter()
-
+  onSuccess,
+  onCancel,
+}: CreateClassFormContentProps) {
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null)
   const [classNumber, setClassNumber] = useState('')
   const [shift, setShift] = useState<HubShift | ''>('')
@@ -134,7 +146,7 @@ export function CreateClassForm({
       })
 
       if (response.success) {
-        router.push('/turmas')
+        onSuccess?.()
         return
       }
 
@@ -213,7 +225,7 @@ export function CreateClassForm({
               variant="outlined"
               tone="brand"
               size="sm"
-              onClick={() => router.push('/turmas')}
+              onClick={onCancel}
               disabled={isSubmitting}
               className="flex-1"
             >
@@ -249,5 +261,17 @@ export function CreateClassForm({
         }}
       />
     </div>
+  )
+}
+
+export function CreateClassForm(props: CreateClassFormProps) {
+  const router = useRouter()
+
+  return (
+    <CreateClassFormContent
+      {...props}
+      onSuccess={() => router.push('/turmas')}
+      onCancel={() => router.push('/turmas')}
+    />
   )
 }

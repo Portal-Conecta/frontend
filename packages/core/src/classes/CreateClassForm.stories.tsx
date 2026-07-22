@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react'
 
-import { CreateClassForm } from './CreateClassForm'
+import { CreateClassFormContent } from './CreateClassForm'
 
 const MOCK_COURSES = [
   { id: '1', code: 'MIDS', name: 'Desenvolvimento de Sistemas' },
@@ -9,21 +9,26 @@ const MOCK_COURSES = [
   { id: '4', code: 'MMEC', name: 'Mecânica' },
 ]
 
-const meta: Meta<typeof CreateClassForm> = {
+// `CreateClassFormContent`, não `CreateClassForm`: a metade apresentacional do
+// par não depende de `useRouter`/App Router, então a story roda sem precisar
+// de `parameters.nextjs.appDirectory` (ver AGENTS.md > dívidas técnicas).
+const meta: Meta<typeof CreateClassFormContent> = {
   title: 'Turmas/CreateClassForm',
-  component: CreateClassForm,
+  component: CreateClassFormContent,
   tags: ['autodocs'],
   parameters: {
     layout: 'padded',
   },
   args: {
     courses: MOCK_COURSES,
+    onSuccess: () => undefined,
+    onCancel: () => undefined,
   },
 }
 
 export default meta
 
-type Story = StoryObj<typeof CreateClassForm>
+type Story = StoryObj<typeof CreateClassFormContent>
 
 export const Default: Story = {
   args: {
