@@ -7,6 +7,8 @@
  * blue/700 — mesma dívida do CourseRow / DateInput (#241). Sem hex cru.
  * Status usa `Tag` (`positive`/`negative`, `size="sm"` → `label-xs`).
  */
+import { memo } from 'react'
+
 import { Button, Tag, Text } from '@portal/ui'
 
 import type { DirectoryUser } from '../../../classes/types'
@@ -27,7 +29,13 @@ function UserStatusTag({ active }: { active: boolean }) {
   )
 }
 
-export function UserRow({ user, onViewProfile }: UserRowProps) {
+/**
+ * Memoizado (#483): a lista pode ter até 50 linhas e `onViewProfile` chega
+ * estável (`useCallback` em `PageUsuariosContent`) — sem o memo, qualquer
+ * re-render do pai (ex.: cada tecla digitada na busca, antes do debounce)
+ * força o re-render de todas as linhas à toa.
+ */
+export const UserRow = memo(function UserRow({ user, onViewProfile }: UserRowProps) {
   const typeLabel = ROLE_LABELS[user.typeUser]
 
   return (
@@ -73,4 +81,4 @@ export function UserRow({ user, onViewProfile }: UserRowProps) {
       </div>
     </>
   )
-}
+})
