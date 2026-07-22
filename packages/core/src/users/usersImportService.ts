@@ -45,9 +45,11 @@ export async function importUsers(
     dryRun: String(options.dryRun),
   })
 
+  const url = `${baseUrl()}${hubGatewayPath('/imports/users')}?${params.toString()}`
+
   let res: Response
   try {
-    res = await fetch(`${baseUrl()}${hubGatewayPath('/imports/users')}?${params.toString()}`, {
+    res = await fetch(url, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
       body: form,
@@ -65,9 +67,11 @@ export async function importUsers(
 
 /** Baixa o modelo (CSV) de importação de usuários. */
 export async function getUserImportTemplate(token: string): Promise<Blob> {
+  const url = `${baseUrl()}${hubGatewayPath('/imports/templates/users')}`
+
   let res: Response
   try {
-    res = await fetch(`${baseUrl()}${hubGatewayPath('/imports/templates/users')}`, {
+    res = await fetch(url, {
       headers: { Authorization: `Bearer ${token}` },
       cache: 'no-store',
     })
