@@ -409,7 +409,7 @@ export function PageChecklistNaoConformidadesContent({
 
       <CollapsibleSection
         title="Não conformidades registradas"
-        className="mt-10"
+        className="mt-10 border-t border-border-default pt-10"
         filters={({ closeFilters }) => (
           <ChecklistFilters
             roomOptions={roomOptions}

@@ -1,6 +1,9 @@
 "use client";
 
-import { getClassDetailClient, listClassesClient } from "@portal/core/classes/classesClient";
+import {
+  getClassDetailClient,
+  listClassesClient,
+} from "@portal/core/classes/classesClient";
 import { useEffect, useState } from "react";
 
 import type { ClassSelection } from "../services/resolveClassSelection";
@@ -22,7 +25,9 @@ export function useSelectableClasses(selection: ClassSelection) {
   const [error, setError] = useState("");
 
   const key =
-    selection.mode === "teacher" ? selection.classIds.join(",") : selection.mode;
+    selection.mode === "teacher"
+      ? selection.classIds.join(",")
+      : selection.mode;
 
   useEffect(() => {
     let cancelled = false;
@@ -35,12 +40,20 @@ export function useSelectableClasses(selection: ClassSelection) {
 
         if (selection.mode === "admin") {
           const { classes: all } = await listClassesClient();
-          result = all.map((c) => ({ id: c.id, number: c.number, name: c.name }));
+          result = all.map((c) => ({
+            id: c.id,
+            number: c.number,
+            name: c.name,
+          }));
         } else if (selection.mode === "teacher") {
           const details = await Promise.all(
             selection.classIds.map((id) => getClassDetailClient(id)),
           );
-          result = details.map((c) => ({ id: c.id, number: c.number, name: c.name }));
+          result = details.map((c) => ({
+            id: c.id,
+            number: c.number,
+            name: c.name,
+          }));
         }
 
         if (!cancelled) setClasses(result);

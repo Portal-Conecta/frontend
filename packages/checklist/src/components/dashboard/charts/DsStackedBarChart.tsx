@@ -20,11 +20,12 @@ import {
 
 registerBarCharts();
 
-const BUCKET_SERIES: { key: ComplianceBucket; label: string; color: string }[] = [
-  { key: "ok", label: "Conforme", color: DS_STATUS_COLORS_BLUE.success },
-  { key: "atencao", label: "Atenção", color: DS_STATUS_COLORS_BLUE.warning },
-  { key: "critico", label: "Crítico", color: DS_STATUS_COLORS_BLUE.info },
-];
+const BUCKET_SERIES: { key: ComplianceBucket; label: string; color: string }[] =
+  [
+    { key: "ok", label: "Conforme", color: DS_STATUS_COLORS_BLUE.success },
+    { key: "atencao", label: "Atenção", color: DS_STATUS_COLORS_BLUE.warning },
+    { key: "critico", label: "Crítico", color: DS_STATUS_COLORS_BLUE.info },
+  ];
 
 export interface DsStackedBarChartProps {
   data: StatsEntry[];

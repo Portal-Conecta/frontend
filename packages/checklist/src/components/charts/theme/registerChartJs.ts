@@ -14,26 +14,34 @@ import {
   LineElement,
   PointElement,
   Tooltip,
-} from 'chart.js'
+} from "chart.js";
 
-let barRegistered = false
-let lineRegistered = false
-let doughnutRegistered = false
+let barRegistered = false;
+let lineRegistered = false;
+let doughnutRegistered = false;
 
 export function registerBarCharts(): void {
-  if (barRegistered) return
-  ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend)
-  barRegistered = true
+  if (barRegistered) return;
+  ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
+  barRegistered = true;
 }
 
 export function registerLineCharts(): void {
-  if (lineRegistered) return
-  ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Filler, Tooltip, Legend)
-  lineRegistered = true
+  if (lineRegistered) return;
+  ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Filler,
+    Tooltip,
+    Legend,
+  );
+  lineRegistered = true;
 }
 
 export function registerDoughnutCharts(): void {
-  if (doughnutRegistered) return
-  ChartJS.register(ArcElement, Tooltip, Legend)
-  doughnutRegistered = true
+  if (doughnutRegistered) return;
+  ChartJS.register(ArcElement, Tooltip, Legend);
+  doughnutRegistered = true;
 }
