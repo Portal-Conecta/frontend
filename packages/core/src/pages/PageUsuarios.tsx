@@ -27,6 +27,7 @@ export async function PageUsuarios() {
   }
 
   let users: DirectoryUser[] = []
+  let totalElements = 0
   let failed = false
   try {
     const result = await searchUsers(
@@ -38,11 +39,18 @@ export async function PageUsuarios() {
       token,
     )
     users = result.content
+    totalElements = result.totalElements
   } catch {
     failed = true
   }
 
-  return <PageUsuariosContent initialUsers={users} initialError={failed} />
+  return (
+    <PageUsuariosContent
+      initialUsers={users}
+      initialTotalElements={totalElements}
+      initialError={failed}
+    />
+  )
 }
 
 export default PageUsuarios

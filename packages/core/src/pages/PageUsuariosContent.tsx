@@ -11,7 +11,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-import { Button, Text } from '@portal/ui'
+import { Button, Pagination, Text } from '@portal/ui'
 
 import type { DirectoryUser, ListUsersResponse } from '../classes/types'
 import { HttpError } from '../http/errors'
@@ -30,11 +30,13 @@ const SEARCH_DEBOUNCE_MS = 300
 
 export interface PageUsuariosContentProps {
   initialUsers: DirectoryUser[]
+  initialTotalElements?: number
   initialError?: boolean
 }
 
 export function PageUsuariosContent({
   initialUsers,
+  initialTotalElements = 0,
   initialError = false,
 }: PageUsuariosContentProps) {
   const router = useRouter()
@@ -43,8 +45,10 @@ export function PageUsuariosContent({
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [filters, setFilters] = useState<UsersListFilters>({})
   const [filtersOpen, setFiltersOpen] = useState(false)
+  const [page, setPage] = useState(1)
 
   const [users, setUsers] = useState<DirectoryUser[]>(initialUsers)
+  const [totalElements, setTotalElements] = useState(initialTotalElements)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(initialError)
   const [reloadKey, setReloadKey] = useState(0)
@@ -53,6 +57,12 @@ export function PageUsuariosContent({
     const id = setTimeout(() => setDebouncedSearch(search), SEARCH_DEBOUNCE_MS)
     return () => clearTimeout(id)
   }, [search])
+
+  // Busca ou filtro novo volta pra página 1 — mesmo padrão do
+  // TurmaMemberSearchPanel.
+  useEffect(() => {
+    setPage(1)
+  }, [debouncedSearch, filters])
 
   const isFirstRun = useRef(!initialError)
   useEffect(() => {
@@ -65,7 +75,7 @@ export function PageUsuariosContent({
     setLoading(true)
     setError(false)
 
-    const params = toListUsersParams(debouncedSearch, filters)
+    const params = toListUsersParams(debouncedSearch, filters, page - 1)
     listUsersClient({
       page: params.page ?? 0,
       size: params.size ?? DEFAULT_USERS_PAGE_SIZE,
@@ -74,7 +84,10 @@ export function PageUsuariosContent({
       ...(params.status ? { status: params.status } : {}),
     })
       .then((result: ListUsersResponse) => {
-        if (!cancelled) setUsers(result.content)
+        if (!cancelled) {
+          setUsers(result.content)
+          setTotalElements(result.totalElements)
+        }
       })
       .catch((err) => {
         if (cancelled) return
@@ -92,7 +105,7 @@ export function PageUsuariosContent({
     return () => {
       cancelled = true
     }
-  }, [debouncedSearch, filters, reloadKey, router])
+  }, [debouncedSearch, filters, page, reloadKey, router])
 
   const hasActiveFilter =
     debouncedSearch.trim() !== '' || Boolean(filters.typeUser) || Boolean(filters.status)
@@ -107,9 +120,19 @@ export function PageUsuariosContent({
         <Text as="h1" variant="heading-h2" tone="brand">
           Usuários
         </Text>
-        <Button iconLeft="plus" onClick={() => router.push('/usuarios/novo')}>
-          Criar Novo Usuário
-        </Button>
+        <div className="md:hidden">
+          <Button
+            size="sm"
+            icon="plus"
+            aria-label="Criar novo usuário"
+            onClick={() => router.push('/usuarios/novo')}
+          />
+        </div>
+        <div className="hidden md:block">
+          <Button iconLeft="plus" onClick={() => router.push('/usuarios/novo')}>
+            Criar Novo Usuário
+          </Button>
+        </div>
       </div>
 
       <div className="flex items-center gap-3">
@@ -136,7 +159,7 @@ export function PageUsuariosContent({
           />
         </div>
 
-        <div className="min-w-0 md:order-1" aria-busy={loading}>
+        <div className="flex min-w-0 flex-col gap-4 md:order-1" aria-busy={loading}>
           <UsersTable
             users={users}
             loading={loading}
@@ -145,6 +168,17 @@ export function PageUsuariosContent({
             onRetry={() => setReloadKey((key) => key + 1)}
             onViewProfile={(user) => router.push(`/usuarios/${user.id}`)}
           />
+
+          {!loading && !error && totalElements > 0 ? (
+            <Pagination
+              currentPage={page}
+              pageSize={DEFAULT_USERS_PAGE_SIZE}
+              totalItems={totalElements}
+              onPageChange={setPage}
+              disabled={loading}
+              className="self-end"
+            />
+          ) : null}
         </div>
       </div>
 
