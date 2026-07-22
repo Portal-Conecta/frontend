@@ -133,7 +133,7 @@ function ChecklistForm({
     execution,
     answers,
     setAnswer,
-    lockedItemKeys,
+    lockedItemStatuses,
     error,
     loading: isLoadingExecution,
     isSubmitting,
@@ -332,9 +332,9 @@ function ChecklistForm({
                 answers[item.key]?.value &&
                 setAnswer(item.key, answers[item.key]!.value, text)
               }
-              disabled={isSubmitted && lockedItemKeys.has(item.key)}
-              {...(isSubmitted && lockedItemKeys.has(item.key)
-                ? { lockedReason: "Pendência aguardando validação" }
+              disabled={isSubmitted && lockedItemStatuses.has(item.key)}
+              {...(isSubmitted && lockedItemStatuses.has(item.key)
+                ? { issueStatus: lockedItemStatuses.get(item.key)! }
                 : {})}
             />
           ))}

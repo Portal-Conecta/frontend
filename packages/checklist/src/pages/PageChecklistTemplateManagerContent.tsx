@@ -17,8 +17,7 @@ import {
   editTemplateClient,
 } from "../services/client/templateClient";
 import type { ChecklistCategory, ChecklistSchema } from "../types/template";
-import type { MockTemplateItem } from "./gestaoItensMockData";
-
+import type { TemplateManagerItem } from "./templateManagerItem";
 export interface PageChecklistTemplateManagerContentProps {
   room: string;
   backHref: string;
@@ -29,10 +28,10 @@ export interface PageChecklistTemplateManagerContentProps {
   category: ChecklistCategory;
   /** Id do template ACTIVE da sala — presente = editar (new-version → editar DRAFT → ativar); ausente = criar. */
   templateId?: string;
-  initialItems: MockTemplateItem[];
+  initialItems: TemplateManagerItem[];
 }
 
-interface EditableItem extends MockTemplateItem {
+interface EditableItem extends TemplateManagerItem {
   /** Item recém-criado por "Adicionar item" — ainda não confirmado. */
   isNew?: boolean;
 }
@@ -113,10 +112,11 @@ export function PageChecklistTemplateManagerContent({
             items: items.map((item, index) => ({
               key: item.key.startsWith("new-") ? crypto.randomUUID() : item.key,
               title: item.title,
-              answerType: "CONFORMITY" as const,
-              required: true,
+              answerType: item.answerType ?? "CONFORMITY",
+              required: item.required ?? true,
               order: index + 1,
               ...(item.description ? { description: item.description } : {}),
+              ...(item.category ? { category: item.category } : {}),
             })),
           },
         ],

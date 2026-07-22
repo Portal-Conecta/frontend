@@ -62,7 +62,10 @@ async function TemplateManagerData({ roomId }: { roomId: string }) {
     section.items.map((item) => ({
       key: item.key,
       title: item.title,
+      required: item.required,
       ...(item.description ? { description: item.description } : {}),
+      ...(item.answerType ? { answerType: item.answerType } : {}),
+      ...(item.category ? { category: item.category } : {}),
     })),
   );
 
