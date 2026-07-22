@@ -18,8 +18,8 @@ export interface ClassMemberRowProps {
 export function ClassMemberRow({ member }: ClassMemberRowProps) {
   return (
     <li>
-      {/* px/py sobrescrevem o `p-4` do ListItem para bater com o Figma (12/14px). */}
-      <ListItem disableHover className="flex items-center gap-3 px-3 py-3.5">
+      {/* px/py sobrescrevem o `p-4` do ListItem para bater com o Figma (12px). */}
+      <ListItem disableHover className="flex items-center gap-3 px-3 py-3">
         <Icon name="circle-user" size="lg" decorative className="shrink-0 text-text-brand" />
         <Text as="span" variant="label-sm" tone="brand" className="min-w-0 flex-1 break-words">
           {member.name}
