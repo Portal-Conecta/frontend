@@ -81,8 +81,8 @@ export function TurmaList({ turmas }: TurmaListProps) {
                 <TurmaRowItem
                   key={turma.id}
                   turma={turma}
-                  onManageMembers={(selected) => {
-                    router.push(`/turmas/${encodeURIComponent(selected.id)}/membros`)
+                  onManage={(selected) => {
+                    router.push(`/turmas/${encodeURIComponent(selected.id)}`)
                   }}
                   onManageRepresentatives={setSelectedTurma}
                 />
@@ -106,16 +106,18 @@ export function TurmaList({ turmas }: TurmaListProps) {
 
 /**
  * Uma turma na lista — no mobile o curso e o turno empilham; no `md+` viram colunas.
- * "Gerenciar" mantém o acesso à tela de membros (#364), enquanto "Representantes"
- * abre o subfluxo específico da #365.
+ * "Gerenciar" leva pro detalhe da turma (#363), que é o ponto de entrada único:
+ * a tela de membros (#364) virou atalho de dentro dele, não mais destino direto
+ * da listagem. "Representantes" continua abrindo o subfluxo da #365 aqui mesmo,
+ * sem passar pelo detalhe.
  */
 function TurmaRowItem({
   turma,
-  onManageMembers,
+  onManage,
   onManageRepresentatives,
 }: {
   turma: TurmaRow
-  onManageMembers: (turma: TurmaRow) => void
+  onManage: (turma: TurmaRow) => void
   onManageRepresentatives: (turma: TurmaRow) => void
 }) {
   return (
@@ -131,7 +133,7 @@ function TurmaRowItem({
           size="sm"
           variant="outlined"
           iconLeft="chevron-right"
-          onClick={() => onManageMembers(turma)}
+          onClick={() => onManage(turma)}
         >
           Gerenciar
         </Button>
@@ -157,7 +159,7 @@ function TurmaRowItem({
           variant="outlined"
           icon="chevron-right"
           aria-label={`Gerenciar ${turma.code}`}
-          onClick={() => onManageMembers(turma)}
+          onClick={() => onManage(turma)}
         />
       </span>
     </ListItem>
