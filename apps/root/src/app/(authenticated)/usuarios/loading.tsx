@@ -1,15 +1,20 @@
 'use client'
 
 /**
- * Loading de navegação (Suspense) da rota /usuarios (#489) — título e botão
- * reais (sem custo, sem dado assíncrono). As linhas reusam o próprio
- * `UsersTable` no modo `loading` (mesmo estado de pulse do refetch
- * client-side), em vez de duplicar essa marcação aqui. `onViewProfile` é
- * obrigatório na prop mas inalcançável nesse modo — a linha nunca chega a
- * renderizar um card clicável enquanto `loading` for `true`.
+ * Loading de navegação (Suspense) da rota /usuarios (#489) — espelha a
+ * estrutura de `PageUsuariosContent` (título/botão reais, busca, grid de 2
+ * colunas com filtros à direita) em vez de uma coluna só. Reusa os
+ * componentes reais (`UsersSearchField`, `UsersFiltersBar`, `UsersTable`) —
+ * `UsersFiltersBar` não depende de dado assíncrono (opções fixas), e
+ * `UsersTable` no modo `loading` já traz o próprio placeholder de linhas
+ * (pulse), em vez de duplicar essa marcação aqui. `value`/`onChange`/
+ * `onViewProfile` viram no-op só porque a página real ainda não montou —
+ * some assim que o Suspense resolve.
  */
 import { Button, Text } from '@portal/ui'
 
+import { UsersFiltersBar } from '@portal/core/users/components/UsersFiltersBar'
+import { UsersSearchField } from '@portal/core/users/components/UsersSearchField'
 import { UsersTable } from '@portal/core/users/components/UsersTable'
 
 export default function LoadingUsuariosPage() {
@@ -22,10 +27,23 @@ export default function LoadingUsuariosPage() {
         <Button iconLeft="plus">Criar Novo Usuário</Button>
       </div>
 
-      <div className="h-11 animate-pulse rounded-lg border-sm border-border-default" />
+      <div className="flex items-center gap-3">
+        <div className="min-w-0 flex-1">
+          <UsersSearchField value="" onChange={() => {}} />
+        </div>
+        <Button variant="outlined" iconLeft="funnel" className="shrink-0 md:hidden">
+          Filtros
+        </Button>
+      </div>
 
-      <div className="min-w-0">
-        <UsersTable users={[]} loading onViewProfile={() => {}} />
+      <div className="flex flex-col gap-6 md:grid md:grid-cols-[2fr_1fr] md:items-start md:gap-8">
+        <div className="hidden md:block md:order-2">
+          <UsersFiltersBar />
+        </div>
+
+        <div className="min-w-0 md:order-1">
+          <UsersTable users={[]} loading onViewProfile={() => {}} />
+        </div>
       </div>
     </div>
   )
