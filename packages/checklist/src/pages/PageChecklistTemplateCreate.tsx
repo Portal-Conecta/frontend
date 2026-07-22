@@ -15,16 +15,15 @@ import { ERROR_PRESENTATION } from "@portal/core/http/errorPresentation";
 import { PermissionGate } from "@portal/core";
 import { ErrorPage } from "@portal/ui";
 
-import { MOCK_CHECKLIST_ROOMS } from "./gestaoItensMockData";
+import { listHubRooms } from "../services/server/hubRoomService";
+import { roomTypeLabel } from "../utils/roomLabel";
 import { PageChecklistTemplateManagerContent } from "./PageChecklistTemplateManagerContent";
 
 /**
- * Fallback local: mesma limitação de `PageChecklistGestaoItens` — ainda não
- * existe endpoint de listagem de salas nem criação real de template por
- * `roomId` (`createTemplate` em `templateService.ts` já cobre o contrato).
+ * Sala já vem de dado real (`listHubRooms`). "Salvar alterações" cria o
+ * template como DRAFT (`createTemplate`) e ativa em seguida (`activateTemplate`).
+ * Sem seletor de categoria na UI ainda — usa `GERAL` como padrão.
  */
-const USE_MOCK_DATA = true;
-
 export interface PageChecklistTemplateCreateProps {
   roomId: string;
 }
@@ -46,21 +45,22 @@ export async function PageChecklistTemplateCreate({
   );
 }
 
-function TemplateCreateData({ roomId }: { roomId: string }) {
-  if (!USE_MOCK_DATA) {
-    // TODO: implementar criação real do template pelo roomId assim que existir o endpoint.
-    return <ErrorPage {...ERROR_PRESENTATION.server} />;
-  }
-
-  const room = MOCK_CHECKLIST_ROOMS.find((r) => r.id === roomId);
+async function TemplateCreateData({ roomId }: { roomId: string }) {
+  const rooms = await listHubRooms();
+  const room = rooms.find((r) => r.id === roomId);
   if (!room) {
     return <ErrorPage {...ERROR_PRESENTATION.not_found} />;
   }
 
+  const roomLabel = `${room.number} - ${roomTypeLabel(room.typeRoom)}`;
+
   return (
     <PageChecklistTemplateManagerContent
-      room={room.room}
+      room={roomLabel}
       backHref="/checklist/gestao-itens"
+      roomId={roomId}
+      title={`Checklist - ${roomLabel}`}
+      category="GERAL"
       initialItems={[]}
     />
   );

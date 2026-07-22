@@ -13,18 +13,17 @@ import { ERROR_PRESENTATION } from "@portal/core/http/errorPresentation";
 import { PermissionGate } from "@portal/core";
 import { ErrorPage } from "@portal/ui";
 
-import {
-  MOCK_CHECKLIST_ROOMS,
-  MOCK_TEMPLATE_ITEMS,
-} from "./gestaoItensMockData";
+import { listHubRooms } from "../services/server/hubRoomService";
+import { listTemplates } from "../services/server/templateService";
+import { roomTypeLabel } from "../utils/roomLabel";
 import { PageChecklistTemplateManagerContent } from "./PageChecklistTemplateManagerContent";
 
 /**
- * Fallback local: mesma limitação de `PageChecklistGestaoItens` — ainda não
- * existe endpoint de listagem de salas nem busca de template por `roomId`.
+ * Sala e template já vêm de dado real (`listHubRooms` + `listTemplates`). Como
+ * `editTemplate` só aceita DRAFT (409 em ACTIVE), "Salvar alterações" segue o
+ * fluxo de versionamento: `new-version` (clona o ACTIVE pra um DRAFT) → editar
+ * esse DRAFT → `activate` (desativa o ACTIVE antigo do mesmo grupo).
  */
-const USE_MOCK_DATA = true;
-
 export interface PageChecklistTemplateManagerProps {
   roomId: string;
 }
@@ -46,22 +45,36 @@ export async function PageChecklistTemplateManager({
   );
 }
 
-function TemplateManagerData({ roomId }: { roomId: string }) {
-  if (!USE_MOCK_DATA) {
-    // TODO: implementar busca real do template pelo roomId assim que existir o endpoint.
-    return <ErrorPage {...ERROR_PRESENTATION.server} />;
-  }
+async function TemplateManagerData({ roomId }: { roomId: string }) {
+  const [rooms, activeTemplates] = await Promise.all([
+    listHubRooms(),
+    listTemplates({ roomId, status: "ACTIVE" }),
+  ]);
 
-  const room = MOCK_CHECKLIST_ROOMS.find((r) => r.id === roomId);
-  if (!room) {
+  const room = rooms.find((r) => r.id === roomId);
+  const template = activeTemplates[0];
+
+  if (!room || !template) {
     return <ErrorPage {...ERROR_PRESENTATION.not_found} />;
   }
 
+  const items = template.schemaJson.sections.flatMap((section) =>
+    section.items.map((item) => ({
+      key: item.key,
+      title: item.title,
+      ...(item.description ? { description: item.description } : {}),
+    })),
+  );
+
   return (
     <PageChecklistTemplateManagerContent
-      room={room.room}
+      room={`${room.number} - ${roomTypeLabel(room.typeRoom)}`}
       backHref="/checklist/gestao-itens"
-      initialItems={MOCK_TEMPLATE_ITEMS}
+      roomId={roomId}
+      title={template.title}
+      category={template.category}
+      templateId={template.id}
+      initialItems={items}
     />
   );
 }
