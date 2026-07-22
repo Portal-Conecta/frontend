@@ -10,16 +10,9 @@
  * de esconder, nunca expor).
  */
 import { resolvePermissions } from './rolePermissions'
-import type { ClassMembership, ClassRole, CurrentUser, TypeUser } from './types'
+import { isTypeUser } from './types'
+import type { ClassMembership, ClassRole, CurrentUser } from './types'
 
-const USER_TYPES: readonly TypeUser[] = [
-  'STUDENT',
-  'REPRESENTATIVE',
-  'TEACHER',
-  'SENAI',
-  'WEG',
-  'ADMIN',
-]
 const CLASS_ROLES: readonly ClassRole[] = ['STUDENT', 'TEACHER', 'REPRESENTATIVE']
 
 interface JwtClaims {
@@ -33,10 +26,6 @@ function decodeSegment(segment: string): unknown {
   const base64 = segment.replace(/-/g, '+').replace(/_/g, '/')
   const padded = base64 + '='.repeat((4 - (base64.length % 4)) % 4)
   return JSON.parse(atob(padded))
-}
-
-function isTypeUser(value: unknown): value is TypeUser {
-  return typeof value === 'string' && (USER_TYPES as readonly string[]).includes(value)
 }
 
 function isClassRole(value: unknown): value is ClassRole {

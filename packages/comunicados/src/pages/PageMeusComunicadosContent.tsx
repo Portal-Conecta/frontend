@@ -30,7 +30,7 @@ const SEARCH_DEBOUNCE_MS = 300
 export interface PageMeusComunicadosContentProps {
   /** Habilita o CTA "Publicar novo comunicado" (gate de UX; 403 do BFF é a verdade). */
   canCreate: boolean
-  /** Papel do usuário — deriva a variante reduzida dos filtros para `STUDENT`. */
+  /** Papel do usuário — deriva a variante reduzida dos filtros para `STUDENT` e `REPRESENTATIVE`. */
   userType?: TypeUser | undefined
 }
 

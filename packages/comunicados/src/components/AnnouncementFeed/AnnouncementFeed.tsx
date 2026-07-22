@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
-import { Button, Text } from '@portal/ui'
+import { Button, EmptyState, Text } from '@portal/ui'
 
 import { usePostsList } from '../../hooks/usePostsList'
 import {
@@ -15,7 +15,7 @@ import {
   getAnnouncementOriginLabel,
 } from '../../utils/announcement'
 import { getAnnouncementPlainDescription } from '../../utils/announcementDescription'
-import { ComunicadosEmptyState } from '../ComunicadosEmptyState'
+import { AnnouncementEmptyIllustration } from '../AnnouncementEmptyIllustration'
 import { PinnedPostsSection } from '../PinnedPostsSection'
 import {
   AnnouncementFeedItemSkeleton,
@@ -53,6 +53,13 @@ export interface AnnouncementFeedContentProps {
   loadingMore?: boolean
   onRetry?: () => void
   onLoadMore?: () => void
+  /**
+   * Navegação das ações de `canCreate`. Ficam como callback (e não `router.push`
+   * daqui) porque este componente é a metade apresentacional do par: quem conhece
+   * rota é o container. Mesmo contrato do `MyAnnouncementsTableContent`.
+   */
+  onOpenManagement?: () => void
+  onCreate?: () => void
   toolbar?: ReactNode
   sidebar?: ReactNode
 }
@@ -162,6 +169,8 @@ export function AnnouncementFeed({
       loadingMore={loading && (items.length > 0 || pinnedItems.length > 0)}
       onRetry={() => void refetch()}
       onLoadMore={handleLoadMore}
+      onOpenManagement={() => router.push('/comunicados/meus')}
+      onCreate={() => router.push('/comunicados/criar')}
       toolbar={toolbar}
       sidebar={sidebar}
     />
@@ -178,11 +187,11 @@ export function AnnouncementFeedContent({
   loadingMore = false,
   onRetry,
   onLoadMore,
+  onOpenManagement,
+  onCreate,
   toolbar,
   sidebar,
 }: AnnouncementFeedContentProps) {
-  const router = useRouter()
-
   if (isAnnouncementFeedUnauthorizedError(error)) {
     return null
   }
@@ -212,20 +221,20 @@ export function AnnouncementFeedContent({
                     size="sm"
                     icon="settings"
                     aria-label="Abrir painel de gestão"
-                    onClick={() => router.push('/comunicados/meus')}
+                    onClick={onOpenManagement}
                   />
                   <Button
                     size="sm"
                     icon="plus"
                     aria-label="Publicar novo comunicado"
-                    onClick={() => router.push('/comunicados/criar')}
+                    onClick={onCreate}
                   />
                 </div>
                 <div className="hidden items-center gap-3 sm:flex">
-                  <Button size="sm" iconLeft="settings" onClick={() => router.push('/comunicados/meus')}>
+                  <Button size="sm" iconLeft="settings" onClick={onOpenManagement}>
                     Abrir painel de gestão
                   </Button>
-                  <Button size="sm" iconLeft="plus" onClick={() => router.push('/comunicados/criar')}>
+                  <Button size="sm" iconLeft="plus" onClick={onCreate}>
                     Publicar novo comunicado
                   </Button>
                 </div>
@@ -251,24 +260,35 @@ export function AnnouncementFeedContent({
           ) : null}
 
           {!loading && error && !hasPosts ? (
-            <ComunicadosEmptyState
+            <EmptyState
               title="Comunicados não carregados"
               description={resolveAnnouncementFeedErrorMessage(error)}
-              actionLabel="Tentar novamente"
-              {...(onRetry ? { onAction: onRetry } : {})}
+              illustration={<AnnouncementEmptyIllustration className="h-60 w-60" aria-hidden="true" />}
+              action={
+                onRetry ? (
+                  <Button variant="outlined" onClick={onRetry}>
+                    Tentar novamente
+                  </Button>
+                ) : undefined
+              }
             />
           ) : null}
 
           {!loading && !error && regularPosts.length === 0 ? (
-            <ComunicadosEmptyState
+            <EmptyState
               title="Nenhum comunicado encontrado"
               description="Quando houver comunicados, eles aparecerão aqui."
-              {...(canCreate
-                ? {
-                    actionLabel: 'Criar comunicado',
-                    actionHref: '/comunicados/criar',
-                  }
-                : {})}
+              illustration={<AnnouncementEmptyIllustration className="h-60 w-60" aria-hidden="true" />}
+              action={
+                canCreate ? (
+                  <Link
+                    href="/comunicados/criar"
+                    className="inline-flex items-center justify-center rounded-md bg-interactive-default px-4 py-2 text-label-md-emphasis font-inter text-text-inverse hover:bg-interactive-hover active:bg-interactive-pressed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive-focus-ring focus-visible:ring-offset-2"
+                  >
+                    Criar comunicado
+                  </Link>
+                ) : undefined
+              }
             />
           ) : null}
 
@@ -281,11 +301,17 @@ export function AnnouncementFeedContent({
           ) : null}
 
           {!loading && error && hasPosts ? (
-            <ComunicadosEmptyState
+            <EmptyState
               title="Comunicados não atualizados"
               description={resolveAnnouncementFeedErrorMessage(error)}
-              actionLabel="Tentar novamente"
-              {...(onRetry ? { onAction: onRetry } : {})}
+              illustration={<AnnouncementEmptyIllustration className="h-60 w-60" aria-hidden="true" />}
+              action={
+                onRetry ? (
+                  <Button variant="outlined" onClick={onRetry}>
+                    Tentar novamente
+                  </Button>
+                ) : undefined
+              }
             />
           ) : null}
 

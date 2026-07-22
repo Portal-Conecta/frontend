@@ -5,7 +5,7 @@ import { RichTextContent } from './RichTextContent'
 import { RichTextEditor } from './RichTextEditor'
 
 const meta: Meta<typeof RichTextEditor> = {
-  title: 'Componentes/Inputs/Input/RichTextEditor',
+  title: 'Componentes/Inputs/RichTextEditor',
   component: RichTextEditor,
   parameters: { layout: 'padded' },
 }

@@ -19,9 +19,9 @@ const EXPECTED: Record<TypeUser, string[]> = {
   STUDENT: ['comunicados', 'mapa-salas'],
   REPRESENTATIVE: ['comunicados', 'mapa-salas', 'checklist'],
   TEACHER: ['comunicados', 'mapa-salas', 'checklist'],
-  SENAI: ['comunicados', 'mapa-salas', 'checklist', 'config'],
-  WEG: ['comunicados', 'mapa-salas', 'checklist', 'config'],
-  ADMIN: ['comunicados', 'mapa-salas', 'checklist', 'config'],
+  SENAI: ['comunicados', 'mapa-salas', 'checklist', 'usuarios', 'turma', 'cursos'],
+  WEG: ['comunicados', 'mapa-salas', 'checklist', 'usuarios', 'turma', 'cursos'],
+  ADMIN: ['comunicados', 'mapa-salas', 'checklist', 'usuarios', 'turma', 'cursos'],
 }
 
 const ROLES = Object.keys(EXPECTED) as TypeUser[]
@@ -50,6 +50,8 @@ describe('activeKeyFromPathname — item ativo derivado da rota (#405)', () => {
     ['/comunicados/criar', 'comunicados'],
     ['/comunicados/meus', 'comunicados'],
     ['/mapa-salas', 'mapa-salas'],
+    ['/usuarios', 'usuarios'],
+    ['/usuarios/novo', 'usuarios'],
   ])('%s ativa %s', (pathname, expected) => {
     expect(activeKeyFromPathname(pathname)).toBe(expected)
   })

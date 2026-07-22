@@ -38,7 +38,7 @@ interface ListClassesResponse {
  * O core pagina (size ≤ 100) e não filtra por curso; a agregação por curso — no
  * detalhe e no filtro de turno da listagem — é feita aqui no BFF.
  */
-async function fetchAllClasses(
+export async function fetchAllClasses(
   token: string,
   opts: { includeInactive?: boolean } = {},
 ): Promise<CourseClass[]> {
