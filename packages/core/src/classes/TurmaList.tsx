@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation'
 
 import { Button, ClassCard, Input, ListItem, Text } from '@portal/ui'
 
+import { ClassRepresentativesPanel } from './ClassRepresentativesPanel'
 import { TurmaFiltersForm } from './TurmaFiltersForm'
 import { TurmaMobileFilters } from './TurmaMobileFilters'
 import {
@@ -29,6 +30,7 @@ export function TurmaList({ turmas }: TurmaListProps) {
   const router = useRouter()
   const [query, setQuery] = useState('')
   const [filters, setFilters] = useState<TurmaFilters>({})
+  const [selectedTurma, setSelectedTurma] = useState<TurmaRow | null>(null)
 
   // Opções derivadas da lista completa (não da filtrada) para ficarem estáveis
   // enquanto se filtra.
@@ -62,63 +64,100 @@ export function TurmaList({ turmas }: TurmaListProps) {
         />
       </div>
 
-      <div className="mt-8 grid gap-3 lg:grid-cols-[2fr_1fr]">
-        <div>
-          {filtered.length === 0 ? (
-            <Text variant="body-sm" tone="secondary">
-              Nenhuma turma encontrada.
-            </Text>
-          ) : (
-            filtered.map((turma) => (
-              <TurmaRowItem
-                key={turma.id}
-                turma={turma}
-                onManage={() => router.push(`/turmas/${turma.id}/membros`)}
-              />
-            ))
-          )}
-        </div>
+      {selectedTurma ? (
+        <ClassRepresentativesPanel
+          turma={selectedTurma}
+          onClose={() => setSelectedTurma(null)}
+        />
+      ) : (
+        <div className="mt-8 grid gap-3 lg:grid-cols-[2fr_1fr]">
+          <div>
+            {filtered.length === 0 ? (
+              <Text variant="body-sm" tone="secondary">
+                Nenhuma turma encontrada.
+              </Text>
+            ) : (
+              filtered.map((turma) => (
+                <TurmaRowItem
+                  key={turma.id}
+                  turma={turma}
+                  onManageMembers={(selected) => {
+                    router.push(`/turmas/${encodeURIComponent(selected.id)}/membros`)
+                  }}
+                  onManageRepresentatives={setSelectedTurma}
+                />
+              ))
+            )}
+          </div>
 
-        <div className="hidden px-8 py-3 lg:block">
-          <TurmaFiltersForm
-            courseOptions={courses}
-            shiftOptions={shifts}
-            onApply={setFilters}
-            onReset={resetFilters}
-          />
+          <div className="hidden px-8 py-3 lg:block">
+            <TurmaFiltersForm
+              courseOptions={courses}
+              shiftOptions={shifts}
+              onApply={setFilters}
+              onReset={resetFilters}
+            />
+          </div>
         </div>
-      </div>
+      )}
     </>
   )
 }
 
 /**
  * Uma turma na lista — no mobile o curso e o turno empilham; no `md+` viram colunas.
- * "Gerenciar" leva pra tela de adicionar usuários (#364) — a #363 (detalhe da
- * turma) ainda não existe; quando ela nascer, este é o destino que passa a virar
- * o atalho de dentro dela, não mais o ponto de entrada direto da listagem.
+ * "Gerenciar" mantém o acesso à tela de membros (#364), enquanto "Representantes"
+ * abre o subfluxo específico da #365.
  */
-function TurmaRowItem({ turma, onManage }: { turma: TurmaRow; onManage: () => void }) {
+function TurmaRowItem({
+  turma,
+  onManageMembers,
+  onManageRepresentatives,
+}: {
+  turma: TurmaRow
+  onManageMembers: (turma: TurmaRow) => void
+  onManageRepresentatives: (turma: TurmaRow) => void
+}) {
   return (
     <ListItem className="flex items-center justify-between gap-2 md:gap-4">
       <ClassCard
-        variant='withBackground'
+        variant="withBackground"
         tag={turma.code}
         title={turma.course}
         meta={turma.shift}
       />
-      <span className="hidden md:inline-flex">
-        <Button size="sm" variant="outlined" iconLeft="chevron-right" onClick={onManage}>
+      <span className="hidden items-center gap-2 md:inline-flex">
+        <Button
+          size="sm"
+          variant="outlined"
+          iconLeft="chevron-right"
+          onClick={() => onManageMembers(turma)}
+        >
           Gerenciar
         </Button>
+        <Button
+          size="sm"
+          variant="outlined"
+          iconLeft="users"
+          onClick={() => onManageRepresentatives(turma)}
+        >
+          Representantes
+        </Button>
       </span>
-      <span className="inline-flex md:hidden">
+      <span className="inline-flex items-center gap-2 md:hidden">
+        <Button
+          size="sm"
+          variant="outlined"
+          icon="users"
+          aria-label={`Editar representantes de ${turma.code}`}
+          onClick={() => onManageRepresentatives(turma)}
+        />
         <Button
           size="sm"
           variant="outlined"
           icon="chevron-right"
           aria-label={`Gerenciar ${turma.code}`}
-          onClick={onManage}
+          onClick={() => onManageMembers(turma)}
         />
       </span>
     </ListItem>
