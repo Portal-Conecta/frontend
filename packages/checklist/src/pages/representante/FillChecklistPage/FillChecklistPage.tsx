@@ -289,11 +289,15 @@ function ChecklistForm({
             <ChecklistWindowClosedState
               title="Checklist não disponível"
               description="Esta turma ainda não possui uma janela de horário configurada para este checklist."
-              action={
-                <Button variant="outlined" onClick={onBack}>
-                  Selecionar outra sala
-                </Button>
-              }
+              {...(isClassSelectionFixed
+                ? {
+                    action: (
+                      <Button variant="outlined" onClick={onBack}>
+                        Selecionar outra sala
+                      </Button>
+                    ),
+                  }
+                : {})}
             />
           </div>
         </div>
