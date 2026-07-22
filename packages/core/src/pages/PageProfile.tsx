@@ -92,10 +92,12 @@ export async function PageProfile() {
           </section>
         ) : null}
 
-        <Banner variant="info" className="w-full">
-          Sua conta é gerenciada por um administrador. Caso precise alterar algum dado, procure alguém com este
-          acesso.
-        </Banner>
+        {profile.typeUser !== 'ADMIN' ? (
+          <Banner variant="info" className="w-full">
+            Sua conta é gerenciada por um administrador. Caso precise alterar algum dado, procure alguém com este
+            acesso.
+          </Banner>
+        ) : null}
       </div>
     </div>
   )
