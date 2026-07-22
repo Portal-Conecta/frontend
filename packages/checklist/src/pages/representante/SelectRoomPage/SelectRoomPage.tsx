@@ -15,14 +15,28 @@ export function SelectRoomPage({ onRoomSelected }: SelectRoomPageProps) {
 
   if (loading) {
     return (
-      <div className="flex h-full flex-col items-center gap-6 px-3 pt-6 md:gap-10 md:px-8">
-        <Skeleton variant="text" width={340} height={28} />
-        <div className="w-full max-w-5xl">
-          <Skeleton variant="rect" height={40} />
-          <div className="mt-2 flex flex-col gap-2">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} variant="rect" height={56} />
-            ))}
+      <div className="h-full overflow-y-auto">
+        <div className="flex min-h-full items-center justify-center py-6">
+          {/* Mesma estrutura do RoomSelector real (heading + Input + lista),
+              pra não "saltar" quando os dados chegam. */}
+          <div className="flex flex-col items-center gap-6 px-3 md:gap-10 md:px-8">
+            <Skeleton variant="text" width={340} height={36} />
+
+            <div className="w-full max-w-5xl">
+              <Skeleton variant="rect" height={44} />
+
+              <ul className="mt-2">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <li
+                    key={i}
+                    className="flex items-center gap-3 border-b border-border-default p-4"
+                  >
+                    <Skeleton variant="text" width={32} />
+                    <Skeleton variant="text" width={160} />
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
       </div>
