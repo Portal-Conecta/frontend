@@ -12,7 +12,8 @@ import type { ListUsersResponse, UserAccountStatus } from './types'
  *
  * O core filtra por `typeUser`, pagina (`page`/`size`), busca por nome
  * (`name`, substring case-insensitive) e status. Sem `status`, o backend
- * retorna somente usuários `ACTIVE`.
+ * retorna somente usuários `ACTIVE`. `semTurmaAtiva` restringe alunos e
+ * representantes sem vínculo em turma ativa.
  */
 
 export interface ListUsersParams {
@@ -23,6 +24,12 @@ export interface ListUsersParams {
   name?: string
   /** Um ou mais status de conta; ausente preserva o padrão `ACTIVE` do backend. */
   status?: UserAccountStatus[]
+  /**
+   * Quando `true`, restringe alunos/representantes a quem não tem vínculo em
+   * turma ativa (regra 1 aluno = 1 turma). Não afeta outros `typeUser` — o
+   * core ignora o filtro pra professores.
+   */
+  semTurmaAtiva?: boolean
 }
 
 const http = createHttpClient('API_GATEWAY_URL')
