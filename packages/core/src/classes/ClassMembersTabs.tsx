@@ -53,7 +53,17 @@ export function ClassMembersTabs({ students, teachers }: ClassMembersTabsProps) 
         className="py-3"
       />
 
-      <div className="mt-4 rounded-md border-sm border-border-default px-2.5 pt-2.5">
+      {/*
+       * `aria-live` mitiga o que falta no `radiogroup` da `Section` (ver o
+       * docstring acima): o leitor de tela anuncia a troca de seleção, mas nada
+       * diria que a lista inteira abaixo foi substituída. Paliativo até a
+       * `Section` ganhar `tablist`/`tabpanel` — aí o vínculo tab↔painel torna
+       * isto desnecessário.
+       */}
+      <div
+        aria-live="polite"
+        className="mt-4 rounded-md border-sm border-border-default px-2.5 pt-2.5"
+      >
         {members.length === 0 ? (
           /*
            * Estado vazio composto aqui em vez de usar o `EmptyState` do DS: o
