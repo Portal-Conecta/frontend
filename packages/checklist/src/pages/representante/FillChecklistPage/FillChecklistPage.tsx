@@ -333,6 +333,9 @@ function ChecklistForm({
                 setAnswer(item.key, answers[item.key]!.value, text)
               }
               disabled={isSubmitted && lockedItemKeys.has(item.key)}
+              {...(isSubmitted && lockedItemKeys.has(item.key)
+                ? { lockedReason: "Pendência aguardando validação" }
+                : {})}
             />
           ))}
         </div>
