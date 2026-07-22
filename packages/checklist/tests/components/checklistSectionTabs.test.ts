@@ -19,14 +19,18 @@ describe('resolveChecklistSectionTabs', () => {
     expect(hrefs).toEqual([
       '/checklist',
       '/checklist/dashboard',
-      '/checklist/monitor-envios',
-      '/checklist/gestao',
+      '/checklist/nao-conformidades',
+      '/checklist/gestao-itens',
     ])
   })
 
   it.each(['SENAI', 'WEG'] as const)('%s vê só gestão — sem a aba Checklist', (role) => {
     const hrefs = resolveChecklistSectionTabs(userFor(role)).map((tab) => tab.href)
-    expect(hrefs).toEqual(['/checklist/dashboard', '/checklist/monitor-envios', '/checklist/gestao'])
+    expect(hrefs).toEqual([
+      '/checklist/dashboard',
+      '/checklist/nao-conformidades',
+      '/checklist/gestao-itens',
+    ])
   })
 
   it('usuário nulo cai no mesmo caso de gestão (sem Checklist)', () => {
