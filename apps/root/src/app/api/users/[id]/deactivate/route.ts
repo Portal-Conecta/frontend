@@ -1,0 +1,24 @@
+import { NextResponse } from 'next/server'
+
+import { getSession } from '@portal/core/auth/session'
+import { bffErrorResponse } from '@portal/core/http/bffError'
+import { deactivateUser } from '@portal/core/profile/profileService'
+
+interface RouteContext {
+  params: Promise<{ id: string }>
+}
+
+/** BFF — desativa um usuário (`ACTIVE` → `DISABLED`), bloqueando o login. Reversível via `reactivate`. */
+export async function POST(_req: Request, context: RouteContext) {
+  const token = await getSession()
+  if (!token) return NextResponse.json({ code: 'unauthorized' }, { status: 401 })
+
+  const { id } = await context.params
+  if (!id?.trim()) return NextResponse.json({ code: 'validation', message: 'id obrigatório.' }, { status: 400 })
+
+  try {
+    return NextResponse.json(await deactivateUser(id, token))
+  } catch (err) {
+    return bffErrorResponse(err)
+  }
+}

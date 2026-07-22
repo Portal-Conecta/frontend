@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 
 import { getSession } from '@portal/core/auth/session'
 import { bffErrorResponse } from '@portal/core/http/bffError'
-import { getUserById, updateUser } from '@portal/core/profile/profileService'
+import { deleteUser, getUserById, updateUser } from '@portal/core/profile/profileService'
 import { parseUpdateUser } from '@portal/core/profile/profileValidation'
 
 interface RouteContext {
@@ -55,6 +55,21 @@ export async function PATCH(req: Request, context: RouteContext) {
 
   try {
     return NextResponse.json(await updateUser(id, parsed.value, token))
+  } catch (err) {
+    return bffErrorResponse(err)
+  }
+}
+
+/** BFF — marca o usuário para exclusão (`PENDING_DELETION`, purge futuro no Hub). */
+export async function DELETE(_req: Request, context: RouteContext) {
+  const token = await getSession()
+  if (!token) return NextResponse.json({ code: 'unauthorized' }, { status: 401 })
+
+  const id = await userIdFrom(context)
+  if (!id) return NextResponse.json({ code: 'validation', message: 'id obrigatório.' }, { status: 400 })
+
+  try {
+    return NextResponse.json(await deleteUser(id, token))
   } catch (err) {
     return bffErrorResponse(err)
   }
