@@ -3,22 +3,19 @@
 /**
  * ShiftFilter — filtro "Com turmas registradas no turno" (issue #357).
  *
- * Seleção única: os dois turnos do Hub (`HUB_SHIFT`) são valores compostos
- * (`FULL_AM_PM` = Manhã/Tarde, `FULL_PM_NT` = Tarde/Noite), então cada botão
- * mapeia 1:1 para um `HubShift`. Clicar no ativo desmarca (volta a "todos os
- * turnos"). O valor enviado ao BFF vem do enum; os rótulos são a cópia do
- * protótipo (barra, não "e").
- *
- * Botão ativo = solid (preenchido); inativo = outlined. `aria-pressed` expõe o
- * estado ao leitor de tela.
+ * Select com "Todos" + os dois turnos do Hub (`HUB_SHIFT`). O valor enviado ao
+ * BFF continua sendo o enum; `null` = sem filtro. Rótulos vêm de
+ * `HUB_SHIFT_LABELS` ("Manhã e tarde" / "Tarde e noite").
  */
-import { HUB_SHIFT, type HubShift } from '@portal/shared'
-import { Button, Text } from '@portal/ui'
+import { HUB_SHIFT, HUB_SHIFT_LABELS, type HubShift } from '@portal/shared'
+import { Field, Select, Text, type SelectOption } from '@portal/ui'
 
-/** Rótulos do protótipo, atrelados ao valor do enum enviado ao BFF. */
-const SHIFT_OPTIONS: readonly { shift: HubShift; label: string }[] = [
-  { shift: HUB_SHIFT.FULL_AM_PM, label: 'Manhã/Tarde' },
-  { shift: HUB_SHIFT.FULL_PM_NT, label: 'Tarde/Noite' },
+const TODOS = 'todos'
+
+const SHIFT_OPTIONS: SelectOption[] = [
+  { value: TODOS, label: 'Todos' },
+  { value: HUB_SHIFT.FULL_AM_PM, label: HUB_SHIFT_LABELS[HUB_SHIFT.FULL_AM_PM] },
+  { value: HUB_SHIFT.FULL_PM_NT, label: HUB_SHIFT_LABELS[HUB_SHIFT.FULL_PM_NT] },
 ]
 
 export interface ShiftFilterProps {
@@ -37,23 +34,16 @@ export function ShiftFilter({ value, onChange, className }: ShiftFilterProps) {
       <Text as="h2" variant="label-md-emphasis" tone="brand">
         Com turmas registradas no turno:
       </Text>
-      <div role="group" aria-label="Turno" className="flex items-center gap-3">
-        {SHIFT_OPTIONS.map(({ shift, label }) => {
-          const active = value === shift
-          return (
-            <Button
-              key={shift}
-              variant={active ? 'solid' : 'outlined'}
-              size="sm"
-              aria-pressed={active}
-              onClick={() => onChange(active ? null : shift)}
-              className="flex-1"
-            >
-              {label}
-            </Button>
-          )
-        })}
-      </div>
+      <Field label="Turno">
+        <Select
+          options={SHIFT_OPTIONS}
+          value={value ?? TODOS}
+          onChange={(next) => {
+            onChange(!next || next === TODOS ? null : (next as HubShift))
+          }}
+          placeholder="Todos"
+        />
+      </Field>
     </section>
   )
 }

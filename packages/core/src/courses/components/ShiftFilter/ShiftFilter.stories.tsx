@@ -6,8 +6,8 @@ import type { HubShift } from '@portal/shared'
 import { ShiftFilter } from './ShiftFilter'
 
 /**
- * ShiftFilter — filtro por turno da lista de cursos (seleção única, clicar no
- * ativo desmarca).
+ * ShiftFilter — filtro por turno da lista de cursos (Select: Todos / Manhã e
+ * tarde / Tarde e noite).
  */
 const meta: Meta<typeof ShiftFilter> = {
   title: 'Componentes/Actions/ShiftFilter',
