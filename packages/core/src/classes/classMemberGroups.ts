@@ -4,11 +4,11 @@
  *
  * `GET /classes/{classId}/members` devolve todos os membros de uma vez, cada um
  * com o seu papel. O ponto não-óbvio: `REPRESENTATIVE` é **irmão** de `STUDENT`
- * no enum, não um flag à parte — representante *é* aluno da turma (mesmo
- * critério do `STUDENT_CLASS_ROLES` no `classMembersService`). Por isso a aba
- * "Alunos" é `role !== 'TEACHER'` e não `role === 'STUDENT'`: filtrar por
+ * no enum, não um flag à parte — representante *é* aluno da turma. Por isso a
+ * aba "Alunos" usa o `isStudentClassRole` e não `role === 'STUDENT'`: filtrar por
  * `STUDENT` sumiria com os representantes da lista.
  */
+import { isStudentClassRole } from '../rbac'
 import type { ClassMember } from './types'
 
 export interface ClassMemberGroups {
@@ -26,7 +26,7 @@ function byName(a: ClassMember, b: ClassMember): number {
 }
 
 export function groupClassMembers(members: readonly ClassMember[]): ClassMemberGroups {
-  const students = members.filter((member) => member.role !== 'TEACHER').sort(byName)
+  const students = members.filter((member) => isStudentClassRole(member.role)).sort(byName)
 
   return {
     students,
