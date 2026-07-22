@@ -4,15 +4,18 @@ import { useId, useMemo, useRef, useState, type KeyboardEvent, type Ref } from '
 import { useRouter } from 'next/navigation'
 
 import { HUB_SHIFT, HUB_SHIFT_LABELS, type HubShift } from '@portal/shared'
-import { Button, EmptyState, Icon, Text } from '@portal/ui'
+import { Button, EmptyState, Field, Icon, Select, Text, type SelectOption } from '@portal/ui'
 
 import { filterCourseClasses, type CourseClassesTab } from '../courses/courseDetailFilters'
 import type { Course, CourseClass, CourseDetail } from '../courses/types'
 import { CourseEditPanel } from './CourseEditPanel'
 
-const SHIFT_OPTIONS: readonly { value: HubShift; label: string }[] = [
-  { value: HUB_SHIFT.FULL_AM_PM, label: 'Manhã/Tarde' },
-  { value: HUB_SHIFT.FULL_PM_NT, label: 'Tarde/Noite' },
+const TODOS = 'todos'
+
+const SHIFT_OPTIONS: SelectOption[] = [
+  { value: TODOS, label: 'Todos' },
+  { value: HUB_SHIFT.FULL_AM_PM, label: HUB_SHIFT_LABELS[HUB_SHIFT.FULL_AM_PM] },
+  { value: HUB_SHIFT.FULL_PM_NT, label: HUB_SHIFT_LABELS[HUB_SHIFT.FULL_PM_NT] },
 ]
 
 export function PageCourseDetailContent({ initialCourse }: { initialCourse: CourseDetail }) {
@@ -125,28 +128,16 @@ export function PageCourseDetailContent({ initialCourse }: { initialCourse: Cour
         </section>
 
         <aside className="flex flex-col gap-4">
-          <div>
-            <Text as="h2" variant="label-md-emphasis" tone="brand">
-              Filtrar por turno:
-            </Text>
-            <div role="group" aria-label="Filtrar por turno" className="mt-3 flex gap-3">
-              {SHIFT_OPTIONS.map((option) => {
-                const selected = shift === option.value
-                return (
-                  <Button
-                    key={option.value}
-                    variant={selected ? 'solid' : 'outlined'}
-                    size="sm"
-                    aria-pressed={selected}
-                    className="flex-1"
-                    onClick={() => setShift(selected ? null : option.value)}
-                  >
-                    {option.label}
-                  </Button>
-                )
-              })}
-            </div>
-          </div>
+          <Field label="Filtrar por turno">
+            <Select
+              options={SHIFT_OPTIONS}
+              value={shift ?? TODOS}
+              onChange={(value) => {
+                setShift(!value || value === TODOS ? null : (value as HubShift))
+              }}
+              placeholder="Todos"
+            />
+          </Field>
           <Button iconLeft="square-pen" onClick={() => setEditing(true)}>
             Editar Curso
           </Button>
