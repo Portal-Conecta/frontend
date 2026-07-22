@@ -52,6 +52,7 @@ describe('activeKeyFromPathname — item ativo derivado da rota (#405)', () => {
     ['/mapa-salas', 'mapa-salas'],
     ['/usuarios', 'usuarios'],
     ['/usuarios/novo', 'usuarios'],
+    ['/usuarios/abc', 'usuarios'],
   ])('%s ativa %s', (pathname, expected) => {
     expect(activeKeyFromPathname(pathname)).toBe(expected)
   })
