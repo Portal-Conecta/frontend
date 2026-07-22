@@ -12,8 +12,23 @@
  * - `ClassRole` — por matrícula (usuário × turma). Escopo para checagens por turma.
  */
 
+/** Valores aceitos pelo claim global `userType`. */
+export const TYPE_USER_VALUES = [
+  'STUDENT',
+  'REPRESENTATIVE',
+  'TEACHER',
+  'SENAI',
+  'WEG',
+  'ADMIN',
+] as const
+
 /** Papel global do usuário (claim `userType`). 1 por usuário. */
-export type TypeUser = 'STUDENT' | 'REPRESENTATIVE' | 'TEACHER' | 'SENAI' | 'WEG' | 'ADMIN'
+export type TypeUser = (typeof TYPE_USER_VALUES)[number]
+
+/** Type guard para valores recebidos de JWT, URL e corpo de requisição. */
+export function isTypeUser(value: unknown): value is TypeUser {
+  return typeof value === 'string' && (TYPE_USER_VALUES as readonly string[]).includes(value)
+}
 
 /** Papel do usuário dentro de uma turma específica (claim `classes[].role`). */
 export type ClassRole = 'STUDENT' | 'TEACHER' | 'REPRESENTATIVE'
@@ -27,6 +42,8 @@ export type Permission =
   | 'mapa:ver'
   | 'checklist:ver'
   | 'checklist:gerenciar'
+  /** Dashboard gerencial de checklist — gestão SENAI / WEG (e ADMIN). */
+  | 'checklist:dashboard'
   | 'usuarios:listar'
   | 'usuarios:gerenciar'
   | 'salas:gerenciar'

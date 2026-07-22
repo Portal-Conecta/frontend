@@ -3,7 +3,7 @@
 import { Icon } from "@portal/ui";
 import { useState } from "react";
 
-export type StatusValue = "conforme" | "nao-conforme";
+export type StatusValue = "COMPLIANT" | "NON_COMPLIANT";
 export interface StatusToggleProps {
   value?: StatusValue | null;
   defaultValue?: StatusValue | null;
@@ -23,13 +23,13 @@ const base =
 const neutral = "border-interactive-default text-interactive-default";
 
 const selectedClass: Record<StatusValue, string> = {
-  conforme: "border-feedback-success text-feedback-success",
-  "nao-conforme": "border-feedback-error text-feedback-error",
+  COMPLIANT: "border-feedback-success text-feedback-success",
+  NON_COMPLIANT: "border-feedback-error text-feedback-error",
 };
 
 const options = [
-  { value: "nao-conforme", label: "Não Conforme", icon: "x" },
-  { value: "conforme", label: "Conforme", icon: "check-check" },
+  { value: "NON_COMPLIANT", label: "Não Conforme", icon: "x" },
+  { value: "COMPLIANT", label: "Conforme", icon: "check-check" },
 ] as const;
 
 export function StatusToggle({

@@ -18,7 +18,7 @@ export const Default: Story = {
 };
 
 export const Preenchido: Story = {
-  args: { title: "Computadores", description: desc, defaultValue: "conforme" },
+  args: { title: "Computadores", description: desc, defaultValue: "COMPLIANT" },
 };
 
 export const Lista: Story = {
@@ -28,12 +28,12 @@ export const Lista: Story = {
       <ChecklistItem
         title="Computadores"
         description={desc}
-        defaultValue="conforme"
+        defaultValue="COMPLIANT"
       />
       <ChecklistItem
         title="Projetores"
         description={desc}
-        defaultValue="nao-conforme"
+        defaultValue="NON_COMPLIANT"
       />
       <ChecklistItem title="Ar-condicionado" description={desc} />
     </div>

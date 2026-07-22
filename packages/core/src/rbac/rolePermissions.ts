@@ -14,6 +14,7 @@
  * - `checklist:ver` → todos menos o aluno comum (`STUDENT`).
  * - `checklist:gerenciar` (triagem de não conformidades) → professor + equipe
  *   (TEACHER, SENAI, WEG, ADMIN) — não o representante, que só preenche.
+ * - `checklist:dashboard` → gestão SENAI / WEG / ADMIN (painel agregado).
  * - `*:gerenciar` / `usuarios:listar` → equipe (SENAI, WEG, ADMIN).
  * - `matriculas:gerenciar` → apenas SENAI e ADMIN (WEG não).
  */
@@ -28,6 +29,7 @@ export const rolePermissions: Record<TypeUser, readonly Permission[]> = {
     'mapa:ver',
     'checklist:ver',
     'checklist:gerenciar',
+    'checklist:dashboard',
     'usuarios:listar',
     'usuarios:gerenciar',
     'salas:gerenciar',
@@ -40,6 +42,7 @@ export const rolePermissions: Record<TypeUser, readonly Permission[]> = {
     'mapa:ver',
     'checklist:ver',
     'checklist:gerenciar',
+    'checklist:dashboard',
     'usuarios:listar',
     'usuarios:gerenciar',
     'salas:gerenciar',
@@ -51,6 +54,7 @@ export const rolePermissions: Record<TypeUser, readonly Permission[]> = {
     'mapa:ver',
     'checklist:ver',
     'checklist:gerenciar',
+    'checklist:dashboard',
     'usuarios:listar',
     'usuarios:gerenciar',
     'salas:gerenciar',
