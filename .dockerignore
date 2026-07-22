@@ -1,0 +1,38 @@
+# Nunca copiar para o contexto de build (imagem menor, build mais rápido e
+# determinístico — as deps vêm do lockfile, não do node_modules do host).
+**/node_modules
+**/.next
+**/dist
+**/*.tsbuildinfo
+
+# Storybook
+storybook-static
+.storybook/tailwind.generated.css
+
+# Git / editores / CI
+.git
+.github
+.vscode
+.idea
+
+# Ambiente e segredos (injetados em runtime pelo compose, nunca na imagem)
+**/.env
+**/.env.*
+!**/.env.example
+
+# Ferramentas de agente / sync que não pertencem à imagem
+.claude
+.agents
+.design-sync
+.ds-sync
+
+# Docs e afins
+docs
+*.md
+!README.md
+
+# Logs / cache
+*.log
+.cache
+.eslintcache
+coverage
