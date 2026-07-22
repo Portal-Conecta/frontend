@@ -100,10 +100,20 @@ async function TurmaDetalhe({ classId, accessToken }: { classId: string; accessT
           </Text>
         </div>
 
+        {/*
+         * Os dois botões de navegação da tela ficam `disabled` enquanto as telas
+         * irmãs não existem: hoje só há as rotas `turmas/` e
+         * `turmas/[classId]/`, então o clique levava a um 404 sem explicação — e
+         * o usuário final não lê a descrição da PR. Eles seguem no layout que o
+         * Figma pede e a navegação prevista na DoD da #363 continua visível;
+         * quando cada tela shipar, é remover `disabled` e `title` do seu botão.
+         */}
         <TurmaNavButton
           href={`/turmas/${classId}/usuarios`}
           iconLeft="plus"
           size="xs"
+          disabled
+          title="Disponível em breve"
           className="shrink-0"
         >
           Gerenciar usuário da turma
@@ -126,11 +136,14 @@ async function TurmaDetalhe({ classId, accessToken }: { classId: string; accessT
                 Representantes
               </Text>
 
+              {/* `disabled` pelo mesmo motivo do botão do cabeçalho. */}
               <TurmaNavButton
                 href={`/turmas/${classId}/representantes`}
                 variant="outlined"
                 iconLeft="square-pen"
                 size="xs"
+                disabled
+                title="Disponível em breve"
                 className="shrink-0"
               >
                 Alterar representantes
