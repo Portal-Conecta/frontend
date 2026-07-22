@@ -5,14 +5,10 @@ import { bffErrorResponse } from '@portal/core/http/bffError'
 import { deleteUser, getUserById, updateUser } from '@portal/core/profile/profileService'
 import { parseUpdateUser } from '@portal/core/profile/profileValidation'
 
+import { userIdFrom } from '../_lib/userIdFrom'
+
 interface RouteContext {
   params: Promise<{ id: string }>
-}
-
-async function userIdFrom(context: RouteContext): Promise<string | null> {
-  const { id } = await context.params
-  const normalized = id?.trim()
-  return normalized || null
 }
 
 /** BFF — consulta o detalhe de um usuário por ID. */
@@ -20,7 +16,7 @@ export async function GET(_req: Request, context: RouteContext) {
   const token = await getSession()
   if (!token) return NextResponse.json({ code: 'unauthorized' }, { status: 401 })
 
-  const id = await userIdFrom(context)
+  const id = await userIdFrom(context.params)
   if (!id) return NextResponse.json({ code: 'validation', message: 'id obrigatório.' }, { status: 400 })
 
   try {
@@ -35,7 +31,7 @@ export async function PATCH(req: Request, context: RouteContext) {
   const token = await getSession()
   if (!token) return NextResponse.json({ code: 'unauthorized' }, { status: 401 })
 
-  const id = await userIdFrom(context)
+  const id = await userIdFrom(context.params)
   if (!id) return NextResponse.json({ code: 'validation', message: 'id obrigatório.' }, { status: 400 })
 
   let body: unknown
@@ -65,7 +61,7 @@ export async function DELETE(_req: Request, context: RouteContext) {
   const token = await getSession()
   if (!token) return NextResponse.json({ code: 'unauthorized' }, { status: 401 })
 
-  const id = await userIdFrom(context)
+  const id = await userIdFrom(context.params)
   if (!id) return NextResponse.json({ code: 'validation', message: 'id obrigatório.' }, { status: 400 })
 
   try {

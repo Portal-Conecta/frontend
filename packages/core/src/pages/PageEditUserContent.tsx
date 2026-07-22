@@ -82,6 +82,7 @@ export function PageEditUserContent({ user }: PageEditUserContentProps) {
   }
 
   async function handleDeleteConfirm() {
+    if (busy) return
     setDeleteDialogOpen(false)
     setLifecycleLoading(true)
     try {
@@ -105,7 +106,9 @@ export function PageEditUserContent({ user }: PageEditUserContentProps) {
           >
             <Icon name="chevron-left" size="lg" decorative />
           </Link>
-          <h1 className="truncate text-heading-h2 font-inter text-text-brand">Editar usuário</h1>
+          <Text as="h1" variant="heading-h2" tone="brand" className="truncate">
+            Editar usuário
+          </Text>
         </div>
 
         <Button iconLeft="square-pen" disabled>
@@ -126,7 +129,7 @@ export function PageEditUserContent({ user }: PageEditUserContentProps) {
             <Button
               size="sm"
               variant="outlined"
-              tone="negative"
+              tone={active ? 'negative' : 'positive'}
               disabled={busy}
               onClick={() => void handleToggleActive()}
             >
