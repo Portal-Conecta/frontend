@@ -10,6 +10,8 @@ export interface ChecklistManagerItemProps {
   onDelete: () => void;
   onEdit?: () => void;
   onCancel?: () => void;
+  /** Abre o item já em modo de edição — caso do item recém-criado por "Adicionar item". */
+  startEditing?: boolean;
   className?: string;
 }
 
@@ -20,9 +22,10 @@ export function ChecklistManagerItem({
   onDelete,
   onEdit,
   onCancel,
+  startEditing = false,
   className,
 }: ChecklistManagerItemProps) {
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(startEditing);
   const [titleValue, setTitleValue] = useState(title);
   const [descriptionValue, setDescriptionValue] = useState(description ?? "");
   const titleRef = useRef<HTMLInputElement>(null);
@@ -70,8 +73,8 @@ export function ChecklistManagerItem({
     onCancel?.();
   }
 
-  // padding varia conforme o modo: leitura = px 12px / py 16px, edição = py 12px
-  const paddingClass = isEditing ? "py-3" : "px-3 py-4";
+  // padding varia conforme o modo: leitura = px 12px / py 16px, edição = px 12px / py 12px
+  const paddingClass = isEditing ? "px-3 py-3" : "px-3 py-4";
 
   // coluna no mobile e tablet (botões pra baixo), linha só no desktop (lg)
   const containerClass = [
@@ -89,7 +92,7 @@ export function ChecklistManagerItem({
   // field-sizing:content ajusta a largura ao conteúdo (inclui placeholder)
   // OBS: field-sizing:content não é suportado no Firefox — largura cai para o padrão lá
   const inputBase =
-    "rounded-lg border border-border-default bg-transparent px-3 py-2 " +
+    "max-w-full break-words rounded-lg border border-border-default bg-transparent px-3 py-2 " +
     "text-text-secondary placeholder:text-text-secondary " +
     "focus:border-border-focus focus:text-text-brand focus:outline-none " +
     "transition-colors duration-200 [field-sizing:content]";
@@ -130,9 +133,9 @@ export function ChecklistManagerItem({
             iconLeft="check-check"
             onClick={handleConfirm}
             disabled={isTitleEmpty}
-            aria-label="Confirmar alterações"
+            aria-label="Confirmar"
           >
-            <span className="hidden lg:inline">Confirmar alterações</span>
+            <span className="hidden lg:inline">Confirmar</span>
           </Button>
 
           <Button
@@ -141,9 +144,9 @@ export function ChecklistManagerItem({
             size="sm"
             iconLeft="x"
             onClick={handleCancel}
-            aria-label="Descartar alterações"
+            aria-label="Cancelar"
           >
-            <span className="hidden lg:inline">Descartar alterações</span>
+            <span className="hidden lg:inline">Cancelar</span>
           </Button>
         </div>
       </div>

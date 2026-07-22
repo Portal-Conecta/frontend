@@ -49,6 +49,8 @@ export function TurmaList({ turmas }: TurmaListProps) {
           className="flex-1 min-w-0"
           placeholder="Buscar turma"
           aria-label="Buscar turma"
+          tone='brand'
+          iconLeft='search'
           value={query}
           onChange={(event) => setQuery(event.target.value)}
         />

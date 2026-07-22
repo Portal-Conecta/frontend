@@ -3,6 +3,8 @@
 // Puramente presentacional — não conhece alocações, alunos ou estado do mapa.
 // Recebe mode/canSave do useMapaDeSala e só dispara os callbacks correspondentes.
 
+import type { CSSProperties } from 'react'
+
 import { Button } from '@portal/ui'
 
 // TODO(#116): trocar por iconLeft="square-pen"|"trash"|"save" (prop nativa do
@@ -67,14 +69,82 @@ const noHoverActiveNegative =
   'hover:bg-transparent! hover:text-interactive-negative-default! active:bg-transparent! active:text-interactive-negative-default! ' +
   '[-webkit-tap-highlight-color:transparent]'
 
+// `shrink-0`: cada Button nunca é espremido pelo flex do container antes do
+// `flex-wrap` assumir — sem isso, o navegador encolhe o botão em vez de
+// mover ele inteiro pra uma segunda linha. `whitespace-nowrap`: ícone e
+// texto nunca quebram linha um em cima do outro dentro do próprio botão.
+// Sempre presente, independente do estado hover/active (#[MOBILE-TOOLBAR]).
+//
+// Abaixo de 422px (largura em que "Limpar Mapa" + "Salvar Alterações" não
+// cabem mais lado a lado com o `shrink-0` acima) trocamos de estratégia: em
+// vez de deixar o `flex-wrap` do container empurrar o botão inteiro pra uma
+// segunda linha, permitimos que ESTE botão encolha (`shrink`/`min-w-0`) e
+// truncamos só o texto (ver `<span className="min-w-0 truncate">` abaixo) — o ícone
+// tem `shrink-0` próprio, então nunca é cortado, só o texto ganha reticências
+// se não couber. Mantém os dois botões sempre na mesma linha nessa faixa.
+const toolbarButtonBaseClasses = 'shrink-0 whitespace-nowrap max-[421px]:min-w-0 max-[421px]:shrink'
+
+// Padding HORIZONTAL fluido do Button abaixo de `lg` — quando os botões
+// empilham (um por linha, ver `containerClasses`), o `px-4` nativo do
+// Button (16px de cada lado) deixa cada um "gordo" sozinho na própria
+// linha. Só o eixo X encolhe (8px → 16px, mesmo teto do `px-4` original);
+// o `py-2` (8px) do Button fica intocado — é o que garante a altura de
+// toque (~40px, exigida pela issue #[MOBILE-TOOLBAR]) mesmo no mobile mais
+// estreito. `clamp()` em vez de um valor fixo por breakpoint: continua
+// encolhendo suavemente conforme a tela encolhe (320px→640px), sem o salto
+// único que uma classe `max-lg:` daria — acima de 640px o clamp já está no
+// teto de 16px, idêntico ao padrão do Button, então não precisa de `lg:`
+// pra "desligar" nada. Via `style` (não Tailwind arbitrary value — a
+// fórmula usa variável, e Tailwind escaneia estaticamente): `style` já
+// vence uma classe normal do Button (px-4 não é `!important`), sem precisar
+// do truque `!` usado em `noHoverActive*` acima.
+const TOOLBAR_BUTTON_PAD_X_MIN = 8
+const TOOLBAR_BUTTON_PAD_X_MAX = 16
+const TOOLBAR_BUTTON_PAD_X_VIEWPORT_MIN = 320
+const TOOLBAR_BUTTON_PAD_X_VIEWPORT_MAX = 640
+
+const fluidPadX = (() => {
+  const slope = TOOLBAR_BUTTON_PAD_X_MAX - TOOLBAR_BUTTON_PAD_X_MIN
+  const viewportRange = TOOLBAR_BUTTON_PAD_X_VIEWPORT_MAX - TOOLBAR_BUTTON_PAD_X_VIEWPORT_MIN
+  return `clamp(${TOOLBAR_BUTTON_PAD_X_MIN}px, calc(${TOOLBAR_BUTTON_PAD_X_MIN}px + ${slope} * (100vw - ${TOOLBAR_BUTTON_PAD_X_VIEWPORT_MIN}px) / ${viewportRange}), ${TOOLBAR_BUTTON_PAD_X_MAX}px)`
+})()
+
+const toolbarButtonFluidStyle: CSSProperties = {
+  paddingLeft: fluidPadX,
+  paddingRight: fluidPadX,
+}
+
 export function MapToolbar({ mode, canSave, onEdit, onClear, onSave, className }: MapToolbarProps) {
   // Largura: "hug contents" (auto) — o container cresce/encolhe sozinho
-  // conforme o conteúdo (162px com 1 botão, 339px com 2), sem valor fixo.
-  // Altura: fixada em 48px (h-12) e padding 24/12 horizontal/vertical,
-  // conforme specs do Figma (Espaçamento 24 · 12, Redimensionamento A 48).
-  // gap-6 = 24px já bate com o "Espaço" do auto-layout entre os botões.
+  // conforme o conteúdo (162px com 1 botão, 339px com 2 no desktop), sem
+  // valor fixo. Altura: fixada em 48px (h-12) e padding 24/12
+  // horizontal/vertical no desktop (lg+), conforme specs do Figma
+  // (Espaçamento 24 · 12, Redimensionamento A 48) — inalterado a partir de
+  // `lg`. gap-6 = 24px já bate com o "Espaço" do auto-layout entre os
+  // botões (desktop).
+  //
+  // Mobile (#[MOBILE-TOOLBAR]): sem `flex-wrap`, o container não move os
+  // botões pra uma segunda linha quando não cabem — ele os encolhe
+  // (flex-shrink padrão), e aí o CONTEÚDO de cada botão (ícone + texto) é
+  // que quebra em duas linhas por falta de espaço, estourando a altura
+  // fixa (`h-12`) e deixando tudo desproporcional. `gap-3 px-4` (em vez de
+  // `gap-6 px-6`) reduz o hug-content sem sair da escala de spacing do DS.
+  // `max-w-full flex-wrap justify-center` é a rede de segurança: se ainda
+  // assim não coubesse, os BOTÕES INTEIROS quebram pra uma segunda linha
+  // centralizada (flex-wrap move o item inteiro, não encolhe o conteúdo
+  // dele) — nunca corta nem deixa o ícone/texto quebrado dentro do botão.
+  // `min-h-12` (em vez de `h-12` fixo) permite essa segunda linha crescer;
+  // no desktop (`lg:h-12 lg:flex-nowrap`) o comportamento de altura
+  // fixa/uma linha só do Figma continua garantido. Não mexe no `Button` do
+  // DS (padding/alvo de toque do botão em si ficam como estão).
   const containerClasses = [
-    'inline-flex h-12 items-center gap-6 rounded-lg border-sm border-border-default bg-background-surface px-6 py-3',
+    'inline-flex min-h-12 max-w-full flex-wrap items-center justify-center gap-3 rounded-lg',
+    'border-sm border-border-default bg-background-surface px-4 py-3',
+    // Abaixo de 422px, ver comentário de `toolbarButtonBaseClasses`: os
+    // botões encolhem (com texto truncado) em vez do container quebrar em
+    // duas linhas, então o `flex-wrap` é desligado nessa faixa.
+    'max-[421px]:flex-nowrap',
+    'lg:h-12 lg:flex-nowrap lg:gap-6 lg:px-6',
     className,
   ]
     .filter(Boolean)
@@ -87,9 +157,15 @@ export function MapToolbar({ mode, canSave, onEdit, onClear, onSave, className }
   if (mode === 'view') {
     return (
       <div className={containerClasses}>
-        <Button variant="ghost" tone="brand" className={noHoverActiveBrand} onClick={onEdit}>
-          <SquarePenIcon className={iconSizeClasses} />
-          Editar Mapa
+        <Button
+          variant="ghost"
+          tone="brand"
+          className={`${toolbarButtonBaseClasses} ${noHoverActiveBrand}`}
+          style={toolbarButtonFluidStyle}
+          onClick={onEdit}
+        >
+          <SquarePenIcon className={`${iconSizeClasses} shrink-0`} />
+          <span className="min-w-0 truncate">Editar Mapa</span>
         </Button>
       </div>
     )
@@ -97,9 +173,15 @@ export function MapToolbar({ mode, canSave, onEdit, onClear, onSave, className }
 
   return (
     <div className={containerClasses}>
-      <Button variant="ghost" tone="negative" className={noHoverActiveNegative} onClick={onClear}>
-        <TrashIcon className={iconSizeClasses} />
-        Limpar Mapa
+      <Button
+        variant="ghost"
+        tone="negative"
+        className={`${toolbarButtonBaseClasses} ${noHoverActiveNegative}`}
+        style={toolbarButtonFluidStyle}
+        onClick={onClear}
+      >
+        <TrashIcon className={`${iconSizeClasses} shrink-0`} />
+        <span className="min-w-0 truncate">Limpar Mapa</span>
       </Button>
 
       {/*
@@ -107,16 +189,19 @@ export function MapToolbar({ mode, canSave, onEdit, onClear, onSave, className }
         for true. Enquanto canSave=false (nem todos os alunos alocados), o
         botão fica cinza e não deve ficar azul ao toque — deixamos o próprio
         Button (disabled nativo) cuidar disso, sem nosso className por cima.
+        `toolbarButtonBaseClasses` (shrink-0/whitespace-nowrap) sempre entra,
+        independente do estado.
       */}
       <Button
         variant="ghost"
         tone="brand"
-        className={canSave ? noHoverActiveBrand : undefined}
+        className={canSave ? `${toolbarButtonBaseClasses} ${noHoverActiveBrand}` : toolbarButtonBaseClasses}
+        style={toolbarButtonFluidStyle}
         disabled={!canSave}
         onClick={onSave}
       >
-        <SaveIcon className={iconSizeClasses} />
-        Salvar Alterações
+        <SaveIcon className={`${iconSizeClasses} shrink-0`} />
+        <span className="min-w-0 truncate">Salvar Alterações</span>
       </Button>
     </div>
   )

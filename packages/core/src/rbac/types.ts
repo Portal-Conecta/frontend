@@ -41,6 +41,9 @@ export type Permission =
   | 'comunicados:ver'
   | 'mapa:ver'
   | 'checklist:ver'
+  | 'checklist:gerenciar'
+  /** Dashboard gerencial de checklist — gestão SENAI / WEG (e ADMIN). */
+  | 'checklist:dashboard'
   | 'usuarios:listar'
   | 'usuarios:gerenciar'
   | 'salas:gerenciar'

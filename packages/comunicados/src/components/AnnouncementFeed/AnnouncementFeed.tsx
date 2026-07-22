@@ -53,6 +53,13 @@ export interface AnnouncementFeedContentProps {
   loadingMore?: boolean
   onRetry?: () => void
   onLoadMore?: () => void
+  /**
+   * Navegação das ações de `canCreate`. Ficam como callback (e não `router.push`
+   * daqui) porque este componente é a metade apresentacional do par: quem conhece
+   * rota é o container. Mesmo contrato do `MyAnnouncementsTableContent`.
+   */
+  onOpenManagement?: () => void
+  onCreate?: () => void
   toolbar?: ReactNode
   sidebar?: ReactNode
 }
@@ -162,6 +169,8 @@ export function AnnouncementFeed({
       loadingMore={loading && (items.length > 0 || pinnedItems.length > 0)}
       onRetry={() => void refetch()}
       onLoadMore={handleLoadMore}
+      onOpenManagement={() => router.push('/comunicados/meus')}
+      onCreate={() => router.push('/comunicados/criar')}
       toolbar={toolbar}
       sidebar={sidebar}
     />
@@ -178,11 +187,11 @@ export function AnnouncementFeedContent({
   loadingMore = false,
   onRetry,
   onLoadMore,
+  onOpenManagement,
+  onCreate,
   toolbar,
   sidebar,
 }: AnnouncementFeedContentProps) {
-  const router = useRouter()
-
   if (isAnnouncementFeedUnauthorizedError(error)) {
     return null
   }
@@ -212,20 +221,20 @@ export function AnnouncementFeedContent({
                     size="sm"
                     icon="settings"
                     aria-label="Abrir painel de gestão"
-                    onClick={() => router.push('/comunicados/meus')}
+                    onClick={onOpenManagement}
                   />
                   <Button
                     size="sm"
                     icon="plus"
                     aria-label="Publicar novo comunicado"
-                    onClick={() => router.push('/comunicados/criar')}
+                    onClick={onCreate}
                   />
                 </div>
                 <div className="hidden items-center gap-3 sm:flex">
-                  <Button size="sm" iconLeft="settings" onClick={() => router.push('/comunicados/meus')}>
+                  <Button size="sm" iconLeft="settings" onClick={onOpenManagement}>
                     Abrir painel de gestão
                   </Button>
-                  <Button size="sm" iconLeft="plus" onClick={() => router.push('/comunicados/criar')}>
+                  <Button size="sm" iconLeft="plus" onClick={onCreate}>
                     Publicar novo comunicado
                   </Button>
                 </div>

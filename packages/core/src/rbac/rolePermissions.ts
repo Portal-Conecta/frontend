@@ -12,6 +12,9 @@
  * Regras de produto embutidas:
  * - `comunicados:ver` / `mapa:ver` → todo usuário autenticado.
  * - `checklist:ver` → todos menos o aluno comum (`STUDENT`).
+ * - `checklist:gerenciar` (triagem de não conformidades) → professor + equipe
+ *   (TEACHER, SENAI, WEG, ADMIN) — não o representante, que só preenche.
+ * - `checklist:dashboard` → gestão SENAI / WEG / ADMIN (painel agregado).
  * - `*:gerenciar` / `usuarios:listar` → equipe (SENAI, WEG, ADMIN).
  * - `matriculas:gerenciar` → apenas SENAI e ADMIN (WEG não).
  */
@@ -20,11 +23,13 @@ import type { Permission, TypeUser } from './types'
 export const rolePermissions: Record<TypeUser, readonly Permission[]> = {
   STUDENT: ['comunicados:ver', 'mapa:ver'],
   REPRESENTATIVE: ['comunicados:ver', 'mapa:ver', 'checklist:ver'],
-  TEACHER: ['comunicados:ver', 'mapa:ver', 'checklist:ver'],
+  TEACHER: ['comunicados:ver', 'mapa:ver', 'checklist:ver', 'checklist:gerenciar'],
   SENAI: [
     'comunicados:ver',
     'mapa:ver',
     'checklist:ver',
+    'checklist:gerenciar',
+    'checklist:dashboard',
     'usuarios:listar',
     'usuarios:gerenciar',
     'salas:gerenciar',
@@ -36,6 +41,8 @@ export const rolePermissions: Record<TypeUser, readonly Permission[]> = {
     'comunicados:ver',
     'mapa:ver',
     'checklist:ver',
+    'checklist:gerenciar',
+    'checklist:dashboard',
     'usuarios:listar',
     'usuarios:gerenciar',
     'salas:gerenciar',
@@ -46,6 +53,8 @@ export const rolePermissions: Record<TypeUser, readonly Permission[]> = {
     'comunicados:ver',
     'mapa:ver',
     'checklist:ver',
+    'checklist:gerenciar',
+    'checklist:dashboard',
     'usuarios:listar',
     'usuarios:gerenciar',
     'salas:gerenciar',
