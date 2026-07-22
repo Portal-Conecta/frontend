@@ -5,7 +5,7 @@ import { Text } from '../../atoms'
 import { ChartCard } from './ChartCard'
 
 const meta: Meta<typeof ChartCard> = {
-  title: 'UI/Charts/ChartCard',
+  title: 'Componentes/Data/ChartCard',
   component: ChartCard,
   parameters: { layout: 'padded' },
 }
