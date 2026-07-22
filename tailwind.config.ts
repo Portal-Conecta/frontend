@@ -13,15 +13,6 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      screens: {
-        // Breakpoint específico do mapa de sala (#429): o modo "coluna de
-        // alunos à direita" só cabe com folga a partir de 1440px — abaixo
-        // disso a StudentSidebar espremia a grade antes da hora. Os
-        // breakpoints padrão (lg=1024/xl=1280) não bastam; nomeado em vez de
-        // `min-[1440px]:` solto pra não divergir entre os arquivos que
-        // compõem essa página (MapEditor, RoomMapSection, PageMapaSalasContent).
-        'map-lg': '1440px',
-      },
       colors: {
         interactive: colors.interactive,
         feedback:    colors.feedback,

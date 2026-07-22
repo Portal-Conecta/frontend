@@ -65,22 +65,24 @@ export type MapEditorProps = {
  * canto superior arredondado, fundo `background-default`), ocupando a altura
  * inteira da área de edição. No mobile (#429) empilha a lista completa abaixo
  * do grid, mas mantém a moldura como um card fechado nos quatro cantos (sem o
- * corte do lado direito, que só existe a partir do breakpoint customizado
- * `map-lg` — 1440px, ver `tailwind.config.ts` — quando a coluna encosta na
- * borda da viewport via `-mr-8`). Os breakpoints padrão (`lg`=1024/`xl`=1280)
- * não bastam: nessa faixa a `StudentSidebar` ainda comeria espaço da grade
- * antes do layout ter largura de sobra, por isso o `MapGrid` mantém seu
- * próprio scroll horizontal e piso de largura por assento fluido, sempre
- * ativo (`MAP_GRID_MIN_SEAT_WIDTH`, ver `components/seatSizing.ts`) — esse é
- * independente do `map-lg` (reage à largura real do grid, não ao viewport). A
- * coluna esquerda não precisa de tratamento adicional pra isso, já é
- * `flex-col` full-width em qualquer largura.
+ * corte do lado direito, que só existe a partir do breakpoint arbitrário
+ * `min-[1440px]:` quando a coluna encosta na borda da viewport via `-mr-8`).
+ * Os breakpoints padrão (`lg`=1024/`xl`=1280) não bastam: nessa faixa a
+ * `StudentSidebar` ainda comeria espaço da grade antes do layout ter largura
+ * de sobra, por isso o `MapGrid` mantém seu próprio scroll horizontal e piso
+ * de largura por assento fluido, sempre ativo (`MAP_GRID_MIN_SEAT_WIDTH`, ver
+ * `components/seatSizing.ts`) — esse é independente do breakpoint de layout
+ * (reage à largura real do grid, não ao viewport). A coluna esquerda não
+ * precisa de tratamento adicional pra isso, já é `flex-col` full-width em
+ * qualquer largura. `1440px` é repetido como variante arbitrária em vez de
+ * token nomeado no `tailwind.config.ts` (que exigiria aprovação do squad de
+ * Front-End) — precisa bater com `RoomMapSection.tsx`/`PageMapaSalasContent.tsx`.
  *
  * A raiz deste componente espera receber `h-full` de quem o renderiza (hoje,
  * `PageMapaSalasContent.tsx` via `[&>*]:h-full` numa cadeia de `h-full`/
- * `flex-1`/`min-h-0` que nasce no `<main>` do AppLayout, também trocada de
- * `lg:` pra `map-lg:` — ver `RoomMapSection.tsx`/`PageMapaSalasContent.tsx`)
- * — com isso definido, `map-lg:items-stretch` faz a coluna da `StudentSidebar`
+ * `flex-1`/`min-h-0` que nasce no `<main>` do AppLayout, também com o mesmo
+ * `min-[1440px]:` — ver `RoomMapSection.tsx`/`PageMapaSalasContent.tsx`) — com
+ * isso definido, `min-[1440px]:items-stretch` faz a coluna da `StudentSidebar`
  * esticar sozinha até essa altura real, sem precisar de nenhum
  * `h-[calc(100vh-Npx)]` chutando o tamanho do header/footer/breadcrumb da
  * página.
@@ -98,7 +100,9 @@ export function MapEditor({
   gridClassName,
   className,
 }: MapEditorProps) {
-  const classes = ['flex flex-col gap-6 map-lg:flex-row map-lg:items-stretch', className].filter(Boolean).join(' ')
+  const classes = ['flex flex-col gap-6 min-[1440px]:flex-row min-[1440px]:items-stretch', className]
+    .filter(Boolean)
+    .join(' ')
 
   return (
     <div className={classes}>
@@ -122,27 +126,30 @@ export function MapEditor({
         className={[
            // Mobile: cartão fechado nos quatro cantos/lados — a lista empilha
            // cheia abaixo do grid, então a moldura vira um card comum, sem o
-           // corte do lado direito que só faz sentido na coluna map-lg (ver abaixo).
+           // corte do lado direito que só faz sentido na coluna a partir de
+           // min-[1440px] (ver abaixo).
            'rounded-lg border-md border-border-default bg-background-default p-4',
-           // A partir de map-lg (1440px, ver tailwind.config.ts) vira coluna à
-           // direita que encosta na borda da viewport (`-mr-8` abaixo) — por
-           // isso os cantos/borda direita são zerados aqui, sobrando só o "L"
-           // (topo + esquerda + base).
-           'map-lg:shrink-0 map-lg:rounded-tr-none map-lg:rounded-br-none map-lg:border-r-0',
+           // A partir de 1440px vira coluna à direita que encosta na borda da
+           // viewport (`-mr-8` abaixo) — por isso os cantos/borda direita são
+           // zerados aqui, sobrando só o "L" (topo + esquerda + base).
+           // Breakpoint arbitrário — não token nomeado no tailwind.config.ts
+           // (exigiria aprovação do squad de Front-End) — precisa bater com
+           // `RoomMapSection.tsx`/`PageMapaSalasContent.tsx`.
+           'min-[1440px]:shrink-0 min-[1440px]:rounded-tr-none min-[1440px]:rounded-br-none min-[1440px]:border-r-0',
             // Largura escala continuamente via clamp — exceção do §5 p/ largura
             // de coluna sem token dedicado (docs/conventions/tokens-e-theming.md).
-            'map-lg:w-[clamp(280px,26vw,398px)]',
+            'min-[1440px]:w-[clamp(280px,26vw,398px)]',
             // Padding não pode ser valor arbitrário (§3 — eslint
             // no-restricted-syntax exige escala do DS). p-4 (16px) já é o
             // padrão mobile-first (base acima); sobe pra p-6 (24px, valor do
             // Figma) assim que vira coluna desktop — a clamp da largura já
             // cuida do crescimento gradual, sem precisar de outro degrau.
-            'map-lg:p-6',
+            'min-[1440px]:p-6',
             // Cancela o `md:p-8` (32px) da página no lado direito — no Figma a
             // coluna encosta na borda da viewport, mas o container da página tem
             // padding nos quatro lados (mesmo padding serve pro conteúdo restante:
             // breadcrumb, seletor, mensagens de erro/vazio).
-            'map-lg:-mr-8',
+            'min-[1440px]:-mr-8',
         ].join(' ')}
       >
         <StudentSidebar

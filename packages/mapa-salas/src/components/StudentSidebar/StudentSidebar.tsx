@@ -51,7 +51,10 @@ export function StudentSidebar({
   onEmptyAreaClick,
   className,
 }: StudentSidebarProps) {
-  const classes = ['h-full overflow-y-auto px-4 pt-4', className].filter(Boolean).join(' ')
+  // Sem padding próprio: o card do MapEditor já aplica p-4/min-[1440px]:p-6
+  // nos quatro lados — somar px-4 pt-4 aqui dobrava o espaçamento do
+  // topo/laterais em relação à base (revisão #429).
+  const classes = ['h-full overflow-y-auto', className].filter(Boolean).join(' ')
 
   // Clique num <li> borbulha até aqui — só dispara onEmptyAreaClick quando o
   // alvo é o próprio <ul> (área vazia), não um item da lista.

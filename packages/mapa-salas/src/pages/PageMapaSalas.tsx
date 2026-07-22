@@ -20,7 +20,9 @@ import type { RoomFilterOption } from '../types/hub'
 
 export async function PageMapaSalas() {
   const user = await getCurrentUser()
-  const isStudent = user?.userType === 'STUDENT'
+  // REPRESENTATIVE tem, dentro do mapa de sala, as mesmas permissões de
+  // STUDENT — mesmo critério de `PageMapaSalasContent`.
+  const isStudent = user?.userType === 'STUDENT' || user?.userType === 'REPRESENTATIVE'
 
   let rooms: RoomFilterOption[] = []
   let turmas: RoomFilterOption[] = []

@@ -148,14 +148,16 @@ export function RoomMapSection({
   const draftAllocations = toDraftAllocations(data.allocations)
 
   return (
-    <div className="flex flex-col gap-10 map-lg:h-full">
-      {/* `map-lg:flex-1 map-lg:min-h-0`: consome a altura repassada por
-          `PageMapaSalasContent` (`h-full` até aqui) — é o que deixa o botão
-          ancorado perto da base via `mt-auto` abaixo, na mesma altura do
-          toolbar do modo edição, sem precisar de nenhum `calc(100vh-Npx)`.
-          Breakpoint customizado (#429, ver `tailwind.config.ts`) — precisa
-          bater com o que o `MapEditor` usa pra virar coluna à direita. */}
-      <div className="flex flex-col gap-10 map-lg:min-h-0 map-lg:flex-1">
+    <div className="flex flex-col gap-10 min-[1440px]:h-full">
+      {/* `min-[1440px]:flex-1 min-[1440px]:min-h-0`: consome a altura
+          repassada por `PageMapaSalasContent` (`h-full` até aqui) — é o que
+          deixa o botão ancorado perto da base via `mt-auto` abaixo, na mesma
+          altura do toolbar do modo edição, sem precisar de nenhum
+          `calc(100vh-Npx)`. Breakpoint arbitrário (#429) — precisa bater com
+          o que o `MapEditor` usa pra virar coluna à direita (sem token
+          nomeado no tailwind.config.ts — exigiria aprovação do squad de
+          Front-End). */}
+      <div className="flex flex-col gap-10 min-[1440px]:min-h-0 min-[1440px]:flex-1">
         {/* Professor vem da posição TEACHER dentro do próprio grid (MapGrid) —
             não renderizamos um professor à parte aqui para não duplicar.
             Sem StudentSidebar aqui: não-alocados só aparecem em edição
