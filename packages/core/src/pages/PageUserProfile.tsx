@@ -13,17 +13,14 @@
 import { redirect } from 'next/navigation'
 
 import { ErrorPage } from '@portal/ui'
-import type { ClassCardItem } from '@portal/ui'
 
 import { getCurrentUser } from '../auth/getCurrentUser'
 import { getSession } from '../auth/session'
-import { HttpError } from '../http/errors'
-import { ERROR_PRESENTATION } from '../http/errorPresentation'
 import { PermissionGate } from '../layout/PermissionGate'
 import { getUserById } from '../profile/profileService'
-import type { UserById } from '../profile/types'
 import { loadUserClassCard } from '../users/loadUserClassCard'
 import { PageUserProfileContent } from './PageUserProfileContent'
+import { resolveUserProfileState } from './resolveUserProfileState'
 
 export interface PageUserProfileProps {
   userId: string
@@ -45,39 +42,32 @@ export async function PageUserProfile({ userId }: PageUserProfileProps) {
 }
 
 async function UserProfileLoader({ userId, token }: { userId: string; token: string }) {
-  let user: UserById
-  try {
-    user = await getUserById(userId, token)
-  } catch (err) {
-    if (err instanceof HttpError) {
-      if (err.kind === 'unauthorized') redirect('/login')
-      if (err.kind === 'forbidden') {
-        return <ErrorPage {...ERROR_PRESENTATION.forbidden} />
-      }
-      if (err.kind === 'not_found') {
-        return <ErrorPage {...ERROR_PRESENTATION.not_found} />
-      }
-    }
-    return <ErrorPage {...ERROR_PRESENTATION.server} />
+  // Dispara em paralelo (elimina o waterfall — #484, mesmo padrão do #407 em
+  // PageProfile.tsx): getUserById não depende do resultado de
+  // loadUserClassCard nem vice-versa, ambos só precisam de userId+token.
+  // Trade-off aceito: toda visualização de perfil passa a chamar
+  // GET /users/{id}/class, mesmo pra quem nunca tem turma (professor/admin) —
+  // resposta 404 vira null e é descartada abaixo quando o papel não se aplica.
+  const [userResult, classCardResult] = await Promise.allSettled([
+    getUserById(userId, token),
+    loadUserClassCard(userId, token),
+  ])
+
+  const state = resolveUserProfileState(userResult, classCardResult)
+
+  if (state.kind === 'redirect-login') {
+    redirect('/login')
   }
-
-  let classCard: ClassCardItem | null = null
-  let classesFailed = false
-
-  // Turma só faz sentido para papéis com vínculo de turma no hub.
-  if (user.typeUser === 'STUDENT' || user.typeUser === 'REPRESENTATIVE') {
-    try {
-      classCard = await loadUserClassCard(userId, token)
-    } catch (err) {
-      if (err instanceof HttpError && err.kind === 'unauthorized') {
-        redirect('/login')
-      }
-      classesFailed = true
-    }
+  if (state.kind === 'error') {
+    return <ErrorPage {...state.presentation} />
   }
 
   return (
-    <PageUserProfileContent user={user} classCard={classCard} classesFailed={classesFailed} />
+    <PageUserProfileContent
+      user={state.user}
+      classCard={state.classCard}
+      classesFailed={state.classesFailed}
+    />
   )
 }
 

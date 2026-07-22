@@ -1,21 +1,12 @@
 name: Chromatic
 
-# DESATIVADO TEMPORARIAMENTE em 2026-07-10: incidente no Capture Cloud do
-# Chromatic (status.chromatic.com) deixou os builds presos em "Running N
-# tests" indefinidamente, travando a fila de Actions do repo (26 runs presos
-# em in_progress/queued simultaneamente, em branches não relacionadas).
-# Trigger trocado de `push` para manual (`workflow_dispatch`) até o serviço
-# normalizar. Ver AGENTS.md > "Dívidas técnicas conhecidas" para o registro
-# e o passo a passo de reversão.
-#
-# Configuração original (reativar quando o Chromatic normalizar):
-# on:
-#   push:
-#     branches:
-#       - 'feature/**'
-#       - develop
+# Roda só no push (não em pull_request): o Chromatic associa o build ao commit,
+# então o status check aparece no PR sem rodar duas vezes por push.
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - 'feature/**'
+      - develop
 
 jobs:
   chromatic:

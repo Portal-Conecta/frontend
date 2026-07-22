@@ -4,6 +4,8 @@ import { getSession } from '@portal/core/auth/session'
 import { bffErrorResponse } from '@portal/core/http/bffError'
 import { getUserActiveClassId } from '@portal/core/users/loadUserClassCard'
 
+import { userIdFrom } from '../../_lib/userIdFrom'
+
 interface RouteContext {
   params: Promise<{ id: string }>
 }
@@ -13,8 +15,7 @@ export async function GET(_req: Request, context: RouteContext) {
   const token = await getSession()
   if (!token) return NextResponse.json({ code: 'unauthorized' }, { status: 401 })
 
-  const { id } = await context.params
-  const userId = id?.trim()
+  const userId = await userIdFrom(context.params)
   if (!userId) {
     return NextResponse.json({ code: 'validation', message: 'id obrigatório.' }, { status: 400 })
   }

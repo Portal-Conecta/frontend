@@ -124,12 +124,17 @@ export function ChecklistFilters({
         <div className="flex gap-3 md:ml-auto md:shrink-0">
           <Button
             variant="outlined"
+            size="sm"
             className="flex-1 md:flex-none"
             onClick={handleReset}
           >
             Restaurar
           </Button>
-          <Button className="flex-1 md:flex-none" onClick={handleApply}>
+          <Button
+            size="sm"
+            className="flex-1 md:flex-none"
+            onClick={handleApply}
+          >
             Aplicar
           </Button>
         </div>

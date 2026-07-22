@@ -3,10 +3,19 @@ import { checklistGatewayPath } from "../checklistGateway";
 import type {
   ChecklistExecutionResponse,
   ChecklistExecutionDraftCreateRequest,
+  ChecklistExecutionStatus,
   ChecklistExecutionSubmitRequest,
   ChecklistExecutionHistoryItem,
   PageResponse,
 } from "../../types/execution";
+import type { ChecklistType } from "../../types/submissionWindow";
+
+export interface ExecutionListFilters {
+  classId?: string;
+  roomId?: string;
+  checklistType?: ChecklistType;
+  status?: ChecklistExecutionStatus;
+}
 
 const http = createHttpClient("API_GATEWAY_URL");
 
@@ -49,14 +58,21 @@ export async function findExecutionById(
   );
 }
 
-/** Lista todas as execuções, paginado (GET /). */
+/** Lista execuções, paginado e com filtros opcionais (GET /). */
 export async function listExecutions(
   page = 0,
   size = 20,
+  filters: ExecutionListFilters = {},
 ): Promise<PageResponse<ChecklistExecutionResponse>> {
+  const params: Record<string, string | number> = { page, size };
+  if (filters.classId) params.classId = filters.classId;
+  if (filters.roomId) params.roomId = filters.roomId;
+  if (filters.checklistType) params.checklistType = filters.checklistType;
+  if (filters.status) params.status = filters.status;
+
   return http.get<PageResponse<ChecklistExecutionResponse>>(
     checklistGatewayPath("/api/checklist-executions"),
-    { params: { page, size } },
+    { params },
   );
 }
 
@@ -79,6 +95,17 @@ export async function updateExecutionAnswers(
 ): Promise<ChecklistExecutionResponse> {
   return http.patch<ChecklistExecutionResponse>(
     checklistGatewayPath(`/api/checklist-executions/${executionId}/answers`),
+    { body },
+  );
+}
+
+/** Salva respostas parciais de um rascunho (PATCH /{id}/draft). */
+export async function saveDraftAnswers(
+  executionId: string,
+  body: ChecklistExecutionSubmitRequest,
+): Promise<ChecklistExecutionResponse> {
+  return http.patch<ChecklistExecutionResponse>(
+    checklistGatewayPath(`/api/checklist-executions/${executionId}/draft`),
     { body },
   );
 }
