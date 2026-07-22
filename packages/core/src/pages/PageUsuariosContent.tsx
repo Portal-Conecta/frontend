@@ -15,6 +15,7 @@ import { Button, Pagination, Text } from '@portal/ui'
 
 import type { DirectoryUser, ListUsersResponse } from '../classes/types'
 import { HttpError } from '../http/errors'
+import { CreateUserButton } from '../users/components/CreateUserButton'
 import { UsersFiltersBar } from '../users/components/UsersFiltersBar'
 import { UsersFiltersSheet } from '../users/components/UsersFiltersSheet'
 import { UsersSearchField } from '../users/components/UsersSearchField'
@@ -58,11 +59,17 @@ export function PageUsuariosContent({
     return () => clearTimeout(id)
   }, [search])
 
-  // Busca ou filtro novo volta pra página 1 — mesmo padrão do
-  // TurmaMemberSearchPanel.
-  useEffect(() => {
+  // Busca ou filtro novo volta pra página 1 — ajuste durante o render (padrão
+  // do React pra "resetar estado quando outro muda"), não em efeito separado:
+  // um efeito próprio rodaria no mesmo commit do efeito de busca abaixo, que
+  // ainda leria o `page` antigo da closure e disparava um fetch descartado
+  // com a página errada antes do reset propagar.
+  const filterKey = `${debouncedSearch}|${filters.typeUser ?? ''}|${filters.status ?? ''}`
+  const [committedFilterKey, setCommittedFilterKey] = useState(filterKey)
+  if (filterKey !== committedFilterKey) {
+    setCommittedFilterKey(filterKey)
     setPage(1)
-  }, [debouncedSearch, filters])
+  }
 
   const isFirstRun = useRef(!initialError)
   useEffect(() => {
@@ -120,19 +127,7 @@ export function PageUsuariosContent({
         <Text as="h1" variant="heading-h2" tone="brand">
           Usuários
         </Text>
-        <div className="md:hidden">
-          <Button
-            size="sm"
-            icon="plus"
-            aria-label="Criar novo usuário"
-            onClick={() => router.push('/usuarios/novo')}
-          />
-        </div>
-        <div className="hidden md:block">
-          <Button iconLeft="plus" onClick={() => router.push('/usuarios/novo')}>
-            Criar Novo Usuário
-          </Button>
-        </div>
+        <CreateUserButton onClick={() => router.push('/usuarios/novo')} />
       </div>
 
       <div className="flex items-center gap-3">
@@ -169,7 +164,7 @@ export function PageUsuariosContent({
             onViewProfile={(user) => router.push(`/usuarios/${user.id}`)}
           />
 
-          {!loading && !error && totalElements > 0 ? (
+          {!loading && !error && totalElements > DEFAULT_USERS_PAGE_SIZE ? (
             <Pagination
               currentPage={page}
               pageSize={DEFAULT_USERS_PAGE_SIZE}
