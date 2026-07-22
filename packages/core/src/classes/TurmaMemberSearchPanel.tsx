@@ -5,6 +5,11 @@
  * sistema, com abas Professores/Alunos, e os botões "Salvar Edições"/
  * "Descartar alterações" (Figma: ficam alinhados embaixo desta coluna, não
  * numa barra full-width).
+ *
+ * Aba Alunos: além de `withoutActiveClass` (sem turma ativa), busca por
+ * `status=[PENDING_ACTIVATION, ACTIVE]` — sem isso o backend usa o default
+ * (só ACTIVE) e esconde alunos que ainda não ativaram a conta, mas que já
+ * podem ser vinculados a uma turma.
  */
 import { useEffect, useRef, useState } from 'react'
 
@@ -12,17 +17,21 @@ import { Button, Input, Pagination, Text } from '@portal/ui'
 
 import type { ClassRole } from '../rbac'
 import { AssociateUsersCard } from './AssociateUsersCard'
-import { excludeLinkedUsers } from './turmaMembrosModel'
+import { buildSearchResults, draftFreedMembers, resolveAddClassRole } from './turmaMembrosModel'
 import type { ClassMember, DirectoryUser } from './types'
 import { searchUsersClient } from './userDirectoryClient'
 
 export interface TurmaMemberSearchPanelProps {
   linkedMembers: ClassMember[]
-  onAdd: (user: DirectoryUser, classRole: ClassRole) => void
+  /** Removidos do rascunho (ainda não salvos) — reoferecidos na busca sem depender do backend. */
+  pendingRemovals: ClassMember[]
+  onAdd: (user: Pick<DirectoryUser, 'id' | 'name'>, classRole: ClassRole) => void
   isDirty: boolean
   saving: boolean
   onSave: () => void
   onDiscard: () => void
+  /** Muda a cada save bem-sucedido — força a busca a refazer a consulta. */
+  refreshToken: number
 }
 
 const SEARCH_DEBOUNCE_MS = 300
@@ -30,11 +39,13 @@ const PAGE_SIZE = 10
 
 export function TurmaMemberSearchPanel({
   linkedMembers,
+  pendingRemovals,
   onAdd,
   isDirty,
   saving,
   onSave,
   onDiscard,
+  refreshToken,
 }: TurmaMemberSearchPanelProps) {
   const [tab, setTab] = useState<ClassRole>('STUDENT')
   const [query, setQuery] = useState('')
@@ -62,6 +73,7 @@ export function TurmaMemberSearchPanel({
         page: page - 1,
         size: PAGE_SIZE,
         withoutActiveClass: tab === 'STUDENT',
+        ...(tab === 'STUDENT' ? { status: ['PENDING_ACTIVATION', 'ACTIVE'] } : {}),
       })
         .then((result) => {
           if (seq !== seqRef.current) return
@@ -80,9 +92,18 @@ export function TurmaMemberSearchPanel({
     }, SEARCH_DEBOUNCE_MS)
 
     return () => clearTimeout(debounceRef.current)
-  }, [tab, query, page])
+  }, [tab, query, page, refreshToken])
 
-  const results = excludeLinkedUsers(users, linkedMembers)
+  // Quem foi removido no rascunho aparece primeiro (client-side, sem esperar
+  // save/refetch); o resto vem da busca real no backend.
+  // Só na página 1 — evita repetir o mesmo card em todas as páginas e estourar
+  // o PAGE_SIZE. `tab` só assume STUDENT/TEACHER (os dois botões abaixo).
+  const freedAll = draftFreedMembers(pendingRemovals, tab as 'STUDENT' | 'TEACHER', query)
+  const freed = page === 1 ? freedAll : []
+  const results = buildSearchResults(users, linkedMembers, freed)
+  // Durante o fetch, não misturar `users` stale da busca anterior; mantém só os
+  // removidos do rascunho (ainda válidos) + indicador de loading.
+  const displayResults = loading ? freed : results
 
   return (
     <div className="flex flex-col gap-4">
@@ -122,24 +143,31 @@ export function TurmaMemberSearchPanel({
       </div>
 
       <div className="flex flex-col gap-2 rounded-md border-sm border-border-default p-2">
-        {loading ? (
+        {displayResults.length === 0 && loading ? (
           <Text as="p" variant="body-sm" tone="secondary" className="p-2">
             Carregando usuários…
           </Text>
-        ) : results.length === 0 ? (
+        ) : displayResults.length === 0 ? (
           <Text as="p" variant="body-sm" tone="secondary" className="p-2">
             Nenhum usuário encontrado.
           </Text>
         ) : (
-          results.map((user) => (
-            <AssociateUsersCard
-              key={user.id}
-              name={user.name}
-              variant="add"
-              disabled={saving}
-              onAction={() => onAdd(user, tab)}
-            />
-          ))
+          <>
+            {displayResults.map((user) => (
+              <AssociateUsersCard
+                key={user.id}
+                name={user.name}
+                variant="add"
+                disabled={saving}
+                onAction={() => onAdd(user, resolveAddClassRole(user, tab))}
+              />
+            ))}
+            {loading ? (
+              <Text as="p" variant="body-sm" tone="secondary" className="p-2">
+                Carregando usuários…
+              </Text>
+            ) : null}
+          </>
         )}
       </div>
 
