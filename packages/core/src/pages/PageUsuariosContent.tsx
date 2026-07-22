@@ -8,7 +8,7 @@
  *
  * CTA "Criar Novo Usuário" e "Ver Perfil" apontam para rotas das issues #441/#443.
  */
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 import { Button, Pagination, Text } from '@portal/ui'
@@ -121,6 +121,13 @@ export function PageUsuariosContent({
     setFilters({})
   }
 
+  // Estável (#483) — necessário para o React.memo de UserRow surtir efeito:
+  // sem useCallback, uma nova função a cada render quebraria a comparação rasa.
+  const handleViewProfile = useCallback(
+    (user: DirectoryUser) => router.push(`/usuarios/${user.id}`),
+    [router],
+  )
+
   return (
     <div className="flex flex-col gap-4 p-6 md:gap-6 md:p-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -161,7 +168,7 @@ export function PageUsuariosContent({
             error={error}
             hasActiveFilter={hasActiveFilter}
             onRetry={() => setReloadKey((key) => key + 1)}
-            onViewProfile={(user) => router.push(`/usuarios/${user.id}`)}
+            onViewProfile={handleViewProfile}
           />
 
           {!loading && !error && totalElements > DEFAULT_USERS_PAGE_SIZE ? (
