@@ -3,17 +3,91 @@
 import { Button, Text } from "@portal/ui";
 import { useId, useState } from "react";
 
+import type { IssueStatus } from "../../types/issue";
+
+/** Colunas desktop compartilhadas entre o cabeçalho e cada linha da lista. */
+export const NON_CONFORMITY_LIST_GRID_CLASS =
+  "lg:grid-cols-[repeat(5,minmax(0,1fr))_auto] lg:items-center lg:gap-x-6";
+
+/** Cabeçalho das colunas da lista de não conformidades (desktop). */
+export function ChecklistNonConformityListHeader({
+  className,
+}: {
+  className?: string;
+}) {
+  return (
+    <div
+      className={[
+        "hidden border-t border-border-default p-3 lg:grid lg:p-4",
+        NON_CONFORMITY_LIST_GRID_CLASS,
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
+      role="row"
+    >
+      <Text
+        variant="label-md-emphasis"
+        tone="brand"
+        className="min-w-0 truncate text-left"
+      >
+        Sala
+      </Text>
+      <Text
+        variant="label-md-emphasis"
+        tone="brand"
+        className="min-w-0 truncate text-left"
+      >
+        Item
+      </Text>
+      <Text
+        variant="label-md-emphasis"
+        tone="brand"
+        className="min-w-0 truncate text-left"
+      >
+        Tipo
+      </Text>
+      <Text
+        variant="label-md-emphasis"
+        tone="brand"
+        className="min-w-0 truncate text-left"
+      >
+        Enviado
+      </Text>
+      <Text
+        variant="label-md-emphasis"
+        tone="brand"
+        className="min-w-0 truncate text-left"
+      >
+        Turma
+      </Text>
+      <span className="block w-[11rem]" aria-hidden />
+    </div>
+  );
+}
+
 export interface ChecklistNonConformityCardProps {
   room: string;
   category: string;
   checklistType: string;
   submittedDate: string;
   submittedTime: string;
-  filledBy: string;
   group: string;
   nonConformity: string;
   defaultOpen?: boolean;
   onToggle?: (open: boolean) => void;
+  /** Status atual da pendência — define quais ações aparecem no painel expandido. */
+  status?: IssueStatus;
+  /** Validar/reabrir só existem para o coordenador SENAI (backend retorna 403 pros demais). */
+  canValidate?: boolean;
+  onStart?: () => void;
+  onResolve?: () => void;
+  onValidate?: () => void;
+  onReopen?: () => void;
+  onRestartProgress?: () => void;
+  onCancel?: () => void;
+  /** Uma ação desta issue está em andamento — desabilita e mostra spinner nos botões. */
+  pending?: boolean;
   className?: string;
 }
 
@@ -23,11 +97,19 @@ export function ChecklistNonConformityCard({
   checklistType,
   submittedDate,
   submittedTime,
-  filledBy,
   group,
   nonConformity,
   defaultOpen = false,
   onToggle,
+  status,
+  canValidate = false,
+  onStart,
+  onResolve,
+  onValidate,
+  onReopen,
+  onRestartProgress,
+  onCancel,
+  pending = false,
   className,
 }: ChecklistNonConformityCardProps) {
   const [open, setOpen] = useState(defaultOpen);
@@ -43,11 +125,17 @@ export function ChecklistNonConformityCard({
 
   return (
     <div
-      className={["border-b border-border-default", className]
+      className={["border-t border-border-default", className]
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="flex flex-col gap-4 p-4 pb-6 lg:flex-row lg:items-center lg:justify-between">
+      <div
+        className={[
+          "flex flex-col gap-4 p-3 md:p-4 lg:grid",
+          NON_CONFORMITY_LIST_GRID_CLASS,
+        ].join(" ")}
+        role="row"
+      >
         {/* Mobile: dados agrupados */}
         <div className="flex flex-col lg:hidden">
           <Text
@@ -70,38 +158,44 @@ export function ChecklistNonConformityCard({
             </Text>
 
             <Text variant="label-xs" className="text-interactive-hover">
-              Preenchido por: {filledBy} | {group}
+              Turma: {group}
             </Text>
           </div>
         </div>
 
-        {/* Desktop: dados em colunas */}
         <Text
           variant="label-md"
-          className="hidden text-interactive-hover lg:block"
+          className="hidden min-w-0 truncate text-interactive-hover lg:block lg:text-left"
         >
           {room}
         </Text>
 
         <Text
           variant="label-md"
-          className="hidden text-interactive-hover lg:block"
+          className="hidden min-w-0 truncate text-interactive-hover lg:block lg:text-left"
         >
           {category}
         </Text>
 
         <Text
           variant="label-md"
-          className="hidden text-interactive-hover lg:block"
+          className="hidden min-w-0 truncate text-interactive-hover lg:block lg:text-left"
         >
-          {checklistType} | enviado às {submittedTime}
+          {checklistType}
         </Text>
 
         <Text
           variant="label-md"
-          className="hidden text-interactive-hover lg:block"
+          className="hidden min-w-0 truncate text-interactive-hover lg:block lg:text-left"
         >
-          Preenchido por: {filledBy} | {group}
+          {submittedDate} às {submittedTime}
+        </Text>
+
+        <Text
+          variant="label-md"
+          className="hidden min-w-0 truncate text-interactive-hover lg:block lg:text-left"
+        >
+          {group}
         </Text>
 
         <Button
@@ -111,7 +205,7 @@ export function ChecklistNonConformityCard({
           onClick={toggle}
           aria-expanded={open}
           aria-controls={panelId}
-          className="w-full whitespace-nowrap lg:w-auto lg:shrink-0"
+          className="w-full shrink-0 whitespace-nowrap lg:w-auto lg:justify-self-end"
         >
           Ver Não Conformidade
         </Button>
@@ -133,6 +227,88 @@ export function ChecklistNonConformityCard({
                 {nonConformity}
               </Text>
             </div>
+
+            {/* Ações seguem o fluxo de status da issue: OPEN → IN_PROGRESS →
+                RESOLVED → VALIDATED, com REOPENED voltando pra IN_PROGRESS via
+                endpoint próprio (restart-progress). Validar/reabrir são
+                exclusivos do coordenador SENAI — o backend rejeita os demais. */}
+            {(status === "OPEN" ||
+              status === "IN_PROGRESS" ||
+              status === "REOPENED" ||
+              (status === "RESOLVED" && canValidate)) && (
+              <div className="mt-3 flex flex-wrap gap-3">
+                {status === "OPEN" && (
+                  <Button
+                    variant="outlined"
+                    tone="brand"
+                    size="sm"
+                    onClick={onStart}
+                    loading={pending}
+                  >
+                    Iniciar atendimento
+                  </Button>
+                )}
+
+                {status === "IN_PROGRESS" && (
+                  <Button
+                    variant="outlined"
+                    tone="positive"
+                    size="sm"
+                    onClick={onResolve}
+                    loading={pending}
+                  >
+                    Marcar como resolvido
+                  </Button>
+                )}
+
+                {(status === "OPEN" || status === "IN_PROGRESS") && (
+                  <Button
+                    variant="outlined"
+                    tone="negative"
+                    size="sm"
+                    onClick={onCancel}
+                    disabled={pending}
+                  >
+                    Cancelar
+                  </Button>
+                )}
+
+                {status === "RESOLVED" && canValidate && (
+                  <>
+                    <Button
+                      variant="outlined"
+                      tone="positive"
+                      size="sm"
+                      onClick={onValidate}
+                      loading={pending}
+                    >
+                      Validar
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      tone="negative"
+                      size="sm"
+                      onClick={onReopen}
+                      disabled={pending}
+                    >
+                      Reabrir
+                    </Button>
+                  </>
+                )}
+
+                {status === "REOPENED" && (
+                  <Button
+                    variant="outlined"
+                    tone="brand"
+                    size="sm"
+                    onClick={onRestartProgress}
+                    loading={pending}
+                  >
+                    Reiniciar atendimento
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
