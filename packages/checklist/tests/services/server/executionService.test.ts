@@ -13,6 +13,7 @@ import {
   findExecutionById,
   listExecutionHistoryByClass,
   listExecutions,
+  saveDraftAnswers,
   submitExecution,
   updateExecutionAnswers,
 } from '../../../src/services/server/executionService'
@@ -219,6 +220,28 @@ describe('updateExecutionAnswers', () => {
   it('preserva status 409 quando a execução não está SUBMITTED', async () => {
     stubFetch().mockResolvedValue(response(409, {}))
     await expect(updateExecutionAnswers('e1', { answers: [] })).rejects.toMatchObject({
+      status: 409,
+    })
+  })
+})
+
+describe('saveDraftAnswers', () => {
+  it('faz PATCH em /{id}/draft com as respostas parciais', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(response(200, execution))
+
+    const answers = [{ itemKey: 'oleo', value: 'COMPLIANT' as const }]
+    await expect(saveDraftAnswers('e1', { answers })).resolves.toEqual(execution)
+
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe(`${API_GATEWAY_URL}/checklist/api/checklist-executions/e1/draft`)
+    expect(init?.method).toBe('PATCH')
+    expect(JSON.parse(init?.body as string)).toEqual({ answers })
+  })
+
+  it('preserva status 409 quando a execução não está DRAFT', async () => {
+    stubFetch().mockResolvedValue(response(409, {}))
+    await expect(saveDraftAnswers('e1', { answers: [] })).rejects.toMatchObject({
       status: 409,
     })
   })

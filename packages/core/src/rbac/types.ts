@@ -34,6 +34,25 @@ export function isTypeUser(value: unknown): value is TypeUser {
 export type ClassRole = 'STUDENT' | 'TEACHER' | 'REPRESENTATIVE'
 
 /**
+ * Papéis de “aluno da turma” (RN-COM-PA02/PA03) — TEACHER fica de fora.
+ *
+ * `REPRESENTATIVE` é **irmão** de `STUDENT` no enum, não um flag à parte:
+ * representante *é* aluno da turma. Allowlist de propósito — um quarto papel no
+ * `ClassRole` fica de fora até alguém decidir o contrário, em vez de entrar
+ * calado como aluno (o que uma exclusão `!== 'TEACHER'` faria).
+ */
+const STUDENT_CLASS_ROLES: ReadonlySet<ClassRole> = new Set(['STUDENT', 'REPRESENTATIVE'])
+
+/**
+ * Definição única de “é aluno desta turma”. Mora aqui, junto do `ClassRole` que
+ * interpreta, para que os consumidores (listagem de membros, agrupamento das
+ * abas do detalhe) não recriem o critério cada um do seu jeito.
+ */
+export function isStudentClassRole(role: ClassRole): boolean {
+  return STUDENT_CLASS_ROLES.has(role)
+}
+
+/**
  * Vocabulário de permissões no formato `dominio:acao`. "Ver" (visibilidade de
  * módulo/nav) também é permissão, para que todo gate use o mesmo mecanismo `can`.
  */
@@ -41,6 +60,9 @@ export type Permission =
   | 'comunicados:ver'
   | 'mapa:ver'
   | 'checklist:ver'
+  | 'checklist:gerenciar'
+  /** Dashboard gerencial de checklist — gestão SENAI / WEG (e ADMIN). */
+  | 'checklist:dashboard'
   | 'usuarios:listar'
   | 'usuarios:gerenciar'
   | 'salas:gerenciar'

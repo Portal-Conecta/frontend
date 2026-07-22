@@ -35,3 +35,25 @@ export const Mobile: Story = {
   args: { ...base, defaultOpen: true },
   parameters: { viewport: { defaultViewport: "mobile1" } },
 };
+
+export const AbertaAguardandoAtendimento: Story = {
+  args: { ...base, defaultOpen: true, status: "OPEN" },
+};
+
+export const EmAtendimento: Story = {
+  args: { ...base, defaultOpen: true, status: "IN_PROGRESS" },
+};
+
+/** Resolvida, vista pelo coordenador SENAI — só ele valida ou reabre. */
+export const ResolvidaParaValidarSenai: Story = {
+  args: { ...base, defaultOpen: true, status: "RESOLVED", canValidate: true },
+};
+
+/** Resolvida, vista por professor/supervisor WEG — sem ação (só SENAI valida). */
+export const ResolvidaSemPermissaoDeValidar: Story = {
+  args: { ...base, defaultOpen: true, status: "RESOLVED", canValidate: false },
+};
+
+export const Reaberta: Story = {
+  args: { ...base, defaultOpen: true, status: "REOPENED" },
+};
