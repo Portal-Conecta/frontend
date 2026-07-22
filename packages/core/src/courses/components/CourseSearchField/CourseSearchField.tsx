@@ -32,7 +32,7 @@ export function CourseSearchField({
   return (
     <div
       className={[
-        'flex items-center gap-2 rounded-lg border-sm px-6 py-2.5 transition-colors',
+        'flex items-center gap-2 rounded-lg border-sm px-6 py-3 transition-colors',
         'bg-background-surface border-border-focus focus-within:ring-2 focus-within:ring-border-focus',
         className,
       ]

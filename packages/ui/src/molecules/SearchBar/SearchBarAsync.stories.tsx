@@ -149,7 +149,12 @@ export const ListaInicialComCorrida: Story = {
 
     await step("focar dispara o prefetch", async () => {
       await userEvent.click(input);
-      await expect(await canvas.findByRole("listbox")).toBeVisible();
+      // A lista nasce em `opacity-0` e leva 150ms de transição para ficar
+      // visível; sem o `waitFor` o assert corre contra a animação de entrada.
+      const listbox = await canvas.findByRole("listbox");
+      await waitFor(async () => {
+        await expect(listbox).toBeVisible();
+      });
     });
 
     await step("digitar por cima antes do prefetch resolver", async () => {

@@ -159,7 +159,15 @@ export function RoomMapEditMode({
               onSave={() => void handleSave()}
             />
             {unassignedStudents.length > 0 ? (
-              <Banner variant="error">Não é possível salvar o mapa! Há alunos sem lugar</Banner>
+              // max-w-full (#[MOBILE-TOOLBAR]): o Banner é `flex` (block-level) dentro de
+              // um pai `items-center` — sem cap de largura ele cresce pro tamanho do texto
+              // numa linha só e pode ultrapassar a viewport no mobile. `max-w-full` trava
+              // no limite da coluna (nunca estoura a página) sem forçar quebra de linha —
+              // ícone e fonte do Banner ficam como estão (packages/ui, fora de escopo
+              // desta issue), decisão de produto: uma linha só em vez de compactar quebrando.
+              <Banner variant="error" className="max-w-full">
+                Não é possível salvar o mapa! Há alunos sem lugar
+              </Banner>
             ) : null}
           </div>
         }
