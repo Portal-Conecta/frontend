@@ -17,7 +17,7 @@ import { Button, Input, Pagination, Text } from '@portal/ui'
 
 import type { ClassRole } from '../rbac'
 import { AssociateUsersCard } from './AssociateUsersCard'
-import { draftFreedMembers, excludeLinkedUsers } from './turmaMembrosModel'
+import { buildSearchResults, draftFreedMembers } from './turmaMembrosModel'
 import type { ClassMember, DirectoryUser } from './types'
 import { searchUsersClient } from './userDirectoryClient'
 
@@ -100,7 +100,7 @@ export function TurmaMemberSearchPanel({
   // REPRESENTATIVE nunca é selecionado aqui, mas o estado é tipado como
   // `ClassRole` (mesmo tipo do `classRole` repassado a `onAdd`).
   const freed = draftFreedMembers(pendingRemovals, tab as 'STUDENT' | 'TEACHER', query)
-  const results = [...freed, ...excludeLinkedUsers(users, linkedMembers)]
+  const results = buildSearchResults(users, linkedMembers, freed)
 
   return (
     <div className="flex flex-col gap-4">

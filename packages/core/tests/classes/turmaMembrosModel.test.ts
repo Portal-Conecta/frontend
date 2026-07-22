@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   applySavedDiff,
+  buildSearchResults,
   computeMembersDiff,
   draftFreedMembers,
   excludeLinkedUsers,
@@ -79,6 +80,55 @@ describe('draftFreedMembers', () => {
 
   it('sem removidos pendentes, retorna vazio', () => {
     expect(draftFreedMembers([], 'STUDENT', '')).toEqual([])
+  })
+})
+
+describe('buildSearchResults', () => {
+  it('não duplica professor removido do rascunho quando a busca ainda o retorna', () => {
+    // O backend ignora `semTurmaAtiva` para professores — sem a exclusão extra
+    // de `freed`, `professor` apareceria duas vezes (uma via freed, outra via
+    // excludeLinkedUsers, já que `linkedMembers` não o contém mais).
+    const users: DirectoryUser[] = [
+      {
+        id: professor.id,
+        name: professor.name,
+        email: 'caio@x.com',
+        typeUser: 'TEACHER',
+        active: true,
+        createdAt: '2026-01-01',
+      },
+    ]
+    const linkedMembers: ClassMember[] = []
+    const freed = [professor]
+
+    const results = buildSearchResults(users, linkedMembers, freed)
+
+    expect(results).toEqual([professor])
+  })
+
+  it('mantém o restante da busca real após os itens removidos do rascunho', () => {
+    const outro: DirectoryUser = {
+      id: 'u5',
+      name: 'Duda',
+      email: 'duda@x.com',
+      typeUser: 'STUDENT',
+      active: true,
+      createdAt: '2026-01-01',
+    }
+    const users: DirectoryUser[] = [outro]
+    const linkedMembers: ClassMember[] = []
+    const freed = [aluno]
+
+    expect(buildSearchResults(users, linkedMembers, freed)).toEqual([aluno, outro])
+  })
+
+  it('sem removidos pendentes, comporta-se como excludeLinkedUsers', () => {
+    const users: DirectoryUser[] = [
+      { id: 'u1', name: 'Ana', email: 'ana@x.com', typeUser: 'STUDENT', active: true, createdAt: '2026-01-01' },
+      { id: 'u4', name: 'Duda', email: 'duda@x.com', typeUser: 'STUDENT', active: true, createdAt: '2026-01-01' },
+    ]
+
+    expect(buildSearchResults(users, [aluno], [])).toEqual([users[1]])
   })
 })
 

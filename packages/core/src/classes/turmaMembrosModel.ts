@@ -67,6 +67,22 @@ export function draftFreedMembers(
 }
 
 /**
+ * Monta a lista final do painel de busca: removidos do rascunho (`freed`)
+ * primeiro, depois o resto da busca real, sem duplicar quem já aparece como
+ * `freed`. Necessário porque o backend ignora `semTurmaAtiva` para professores
+ * (`userDirectoryService.ts`) — sem essa exclusão extra, um professor removido
+ * no rascunho aparece ao mesmo tempo em `freed` e nos resultados da busca
+ * (`excludeLinkedUsers` sozinho não pega, pois `linkedMembers` já não o contém).
+ */
+export function buildSearchResults(
+  users: readonly DirectoryUser[],
+  linkedMembers: readonly ClassMember[],
+  freed: readonly ClassMember[],
+): (ClassMember | DirectoryUser)[] {
+  return [...freed, ...excludeLinkedUsers(users, [...linkedMembers, ...freed])]
+}
+
+/**
  * Recalcula a baseline após um save parcialmente bem-sucedido: aplica só os
  * adds/removes que o servidor confirmou, sobrando as falhas como diff pendente
  * pro próximo "Salvar Edições".
