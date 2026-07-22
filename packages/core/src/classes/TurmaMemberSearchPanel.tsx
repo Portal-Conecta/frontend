@@ -17,7 +17,7 @@ import { Button, Input, Pagination, Text } from '@portal/ui'
 
 import type { ClassRole } from '../rbac'
 import { AssociateUsersCard } from './AssociateUsersCard'
-import { buildSearchResults, draftFreedMembers } from './turmaMembrosModel'
+import { buildSearchResults, draftFreedMembers, resolveAddClassRole } from './turmaMembrosModel'
 import type { ClassMember, DirectoryUser } from './types'
 import { searchUsersClient } from './userDirectoryClient'
 
@@ -96,11 +96,14 @@ export function TurmaMemberSearchPanel({
 
   // Quem foi removido no rascunho aparece primeiro (client-side, sem esperar
   // save/refetch); o resto vem da busca real no backend.
-  // `tab` deste painel só assume STUDENT/TEACHER (os dois botões abaixo) —
-  // REPRESENTATIVE nunca é selecionado aqui, mas o estado é tipado como
-  // `ClassRole` (mesmo tipo do `classRole` repassado a `onAdd`).
-  const freed = draftFreedMembers(pendingRemovals, tab as 'STUDENT' | 'TEACHER', query)
+  // Só na página 1 — evita repetir o mesmo card em todas as páginas e estourar
+  // o PAGE_SIZE. `tab` só assume STUDENT/TEACHER (os dois botões abaixo).
+  const freedAll = draftFreedMembers(pendingRemovals, tab as 'STUDENT' | 'TEACHER', query)
+  const freed = page === 1 ? freedAll : []
   const results = buildSearchResults(users, linkedMembers, freed)
+  // Durante o fetch, não misturar `users` stale da busca anterior; mantém só os
+  // removidos do rascunho (ainda válidos) + indicador de loading.
+  const displayResults = loading ? freed : results
 
   return (
     <div className="flex flex-col gap-4">
@@ -140,24 +143,31 @@ export function TurmaMemberSearchPanel({
       </div>
 
       <div className="flex flex-col gap-2 rounded-md border-sm border-border-default p-2">
-        {loading ? (
+        {displayResults.length === 0 && loading ? (
           <Text as="p" variant="body-sm" tone="secondary" className="p-2">
             Carregando usuários…
           </Text>
-        ) : results.length === 0 ? (
+        ) : displayResults.length === 0 ? (
           <Text as="p" variant="body-sm" tone="secondary" className="p-2">
             Nenhum usuário encontrado.
           </Text>
         ) : (
-          results.map((user) => (
-            <AssociateUsersCard
-              key={user.id}
-              name={user.name}
-              variant="add"
-              disabled={saving}
-              onAction={() => onAdd(user, tab)}
-            />
-          ))
+          <>
+            {displayResults.map((user) => (
+              <AssociateUsersCard
+                key={user.id}
+                name={user.name}
+                variant="add"
+                disabled={saving}
+                onAction={() => onAdd(user, resolveAddClassRole(user, tab))}
+              />
+            ))}
+            {loading ? (
+              <Text as="p" variant="body-sm" tone="secondary" className="p-2">
+                Carregando usuários…
+              </Text>
+            ) : null}
+          </>
         )}
       </div>
 

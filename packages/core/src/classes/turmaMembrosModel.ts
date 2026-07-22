@@ -83,6 +83,19 @@ export function buildSearchResults(
 }
 
 /**
+ * Papel ao (re)adicionar alguém pela busca. Item do rascunho (`ClassMember`)
+ * preserva `role` — senão um `REPRESENTATIVE` removido e readicionado pela aba
+ * Alunos viraria `STUDENT` (a aba só é `STUDENT` | `TEACHER`). Resultado do
+ * diretório não tem `role`; aí usa a aba ativa.
+ */
+export function resolveAddClassRole(
+  user: ClassMember | Pick<DirectoryUser, 'id' | 'name'>,
+  tab: ClassRole,
+): ClassRole {
+  return 'role' in user ? user.role : tab
+}
+
+/**
  * Recalcula a baseline após um save parcialmente bem-sucedido: aplica só os
  * adds/removes que o servidor confirmou, sobrando as falhas como diff pendente
  * pro próximo "Salvar Edições".

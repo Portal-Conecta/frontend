@@ -8,6 +8,7 @@ import {
   excludeLinkedUsers,
   filterMembersByTab,
   isMembersDirty,
+  resolveAddClassRole,
 } from '@portal/core/classes/turmaMembrosModel'
 import type { ClassMember, DirectoryUser } from '@portal/core/classes/types'
 
@@ -129,6 +130,23 @@ describe('buildSearchResults', () => {
     ]
 
     expect(buildSearchResults(users, [aluno], [])).toEqual([users[1]])
+  })
+})
+
+describe('resolveAddClassRole', () => {
+  it('preserva REPRESENTATIVE ao readicionar membro do rascunho na aba Alunos', () => {
+    expect(resolveAddClassRole(representante, 'STUDENT')).toBe('REPRESENTATIVE')
+  })
+
+  it('preserva TEACHER / STUDENT do ClassMember mesmo se a aba divergir', () => {
+    expect(resolveAddClassRole(professor, 'STUDENT')).toBe('TEACHER')
+    expect(resolveAddClassRole(aluno, 'TEACHER')).toBe('STUDENT')
+  })
+
+  it('usa a aba ativa para resultado do diretório (sem role)', () => {
+    const fromDirectory: Pick<DirectoryUser, 'id' | 'name'> = { id: 'u9', name: 'Eva' }
+    expect(resolveAddClassRole(fromDirectory, 'STUDENT')).toBe('STUDENT')
+    expect(resolveAddClassRole(fromDirectory, 'TEACHER')).toBe('TEACHER')
   })
 })
 
