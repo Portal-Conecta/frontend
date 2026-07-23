@@ -21,7 +21,7 @@ import { getSession } from "@portal/core/auth/session";
 import { HttpError } from "@portal/core/http/errors";
 import { ERROR_PRESENTATION } from "@portal/core/http/errorPresentation";
 import { PermissionGate } from "@portal/core";
-import { listClasses } from "@portal/core/classes/classesService";
+import { getClassDetail } from "@portal/core/classes/classesService";
 import { Banner, ErrorPage, Icon, Text } from "@portal/ui";
 
 import { ChecklistItemResult } from "../components/ChecklistItemResult";
@@ -81,15 +81,15 @@ async function EnvioDetalheData({ id, token }: { id: string; token: string }) {
     className = execution ? MOCK_CLASS_NAMES[execution.classId] : undefined;
   } else {
     try {
-      const [detail, classesResult] = await Promise.all([
-        getExecutionDetail(id),
-        listClasses(token, { includeInactive: true }),
-      ]);
+      const detail = await getExecutionDetail(id);
       execution = detail.execution;
       items = detail.items;
-      className = classesResult.classes.find(
-        (clazz) => clazz.id === execution?.classId,
-      )?.name;
+
+      if (!execution.className) {
+        className = await getClassDetail(execution.classId, token)
+          .then((clazz) => clazz.name)
+          .catch(() => undefined);
+      }
     } catch (err) {
       if (err instanceof HttpError) {
         if (err.kind === "unauthorized") {

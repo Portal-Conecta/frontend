@@ -29,12 +29,12 @@ export function SectionTabs({ tabs, className }: SectionTabsProps) {
         .filter(Boolean)
         .join(" ")}
     >
-      <ul role="list" className="flex gap-6">
+      <ul role="list" className="flex gap-6 overflow-x-auto">
         {tabs.map((tab) => {
           const isActive = tab.href === activeHref;
 
           return (
-            <li key={tab.href}>
+            <li key={tab.href} className="shrink-0">
               <Link
                 href={tab.href}
                 aria-current={isActive ? "page" : undefined}
@@ -49,6 +49,7 @@ export function SectionTabs({ tabs, className }: SectionTabsProps) {
                   as="span"
                   variant={isActive ? "label-md-emphasis" : "label-md"}
                   tone={isActive ? "brand" : "secondary"}
+                  className="whitespace-nowrap"
                 >
                   {tab.label}
                 </Text>

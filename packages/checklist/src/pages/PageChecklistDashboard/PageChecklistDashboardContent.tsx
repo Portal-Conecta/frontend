@@ -59,7 +59,6 @@ export function PageChecklistDashboardContent({
       try {
         const data = await fetchDashboardStats({ from, to });
         setStats(data);
-        // Alinha inputs ao período efetivo resolvido no backend
         if (data.periodo?.from && data.periodo?.to) {
           setPeriod({ from: data.periodo.from, to: data.periodo.to });
         }
@@ -75,7 +74,6 @@ export function PageChecklistDashboardContent({
     [useMock],
   );
 
-  // Carga inicial: `load` só muda com useMock; período só no botão Filtrar.
   useEffect(() => {
     void load(period.from, period.to);
   }, [load]);
@@ -93,10 +91,11 @@ export function PageChecklistDashboardContent({
       : `${formatIsoDatePt(period.from)} → ${formatIsoDatePt(period.to)}`;
 
   return (
-    <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-8">
-      {/* Abas do módulo — acima do título do dashboard */}
+    <div className="flex w-full flex-col gap-6 p-6 md:p-8">
+      {/* 1. Abas do módulo */}
       {sectionTabs.length > 0 ? <SectionTabs tabs={[...sectionTabs]} /> : null}
 
+      {/* 2. Conteúdo do Dashboard em largura total (alinhado com as abas) */}
       <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="flex flex-col gap-2">
           <Text as="h1" variant="heading-h1" tone="primary">
