@@ -91,7 +91,7 @@ export function PageChecklistDashboardContent({
       : `${formatIsoDatePt(period.from)} → ${formatIsoDatePt(period.to)}`;
 
   return (
-    <div className="flex w-full flex-col gap-6 p-6 md:p-8">
+    <div className="flex w-full flex-col gap-6 p-6 md:p-8 lg:p-10">
       {/* 1. Abas do módulo */}
       {sectionTabs.length > 0 ? <SectionTabs tabs={[...sectionTabs]} /> : null}
 
