@@ -25,17 +25,26 @@ export const USER_TYPE_FILTER_OPTIONS: SelectOption[] = [
   ...TYPE_USER_VALUES.map((type) => ({ value: type, label: ROLE_LABELS[type] })),
 ]
 
+/**
+ * Status "visíveis" na listagem — exclui `PENDING_DELETION` (#506): o perfil
+ * de um usuário marcado para exclusão dá not found ao abrir, então nem o
+ * filtro "Todos" nem o dropdown de Status devem oferecer esse estado.
+ */
+const VISIBLE_USER_ACCOUNT_STATUSES = USER_ACCOUNT_STATUS_VALUES.filter(
+  (status) => status !== 'PENDING_DELETION',
+)
+
 /** Opções do filtro Status (inclui "Todos"). */
 export const USER_STATUS_FILTER_OPTIONS: SelectOption[] = [
   TODOS,
-  ...USER_ACCOUNT_STATUS_VALUES.map((status) => ({
+  ...VISIBLE_USER_ACCOUNT_STATUSES.map((status) => ({
     value: status,
     label: USER_ACCOUNT_STATUS_LABELS[status],
   })),
 ]
 
-/** Todos os status — enviado quando o filtro UI está em "Todos" (evita o default ACTIVE do back). */
-export const ALL_USER_ACCOUNT_STATUSES: UserAccountStatus[] = [...USER_ACCOUNT_STATUS_VALUES]
+/** Status visíveis — enviado quando o filtro UI está em "Todos" (evita o default ACTIVE do back). */
+export const ALL_USER_ACCOUNT_STATUSES: UserAccountStatus[] = [...VISIBLE_USER_ACCOUNT_STATUSES]
 
 export function isTypeUserFilter(value: string | null | undefined): value is TypeUser {
   return typeof value === 'string' && (TYPE_USER_VALUES as readonly string[]).includes(value)
