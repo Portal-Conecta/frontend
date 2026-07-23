@@ -34,6 +34,14 @@ describe('parseCreateUser', () => {
       ],
     })
   })
+
+  it('rejeita REPRESENTATIVE — não é criável diretamente (#502), só via promoção de STUDENT numa turma', () => {
+    const result = parseCreateUser({ name: 'Ana', email: 'ana@weg.net', typeUser: 'REPRESENTATIVE' })
+    expect(result).toEqual({
+      ok: false,
+      errors: [{ field: 'typeUser', message: 'Representante não pode ser criado diretamente.' }],
+    })
+  })
 })
 
 describe('parseUpdateUser', () => {

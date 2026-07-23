@@ -26,9 +26,10 @@ const http = createHttpClient('API_GATEWAY_URL')
 
 const ROOM_TYPE_LABELS: Record<HubRoomType, string> = {
   CLASSROOM: 'Sala de aula',
-  LABORATORY: 'Laboratório',
-  AUDITORIUM: 'Auditório',
-  OTHER: 'Outro',
+  ELECTROTECHNICS_LABORATORY: 'Laboratório de Eletrotécnica',
+  ELECTRONICS_LABORATORY: 'Laboratório de Eletrônica',
+  COMPUTER_LABORATORY: 'Laboratório de Informática',
+  CNC_SIMULATION: 'Simulação CNC',
 }
 
 function roomToOption(room: HubRoom): RoomFilterOption {
