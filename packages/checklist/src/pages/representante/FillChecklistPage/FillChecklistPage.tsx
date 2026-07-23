@@ -150,6 +150,8 @@ function ChecklistForm({
     title: string;
     body: string;
   } | null>(null);
+  const [attemptedSubmitWithoutClass, setAttemptedSubmitWithoutClass] =
+    useState(false);
 
   useEffect(() => {
     if (!error) return;
@@ -177,10 +179,7 @@ function ChecklistForm({
 
   const handleSubmit = async () => {
     if (!classId) {
-      setErrorModal({
-        title: "Não foi possível enviar o checklist",
-        body: "Selecione uma turma antes de enviar o checklist.",
-      });
+      setAttemptedSubmitWithoutClass(true);
       return;
     }
 
@@ -254,8 +253,8 @@ function ChecklistForm({
           disabled={isClassSelectionFixed}
           loading={isLoadingClasses}
           placeholder="Selecione a turma"
-          {...(!isClassSelectionFixed && !classId && !isLoadingClasses
-            ? { error: "Selecione uma turma para liberar o envio do checklist." }
+          {...(!isClassSelectionFixed && !classId && attemptedSubmitWithoutClass
+            ? { error: "Selecione uma turma para enviar o checklist." }
             : {})}
         />
       </Field>
@@ -268,11 +267,7 @@ function ChecklistForm({
         mode="submit"
         onSubmit={handleSubmit}
         isSubmitDisabled={
-          !classId ||
-          !execution ||
-          isLoadingExecution ||
-          !allAnswered ||
-          isSubmissionUnavailable
+          isLoadingExecution || !allAnswered || isSubmissionUnavailable
         }
         isSubmitting={isSubmitting}
         submitLabel={isSubmitted ? "Salvar Alterações" : "Enviar Checklist"}
