@@ -15,12 +15,12 @@ import { SelectRoomPage } from "../SelectRoomPage";
 
 export interface ChecklistFlowProps {
   selection: ClassSelection;
-  /** Nome da turma quando a seleção é `fixed` (turma única já resolvida). */
+  /** Nome da turma quando a seleção é fixed (turma única já resolvida). */
   fixedClassName?: string;
 
   /**
    * Gestão (SENAI/WEG/ADMIN): abas de navegação do módulo no topo, já
-   * resolvidas por papel (`resolveChecklistSectionTabs`). Ausente/vazio para
+   * resolvidas por papel (resolveChecklistSectionTabs). Ausente/vazio para
    * representante/professor, que não precisam do componente.
    */
   sectionTabs?: readonly SectionTab[];
@@ -43,7 +43,7 @@ export function ChecklistFlow({
   const [noTemplateRoom, setNoTemplateRoom] = useState(false);
 
   const tabs = sectionTabs?.length ? (
-    <SectionTabs tabs={[...sectionTabs]} className="px-3 md:px-6" />
+    <SectionTabs tabs={[...sectionTabs]} />
   ) : null;
 
   const resetToRoomSelection = () => {
@@ -136,7 +136,8 @@ export function ChecklistFlow({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="pt-3 md:pt-6">{tabs}</div>
+      {/* O padding lateral (px-6 md:px-8) no container delimita a largura máxima da linha cinza */}
+      <div className="px-6 pt-6 md:px-8 md:pt-8">{tabs}</div>
       <div className="flex flex-1 flex-col overflow-hidden">{content}</div>
     </div>
   );

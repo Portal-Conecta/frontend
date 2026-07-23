@@ -47,8 +47,10 @@ async function GestaoItensData({
   let loadFailed = false;
 
   try {
-    const hubRooms = await listHubRooms();
-    const activeTemplates = await listTemplates({ status: "ACTIVE" });
+    const [hubRooms, activeTemplates] = await Promise.all([
+      listHubRooms(),
+      listTemplates({ status: "ACTIVE" }),
+    ]);
     const roomIdsWithTemplate = new Set(
       activeTemplates.map((template) => template.roomId),
     );
