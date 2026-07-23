@@ -37,14 +37,14 @@ export function RoomSelector({
   return (
     <div
       className={[
-        "flex h-full max-h-full w-full flex-col items-center pt-16 md:pt-45 px-3 md:px-8 overflow-hidden",
+        "flex h-full max-h-full w-full flex-col items-center pt-16 md:pt-10 px-3 md:px-8 overflow-hidden",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
       {/* 1. Cabeçalho + Busca */}
-      <div className="flex w-full max-w-2xl flex-col items-center gap-6 pb-6 md:gap-8 flex-shrink-0"> {/* <-- LARGURA AQUI */}
+      <div className="flex w-full max-w-2xl flex-col items-center gap-6 pb-6 md:gap-8 flex-shrink-0">
         <Text as="h1" variant="heading-h2" tone="brand" className="text-center">
           Selecione a Sala para Preencher o Checklist
         </Text>
@@ -60,7 +60,7 @@ export function RoomSelector({
       </div>
 
       {/* 2. Apenas a lista rola */}
-      <div className="w-full max-w-2xl flex-1 overflow-y-auto pb-6" aria-live="polite"> {/* <-- LARGURA AQUI */}
+      <div className="w-full max-w-2xl flex-1 overflow-y-auto pb-6" aria-live="polite">
         {filtered.length > 0 ? (
           <ul role="list" className="mt-2">
             {filtered.map((room) => (
