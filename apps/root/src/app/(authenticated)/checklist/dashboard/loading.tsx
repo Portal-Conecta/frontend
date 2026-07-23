@@ -1,4 +1,15 @@
-import { Skeleton, Text } from '@portal/ui'
+import { ChartCard, Skeleton, Text } from '@portal/ui'
+
+const CHART_TITLES = [
+  'Execuções por dia',
+  'Execuções por status',
+  'Taxa de conclusão',
+  'Pendências por status',
+  'Pendências por prioridade',
+  'Pendências por dia',
+  'Performance por Turno',
+  'Tendência de Conformidade',
+]
 
 /**
  * Loading de navegação (Suspense) da rota /checklist/dashboard — espelha o
@@ -9,6 +20,11 @@ import { Skeleton, Text } from '@portal/ui'
  * Título fica visível (não sr-only) porque a página real também mostra o
  * <h1> visível — ao contrário de gestao-itens/nao-conformidades, escondê-lo
  * aqui criaria o flicker inverso (título sumindo e reaparecendo).
+ *
+ * Gráficos usam o ChartCard real (com loading=true) e os títulos reais —
+ * é exatamente o que ChecklistDashboardCharts renderiza no primeiro frame
+ * client-side (stats ainda null), então não tem troca de forma/título
+ * quando o Suspense resolve.
  */
 export default function LoadingDashboardPage() {
   return (
@@ -42,10 +58,12 @@ export default function LoadingDashboardPage() {
           ))}
         </div>
 
-        {/* Skeleton dos gráficos — mesma grade do ChecklistDashboardCharts */}
+        {/* Gráficos — ChartCard real, mesmos títulos, loading=true */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          {Array.from({ length: 8 }, (_, index) => (
-            <Skeleton key={index} variant="rect" height={280} />
+          {CHART_TITLES.map((title) => (
+            <ChartCard key={title} title={title} loading>
+              <></>
+            </ChartCard>
           ))}
         </div>
       </div>
