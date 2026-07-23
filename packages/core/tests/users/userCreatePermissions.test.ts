@@ -3,15 +3,12 @@ import { describe, expect, it } from 'vitest'
 import { creatableTypeUsers } from '@portal/core/users/userCreatePermissions'
 
 describe('creatableTypeUsers', () => {
-  it('ADMIN pode criar qualquer tipo', () => {
-    expect(creatableTypeUsers('ADMIN')).toEqual([
-      'STUDENT',
-      'REPRESENTATIVE',
-      'TEACHER',
-      'SENAI',
-      'WEG',
-      'ADMIN',
-    ])
+  it('ADMIN pode criar qualquer tipo, exceto REPRESENTATIVE (#502)', () => {
+    expect(creatableTypeUsers('ADMIN')).toEqual(['STUDENT', 'TEACHER', 'SENAI', 'WEG', 'ADMIN'])
+  })
+
+  it('REPRESENTATIVE não é criável por ninguém, nem ADMIN (#502)', () => {
+    expect(creatableTypeUsers('ADMIN')).not.toContain('REPRESENTATIVE')
   })
 
   it('SENAI só cria Estudante e Professor', () => {
