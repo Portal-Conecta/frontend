@@ -21,6 +21,7 @@ import { ERROR_PRESENTATION } from '../http/errorPresentation'
 import { PermissionGate } from '../layout/PermissionGate'
 import { getUserById } from '../profile/profileService'
 import type { UserById } from '../profile/types'
+import type { TypeUser } from '../rbac'
 import { PageEditUserContent } from './PageEditUserContent'
 
 export interface PageEditUserProps {
@@ -34,15 +35,26 @@ export async function PageEditUser({ userId }: PageEditUserProps) {
   }
 
   const currentUser = await getCurrentUser()
+  if (!currentUser) {
+    redirect('/login')
+  }
 
   return (
     <PermissionGate user={currentUser} permission="usuarios:gerenciar">
-      <EditUserLoader userId={userId} token={token} />
+      <EditUserLoader userId={userId} token={token} requesterType={currentUser.userType} />
     </PermissionGate>
   )
 }
 
-async function EditUserLoader({ userId, token }: { userId: string; token: string }) {
+async function EditUserLoader({
+  userId,
+  token,
+  requesterType,
+}: {
+  userId: string
+  token: string
+  requesterType: TypeUser
+}) {
   let user: UserById
   try {
     user = await getUserById(userId, token)
@@ -59,7 +71,7 @@ async function EditUserLoader({ userId, token }: { userId: string; token: string
     return <ErrorPage {...ERROR_PRESENTATION.server} />
   }
 
-  return <PageEditUserContent user={user} />
+  return <PageEditUserContent user={user} requesterType={requesterType} />
 }
 
 export default PageEditUser
