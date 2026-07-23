@@ -10,7 +10,7 @@ describe('toListUsersParams', () => {
   it('envia todos os status quando o filtro Status está em Todos', () => {
     expect(toListUsersParams('', {})).toEqual({
       page: 0,
-      size: 50,
+      size: 20,
       status: ALL_USER_ACCOUNT_STATUSES,
     })
   })

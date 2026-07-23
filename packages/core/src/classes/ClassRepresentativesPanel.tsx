@@ -1,9 +1,11 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 import { Button, Icon, Text } from '@portal/ui'
 
+import { HttpError } from '../http/errors'
 import { AssociateUsersCard } from './AssociateUsersCard'
 import { listClassMembersClient, setClassRepresentativeClient } from './classMembersClient'
 import {
@@ -14,22 +16,33 @@ import {
   hasRepresentativeLimitReached,
 } from './classRepresentatives'
 import type { ClassMember } from './types'
-import type { TurmaRow } from './turmaRows'
-import { HttpError } from '../http/errors'
 
 export interface ClassRepresentativesPanelProps {
-  turma: TurmaRow
-  onClose: () => void
+  /** Id da turma no Hub. */
+  classId: string
+  /** Rótulo do cabeçalho (ex.: `MIDS - 78`). */
+  title: string
+  /** Destino do voltar (detalhe da turma). */
+  backHref: string
 }
 
-/** Gerencia os dois representantes da turma usando o BFF de vínculos. */
-export function ClassRepresentativesPanel({ turma, onClose }: ClassRepresentativesPanelProps) {
+/** Gerencia os dois representantes da turma usando o BFF de vínculos (#365). */
+export function ClassRepresentativesPanel({
+  classId,
+  title,
+  backHref,
+}: ClassRepresentativesPanelProps) {
+  const router = useRouter()
   const activeRef = useRef(true)
   const [students, setStudents] = useState<ClassMember[]>([])
   const [representatives, setRepresentatives] = useState<ClassMember[]>([])
   const [loading, setLoading] = useState(true)
   const [actionMemberId, setActionMemberId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  function goBack() {
+    router.push(backHref)
+  }
 
   const syncMembers = useCallback((members: ClassMember[]) => {
     const currentRepresentatives = getRepresentativeMembers(members)
@@ -45,7 +58,7 @@ export function ClassRepresentativesPanel({ turma, onClose }: ClassRepresentativ
     setError(null)
 
     try {
-      const members = await listClassMembersClient(turma.id)
+      const members = await listClassMembersClient(classId)
 
       if (activeRef.current) {
         syncMembers(members)
@@ -59,7 +72,7 @@ export function ClassRepresentativesPanel({ turma, onClose }: ClassRepresentativ
         setLoading(false)
       }
     }
-  }, [syncMembers, turma.id])
+  }, [syncMembers, classId])
 
   useEffect(() => {
     activeRef.current = true
@@ -80,7 +93,7 @@ export function ClassRepresentativesPanel({ turma, onClose }: ClassRepresentativ
     setError(null)
 
     try {
-      await setClassRepresentativeClient(turma.id, student.id, true)
+      await setClassRepresentativeClient(classId, student.id, true)
       if (activeRef.current) {
         await loadMembers()
       }
@@ -102,7 +115,7 @@ export function ClassRepresentativesPanel({ turma, onClose }: ClassRepresentativ
     setError(null)
 
     try {
-      await setClassRepresentativeClient(turma.id, representative.id, false)
+      await setClassRepresentativeClient(classId, representative.id, false)
       if (activeRef.current) {
         await loadMembers()
       }
@@ -122,17 +135,17 @@ export function ClassRepresentativesPanel({ turma, onClose }: ClassRepresentativ
       <header className="flex flex-col gap-4 border-b border-border-default px-4 py-4 md:flex-row md:items-center md:justify-between md:px-6">
         <button
           type="button"
-          aria-label="Voltar para a lista de turmas"
+          aria-label="Voltar para o detalhe da turma"
           className="inline-flex items-center gap-2 text-text-brand transition-colors hover:text-interactive-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
-          onClick={onClose}
+          onClick={goBack}
         >
           <Icon name="chevron-left" size="sm" decorative />
           <Text as="span" variant="heading-h3" tone="brand">
-            {turma.code}
+            {title}
           </Text>
         </button>
 
-        <Button size="sm" variant="outlined" iconLeft="chevron-left" onClick={onClose}>
+        <Button size="sm" variant="outlined" iconLeft="chevron-left" onClick={goBack}>
           Voltar
         </Button>
       </header>
@@ -225,8 +238,8 @@ export function ClassRepresentativesPanel({ turma, onClose }: ClassRepresentativ
       </div>
 
       <footer className="flex justify-end border-t border-border-default px-4 py-4 md:px-6">
-        <Button size="sm" variant="outlined" onClick={onClose}>
-          Voltar para turmas
+        <Button size="sm" variant="outlined" onClick={goBack}>
+          Voltar
         </Button>
       </footer>
     </section>

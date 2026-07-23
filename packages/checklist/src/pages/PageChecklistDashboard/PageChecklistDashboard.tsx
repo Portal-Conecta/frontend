@@ -15,7 +15,7 @@ export async function PageChecklistDashboard() {
 
   return (
     <PermissionGate user={user} permission="checklist:dashboard">
-      <div className="min-h-full bg-background-default p-6 md:p-8 lg:p-10">
+      <div className="min-h-full bg-background-default">
         <PageChecklistDashboardContent sectionTabs={sectionTabs} />
       </div>
     </PermissionGate>

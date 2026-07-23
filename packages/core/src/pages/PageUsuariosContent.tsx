@@ -8,13 +8,14 @@
  *
  * CTA "Criar Novo Usuário" e "Ver Perfil" apontam para rotas das issues #441/#443.
  */
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-import { Button, Text } from '@portal/ui'
+import { Button, Pagination, Text } from '@portal/ui'
 
 import type { DirectoryUser, ListUsersResponse } from '../classes/types'
 import { HttpError } from '../http/errors'
+import { CreateUserButton } from '../users/components/CreateUserButton'
 import { UsersFiltersBar } from '../users/components/UsersFiltersBar'
 import { UsersFiltersSheet } from '../users/components/UsersFiltersSheet'
 import { UsersSearchField } from '../users/components/UsersSearchField'
@@ -30,11 +31,13 @@ const SEARCH_DEBOUNCE_MS = 300
 
 export interface PageUsuariosContentProps {
   initialUsers: DirectoryUser[]
+  initialTotalElements?: number
   initialError?: boolean
 }
 
 export function PageUsuariosContent({
   initialUsers,
+  initialTotalElements = 0,
   initialError = false,
 }: PageUsuariosContentProps) {
   const router = useRouter()
@@ -43,8 +46,10 @@ export function PageUsuariosContent({
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [filters, setFilters] = useState<UsersListFilters>({})
   const [filtersOpen, setFiltersOpen] = useState(false)
+  const [page, setPage] = useState(1)
 
   const [users, setUsers] = useState<DirectoryUser[]>(initialUsers)
+  const [totalElements, setTotalElements] = useState(initialTotalElements)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(initialError)
   const [reloadKey, setReloadKey] = useState(0)
@@ -53,6 +58,18 @@ export function PageUsuariosContent({
     const id = setTimeout(() => setDebouncedSearch(search), SEARCH_DEBOUNCE_MS)
     return () => clearTimeout(id)
   }, [search])
+
+  // Busca ou filtro novo volta pra página 1 — ajuste durante o render (padrão
+  // do React pra "resetar estado quando outro muda"), não em efeito separado:
+  // um efeito próprio rodaria no mesmo commit do efeito de busca abaixo, que
+  // ainda leria o `page` antigo da closure e disparava um fetch descartado
+  // com a página errada antes do reset propagar.
+  const filterKey = `${debouncedSearch}|${filters.typeUser ?? ''}|${filters.status ?? ''}`
+  const [committedFilterKey, setCommittedFilterKey] = useState(filterKey)
+  if (filterKey !== committedFilterKey) {
+    setCommittedFilterKey(filterKey)
+    setPage(1)
+  }
 
   const isFirstRun = useRef(!initialError)
   useEffect(() => {
@@ -65,7 +82,7 @@ export function PageUsuariosContent({
     setLoading(true)
     setError(false)
 
-    const params = toListUsersParams(debouncedSearch, filters)
+    const params = toListUsersParams(debouncedSearch, filters, page - 1)
     listUsersClient({
       page: params.page ?? 0,
       size: params.size ?? DEFAULT_USERS_PAGE_SIZE,
@@ -74,7 +91,10 @@ export function PageUsuariosContent({
       ...(params.status ? { status: params.status } : {}),
     })
       .then((result: ListUsersResponse) => {
-        if (!cancelled) setUsers(result.content)
+        if (!cancelled) {
+          setUsers(result.content)
+          setTotalElements(result.totalElements)
+        }
       })
       .catch((err) => {
         if (cancelled) return
@@ -92,7 +112,7 @@ export function PageUsuariosContent({
     return () => {
       cancelled = true
     }
-  }, [debouncedSearch, filters, reloadKey, router])
+  }, [debouncedSearch, filters, page, reloadKey, router])
 
   const hasActiveFilter =
     debouncedSearch.trim() !== '' || Boolean(filters.typeUser) || Boolean(filters.status)
@@ -101,15 +121,20 @@ export function PageUsuariosContent({
     setFilters({})
   }
 
+  // Estável (#483) — necessário para o React.memo de UserRow surtir efeito:
+  // sem useCallback, uma nova função a cada render quebraria a comparação rasa.
+  const handleViewProfile = useCallback(
+    (user: DirectoryUser) => router.push(`/usuarios/${user.id}`),
+    [router],
+  )
+
   return (
     <div className="flex flex-col gap-4 p-6 md:gap-6 md:p-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <Text as="h1" variant="heading-h2" tone="brand">
           Usuários
         </Text>
-        <Button iconLeft="plus" onClick={() => router.push('/usuarios/novo')}>
-          Criar Novo Usuário
-        </Button>
+        <CreateUserButton onClick={() => router.push('/usuarios/novo')} />
       </div>
 
       <div className="flex items-center gap-3">
@@ -136,15 +161,26 @@ export function PageUsuariosContent({
           />
         </div>
 
-        <div className="min-w-0 md:order-1" aria-busy={loading}>
+        <div className="flex min-w-0 flex-col gap-4 md:order-1" aria-busy={loading}>
           <UsersTable
             users={users}
             loading={loading}
             error={error}
             hasActiveFilter={hasActiveFilter}
             onRetry={() => setReloadKey((key) => key + 1)}
-            onViewProfile={(user) => router.push(`/usuarios/${user.id}`)}
+            onViewProfile={handleViewProfile}
           />
+
+          {!loading && !error && totalElements > DEFAULT_USERS_PAGE_SIZE ? (
+            <Pagination
+              currentPage={page}
+              pageSize={DEFAULT_USERS_PAGE_SIZE}
+              totalItems={totalElements}
+              onPageChange={setPage}
+              disabled={loading}
+              className="self-end"
+            />
+          ) : null}
         </div>
       </div>
 
