@@ -181,10 +181,18 @@ function CollapsibleSection({
 
       <div
         id={panelId}
-        className="grid overflow-hidden transition-[grid-template-rows] duration-300 ease-in-out motion-reduce:transition-none"
+        className={[
+          "grid transition-[grid-template-rows] duration-300 ease-in-out motion-reduce:transition-none",
+          open ? "overflow-visible" : "overflow-hidden",
+        ].join(" ")}
         style={{ gridTemplateRows: open ? "1fr" : "0fr" }}
       >
-        <div className="min-h-0 overflow-hidden pt-4">
+        <div
+          className={[
+            "min-h-0 pt-4",
+            open ? "overflow-visible" : "overflow-hidden",
+          ].join(" ")}
+        >
           {filters ? (
             <div
               id={filtersPanelId}
@@ -318,6 +326,7 @@ export function PageChecklistNaoConformidadesContent({
         item.issue.id === issueId ? { ...item, issue: updated } : item,
       ),
     );
+    
   }
 
   function handleAction(issueId: string, action: string) {
