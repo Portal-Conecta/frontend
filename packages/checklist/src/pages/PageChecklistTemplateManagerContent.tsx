@@ -18,6 +18,7 @@ import {
 } from "../services/client/templateClient";
 import type { ChecklistCategory, ChecklistSchema } from "../types/template";
 import type { TemplateManagerItem } from "./templateManagerItem";
+
 export interface PageChecklistTemplateManagerContentProps {
   room: string;
   backHref: string;
@@ -151,8 +152,8 @@ export function PageChecklistTemplateManagerContent({
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6 md:p-8">
-      <Link href={backHref} className="flex items-center gap-2 self-start">
+    <div className="flex flex-col p-6 md:p-8">
+      <Link href={backHref} className="flex items-center gap-2 self-start pb-6">
         <Icon name="chevron-left" size="lg" tone="primary" decorative />
         <Text as="h1" variant="heading-h2" tone="brand">
           Checklist — {room}
