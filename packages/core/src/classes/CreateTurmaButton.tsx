@@ -13,7 +13,7 @@ export function CreateTurmaButton() {
   const router = useRouter()
 
   return (
-    <Button iconLeft="plus" size="xs" onClick={() => router.push('/turmas/criar')}>
+    <Button iconLeft="plus" onClick={() => router.push('/turmas/criar')}>
       Criar Nova Turma
     </Button>
   )

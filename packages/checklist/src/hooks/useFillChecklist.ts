@@ -19,6 +19,7 @@ import type {
   ConformityAnswerValue,
 } from "../types/execution";
 import type { ChecklistType } from "../types/submissionWindow";
+import type { IssueStatus } from "../types/issue";
 
 const AUTOSAVE_DEBOUNCE_MS = 1000;
 const DRAFT_DEDUPE_TTL_MS = 3000;
@@ -140,17 +141,28 @@ export function mergeAnswersWithExisting(
   return { ...existing, ...local };
 }
 
-function lockedItemKeysFrom(
+/**
+ * `itemKey -> status` das issues que ainda travam o item no preenchimento —
+ * dá pra renderizar a Tag certa (Em Análise/Em Manutenção) sem perder o
+ * status. RESOLVED sai daqui junto com VALIDATED/CANCELED: assim que o
+ * supervisor marca como resolvido, a Tag "Em Manutenção" some e o item volta
+ * a ficar editável pro representante reavaliar.
+ */
+function lockedItemStatusesFrom(
   execution: ChecklistExecutionResponse | null,
-): Set<string> {
-  if (!execution) return new Set();
-  return new Set(
-    execution.issues
-      .filter(
-        (issue) => issue.status !== "VALIDATED" && issue.status !== "CANCELED",
-      )
-      .map((issue) => issue.itemKey),
-  );
+): Map<string, IssueStatus> {
+  const statuses = new Map<string, IssueStatus>();
+  if (!execution) return statuses;
+  for (const issue of execution.issues) {
+    if (
+      issue.status === "OPEN" ||
+      issue.status === "IN_PROGRESS" ||
+      issue.status === "REOPENED"
+    ) {
+      statuses.set(issue.itemKey, issue.status);
+    }
+  }
+  return statuses;
 }
 
 /**
@@ -359,7 +371,7 @@ export function useFillChecklist({
     execution,
     answers,
     setAnswer,
-    lockedItemKeys: lockedItemKeysFrom(execution),
+    lockedItemStatuses: lockedItemStatusesFrom(execution),
     loading,
     error,
     isSaving,

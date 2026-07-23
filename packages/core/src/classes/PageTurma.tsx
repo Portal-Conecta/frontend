@@ -59,18 +59,16 @@ async function TurmaManagement({ accessToken }: { accessToken: string }) {
   }
 
   return (
-    <div className="px-8 py-6">
-      <div className="flex justify-between">
-        <Text tone="brand" variant="heading-h2">
+    <div className="flex flex-col gap-6 p-6 md:p-8">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <Text as="h1" tone="brand" variant="heading-h2">
           Turmas
         </Text>
         <CreateTurmaButton />
       </div>
 
       {loadFailed ? (
-        <Banner variant="error" className="mt-8">
-          Não foi possível carregar as turmas.
-        </Banner>
+        <Banner variant="error">Não foi possível carregar as turmas.</Banner>
       ) : (
         <TurmaList turmas={turmas} />
       )}

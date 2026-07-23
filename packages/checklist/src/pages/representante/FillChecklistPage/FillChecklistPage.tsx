@@ -133,7 +133,7 @@ function ChecklistForm({
     execution,
     answers,
     setAnswer,
-    lockedItemKeys,
+    lockedItemStatuses,
     error,
     loading: isLoadingExecution,
     isSubmitting,
@@ -150,6 +150,8 @@ function ChecklistForm({
     title: string;
     body: string;
   } | null>(null);
+  const [attemptedSubmitWithoutClass, setAttemptedSubmitWithoutClass] =
+    useState(false);
 
   useEffect(() => {
     if (!error) return;
@@ -177,10 +179,7 @@ function ChecklistForm({
 
   const handleSubmit = async () => {
     if (!classId) {
-      setErrorModal({
-        title: "Não foi possível enviar o checklist",
-        body: "Selecione uma turma antes de enviar o checklist.",
-      });
+      setAttemptedSubmitWithoutClass(true);
       return;
     }
 
@@ -238,7 +237,7 @@ function ChecklistForm({
           </div>
         </div>
 
-        <div className="w-full lg:w-80 lg:shrink-0 lg:pt-1">
+        <div className="hidden max-w-xs lg:block lg:shrink-0 lg:pt-1">
           <ChecklistProgressBar answered={answeredCount} total={items.length} />
         </div>
       </div>
@@ -254,6 +253,9 @@ function ChecklistForm({
           disabled={isClassSelectionFixed}
           loading={isLoadingClasses}
           placeholder="Selecione a turma"
+          {...(!isClassSelectionFixed && !classId && attemptedSubmitWithoutClass
+            ? { error: "Selecione uma turma para enviar o checklist." }
+            : {})}
         />
       </Field>
     </div>
@@ -265,11 +267,7 @@ function ChecklistForm({
         mode="submit"
         onSubmit={handleSubmit}
         isSubmitDisabled={
-          !classId ||
-          !execution ||
-          isLoadingExecution ||
-          !allAnswered ||
-          isSubmissionUnavailable
+          isLoadingExecution || !allAnswered || isSubmissionUnavailable
         }
         isSubmitting={isSubmitting}
         submitLabel={isSubmitted ? "Salvar Alterações" : "Enviar Checklist"}
@@ -332,9 +330,9 @@ function ChecklistForm({
                 answers[item.key]?.value &&
                 setAnswer(item.key, answers[item.key]!.value, text)
               }
-              disabled={isSubmitted && lockedItemKeys.has(item.key)}
-              {...(isSubmitted && lockedItemKeys.has(item.key)
-                ? { lockedReason: "Pendência aguardando validação" }
+              disabled={isSubmitted && lockedItemStatuses.has(item.key)}
+              {...(isSubmitted && lockedItemStatuses.has(item.key)
+                ? { issueStatus: lockedItemStatuses.get(item.key)! }
                 : {})}
             />
           ))}

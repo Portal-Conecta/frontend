@@ -1,4 +1,4 @@
-import { Skeleton } from '@portal/ui'
+import { Skeleton, Text } from '@portal/ui'
 
 /**
  * Loading de navegação (Suspense) da rota /checklist/gestao-itens — espelha o
@@ -16,9 +16,15 @@ export default function LoadingGestaoItensPage() {
         <Skeleton variant="text" width={110} height={20} />
       </div>
 
+      {/* Título acessível (escondido visualmente para bater com a página real) */}
+      <Text as="h1" variant="heading-h2" tone="brand" className="sr-only">
+        Gestão de Itens
+      </Text>
+
       {/* Silhueta do campo de busca */}
       <Skeleton variant="rect" height={44} />
 
+      {/* Skeleton da Lista */}
       <div className="flex flex-col" role="status" aria-live="polite">
         <span className="sr-only">Carregando salas...</span>
         {Array.from({ length: 6 }, (_, index) => (

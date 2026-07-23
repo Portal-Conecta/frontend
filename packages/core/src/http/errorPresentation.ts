@@ -43,6 +43,11 @@ export const ERROR_PRESENTATION: Record<HttpErrorKind, ErrorPresentation> = {
     title: 'Dados inválidos',
     description: 'Verifique os dados informados e tente novamente',
   },
+  conflict: {
+    code: '409',
+    title: 'Item desatualizado',
+    description: 'Este checklist foi alterado em outra sessão. Recarregue a página e tente novamente',
+  },
   server: {
     code: '500',
     title: 'Erro interno do servidor',
