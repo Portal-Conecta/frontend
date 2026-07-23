@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   createCourses,
+  fetchClassesPage,
   getCourseDetail,
   listCourses,
   updateCourse,
@@ -145,6 +146,34 @@ describe('fetchAllClasses (via filtro de turno)', () => {
     expect(classCalls).toHaveLength(2)
     expect(String(classCalls[0]![0])).toContain('page=0')
     expect(String(classCalls[1]![0])).toContain('page=1')
+  })
+})
+
+describe('fetchClassesPage', () => {
+  it('busca só a página pedida, sem percorrer as demais', async () => {
+    const items = [makeClass('t1', 'c1'), makeClass('t2', 'c1')]
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(classesPage(items, 0, 5))
+
+    await expect(fetchClassesPage(TOKEN, { page: 0, size: 20 })).resolves.toEqual({
+      items,
+      totalElements: items.length,
+      totalPages: 5,
+    })
+
+    const classCalls = fetchMock.mock.calls.filter(([url]) => String(url).includes('/hub/classes'))
+    expect(classCalls).toHaveLength(1)
+    expect(String(classCalls[0]![0])).toContain('page=0')
+    expect(String(classCalls[0]![0])).toContain('size=20')
+  })
+
+  it('repassa includeInactive quando pedido', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(classesPage([], 0, 1))
+
+    await fetchClassesPage(TOKEN, { includeInactive: true })
+
+    expect(String(fetchMock.mock.calls[0]![0])).toContain('includeInactive=true')
   })
 })
 

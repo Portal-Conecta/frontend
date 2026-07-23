@@ -61,6 +61,22 @@ export async function fetchAllClasses(
 }
 
 /**
+ * Busca só uma página de `GET /hub/classes`, sem agregar — usado pela listagem
+ * paginada de Turmas quando não há busca/filtro ativo (o Hub pagina de verdade
+ * nesse caso; ver `listTurmasPage`).
+ */
+export async function fetchClassesPage(
+  token: string,
+  { page = 0, size = CLASSES_PAGE_SIZE, includeInactive = false }: { page?: number; size?: number; includeInactive?: boolean } = {},
+): Promise<{ items: CourseClass[]; totalElements: number; totalPages: number }> {
+  const res = await http.get<ListClassesResponse>(hubGatewayPath('/classes'), {
+    token,
+    params: { page, size, ...(includeInactive ? { includeInactive: true } : {}) },
+  })
+  return { items: res.items, totalElements: res.totalElements, totalPages: res.totalPages }
+}
+
+/**
  * Lista cursos (`GET /hub/courses`) aplicando busca e filtro de turno no BFF.
  *
  * Busca casa nome ou código (substring, case-insensitive). O turno mora na turma,
