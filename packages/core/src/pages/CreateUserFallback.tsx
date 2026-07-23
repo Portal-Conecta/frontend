@@ -9,7 +9,9 @@ import { Icon, Skeleton, Text } from '@portal/ui'
 
 export function CreateUserFallback() {
   return (
-    <div className="flex flex-col gap-6 p-6 md:p-8">
+    <div className="flex flex-col gap-6 p-6 md:p-8" role="status" aria-live="polite">
+      <span className="sr-only">Carregando formulário de criação de usuário...</span>
+
       <header className="flex items-center gap-2 border-b border-border-default pb-4">
         <Icon name="chevron-left" size="lg" decorative className="text-text-brand" />
         <Text as="h1" variant="heading-h2" tone="brand">
