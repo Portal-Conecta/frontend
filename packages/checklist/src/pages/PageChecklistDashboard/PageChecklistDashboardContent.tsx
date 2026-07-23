@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Banner, Button, DateInput, Field, Text } from "@portal/ui";
+import { Button, DateInput, EmptyState, Field, Icon, Text } from "@portal/ui";
 
 import {
   ChecklistDashboardCharts,
@@ -97,21 +97,12 @@ export function PageChecklistDashboardContent({
       {/* Abas do módulo — acima do título do dashboard */}
       {sectionTabs.length > 0 ? <SectionTabs tabs={[...sectionTabs]} /> : null}
 
-      <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div className="flex flex-col gap-2">
-          <Text as="h1" variant="heading-h1" tone="primary">
-            Dashboard dos Checklists
-          </Text>
-          <Text variant="body-md" tone="secondary">
-            Visão gerencial de execuções e pendências no período selecionado.
-          </Text>
-          <Text variant="label-xs" tone="secondary">
-            Período efetivo: {periodLabel}
-            {useMock ? " · demo" : ""}
-          </Text>
-        </div>
+      <header className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+        <Text as="h1" variant="heading-h2" tone="brand">
+          Dashboard dos Checklists
+        </Text>
 
-        <div className="flex flex-col items-stretch gap-2 sm:items-end">
+        <div className="flex flex-col items-stretch gap-2 xl:items-end">
           <div className="flex flex-wrap items-end gap-3">
             <Field label="De">
               <DateInput
@@ -155,9 +146,15 @@ export function PageChecklistDashboardContent({
       </header>
 
       {error ? (
-        <div className="flex flex-col gap-3">
-          <Banner variant="error">{error}</Banner>
-          <div>
+        <EmptyState
+          title="Não foi possível carregar o dashboard"
+          description={error}
+          illustration={
+            <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-interactive-subtle text-interactive-default">
+              <Icon name="triangle-alert" size="lg" decorative />
+            </span>
+          }
+          action={
             <Button
               variant="outlined"
               tone="brand"
@@ -166,14 +163,18 @@ export function PageChecklistDashboardContent({
             >
               Tentar novamente
             </Button>
-          </div>
-        </div>
+          }
+        />
       ) : emptyData ? (
-        <Banner variant="info">
-          Nenhum dado de checklist no período {periodLabel}. Os indicadores e
-          gráficos ficam disponíveis assim que existirem execuções ou pendências
-          registradas.
-        </Banner>
+        <EmptyState
+          title="Nenhum dado no período selecionado"
+          description={`Não há execuções ou pendências registradas entre ${periodLabel}. Os indicadores e gráficos aparecem assim que houver atividade no período.`}
+          illustration={
+            <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-interactive-subtle text-interactive-default">
+              <Icon name="clipboard-list" size="lg" decorative />
+            </span>
+          }
+        />
       ) : (
         <>
           <DashboardKpiGrid loading={loading} items={kpis ?? []} />
