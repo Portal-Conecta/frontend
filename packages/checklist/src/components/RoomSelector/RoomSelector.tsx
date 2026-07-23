@@ -37,7 +37,7 @@ export function RoomSelector({
   return (
     <div
       className={[
-        "flex h-full max-h-full w-full flex-col items-center pt-14 md:pt-10 px-3 md:px-8 overflow-hidden",
+        "flex h-full max-h-full w-full flex-col items-center pt-18 md:pt-14 px-3 md:px-8 overflow-hidden",
         className,
       ]
         .filter(Boolean)
