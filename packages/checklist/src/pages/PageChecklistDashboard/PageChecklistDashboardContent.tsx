@@ -91,26 +91,16 @@ export function PageChecklistDashboardContent({
       : `${formatIsoDatePt(period.from)} → ${formatIsoDatePt(period.to)}`;
 
   return (
-    <div className="flex w-full flex-col gap-6 p-6 md:p-8">
-      {/* 1. Abas do módulo */}
+    <div className="flex flex-col gap-6 p-6 md:p-8">
+      {/* Abas do módulo — acima do título do dashboard */}
       {sectionTabs.length > 0 ? <SectionTabs tabs={[...sectionTabs]} /> : null}
 
-      {/* 2. Conteúdo do Dashboard em largura total (alinhado com as abas) */}
-      <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div className="flex flex-col gap-2">
-          <Text as="h1" variant="heading-h1" tone="primary">
-            Dashboard dos Checklists
-          </Text>
-          <Text variant="body-md" tone="secondary">
-            Visão gerencial de execuções e pendências no período selecionado.
-          </Text>
-          <Text variant="label-xs" tone="secondary">
-            Período efetivo: {periodLabel}
-            {useMock ? " · demo" : ""}
-          </Text>
-        </div>
+      <header className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+        <Text as="h1" variant="heading-h2" tone="brand">
+          Dashboard dos Checklists
+        </Text>
 
-        <div className="flex flex-col items-stretch gap-2 sm:items-end">
+        <div className="flex flex-col items-stretch gap-2 xl:items-end">
           <div className="flex flex-wrap items-end gap-3">
             <Field label="De">
               <DateInput
