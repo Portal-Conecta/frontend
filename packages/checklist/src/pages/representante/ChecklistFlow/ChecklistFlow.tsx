@@ -136,7 +136,7 @@ export function ChecklistFlow({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="pt-3 md:pt-6">{tabs}</div>
+      <div className="pt-6 md:pt-8">{tabs}</div>
       <div className="flex flex-1 flex-col overflow-hidden">{content}</div>
     </div>
   );
