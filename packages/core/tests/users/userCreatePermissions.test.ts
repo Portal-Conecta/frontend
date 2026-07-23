@@ -7,10 +7,6 @@ describe('creatableTypeUsers', () => {
     expect(creatableTypeUsers('ADMIN')).toEqual(['STUDENT', 'TEACHER', 'SENAI', 'WEG', 'ADMIN'])
   })
 
-  it('REPRESENTATIVE não é criável por ninguém, nem ADMIN (#502)', () => {
-    expect(creatableTypeUsers('ADMIN')).not.toContain('REPRESENTATIVE')
-  })
-
   it('SENAI só cria Estudante e Professor', () => {
     expect(creatableTypeUsers('SENAI')).toEqual(['STUDENT', 'TEACHER'])
   })
