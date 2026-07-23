@@ -18,6 +18,8 @@ import { Button, ConfirmDialog, Field, Icon, Input, Text, useToast } from '@port
 
 import { HttpError } from '../http/errors'
 import type { UserById } from '../profile/types'
+import type { TypeUser } from '../rbac'
+import { canManageUserType } from '../users/userManagePermissions'
 import {
   deactivateUserClient,
   deleteUserClient,
@@ -27,13 +29,14 @@ import {
 
 export interface PageEditUserContentProps {
   user: UserById
+  requesterType: TypeUser
 }
 
 function errorMessage(err: unknown, fallback: string): string {
   return err instanceof HttpError && err.body?.message ? err.body.message : fallback
 }
 
-export function PageEditUserContent({ user }: PageEditUserContentProps) {
+export function PageEditUserContent({ user, requesterType }: PageEditUserContentProps) {
   const router = useRouter()
   const { toast } = useToast()
 
@@ -46,6 +49,7 @@ export function PageEditUserContent({ user }: PageEditUserContentProps) {
   const trimmedName = name.trim()
   const isDirty = trimmedName.length > 0 && trimmedName !== user.name
   const busy = saving || lifecycleLoading
+  const canManage = canManageUserType(requesterType, user.typeUser)
 
   async function handleSave() {
     if (!isDirty || busy) return
@@ -121,31 +125,33 @@ export function PageEditUserContent({ user }: PageEditUserContentProps) {
           <Input value={name} onChange={(event) => setName(event.target.value)} disabled={busy} />
         </Field>
 
-        <div className="flex flex-col gap-2">
-          <Text as="p" variant="label-md-emphasis" tone="brand">
-            Ações de risco
-          </Text>
-          <div className="flex gap-2">
-            <Button
-              size="sm"
-              variant="outlined"
-              tone={active ? 'negative' : 'positive'}
-              disabled={busy}
-              onClick={() => void handleToggleActive()}
-            >
-              {active ? 'Inativar usuário' : 'Reativar usuário'}
-            </Button>
-            <Button
-              size="sm"
-              tone="negative"
-              iconLeft="trash-2"
-              disabled={busy}
-              onClick={() => setDeleteDialogOpen(true)}
-            >
-              Excluir usuário
-            </Button>
+        {canManage && (
+          <div className="flex flex-col gap-2">
+            <Text as="p" variant="label-md-emphasis" tone="brand">
+              Ações de risco
+            </Text>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outlined"
+                tone={active ? 'negative' : 'positive'}
+                disabled={busy}
+                onClick={() => void handleToggleActive()}
+              >
+                {active ? 'Inativar usuário' : 'Reativar usuário'}
+              </Button>
+              <Button
+                size="sm"
+                tone="negative"
+                iconLeft="trash-2"
+                disabled={busy}
+                onClick={() => setDeleteDialogOpen(true)}
+              >
+                Excluir usuário
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="flex items-center gap-3">
           <Button
