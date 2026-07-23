@@ -16,7 +16,7 @@ export function SelectRoomPage({ onRoomSelected }: SelectRoomPageProps) {
   if (loading) {
     return (
       <div className="h-full w-full overflow-hidden">
-        <div className="flex h-full max-h-full w-full flex-col items-center pt-16 md:pt-10 px-3 md:px-8">
+        <div className="flex h-full max-h-full w-full flex-col items-center pt-14 md:pt-10 px-3 md:px-8">
           {/* 1. Cabeçalho + Busca */}
           <div className="flex w-full max-w-2xl flex-col items-center gap-6 pb-6 md:gap-8 flex-shrink-0">
             <Skeleton variant="text" width={340} height={36} className="mb-4" />
