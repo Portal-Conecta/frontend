@@ -156,7 +156,7 @@ export function PageChecklistTemplateManagerContent({
       <Link href={backHref} className="flex items-center gap-2 self-start pb-6">
         <Icon name="chevron-left" size="lg" tone="primary" decorative />
         <Text as="h1" variant="heading-h2" tone="brand">
-          Checklist — {room}
+          Template — {room}
         </Text>
       </Link>
 

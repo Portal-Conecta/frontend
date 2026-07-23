@@ -11,17 +11,16 @@ import { redirect } from "next/navigation";
 
 import { getCurrentUser } from "@portal/core/auth/getCurrentUser";
 import { getSession } from "@portal/core/auth/session";
-import { HttpError } from "@portal/core/http/errors";
 import { ERROR_PRESENTATION } from "@portal/core/http/errorPresentation";
 import { PermissionGate } from "@portal/core";
 import { ErrorPage } from "@portal/ui";
 
-import { getHubRoom } from "../services/server/hubRoomService";
+import { listHubRooms } from "../services/server/hubRoomService";
 import { roomTypeLabel } from "../utils/roomLabel";
 import { PageChecklistTemplateManagerContent } from "./PageChecklistTemplateManagerContent";
 
 /**
- * Sala já vem de dado real (`getHubRoom`). "Salvar alterações" cria o
+ * Sala já vem de dado real (`listHubRooms`). "Salvar alterações" cria o
  * template como DRAFT (`createTemplate`) e ativa em seguida (`activateTemplate`).
  * Sem seletor de categoria na UI ainda — usa `GERAL` como padrão.
  */
@@ -47,15 +46,13 @@ export async function PageChecklistTemplateCreate({
 }
 
 async function TemplateCreateData({ roomId }: { roomId: string }) {
-  const room = await getHubRoom(roomId).catch((err: unknown) => {
-    if (err instanceof HttpError && err.kind === "not_found") return null;
-    throw err;
-  });
+  const rooms = await listHubRooms();
+  const room = rooms.find((r) => r.id === roomId);
   if (!room) {
     return <ErrorPage {...ERROR_PRESENTATION.not_found} />;
   }
 
-  const roomLabel = `${room.number} - ${roomTypeLabel(room.typeRoom)}`;
+  const roomLabel = `${room.number} ${roomTypeLabel(room.typeRoom)}`;
 
   return (
     <PageChecklistTemplateManagerContent

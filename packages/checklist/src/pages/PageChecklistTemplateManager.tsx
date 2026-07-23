@@ -9,18 +9,17 @@ import { redirect } from "next/navigation";
 
 import { getCurrentUser } from "@portal/core/auth/getCurrentUser";
 import { getSession } from "@portal/core/auth/session";
-import { HttpError } from "@portal/core/http/errors";
 import { ERROR_PRESENTATION } from "@portal/core/http/errorPresentation";
 import { PermissionGate } from "@portal/core";
 import { ErrorPage } from "@portal/ui";
 
-import { getHubRoom } from "../services/server/hubRoomService";
+import { listHubRooms } from "../services/server/hubRoomService";
 import { listTemplates } from "../services/server/templateService";
 import { roomTypeLabel } from "../utils/roomLabel";
 import { PageChecklistTemplateManagerContent } from "./PageChecklistTemplateManagerContent";
 
 /**
- * Sala e template já vêm de dado real (`getHubRoom` + `listTemplates`). Como
+ * Sala e template já vêm de dado real (`listHubRooms` + `listTemplates`). Como
  * `editTemplate` só aceita DRAFT (409 em ACTIVE), "Salvar alterações" segue o
  * fluxo de versionamento: `new-version` (clona o ACTIVE pra um DRAFT) → editar
  * esse DRAFT → `activate` (desativa o ACTIVE antigo do mesmo grupo).
@@ -47,14 +46,12 @@ export async function PageChecklistTemplateManager({
 }
 
 async function TemplateManagerData({ roomId }: { roomId: string }) {
-  const [room, activeTemplates] = await Promise.all([
-    getHubRoom(roomId).catch((err: unknown) => {
-      if (err instanceof HttpError && err.kind === "not_found") return null;
-      throw err;
-    }),
+  const [rooms, activeTemplates] = await Promise.all([
+    listHubRooms(),
     listTemplates({ roomId, status: "ACTIVE" }),
   ]);
 
+  const room = rooms.find((r) => r.id === roomId);
   const template = activeTemplates[0];
 
   if (!room || !template) {
@@ -74,7 +71,7 @@ async function TemplateManagerData({ roomId }: { roomId: string }) {
 
   return (
     <PageChecklistTemplateManagerContent
-      room={`${room.number} - ${roomTypeLabel(room.typeRoom)}`}
+      room={`${room.number} ${roomTypeLabel(room.typeRoom)}`}
       backHref="/checklist/gestao-itens"
       roomId={roomId}
       title={template.title}
