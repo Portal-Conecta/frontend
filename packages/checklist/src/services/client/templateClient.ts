@@ -6,8 +6,12 @@ import type {
 } from "../../types/template";
 
 /** Busca um template por id via BFF (GET /api/checklist/templates/{id}). */
-export function findTemplateByIdClient(templateId: string): Promise<ChecklistTemplateResponse> {
-  return bffFetch<ChecklistTemplateResponse>(`/api/checklist/templates/${templateId}`);
+export function findTemplateByIdClient(
+  templateId: string,
+): Promise<ChecklistTemplateResponse> {
+  return bffFetch<ChecklistTemplateResponse>(
+    `/api/checklist/templates/${templateId}`,
+  );
 }
 
 /** Busca o template ATIVO de uma sala via BFF (GET /api/checklist/templates?roomId&status=ACTIVE). */
@@ -36,24 +40,35 @@ export function editTemplateClient(
   templateId: string,
   body: ChecklistTemplateEditRequest,
 ): Promise<ChecklistTemplateResponse> {
-  return bffFetch<ChecklistTemplateResponse>(`/api/checklist/templates/${templateId}`, {
-    method: "PATCH",
-    body: JSON.stringify(body),
-  });
+  return bffFetch<ChecklistTemplateResponse>(
+    `/api/checklist/templates/${templateId}`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    },
+  );
 }
 
 /** Ativa um DRAFT — desativa a versão ACTIVE anterior do mesmo grupo (PATCH .../activate). */
-export function activateTemplateClient(templateId: string): Promise<ChecklistTemplateResponse> {
-  return bffFetch<ChecklistTemplateResponse>(`/api/checklist/templates/${templateId}/activate`, {
-    method: "PATCH",
-  });
+export function activateTemplateClient(
+  templateId: string,
+): Promise<ChecklistTemplateResponse> {
+  return bffFetch<ChecklistTemplateResponse>(
+    `/api/checklist/templates/${templateId}/activate`,
+    {
+      method: "PATCH",
+    },
+  );
 }
 
 /** Cria uma nova versão DRAFT a partir de um template ACTIVE (POST .../new-version). */
 export function createNewTemplateVersionClient(
   templateId: string,
 ): Promise<ChecklistTemplateResponse> {
-  return bffFetch<ChecklistTemplateResponse>(`/api/checklist/templates/${templateId}/new-version`, {
-    method: "POST",
-  });
+  return bffFetch<ChecklistTemplateResponse>(
+    `/api/checklist/templates/${templateId}/new-version`,
+    {
+      method: "POST",
+    },
+  );
 }

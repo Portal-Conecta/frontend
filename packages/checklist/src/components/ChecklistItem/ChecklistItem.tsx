@@ -1,10 +1,11 @@
 "use client";
 
-import { Banner, Text, Textarea } from "@portal/ui";
+import { Tag, Text, Textarea } from "@portal/ui";
 import { useState } from "react";
 
 import { StatusToggle } from "../StatusToggle/StatusToggle";
 import type { StatusValue } from "../StatusToggle/StatusToggle";
+import type { IssueStatus } from "../../types/issue";
 
 export interface ChecklistItemProps {
   title: string;
@@ -16,11 +17,14 @@ export interface ChecklistItemProps {
   onJustificationChange?: (text: string) => void;
   disabled?: boolean;
   /**
-   * Motivo do bloqueio (ex: "Pendência aguardando validação"). Quando
-   * informado, mostra um Banner de aviso — evita que o usuário só descubra
-   * o porquê ao tentar editar e cair num modal de erro.
+   * Status da não conformidade aberta pra este item (ausente = sem pendência,
+   * inclusive RESOLVED — some daqui assim que o supervisor marca como
+   * resolvido). Vira a Tag ao lado do título: OPEN/REOPENED = "Em Análise"
+   * (neutral, lock — ninguém iniciou o atendimento ainda); IN_PROGRESS =
+   * "Em Manutenção" (info, settings — supervisor já clicou em "Iniciar
+   * Atendimento" no monitor de envios).
    */
-  lockedReason?: string;
+  issueStatus?: IssueStatus;
   className?: string;
 }
 
@@ -33,7 +37,7 @@ export function ChecklistItem({
   justification,
   onJustificationChange,
   disabled = false,
-  lockedReason,
+  issueStatus,
   className,
 }: ChecklistItemProps) {
   const isControlled = value !== undefined;
@@ -60,6 +64,8 @@ export function ChecklistItem({
 
   const showJustification = selected === "NON_COMPLIANT";
 
+  const isInMaintenance = issueStatus === "IN_PROGRESS";
+
   return (
     <div
       className={["border-t border-border-default py-3", className]
@@ -76,18 +82,27 @@ export function ChecklistItem({
               {description}
             </Text>
           )}
-          {lockedReason && (
-            <Banner variant="warning">{lockedReason}</Banner>
-          )}
         </div>
 
-        <StatusToggle
-          {...(value !== undefined ? { value: value ?? null } : {})}
-          defaultValue={defaultValue ?? null}
-          onChange={handleStatusChange}
-          disabled={disabled}
-          className="ml-8 shrink-0"
-        />
+        <div className="ml-8 flex shrink-0 flex-wrap items-center justify-end gap-3">
+          {issueStatus && (
+            <Tag
+              tone={isInMaintenance ? "warning" : "neutral"}
+              icon={isInMaintenance ? "settings" : "lock"}
+              size="sm"
+              radius="full"
+            >
+              {isInMaintenance ? "Em Manutenção" : "Em Análise"}
+            </Tag>
+          )}
+
+          <StatusToggle
+            {...(value !== undefined ? { value: value ?? null } : {})}
+            defaultValue={defaultValue ?? null}
+            onChange={handleStatusChange}
+            disabled={disabled}
+          />
+        </div>
       </div>
 
       {/* Justificativa — sempre montada; anima entrada e saída via grid-rows

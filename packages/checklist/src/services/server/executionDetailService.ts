@@ -19,8 +19,8 @@ export interface ChecklistExecutionDetail {
  * - Execução: `itemKey` + resposta em `answersJson.answers`
  * - Template: título/descrição em `schemaJson.sections[].items[]`
  * - Issues: GET `ChecklistIssueController` `/api/checklist-issues/execution/{id}`
- *   — enriquece não conformes com `itemTitleSnapshot` / `description` quando
- *   o schema ou a observation da answer estiverem vazios
+ *   — enriquece não conformes com `description` quando o schema ou a
+ *   observation da answer estiverem vazios
  */
 export async function getExecutionDetail(
   executionId: string,
@@ -48,8 +48,7 @@ export async function getExecutionDetail(
     const schemaItem = itemsByKey.get(answer.itemKey);
     const issue = issuesByItemKey.get(answer.itemKey);
 
-    const title =
-      schemaItem?.title ?? issue?.itemTitleSnapshot ?? answer.itemKey;
+    const title = schemaItem?.title ?? answer.itemKey;
     const description = schemaItem?.description ?? issue?.title;
     const observation = answer.observation ?? issue?.description;
 
@@ -69,7 +68,7 @@ export async function getExecutionDetail(
       const schemaItem = itemsByKey.get(issue.itemKey);
       return {
         key: issue.itemKey,
-        title: schemaItem?.title ?? issue.itemTitleSnapshot,
+        title: schemaItem?.title ?? issue.itemKey,
         ...(schemaItem?.description
           ? { description: schemaItem.description }
           : issue.title

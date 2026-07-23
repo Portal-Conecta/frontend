@@ -8,4 +8,6 @@ import type { ChecklistExecutionResponse } from "./execution";
 export interface NonConformityItem {
   issue: ChecklistIssueResponse;
   execution: ChecklistExecutionResponse;
+  /** Título do item no template (`schemaJson`) — a issue não guarda mais um snapshot disso. */
+  itemTitle?: string;
 }
