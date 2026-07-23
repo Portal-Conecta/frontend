@@ -11,7 +11,7 @@
  * A navegação de "Adicionar novo curso" (`/cursos/novo`) e "Gerenciar"
  * (`/cursos/{id}`) aponta para telas de outras issues — a fiação já fica pronta.
  */
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 import { HttpError } from '../http/errors'
@@ -91,6 +91,13 @@ export function PageCursosContent({ initialCourses, initialError = false }: Page
 
   const hasActiveFilter = debouncedSearch.trim() !== '' || shift !== null
 
+  // Estável (#497) — necessário para o React.memo de CourseRow surtir efeito:
+  // sem useCallback, uma nova função a cada render quebraria a comparação rasa.
+  const handleManage = useCallback(
+    (course: Course) => router.push(`/cursos/${course.id}`),
+    [router],
+  )
+
   return (
     <div className="flex flex-col gap-6 p-6 md:p-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -135,7 +142,7 @@ export function PageCursosContent({ initialCourses, initialError = false }: Page
             <ul className="flex flex-col">
               {courses.map((course) => (
                 <li key={course.id}>
-                  <CourseRow course={course} onManage={(c) => router.push(`/cursos/${c.id}`)} />
+                  <CourseRow course={course} onManage={handleManage} />
                 </li>
               ))}
             </ul>

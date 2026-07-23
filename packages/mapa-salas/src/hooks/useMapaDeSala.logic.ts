@@ -46,6 +46,9 @@ function locateStudent(
 }
 
 export function selectStudent(state: MapaDeSalaDraftState, studentId: string): MapaDeSalaDraftState {
+  if (state.selectedStudentId === studentId) {
+    return { ...state, selectedStudentId: null }
+  }
   return { ...state, selectedStudentId: studentId }
 }
 
