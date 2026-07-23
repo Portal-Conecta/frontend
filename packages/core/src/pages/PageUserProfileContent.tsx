@@ -22,7 +22,7 @@ import {
 
 import { ROLE_LABELS } from '../profile/roleLabels'
 import type { UserById } from '../profile/types'
-import { directoryUserStatusLabel } from '../users/usersLabels'
+import { userAccountStatusTag } from '../users/usersLabels'
 
 export interface PageUserProfileContentProps {
   user: UserById
@@ -37,7 +37,7 @@ export function PageUserProfileContent({
 }: PageUserProfileContentProps) {
   const router = useRouter()
   const roleLabel = ROLE_LABELS[user.typeUser]
-  const statusLabel = directoryUserStatusLabel(user.active)
+  const { tone: statusTone, label: statusLabel } = userAccountStatusTag(user.accountStatus)
 
   return (
     <div className="flex flex-col gap-6 p-6 md:p-8">
@@ -82,7 +82,7 @@ export function PageUserProfileContent({
               <Text as="span" variant="label-sm" tone="secondary" aria-hidden="true">
                 |
               </Text>
-              <Tag tone={user.active ? 'positive' : 'negative'} size="sm">
+              <Tag tone={statusTone} size="sm">
                 {statusLabel}
               </Tag>
             </div>

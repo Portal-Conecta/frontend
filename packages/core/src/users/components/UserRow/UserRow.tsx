@@ -5,15 +5,16 @@
  *
  * Texto em `text-text-brand` (blue/500): Figma pede blue/700, sem token de texto
  * blue/700 — mesma dívida do CourseRow / DateInput (#241). Sem hex cru.
- * Status usa `Tag` (`positive`/`negative`, `size="sm"` → `label-xs`).
+ * Status usa `Tag` a partir do `accountStatus` (#535): `positive` Ativo,
+ * `negative` Inativo, `warning` Pendente de ativação — `size="sm"` → `label-xs`.
  */
 import { memo } from 'react'
 
 import { Button, Tag, Text } from '@portal/ui'
 
-import type { DirectoryUser } from '../../../classes/types'
+import type { DirectoryUser, UserAccountStatus } from '../../../classes/types'
 import { ROLE_LABELS } from '../../../profile/roleLabels'
-import { directoryUserStatusLabel } from '../../usersLabels'
+import { userAccountStatusTag } from '../../usersLabels'
 
 export interface UserRowProps {
   user: DirectoryUser
@@ -21,10 +22,11 @@ export interface UserRowProps {
   onViewProfile: (user: DirectoryUser) => void
 }
 
-function UserStatusTag({ active }: { active: boolean }) {
+function UserStatusTag({ status }: { status: UserAccountStatus }) {
+  const { tone, label } = userAccountStatusTag(status)
   return (
-    <Tag tone={active ? 'positive' : 'negative'} size="sm">
-      {directoryUserStatusLabel(active)}
+    <Tag tone={tone} size="sm">
+      {label}
     </Tag>
   )
 }
@@ -54,7 +56,7 @@ export const UserRow = memo(function UserRow({ user, onViewProfile }: UserRowPro
           <Text as="span" variant="label-md" tone="brand" className="truncate">
             {typeLabel}
           </Text>
-          <UserStatusTag active={user.active} />
+          <UserStatusTag status={user.accountStatus} />
         </div>
       </button>
 
@@ -67,7 +69,7 @@ export const UserRow = memo(function UserRow({ user, onViewProfile }: UserRowPro
           {typeLabel}
         </Text>
         <div className="flex justify-center">
-          <UserStatusTag active={user.active} />
+          <UserStatusTag status={user.accountStatus} />
         </div>
         <Button
           variant="outlined"
