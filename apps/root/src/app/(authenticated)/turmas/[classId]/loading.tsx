@@ -30,7 +30,7 @@ export default function LoadingTurmaDetalhePage() {
           </div>
           <div className="flex flex-col">
             {Array.from({ length: 5 }, (_, index) => (
-              <div key={index} className="h-16 animate-pulse border-b border-border-default" />
+              <div key={index} className="h-18 animate-pulse border-b border-border-default" />
             ))}
           </div>
         </div>
