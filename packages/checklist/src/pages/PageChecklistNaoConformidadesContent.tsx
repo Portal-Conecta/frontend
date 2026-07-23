@@ -421,7 +421,7 @@ export function PageChecklistNaoConformidadesContent({
       </CollapsibleSection>
 
       <CollapsibleSection
-        title="Não conformidades registradas"
+        title="Não Conformidades"
         className="mt-10 border-t border-border-default pt-10"
         filters={({ closeFilters }) => (
           <ChecklistFilters
@@ -453,10 +453,6 @@ export function PageChecklistNaoConformidadesContent({
                 key={issue.id}
                 room={formatRoomLabel(execution.room)}
                 category={itemTitle ?? issue.itemKey}
-                checklistType={
-                  CHECKLIST_TYPE_LABEL[execution.checklistType] ??
-                  execution.checklistType
-                }
                 submittedDate={formatDate(execution.startedAt)}
                 submittedTime={formatTime(execution.startedAt)}
                 group={

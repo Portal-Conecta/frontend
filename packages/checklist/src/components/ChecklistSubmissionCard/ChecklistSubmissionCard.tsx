@@ -2,9 +2,16 @@ import { Button, Text } from "@portal/ui";
 
 import type { ChecklistSubmission } from "../../types";
 
-/** Colunas desktop compartilhadas entre o cabeçalho e cada linha da lista. */
+/**
+ * Colunas desktop compartilhadas entre o cabeçalho e cada linha da lista.
+ * Última coluna (botão) em largura fixa — não `auto` — pra alinhar com
+ * `ChecklistNonConformityCard`: como os rótulos dos botões têm tamanhos
+ * diferentes ("Ver Envio" vs "Ver Não Conformidade"), uma coluna `auto`
+ * reservaria espaços diferentes em cada tabela e desalinharia as colunas
+ * de conteúdo entre as duas seções do Monitor de Envios.
+ */
 export const SUBMISSION_LIST_GRID_CLASS =
-  "md:grid-cols-[repeat(4,minmax(0,1fr))_auto] md:items-center md:gap-x-6";
+  "lg:grid-cols-[repeat(4,minmax(0,1fr))_11rem] lg:items-center lg:gap-x-6";
 
 export interface ChecklistSubmissionCardProps extends ChecklistSubmission {
   onView?: () => void;
@@ -20,7 +27,7 @@ export function ChecklistSubmissionListHeader({
   return (
     <div
       className={[
-        "hidden border-t border-border-default p-3 md:grid md:p-4",
+        "hidden border-t border-border-default p-3 lg:grid lg:p-4",
         SUBMISSION_LIST_GRID_CLASS,
         className,
       ]
@@ -57,7 +64,7 @@ export function ChecklistSubmissionListHeader({
         Turma
       </Text>
       {/* Reserva a coluna do botão para alinhar com as linhas */}
-      <span className="block w-[7.5rem]" aria-hidden />
+      <span className="block w-[11rem]" aria-hidden />
     </div>
   );
 }
@@ -74,8 +81,8 @@ export function ChecklistSubmissionCard({
   return (
     <div
       className={[
-        "border-t border-border-default p-3 md:p-4",
-        "flex flex-col gap-3 md:grid",
+        "border-t border-border-default p-3 lg:p-4",
+        "flex flex-col gap-3 lg:grid",
         SUBMISSION_LIST_GRID_CLASS,
         className,
       ]
@@ -84,14 +91,14 @@ export function ChecklistSubmissionCard({
       role="row"
     >
       {/* Mobile: título compacto */}
-      <Text variant="label-sm-emphasis" tone="brand" className="md:hidden">
+      <Text variant="label-sm-emphasis" tone="brand" className="lg:hidden">
         {room} - {checklistType}
       </Text>
 
       <Text
         variant="label-xs"
         tone="brand"
-        className="hidden min-w-0 md:block md:truncate md:text-left md:text-label-md"
+        className="hidden min-w-0 lg:block lg:truncate lg:text-left lg:text-label-md"
       >
         {room}
       </Text>
@@ -99,7 +106,7 @@ export function ChecklistSubmissionCard({
       <Text
         variant="label-xs"
         tone="brand"
-        className="hidden min-w-0 md:block md:truncate md:text-left md:text-label-md"
+        className="hidden min-w-0 lg:block lg:truncate lg:text-left lg:text-label-md"
       >
         {checklistType}
       </Text>
@@ -107,19 +114,19 @@ export function ChecklistSubmissionCard({
       <Text
         variant="label-xs"
         tone="brand"
-        className="min-w-0 md:truncate md:text-left md:text-label-md"
+        className="min-w-0 lg:truncate lg:text-left lg:text-label-md"
       >
-        <span className="md:hidden">envio: {submittedAt}</span>
-        <span className="hidden md:inline">{submittedAt}</span>
+        <span className="lg:hidden">envio: {submittedAt}</span>
+        <span className="hidden lg:inline">{submittedAt}</span>
       </Text>
 
       <Text
         variant="label-xs"
         tone="brand"
-        className="min-w-0 md:truncate md:text-left md:text-label-md"
+        className="min-w-0 lg:truncate lg:text-left lg:text-label-md"
       >
-        <span className="md:hidden">Turma: {group}</span>
-        <span className="hidden md:inline">{group}</span>
+        <span className="lg:hidden">Turma: {group}</span>
+        <span className="hidden lg:inline">{group}</span>
       </Text>
 
       <Button
@@ -128,7 +135,7 @@ export function ChecklistSubmissionCard({
         size="sm"
         iconLeft="eye"
         onClick={onView}
-        className="mt-3 w-full shrink-0 whitespace-nowrap md:mt-0 md:w-auto md:justify-self-end"
+        className="mt-3 w-full shrink-0 whitespace-nowrap lg:mt-0 lg:w-auto lg:justify-self-end"
       >
         Ver Envio
       </Button>
