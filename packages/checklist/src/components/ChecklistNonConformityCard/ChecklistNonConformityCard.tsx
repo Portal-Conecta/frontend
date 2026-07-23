@@ -4,15 +4,10 @@ import { Button, Text } from "@portal/ui";
 import { useId, useState } from "react";
 
 import type { IssueStatus } from "../../types/issue";
-
-/**
- * Colunas desktop compartilhadas entre o cabeçalho e cada linha da lista.
- * Última coluna (botão) em largura fixa (11rem, igual `ChecklistSubmissionCard`)
- * — não `auto` — pra as colunas de conteúdo alinharem entre as duas tabelas do
- * Monitor de Envios, já que os botões têm rótulos de tamanhos diferentes.
- */
-export const NON_CONFORMITY_LIST_GRID_CLASS =
-  "lg:grid-cols-[repeat(4,minmax(0,1fr))_11rem] lg:items-center lg:gap-x-6";
+import {
+  CHECKLIST_TABLE_BUTTON_COLUMN_CLASS,
+  CHECKLIST_TABLE_GRID_CLASS,
+} from "../../utils/checklistTableLayout";
 
 /** Cabeçalho das colunas da lista de não conformidades (desktop). */
 export function ChecklistNonConformityListHeader({
@@ -24,7 +19,7 @@ export function ChecklistNonConformityListHeader({
     <div
       className={[
         "hidden border-t border-border-default p-3 lg:grid lg:p-4",
-        NON_CONFORMITY_LIST_GRID_CLASS,
+        CHECKLIST_TABLE_GRID_CLASS,
         className,
       ]
         .filter(Boolean)
@@ -59,7 +54,7 @@ export function ChecklistNonConformityListHeader({
       >
         Turma
       </Text>
-      <span className="block w-[11rem]" aria-hidden />
+      <span className={`block ${CHECKLIST_TABLE_BUTTON_COLUMN_CLASS}`} aria-hidden />
     </div>
   );
 }
@@ -128,7 +123,7 @@ export function ChecklistNonConformityCard({
       <div
         className={[
           "flex flex-col gap-4 p-3 lg:p-4 lg:grid",
-          NON_CONFORMITY_LIST_GRID_CLASS,
+          CHECKLIST_TABLE_GRID_CLASS,
         ].join(" ")}
         role="row"
       >

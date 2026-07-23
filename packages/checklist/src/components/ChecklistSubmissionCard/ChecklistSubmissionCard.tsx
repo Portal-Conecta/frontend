@@ -1,17 +1,10 @@
 import { Button, Text } from "@portal/ui";
 
 import type { ChecklistSubmission } from "../../types";
-
-/**
- * Colunas desktop compartilhadas entre o cabeçalho e cada linha da lista.
- * Última coluna (botão) em largura fixa — não `auto` — pra alinhar com
- * `ChecklistNonConformityCard`: como os rótulos dos botões têm tamanhos
- * diferentes ("Ver Envio" vs "Ver Não Conformidade"), uma coluna `auto`
- * reservaria espaços diferentes em cada tabela e desalinharia as colunas
- * de conteúdo entre as duas seções do Monitor de Envios.
- */
-export const SUBMISSION_LIST_GRID_CLASS =
-  "lg:grid-cols-[repeat(4,minmax(0,1fr))_11rem] lg:items-center lg:gap-x-6";
+import {
+  CHECKLIST_TABLE_BUTTON_COLUMN_CLASS,
+  CHECKLIST_TABLE_GRID_CLASS,
+} from "../../utils/checklistTableLayout";
 
 export interface ChecklistSubmissionCardProps extends ChecklistSubmission {
   onView?: () => void;
@@ -28,7 +21,7 @@ export function ChecklistSubmissionListHeader({
     <div
       className={[
         "hidden border-t border-border-default p-3 lg:grid lg:p-4",
-        SUBMISSION_LIST_GRID_CLASS,
+        CHECKLIST_TABLE_GRID_CLASS,
         className,
       ]
         .filter(Boolean)
@@ -64,7 +57,7 @@ export function ChecklistSubmissionListHeader({
         Turma
       </Text>
       {/* Reserva a coluna do botão para alinhar com as linhas */}
-      <span className="block w-[11rem]" aria-hidden />
+      <span className={`block ${CHECKLIST_TABLE_BUTTON_COLUMN_CLASS}`} aria-hidden />
     </div>
   );
 }
@@ -83,7 +76,7 @@ export function ChecklistSubmissionCard({
       className={[
         "border-t border-border-default p-3 lg:p-4",
         "flex flex-col gap-3 lg:grid",
-        SUBMISSION_LIST_GRID_CLASS,
+        CHECKLIST_TABLE_GRID_CLASS,
         className,
       ]
         .filter(Boolean)

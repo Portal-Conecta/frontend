@@ -9,17 +9,18 @@ import { redirect } from "next/navigation";
 
 import { getCurrentUser } from "@portal/core/auth/getCurrentUser";
 import { getSession } from "@portal/core/auth/session";
+import { HttpError } from "@portal/core/http/errors";
 import { ERROR_PRESENTATION } from "@portal/core/http/errorPresentation";
 import { PermissionGate } from "@portal/core";
 import { ErrorPage } from "@portal/ui";
 
-import { listHubRooms } from "../services/server/hubRoomService";
+import { getHubRoom } from "../services/server/hubRoomService";
 import { listTemplates } from "../services/server/templateService";
 import { roomTypeLabel } from "../utils/roomLabel";
 import { PageChecklistTemplateManagerContent } from "./PageChecklistTemplateManagerContent";
 
 /**
- * Sala e template já vêm de dado real (`listHubRooms` + `listTemplates`). Como
+ * Sala e template já vêm de dado real (`getHubRoom` + `listTemplates`). Como
  * `editTemplate` só aceita DRAFT (409 em ACTIVE), "Salvar alterações" segue o
  * fluxo de versionamento: `new-version` (clona o ACTIVE pra um DRAFT) → editar
  * esse DRAFT → `activate` (desativa o ACTIVE antigo do mesmo grupo).
@@ -46,12 +47,17 @@ export async function PageChecklistTemplateManager({
 }
 
 async function TemplateManagerData({ roomId }: { roomId: string }) {
-  const [rooms, activeTemplates] = await Promise.all([
-    listHubRooms(),
+  const [room, activeTemplates] = await Promise.all([
+    // Busca direta por id (não `listHubRooms` + `.find`): essa lista só traz
+    // salas ativas, então uma sala desativada faria essa página 404 mesmo
+    // com o template ainda existindo (#526 review).
+    getHubRoom(roomId).catch((err: unknown) => {
+      if (err instanceof HttpError && err.kind === "not_found") return null;
+      throw err;
+    }),
     listTemplates({ roomId, status: "ACTIVE" }),
   ]);
 
-  const room = rooms.find((r) => r.id === roomId);
   const template = activeTemplates[0];
 
   if (!room || !template) {

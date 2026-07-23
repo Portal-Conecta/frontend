@@ -1,7 +1,6 @@
 import { Skeleton } from '@portal/ui'
 import { ChecklistFiltersSkeleton } from '@portal/checklist/components/ChecklistFilters/ChecklistFiltersSkeleton'
-import { SUBMISSION_LIST_GRID_CLASS } from '@portal/checklist/components/ChecklistSubmissionCard/ChecklistSubmissionCard'
-import { NON_CONFORMITY_LIST_GRID_CLASS } from '@portal/checklist/components/ChecklistNonConformityCard/ChecklistNonConformityCard'
+import { CHECKLIST_TABLE_GRID_CLASS } from '@portal/checklist/utils/checklistTableLayout'
 
 /**
  * Loading de navegação (Suspense) da rota /checklist/nao-conformidades — espelha
@@ -28,7 +27,7 @@ function SubmissionHeaderSkeleton() {
     <div
       className={[
         'hidden border-t border-border-default p-3 lg:grid lg:p-4',
-        SUBMISSION_LIST_GRID_CLASS,
+        CHECKLIST_TABLE_GRID_CLASS,
       ].join(' ')}
       aria-hidden="true"
     >
@@ -47,7 +46,7 @@ function SubmissionRowSkeleton() {
       className={[
         'border-t border-border-default p-3 lg:p-4',
         'flex flex-col gap-3 lg:grid',
-        SUBMISSION_LIST_GRID_CLASS,
+        CHECKLIST_TABLE_GRID_CLASS,
       ].join(' ')}
       aria-hidden="true"
     >
@@ -66,7 +65,7 @@ function NonConformityHeaderSkeleton() {
     <div
       className={[
         'hidden border-t border-border-default p-3 lg:grid lg:p-4',
-        NON_CONFORMITY_LIST_GRID_CLASS,
+        CHECKLIST_TABLE_GRID_CLASS,
       ].join(' ')}
       aria-hidden="true"
     >
@@ -84,7 +83,7 @@ function NonConformityRowSkeleton() {
     <div
       className={[
         'flex flex-col gap-4 p-3 lg:p-4 lg:grid',
-        NON_CONFORMITY_LIST_GRID_CLASS,
+        CHECKLIST_TABLE_GRID_CLASS,
       ].join(' ')}
       aria-hidden="true"
     >

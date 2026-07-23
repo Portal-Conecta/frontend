@@ -18,7 +18,19 @@ async function titlesByTemplateId(
   templateIds: string[],
 ): Promise<Map<string, Map<string, string>>> {
   const templates = await Promise.all(
-    templateIds.map((id) => findTemplateById(id).catch(() => null)),
+    templateIds.map((id) =>
+      findTemplateById(id).catch((error) => {
+        // Sem o título, a issue cai no fallback pro itemKey cru (ver
+        // getChecklistFeed) — loga pra não mascarar falhas de rede/gateway
+        // como "template não tem mais esse item".
+        console.error(
+          "[nonConformityFeedService] falha ao buscar template pra título do item",
+          id,
+          error,
+        );
+        return null;
+      }),
+    ),
   );
 
   return new Map(

@@ -132,7 +132,7 @@ export function ChecklistFilters({
           </Button>
           <Button
             size="sm"
-            className="mr-4 flex-1 md:flex-none"
+            className="flex-1 md:flex-none"
             onClick={handleApply}
           >
             Aplicar
