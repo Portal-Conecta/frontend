@@ -16,7 +16,9 @@ import type { ChecklistType } from "../types/submissionWindow";
  * estado neutro, sem `loading`.
  */
 export function useClassChecklistType(classId: string | null) {
-  const [checklistType, setChecklistType] = useState<ChecklistType | null>(null);
+  const [checklistType, setChecklistType] = useState<ChecklistType | null>(
+    null,
+  );
   const [hasWindow, setHasWindow] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -40,7 +42,8 @@ export function useClassChecklistType(classId: string | null) {
         setHasWindow(windows.length > 0);
         setChecklistType(resolveChecklistType(windows));
       } catch {
-        if (!cancelled) setError("Não foi possível carregar a janela de preenchimento.");
+        if (!cancelled)
+          setError("Não foi possível carregar a janela de preenchimento.");
       } finally {
         if (!cancelled) setLoading(false);
       }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Button, DateInput, Text } from "@portal/ui";
+import { Button, DateInput, EmptyState, Field, Icon, Text } from "@portal/ui";
 
 import {
   ChecklistDashboardCharts,
@@ -112,41 +112,23 @@ export function PageChecklistDashboardContent({
 
         <div className="flex flex-col items-stretch gap-2 sm:items-end">
           <div className="flex flex-wrap items-end gap-3">
-            <div className="flex flex-col gap-1">
-              <Text
-                as="span"
-                id="dashboard-period-from-label"
-                variant="label-xs"
-                tone="secondary"
-              >
-                De
-              </Text>
+            <Field label="De">
               <DateInput
                 value={period.from}
                 max={period.to || toLocalMax()}
                 onChange={(from) => setPeriod((p) => ({ ...p, from }))}
-                aria-labelledby="dashboard-period-from-label"
                 disabled={loading}
               />
-            </div>
-            <div className="flex flex-col gap-1">
-              <Text
-                as="span"
-                id="dashboard-period-to-label"
-                variant="label-xs"
-                tone="secondary"
-              >
-                Até
-              </Text>
+            </Field>
+            <Field label="Até">
               <DateInput
                 value={period.to}
                 {...(period.from ? { min: period.from } : {})}
                 max={toLocalMax()}
                 onChange={(to) => setPeriod((p) => ({ ...p, to }))}
-                aria-labelledby="dashboard-period-to-label"
                 disabled={loading}
               />
-            </div>
+            </Field>
             <Button
               variant="solid"
               tone="brand"
@@ -154,6 +136,7 @@ export function PageChecklistDashboardContent({
               onClick={() => void load(period.from, period.to)}
               iconLeft="funnel"
               disabled={loading}
+              className="h-11"
             >
               Filtrar
             </Button>
@@ -171,14 +154,15 @@ export function PageChecklistDashboardContent({
       </header>
 
       {error ? (
-        <div
-          role="alert"
-          className="rounded-md border border-feedback-error/40 bg-background-surface px-4 py-3"
-        >
-          <Text variant="body-sm" tone="primary">
-            {error}
-          </Text>
-          <div className="mt-3">
+        <EmptyState
+          title="Não foi possível carregar o dashboard"
+          description={error}
+          illustration={
+            <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-interactive-subtle text-interactive-default">
+              <Icon name="triangle-alert" size="lg" decorative />
+            </span>
+          }
+          action={
             <Button
               variant="outlined"
               tone="brand"
@@ -187,28 +171,24 @@ export function PageChecklistDashboardContent({
             >
               Tentar novamente
             </Button>
-          </div>
-        </div>
-      ) : null}
-
-      {emptyData ? (
-        <div
-          role="status"
-          className="rounded-md border border-border-default bg-background-surface px-4 py-3"
-        >
-          <Text variant="body-sm" tone="primary">
-            Nenhum dado de checklist no período {periodLabel}.
-          </Text>
-          <Text variant="body-sm" tone="secondary" className="mt-1">
-            Os indicadores e gráficos ficam zerados até existirem execuções ou
-            pendências registradas.
-          </Text>
-        </div>
-      ) : null}
-
-      <DashboardKpiGrid loading={loading} items={kpis ?? []} />
-
-      <ChecklistDashboardCharts stats={stats} loading={loading} />
+          }
+        />
+      ) : emptyData ? (
+        <EmptyState
+          title="Nenhum dado no período selecionado"
+          description={`Não há execuções ou pendências registradas entre ${periodLabel}. Os indicadores e gráficos aparecem assim que houver atividade no período.`}
+          illustration={
+            <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-interactive-subtle text-interactive-default">
+              <Icon name="clipboard-list" size="lg" decorative />
+            </span>
+          }
+        />
+      ) : (
+        <>
+          <DashboardKpiGrid loading={loading} items={kpis ?? []} />
+          <ChecklistDashboardCharts stats={stats} loading={loading} />
+        </>
+      )}
     </div>
   );
 }

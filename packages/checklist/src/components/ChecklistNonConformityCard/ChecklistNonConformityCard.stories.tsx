@@ -14,7 +14,6 @@ type Story = StoryObj<typeof meta>;
 const base = {
   room: "Sala 204",
   category: "Limpeza e organização",
-  checklistType: "Checklist de entrada",
   submittedDate: "23/06/2026",
   submittedTime: "14:38",
   filledBy: "Letícia Emanuele Güths",

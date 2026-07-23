@@ -132,7 +132,11 @@ export function ChecklistFilters({
           </Button>
           <Button
             size="sm"
-            className="flex-1 md:flex-none"
+            // md:mr-4: respiro da borda direita no desktop (perto do scroll da
+            // página). Só a partir do md — no mobile os dois botões são
+            // flex-1 lado a lado, e a margem só num deles desalinha as duas
+            // larguras (#526 review).
+            className="flex-1 md:mr-4 md:flex-none"
             onClick={handleApply}
           >
             Aplicar

@@ -60,7 +60,10 @@ export function RoomSelector({
       </div>
 
       {/* 2. Apenas a lista rola */}
-      <div className="w-full max-w-2xl flex-1 overflow-y-auto pb-6" aria-live="polite">
+      <div
+        className="w-full max-w-2xl flex-1 overflow-y-auto pb-6"
+        aria-live="polite"
+      >
         {filtered.length > 0 ? (
           <ul role="list" className="mt-2">
             {filtered.map((room) => (
@@ -74,11 +77,7 @@ export function RoomSelector({
             ))}
           </ul>
         ) : (
-          <Text
-            variant="body-sm"
-            tone="secondary"
-            className="mt-4 text-center"
-          >
+          <Text variant="body-sm" tone="secondary" className="mt-4 text-center">
             Nenhuma sala encontrada.
           </Text>
         )}
