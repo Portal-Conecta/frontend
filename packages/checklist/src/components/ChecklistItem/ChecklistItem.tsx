@@ -76,9 +76,7 @@ export function ChecklistItem({
               {description}
             </Text>
           )}
-          {lockedReason && (
-            <Banner variant="warning">{lockedReason}</Banner>
-          )}
+          {lockedReason && <Banner variant="warning">{lockedReason}</Banner>}
         </div>
 
         <StatusToggle

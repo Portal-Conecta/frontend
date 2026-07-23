@@ -36,7 +36,7 @@ export const Demo: Story = {
   },
   decorators: [
     (Story) => (
-      <div className="min-h-screen bg-background-default p-6 md:p-8 lg:p-10">
+      <div className="min-h-screen bg-background-surface p-6 md:p-8 lg:p-10">
         <Story />
       </div>
     ),

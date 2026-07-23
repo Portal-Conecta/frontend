@@ -1,4 +1,4 @@
-import { colorPrimitives, colors } from '@portal/ui'
+import { colorPrimitives, colors } from "@portal/ui";
 
 /**
  * Paleta categórica do DS — ordem fixa, nunca ciclada.
@@ -21,7 +21,7 @@ export const DS_CATEGORICAL = [
   colorPrimitives.blue[900], // brand pressed
   colorPrimitives.gray[900], // text primary
   colorPrimitives.blue[100], // brand subtle (último slot / “Outros”)
-] as const
+] as const;
 
 /**
  * Rampa azul enxuta do DS — dashboards e séries brand (poucas cores).
@@ -31,9 +31,9 @@ export const DS_CATEGORICAL_BLUE = [
   colorPrimitives.blue[500], // #01258F
   colorPrimitives.blue[300], // #0035D4
   colorPrimitives.blue[100], // #D6E0F7
-] as const
+] as const;
 
-export type DsCategoricalColor = (typeof DS_CATEGORICAL)[number]
+export type DsCategoricalColor = (typeof DS_CATEGORICAL)[number];
 
 /** Cores de status — só para estados, nunca para série ordinal. */
 export const DS_STATUS_COLORS = {
@@ -41,7 +41,7 @@ export const DS_STATUS_COLORS = {
   warning: colors.feedback.warning,
   error: colors.feedback.error,
   info: colors.feedback.info,
-} as const
+} as const;
 
 /**
  * Status em tom azul simples do DS (3 tons).
@@ -51,24 +51,27 @@ export const DS_STATUS_COLORS_BLUE = {
   warning: colorPrimitives.blue[300],
   error: colorPrimitives.blue[500],
   info: colorPrimitives.blue[100],
-} as const
+} as const;
 
 /**
  * Cor estável por entidade (id/label), não por rank.
  * Filtrar uma série não repinta as demais.
  */
-export function colorForEntity(entityKey: string, palette: readonly string[] = DS_CATEGORICAL): string {
+export function colorForEntity(
+  entityKey: string,
+  palette: readonly string[] = DS_CATEGORICAL,
+): string {
   if (palette.length === 0) {
-    return colors.text.brand
+    return colors.text.brand;
   }
-  let hash = 0
+  let hash = 0;
   for (let i = 0; i < entityKey.length; i += 1) {
-    hash = (hash * 31 + entityKey.charCodeAt(i)) >>> 0
+    hash = (hash * 31 + entityKey.charCodeAt(i)) >>> 0;
   }
-  const index = hash % palette.length
-  const color = palette[index]
+  const index = hash % palette.length;
+  const color = palette[index];
   // palette.length > 0 e index sempre no range
-  return color ?? colors.text.brand
+  return color ?? colors.text.brand;
 }
 
 /**
@@ -78,19 +81,19 @@ export function assignSeriesColors(
   seriesKeys: readonly string[],
   palette: readonly string[] = DS_CATEGORICAL,
 ): Map<string, string> {
-  const map = new Map<string, string>()
+  const map = new Map<string, string>();
   if (palette.length === 0) {
-    return map
+    return map;
   }
-  const fallback = palette[0] ?? colors.text.brand
-  const max = Math.min(seriesKeys.length, palette.length)
+  const fallback = palette[0] ?? colors.text.brand;
+  const max = Math.min(seriesKeys.length, palette.length);
   for (let i = 0; i < max; i += 1) {
-    const key = seriesKeys[i]
-    if (key === undefined) continue
-    map.set(key, palette[i] ?? fallback)
+    const key = seriesKeys[i];
+    if (key === undefined) continue;
+    map.set(key, palette[i] ?? fallback);
   }
-  return map
+  return map;
 }
 
 /** Máximo de séries distintas antes de agrupar em "Outros". */
-export const DS_MAX_CATEGORIES = DS_CATEGORICAL.length
+export const DS_MAX_CATEGORIES = DS_CATEGORICAL.length;
