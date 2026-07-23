@@ -1,6 +1,13 @@
 "use client";
 
-import { useId, useMemo, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { useRouter } from "next/navigation";
 
 import { bffFetch } from "@portal/core/http/bffClient";
@@ -125,11 +132,34 @@ function CollapsibleSection({
   className,
 }: CollapsibleSectionProps) {
   const [open, setOpen] = useState(defaultOpen);
+  // Só libera overflow-visible depois que a animação de abrir (300ms) termina —
+  // se liberasse junto com `open`, o conteúdo (Select incluso) escaparia sem
+  // clip da track do grid ainda encolhida, "vazando" por cima da próxima seção
+  // durante a transição.
+  const [overflowVisible, setOverflowVisible] = useState(defaultOpen);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const panelId = useId();
   const filtersPanelId = useId();
+  const openTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
+
+  useEffect(() => () => clearTimeout(openTimeoutRef.current), []);
 
   const closeFilters = () => setFiltersOpen(false);
+
+  function toggleOpen() {
+    clearTimeout(openTimeoutRef.current);
+    setOpen((prev) => {
+      const next = !prev;
+      if (next) {
+        openTimeoutRef.current = setTimeout(() => setOverflowVisible(true), 300);
+      } else {
+        setOverflowVisible(false);
+      }
+      return next;
+    });
+  }
 
   return (
     <section className={className}>
@@ -137,7 +167,7 @@ function CollapsibleSection({
       <div className="flex items-center gap-10">
         <button
           type="button"
-          onClick={() => setOpen((prev) => !prev)}
+          onClick={toggleOpen}
           aria-expanded={open}
           aria-controls={panelId}
           className="flex items-center gap-2"
@@ -188,10 +218,18 @@ function CollapsibleSection({
 
       <div
         id={panelId}
-        className="grid overflow-hidden transition-[grid-template-rows] duration-300 ease-in-out motion-reduce:transition-none"
+        className={[
+          "grid transition-[grid-template-rows] duration-300 ease-in-out motion-reduce:transition-none",
+          overflowVisible ? "overflow-visible" : "overflow-hidden",
+        ].join(" ")}
         style={{ gridTemplateRows: open ? "1fr" : "0fr" }}
       >
-        <div className="min-h-0 overflow-hidden pt-4">
+        <div
+          className={[
+            "min-h-0 pt-4",
+            overflowVisible ? "overflow-visible" : "overflow-hidden",
+          ].join(" ")}
+        >
           {filters ? (
             <div
               id={filtersPanelId}
