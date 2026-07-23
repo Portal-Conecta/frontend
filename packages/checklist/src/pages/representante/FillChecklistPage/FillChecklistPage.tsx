@@ -254,6 +254,9 @@ function ChecklistForm({
           disabled={isClassSelectionFixed}
           loading={isLoadingClasses}
           placeholder="Selecione a turma"
+          {...(!isClassSelectionFixed && !classId && !isLoadingClasses
+            ? { error: "Selecione uma turma para liberar o envio do checklist." }
+            : {})}
         />
       </Field>
     </div>
