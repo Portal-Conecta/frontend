@@ -104,9 +104,19 @@ export function PageCursosContent({ initialCourses, initialError = false }: Page
         <Text as="h1" variant="heading-h2" tone="brand">
           Cursos
         </Text>
-        <Button iconLeft="plus" onClick={() => router.push('/cursos/novo')}>
-          Adicionar novo curso
-        </Button>
+        <div className="md:hidden">
+          <Button
+            size="sm"
+            icon="plus"
+            aria-label="Adicionar novo curso"
+            onClick={() => router.push('/cursos/novo')}
+          />
+        </div>
+        <div className="hidden md:block">
+          <Button iconLeft="plus" onClick={() => router.push('/cursos/novo')}>
+            Adicionar novo curso
+          </Button>
+        </div>
       </div>
 
       <CourseSearchField value={search} onChange={setSearch} />
