@@ -1,6 +1,9 @@
 const ROOM_TYPE_LABEL: Record<string, string> = {
-  LABORATORY: "Laboratório de Informática",
   CLASSROOM: "Sala de aula",
+  ELECTROTECHNICS_LABORATORY: "Laboratório de Eletrotécnica",
+  ELECTRONICS_LABORATORY: "Laboratório de Eletrônica",
+  COMPUTER_LABORATORY: "Laboratório de Informática",
+  CNC_SIMULATION: "Laboratório de Simulação CNC",
 };
 
 /** Traduz o `typeRoom` cru do Hub pro rótulo em português usado na UI. */

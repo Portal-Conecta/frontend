@@ -43,7 +43,7 @@ export function ChecklistFlow({
   const [noTemplateRoom, setNoTemplateRoom] = useState(false);
 
   const tabs = sectionTabs?.length ? (
-    <SectionTabs tabs={[...sectionTabs]} className="px-3 md:px-6" />
+    <SectionTabs tabs={[...sectionTabs]} className="px-6 md:px-8" />
   ) : null;
 
   const resetToRoomSelection = () => {
@@ -136,7 +136,7 @@ export function ChecklistFlow({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="pt-3 md:pt-6">{tabs}</div>
+      <div className="pt-6 md:pt-8">{tabs}</div>
       <div className="flex flex-1 flex-col overflow-hidden">{content}</div>
     </div>
   );
