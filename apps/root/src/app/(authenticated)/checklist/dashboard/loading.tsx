@@ -1,70 +1,50 @@
-import { ChartCard, Skeleton, Text } from '@portal/ui'
-
-const CHART_TITLES = [
-  'Execuções por dia',
-  'Execuções por status',
-  'Taxa de conclusão',
-  'Pendências por status',
-  'Pendências por prioridade',
-  'Pendências por dia',
-  'Performance por Turno',
-  'Tendência de Conformidade',
-]
+import { ChecklistDashboardCharts, DashboardKpiGrid } from '@portal/checklist/components/dashboard'
+import { Skeleton, Text } from '@portal/ui'
 
 /**
  * Loading de navegação (Suspense) da rota /checklist/dashboard — espelha o
- * esqueleto do conteúdo (abas + cabeçalho + KPIs + gráficos). Só o conteúdo:
- * o AppShell vem do layout `(authenticated)` e já está na tela durante o
- * Suspense.
+ * esqueleto do conteúdo real (`PageChecklistDashboardContent`): abas de
+ * seção, cabeçalho e filtro de data, e reaproveita `DashboardKpiGrid` e
+ * `ChecklistDashboardCharts` com `loading` — os mesmos componentes reais já
+ * sabem desenhar o próprio skeleton (via `ChartCard`/`Skeleton` do DS, com os
+ * títulos reais dos gráficos), então não duplicamos esse layout aqui.
  *
- * Título fica visível (não sr-only) porque a página real também mostra o
- * <h1> visível — ao contrário de gestao-itens/nao-conformidades, escondê-lo
- * aqui criaria o flicker inverso (título sumindo e reaparecendo).
+ * Título fica visível (não vira skeleton) por ser texto estático — mostrá-lo
+ * de cara evita o "pulo" de forma que aconteceria se ele nascesse como
+ * skeleton e virasse texto real um instante depois.
  *
- * Gráficos usam o ChartCard real (com loading=true) e os títulos reais —
- * é exatamente o que ChecklistDashboardCharts renderiza no primeiro frame
- * client-side (stats ainda null), então não tem troca de forma/título
- * quando o Suspense resolve.
+ * Só o conteúdo: fundo vem do `<main>` do AppLayout e o padding espelha o
+ * wrapper de `PageChecklistDashboardContent` — mesmo padrão de
+ * gestao-itens/nao-conformidades, sem max-width nem fundo próprios.
  */
 export default function LoadingDashboardPage() {
   return (
-    <div className="min-h-full bg-background-default">
-      <div className="flex w-full flex-col gap-6 p-6 md:p-8">
-        {/* Skeleton para simular as SectionTabs do topo */}
-        <div className="h-10 w-full animate-pulse rounded bg-border-default" />
+    <div className="flex flex-col gap-6 p-6 md:p-8">
+      {/* Silhueta das abas de seção (SectionTabs) */}
+      <div className="flex gap-6 border-b border-border-default pb-3" aria-hidden="true">
+        <Skeleton variant="text" width={110} height={20} />
+        <Skeleton variant="text" width={150} height={20} />
+        <Skeleton variant="text" width={90} height={20} />
+      </div>
 
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div className="flex flex-col gap-2">
-            <Text as="h1" variant="heading-h1" tone="primary">
-              Dashboard dos Checklists
-            </Text>
-            <Skeleton variant="text" width={320} />
-            <Skeleton variant="text" width={200} />
+      <div role="status" aria-live="polite">
+        <span className="sr-only">Carregando dashboard...</span>
+
+        <header className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+          <Text as="h1" variant="heading-h2" tone="brand">
+            Dashboard dos Checklists
+          </Text>
+
+          <div className="flex flex-wrap items-end gap-3" aria-hidden="true">
+            <Skeleton variant="rect" width={140} height={44} />
+            <Skeleton variant="rect" width={140} height={44} />
+            <Skeleton variant="rect" width={100} height={44} />
           </div>
+        </header>
 
-          <Skeleton variant="rect" width={280} height={40} />
-        </div>
-
-        {/* Skeleton dos KPIs — mesma grade do DashboardKpiGrid */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {Array.from({ length: 4 }, (_, index) => (
-            <div
-              key={index}
-              className="rounded-md border border-border-default bg-background-surface p-4"
-            >
-              <Skeleton variant="text" count={2} />
-              <Skeleton variant="rect" height={40} className="mt-4" />
-            </div>
-          ))}
-        </div>
-
-        {/* Gráficos — ChartCard real, mesmos títulos, loading=true */}
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          {CHART_TITLES.map((title) => (
-            <ChartCard key={title} title={title} loading>
-              <></>
-            </ChartCard>
-          ))}
+        <div className="mt-8 flex flex-col gap-8">
+          <DashboardKpiGrid loading items={[]} />
+          <ChecklistDashboardCharts loading stats={null} />
         </div>
       </div>
     </div>

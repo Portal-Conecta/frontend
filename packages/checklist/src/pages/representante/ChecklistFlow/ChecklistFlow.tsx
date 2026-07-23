@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 
-import { Button, EmptyState, Skeleton, Text } from "@portal/ui";
+import { Button, EmptyState, Text } from "@portal/ui";
 
 import { ChecklistErrorState } from "../../../components/ChecklistErrorState";
 import type { SectionTab } from "../../../components/SectionTabs";
@@ -11,6 +11,7 @@ import { findActiveTemplateByRoomClient } from "../../../services/client/templat
 import type { ClassSelection } from "../../../services/resolveClassSelection";
 import type { ChecklistTemplateResponse } from "../../../types/template";
 import { FillChecklistPage } from "../FillChecklistPage";
+import { FillChecklistSkeleton } from "../FillChecklistPage/FillChecklistSkeleton";
 import { SelectRoomPage } from "../SelectRoomPage";
 
 export interface ChecklistFlowProps {
@@ -87,12 +88,8 @@ export function ChecklistFlow({
       </div>
     );
   } else if (loadingTemplate) {
-    content = (
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 px-3">
-        <Skeleton variant="text" width={280} height={24} />
-        <Skeleton variant="rect" width={320} height={200} />
-      </div>
-    );
+    // Mesma estrutura da tela de preenchimento (header + turma + itens + footer).
+    content = <FillChecklistSkeleton />;
   } else if (error) {
     content = (
       <div className="flex flex-1 items-center justify-center">

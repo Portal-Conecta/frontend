@@ -21,6 +21,26 @@ export const Preenchido: Story = {
   args: { title: "Computadores", description: desc, defaultValue: "COMPLIANT" },
 };
 
+export const EmAnalise: Story = {
+  args: {
+    title: "Sala limpa e organizada",
+    description: desc,
+    defaultValue: "NON_COMPLIANT",
+    disabled: true,
+    issueStatus: "OPEN",
+  },
+};
+
+export const EmManutencao: Story = {
+  args: {
+    title: "Sala limpa e organizada",
+    description: desc,
+    defaultValue: "NON_COMPLIANT",
+    disabled: true,
+    issueStatus: "IN_PROGRESS",
+  },
+};
+
 export const Lista: Story = {
   args: { title: "" },
   render: () => (

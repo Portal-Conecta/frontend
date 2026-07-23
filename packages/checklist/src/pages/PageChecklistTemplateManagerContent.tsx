@@ -17,7 +17,7 @@ import {
   editTemplateClient,
 } from "../services/client/templateClient";
 import type { ChecklistCategory, ChecklistSchema } from "../types/template";
-import type { MockTemplateItem } from "./gestaoItensMockData";
+import type { TemplateManagerItem } from "./templateManagerItem";
 
 export interface PageChecklistTemplateManagerContentProps {
   room: string;
@@ -29,10 +29,10 @@ export interface PageChecklistTemplateManagerContentProps {
   category: ChecklistCategory;
   /** Id do template ACTIVE da sala — presente = editar (new-version → editar DRAFT → ativar); ausente = criar. */
   templateId?: string;
-  initialItems: MockTemplateItem[];
+  initialItems: TemplateManagerItem[];
 }
 
-interface EditableItem extends MockTemplateItem {
+interface EditableItem extends TemplateManagerItem {
   /** Item recém-criado por "Adicionar item" — ainda não confirmado. */
   isNew?: boolean;
 }
@@ -113,10 +113,11 @@ export function PageChecklistTemplateManagerContent({
             items: items.map((item, index) => ({
               key: item.key.startsWith("new-") ? crypto.randomUUID() : item.key,
               title: item.title,
-              answerType: "CONFORMITY" as const,
-              required: true,
+              answerType: item.answerType ?? "CONFORMITY",
+              required: item.required ?? true,
               order: index + 1,
               ...(item.description ? { description: item.description } : {}),
+              ...(item.category ? { category: item.category } : {}),
             })),
           },
         ],
@@ -151,11 +152,11 @@ export function PageChecklistTemplateManagerContent({
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6 md:p-8">
-      <Link href={backHref} className="flex items-center gap-2 self-start">
+    <div className="flex flex-col p-6 md:p-8">
+      <Link href={backHref} className="flex items-center gap-2 self-start pb-6">
         <Icon name="chevron-left" size="lg" tone="primary" decorative />
         <Text as="h1" variant="heading-h2" tone="brand">
-          Checklist — {room}
+          Template — {room}
         </Text>
       </Link>
 

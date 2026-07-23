@@ -77,11 +77,7 @@ export function RoomSelector({
             ))}
           </ul>
         ) : (
-          <Text
-            variant="body-sm"
-            tone="secondary"
-            className="mt-4 text-center"
-          >
+          <Text variant="body-sm" tone="secondary" className="mt-4 text-center">
             Nenhuma sala encontrada.
           </Text>
         )}

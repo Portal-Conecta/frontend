@@ -11,7 +11,6 @@ export interface ChecklistIssueResponse {
   id: string;
   executionId: string;
   itemKey: string;
-  itemTitleSnapshot: string;
   assignedTo: string;
   title: string;
   description: string;

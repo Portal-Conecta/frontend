@@ -7,7 +7,7 @@ export {
   assignSeriesColors,
   colorForEntity,
   type DsCategoricalColor,
-} from './dsPalette'
+} from "./dsPalette";
 
 export {
   DS_CHART_BRAND,
@@ -20,12 +20,12 @@ export {
   type DsChartOverrides,
   type DsChartTheme,
   type MakeDsChartOptionsConfig,
-} from './dsChartTheme'
+} from "./dsChartTheme";
 
 export {
   registerBarCharts,
   registerDoughnutCharts,
   registerLineCharts,
-} from './registerChartJs'
+} from "./registerChartJs";
 
-export { useDsChartTheme } from './useDsChartTheme'
+export { useDsChartTheme } from "./useDsChartTheme";
