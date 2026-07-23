@@ -238,7 +238,7 @@ function ChecklistForm({
           </div>
         </div>
 
-        <div className="w-full lg:w-80 lg:shrink-0 lg:pt-1">
+        <div className="hidden max-w-xs lg:block lg:shrink-0 lg:pt-1">
           <ChecklistProgressBar answered={answeredCount} total={items.length} />
         </div>
       </div>
