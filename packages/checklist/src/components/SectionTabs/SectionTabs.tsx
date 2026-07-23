@@ -29,7 +29,10 @@ export function SectionTabs({ tabs, className }: SectionTabsProps) {
         .filter(Boolean)
         .join(" ")}
     >
-      <ul role="list" className="flex gap-6 overflow-x-auto">
+      <ul
+        role="list"
+        className="flex gap-6 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
         {tabs.map((tab) => {
           const isActive = tab.href === activeHref;
 

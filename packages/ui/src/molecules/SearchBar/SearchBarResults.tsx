@@ -128,6 +128,8 @@ export const SearchBarResults = forwardRef<
       aria-busy={loading || undefined}
       className={[
         "absolute left-0 right-0 z-50 mt-2 max-h-72 w-full overflow-auto",
+        // Rola normalmente, mas sem a barra visível (mesmo padrão do SectionTabs).
+        "[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
         "bg-background-surface",
         "divide-y divide-border-default border-b border-border-default",
         "origin-top transition duration-150 ease-out",

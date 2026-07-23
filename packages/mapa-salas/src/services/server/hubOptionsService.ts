@@ -31,11 +31,22 @@ const ROOM_TYPE_LABELS: Record<HubRoomType, string> = {
   OTHER: 'Outro',
 }
 
+/**
+ * Rótulo PT-BR do tipo de sala, tolerante ao casing do back. O contrato do Hub
+ * expõe o tipo em maiúsculo (`LABORATORY`), mas o enum também trafega em
+ * minúsculo em alguns pontos (`toApiValue()`); normalizar aqui evita que o
+ * nome da sala "vaze" em inglês (o enum cru) quando o casing diverge. #491
+ */
+function roomTypeLabel(typeRoom: string): string {
+  const normalized = typeRoom.toUpperCase() as HubRoomType
+  return ROOM_TYPE_LABELS[normalized] ?? typeRoom
+}
+
 function roomToOption(room: HubRoom): RoomFilterOption {
   return {
     id: room.id,
     code: String(room.number),
-    label: ROOM_TYPE_LABELS[room.typeRoom] ?? room.typeRoom,
+    label: roomTypeLabel(room.typeRoom),
   }
 }
 
