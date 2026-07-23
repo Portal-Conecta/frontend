@@ -43,7 +43,7 @@ export function ChecklistFlow({
   const [noTemplateRoom, setNoTemplateRoom] = useState(false);
 
   const tabs = sectionTabs?.length ? (
-    <SectionTabs tabs={[...sectionTabs]} className="px-3 md:px-6" />
+    <SectionTabs tabs={[...sectionTabs]} className="px-6 md:px-8" />
   ) : null;
 
   const resetToRoomSelection = () => {

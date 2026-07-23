@@ -13,7 +13,7 @@ import { Skeleton, Text } from '@portal/ui'
 export default function LoadingDashboardPage() {
   return (
     <div className="min-h-full bg-background-default">
-      <div className="flex w-full flex-col gap-6 p-6 md:p-8 lg:p-10">
+      <div className="flex w-full flex-col gap-6 p-6 md:p-8">
         {/* Skeleton para simular as SectionTabs do topo */}
         <div className="h-10 w-full animate-pulse rounded bg-border-default" />
 
