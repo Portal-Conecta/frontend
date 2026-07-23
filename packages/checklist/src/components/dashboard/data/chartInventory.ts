@@ -73,6 +73,7 @@ export const DASHBOARD_CHART_INVENTORY: readonly DashboardChartSpec[] = [
     title: "Tendência de conformidade",
     kind: "line",
     dataShape: "time-series",
-    notes: "Backend: média de compliance_score por semana. Meta é config de UI, não vem do backend.",
+    notes:
+      "Backend: média de compliance_score por semana. Meta é config de UI, não vem do backend.",
   },
 ] as const;

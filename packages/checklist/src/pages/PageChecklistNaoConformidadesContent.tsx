@@ -12,7 +12,14 @@ import { useRouter } from "next/navigation";
 
 import { bffFetch } from "@portal/core/http/bffClient";
 import { HttpError } from "@portal/core/http/errors";
-import { Banner, Button, Icon, Text, type SelectOption } from "@portal/ui";
+import {
+  Banner,
+  Button,
+  EmptyState,
+  Icon,
+  Text,
+  type SelectOption,
+} from "@portal/ui";
 
 import type { SectionTab } from "../components/SectionTabs";
 import { SectionTabs } from "../components/SectionTabs";
@@ -409,9 +416,15 @@ export function PageChecklistNaoConformidadesContent({
         )}
       >
         {filteredSubmissions.length === 0 ? (
-          <Banner variant="info">
-            Nenhum envio encontrado para os filtros selecionados.
-          </Banner>
+          <EmptyState
+            title="Nenhum envio encontrado"
+            description="Ajuste os filtros ou tente um período diferente."
+            illustration={
+              <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-interactive-subtle text-interactive-default">
+                <Icon name="clipboard-list" size="lg" decorative />
+              </span>
+            }
+          />
         ) : (
           <div role="table" aria-label="Lista de envios">
             <ChecklistSubmissionListHeader />
@@ -446,8 +459,8 @@ export function PageChecklistNaoConformidadesContent({
       </CollapsibleSection>
 
       <CollapsibleSection
-        title="Não conformidades registradas"
-        className="mt-10"
+        title="Não Conformidades"
+        className="mt-10 border-t border-border-default pt-10"
         filters={({ closeFilters }) => (
           <ChecklistFilters
             roomOptions={roomOptions}
@@ -461,21 +474,23 @@ export function PageChecklistNaoConformidadesContent({
         )}
       >
         {filteredItems.length === 0 ? (
-          <Banner variant="info">
-            Nenhuma não conformidade encontrada para os filtros selecionados.
-          </Banner>
+          <EmptyState
+            title="Nenhuma não conformidade encontrada"
+            description="Ajuste os filtros ou tente um período diferente."
+            illustration={
+              <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-interactive-subtle text-interactive-default">
+                <Icon name="clipboard-list" size="lg" decorative />
+              </span>
+            }
+          />
         ) : (
           <div role="table" aria-label="Lista de não conformidades">
             <ChecklistNonConformityListHeader />
-            {filteredItems.map(({ issue, execution }) => (
+            {filteredItems.map(({ issue, execution, itemTitle }) => (
               <ChecklistNonConformityCard
                 key={issue.id}
                 room={formatRoomLabel(execution.room)}
-                category={issue.itemTitleSnapshot}
-                checklistType={
-                  CHECKLIST_TYPE_LABEL[execution.checklistType] ??
-                  execution.checklistType
-                }
+                category={itemTitle ?? issue.itemKey}
                 submittedDate={formatDate(execution.startedAt)}
                 submittedTime={formatTime(execution.startedAt)}
                 group={

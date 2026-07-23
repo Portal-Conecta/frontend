@@ -48,9 +48,20 @@ export async function listTemplates(
   if (filters.roomId) params.roomId = filters.roomId;
   if (filters.status) params.status = filters.status;
 
-  return http.get<ChecklistTemplateResponse[]>(
+  const templates = await http.get<ChecklistTemplateResponse[]>(
     checklistGatewayPath("/api/checklist-templates"),
     { params },
+  );
+
+  // O contrato original do endpoint (issue #330) não documenta `roomId`/`status`
+  // como filtros suportados pelo backend — é uma lista simples, não paginada.
+  // Se o backend ignorar esses query params e devolver tudo, filtramos aqui
+  // pra não deixar quem chama (ex.: `activeTemplates[0]` na gestão de itens)
+  // pegar o template errado (de outra sala, ou fora do status pedido).
+  return templates.filter(
+    (template) =>
+      (!filters.roomId || template.roomId === filters.roomId) &&
+      (!filters.status || template.status === filters.status),
   );
 }
 

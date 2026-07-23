@@ -48,6 +48,9 @@ export async function PageChecklistTemplateManager({
 
 async function TemplateManagerData({ roomId }: { roomId: string }) {
   const [room, activeTemplates] = await Promise.all([
+    // Busca direta por id (não `listHubRooms` + `.find`): essa lista só traz
+    // salas ativas, então uma sala desativada faria essa página 404 mesmo
+    // com o template ainda existindo (#526 review).
     getHubRoom(roomId).catch((err: unknown) => {
       if (err instanceof HttpError && err.kind === "not_found") return null;
       throw err;
@@ -65,13 +68,16 @@ async function TemplateManagerData({ roomId }: { roomId: string }) {
     section.items.map((item) => ({
       key: item.key,
       title: item.title,
+      required: item.required,
       ...(item.description ? { description: item.description } : {}),
+      ...(item.answerType ? { answerType: item.answerType } : {}),
+      ...(item.category ? { category: item.category } : {}),
     })),
   );
 
   return (
     <PageChecklistTemplateManagerContent
-      room={`${room.number} - ${roomTypeLabel(room.typeRoom)}`}
+      room={`${room.number} ${roomTypeLabel(room.typeRoom)}`}
       backHref="/checklist/gestao-itens"
       roomId={roomId}
       title={template.title}

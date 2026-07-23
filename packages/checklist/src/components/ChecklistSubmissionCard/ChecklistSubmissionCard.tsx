@@ -1,10 +1,10 @@
 import { Button, Text } from "@portal/ui";
 
 import type { ChecklistSubmission } from "../../types";
-
-/** Colunas desktop compartilhadas entre o cabeçalho e cada linha da lista. */
-export const SUBMISSION_LIST_GRID_CLASS =
-  "md:grid-cols-[repeat(4,minmax(0,1fr))_auto] md:items-center md:gap-x-6";
+import {
+  CHECKLIST_TABLE_BUTTON_COLUMN_CLASS,
+  CHECKLIST_TABLE_GRID_CLASS,
+} from "../../utils/checklistTableLayout";
 
 export interface ChecklistSubmissionCardProps extends ChecklistSubmission {
   onView?: () => void;
@@ -20,8 +20,8 @@ export function ChecklistSubmissionListHeader({
   return (
     <div
       className={[
-        "hidden border-t border-border-default p-3 md:grid md:p-4",
-        SUBMISSION_LIST_GRID_CLASS,
+        "hidden border-t border-border-default p-3 lg:grid lg:p-4",
+        CHECKLIST_TABLE_GRID_CLASS,
         className,
       ]
         .filter(Boolean)
@@ -57,7 +57,7 @@ export function ChecklistSubmissionListHeader({
         Turma
       </Text>
       {/* Reserva a coluna do botão para alinhar com as linhas */}
-      <span className="block w-[7.5rem]" aria-hidden />
+      <span className={`block ${CHECKLIST_TABLE_BUTTON_COLUMN_CLASS}`} aria-hidden />
     </div>
   );
 }
@@ -74,9 +74,9 @@ export function ChecklistSubmissionCard({
   return (
     <div
       className={[
-        "border-t border-border-default p-3 md:p-4",
-        "flex flex-col gap-3 md:grid",
-        SUBMISSION_LIST_GRID_CLASS,
+        "border-t border-border-default p-3 lg:p-4",
+        "flex flex-col gap-3 lg:grid",
+        CHECKLIST_TABLE_GRID_CLASS,
         className,
       ]
         .filter(Boolean)
@@ -84,14 +84,14 @@ export function ChecklistSubmissionCard({
       role="row"
     >
       {/* Mobile: título compacto */}
-      <Text variant="label-sm-emphasis" tone="brand" className="md:hidden">
+      <Text variant="label-sm-emphasis" tone="brand" className="lg:hidden">
         {room} - {checklistType}
       </Text>
 
       <Text
         variant="label-xs"
         tone="brand"
-        className="hidden min-w-0 md:block md:truncate md:text-left md:text-label-md"
+        className="hidden min-w-0 lg:block lg:truncate lg:text-left lg:text-label-md"
       >
         {room}
       </Text>
@@ -99,7 +99,7 @@ export function ChecklistSubmissionCard({
       <Text
         variant="label-xs"
         tone="brand"
-        className="hidden min-w-0 md:block md:truncate md:text-left md:text-label-md"
+        className="hidden min-w-0 lg:block lg:truncate lg:text-left lg:text-label-md"
       >
         {checklistType}
       </Text>
@@ -107,19 +107,19 @@ export function ChecklistSubmissionCard({
       <Text
         variant="label-xs"
         tone="brand"
-        className="min-w-0 md:truncate md:text-left md:text-label-md"
+        className="min-w-0 lg:truncate lg:text-left lg:text-label-md"
       >
-        <span className="md:hidden">envio: {submittedAt}</span>
-        <span className="hidden md:inline">{submittedAt}</span>
+        <span className="lg:hidden">envio: {submittedAt}</span>
+        <span className="hidden lg:inline">{submittedAt}</span>
       </Text>
 
       <Text
         variant="label-xs"
         tone="brand"
-        className="min-w-0 md:truncate md:text-left md:text-label-md"
+        className="min-w-0 lg:truncate lg:text-left lg:text-label-md"
       >
-        <span className="md:hidden">Turma: {group}</span>
-        <span className="hidden md:inline">{group}</span>
+        <span className="lg:hidden">Turma: {group}</span>
+        <span className="hidden lg:inline">{group}</span>
       </Text>
 
       <Button
@@ -128,7 +128,7 @@ export function ChecklistSubmissionCard({
         size="sm"
         iconLeft="eye"
         onClick={onView}
-        className="mt-3 w-full shrink-0 whitespace-nowrap md:mt-0 md:w-auto md:justify-self-end"
+        className="mt-3 w-full shrink-0 whitespace-nowrap lg:mt-0 lg:w-auto lg:justify-self-end"
       >
         Ver Envio
       </Button>

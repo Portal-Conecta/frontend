@@ -47,6 +47,9 @@ export async function PageChecklistTemplateCreate({
 }
 
 async function TemplateCreateData({ roomId }: { roomId: string }) {
+  // Busca direta por id (não `listHubRooms` + `.find`): essa lista só traz
+  // salas ativas, então uma sala desativada faria essa página 404 mesmo
+  // existindo (#526 review).
   const room = await getHubRoom(roomId).catch((err: unknown) => {
     if (err instanceof HttpError && err.kind === "not_found") return null;
     throw err;
@@ -55,7 +58,7 @@ async function TemplateCreateData({ roomId }: { roomId: string }) {
     return <ErrorPage {...ERROR_PRESENTATION.not_found} />;
   }
 
-  const roomLabel = `${room.number} - ${roomTypeLabel(room.typeRoom)}`;
+  const roomLabel = `${room.number} ${roomTypeLabel(room.typeRoom)}`;
 
   return (
     <PageChecklistTemplateManagerContent

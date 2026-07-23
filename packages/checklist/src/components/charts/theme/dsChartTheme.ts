@@ -1,19 +1,19 @@
-import type { ChartOptions, ChartType } from 'chart.js'
+import type { ChartOptions, ChartType } from "chart.js";
 
-import { colorPrimitives, colors, typography } from '@portal/ui'
+import { colorPrimitives, colors, typography } from "@portal/ui";
 
-export type DsChartKind = 'bar' | 'line' | 'doughnut' | 'kpi'
+export type DsChartKind = "bar" | "line" | "doughnut" | "kpi";
 
 export interface DsChartTheme {
-  textPrimary: string
-  textSecondary: string
-  textMuted: string
-  textBrand: string
-  surface: string
-  background: string
-  border: string
-  fontFamily: string
-  fontSize: number
+  textPrimary: string;
+  textSecondary: string;
+  textMuted: string;
+  textBrand: string;
+  surface: string;
+  background: string;
+  border: string;
+  fontFamily: string;
+  fontSize: number;
 }
 
 const SSR_FALLBACK: DsChartTheme = {
@@ -24,70 +24,98 @@ const SSR_FALLBACK: DsChartTheme = {
   surface: colors.background.surface,
   background: colors.background.default,
   border: colors.border.default,
-  fontFamily: typography.fontFamily.inter.join(', '),
+  fontFamily: typography.fontFamily.inter.join(", "),
   fontSize: 12,
-}
+};
 
 /**
  * Lê cores/tipografia do DS em runtime via classes utilitárias reais
  * (ex.: text-text-primary). Fallback para tokens em SSR / falha de probe.
  */
 export function readDsChartTheme(): DsChartTheme {
-  if (typeof document === 'undefined') {
-    return { ...SSR_FALLBACK }
+  if (typeof document === "undefined") {
+    return { ...SSR_FALLBACK };
   }
 
   return {
-    textPrimary: probeClassColor('text-text-primary', 'color', SSR_FALLBACK.textPrimary),
-    textSecondary: probeClassColor('text-text-secondary', 'color', SSR_FALLBACK.textSecondary),
-    textMuted: probeClassColor('text-text-disabled', 'color', SSR_FALLBACK.textMuted),
-    textBrand: probeClassColor('text-text-brand', 'color', SSR_FALLBACK.textBrand),
-    surface: probeClassColor('bg-background-surface', 'backgroundColor', SSR_FALLBACK.surface),
-    background: probeClassColor('bg-background-default', 'backgroundColor', SSR_FALLBACK.background),
-    border: probeClassColor('border-border-default', 'borderColor', SSR_FALLBACK.border),
+    textPrimary: probeClassColor(
+      "text-text-primary",
+      "color",
+      SSR_FALLBACK.textPrimary,
+    ),
+    textSecondary: probeClassColor(
+      "text-text-secondary",
+      "color",
+      SSR_FALLBACK.textSecondary,
+    ),
+    textMuted: probeClassColor(
+      "text-text-disabled",
+      "color",
+      SSR_FALLBACK.textMuted,
+    ),
+    textBrand: probeClassColor(
+      "text-text-brand",
+      "color",
+      SSR_FALLBACK.textBrand,
+    ),
+    surface: probeClassColor(
+      "bg-background-surface",
+      "backgroundColor",
+      SSR_FALLBACK.surface,
+    ),
+    background: probeClassColor(
+      "bg-background-default",
+      "backgroundColor",
+      SSR_FALLBACK.background,
+    ),
+    border: probeClassColor(
+      "border-border-default",
+      "borderColor",
+      SSR_FALLBACK.border,
+    ),
     fontFamily: SSR_FALLBACK.fontFamily,
     fontSize: SSR_FALLBACK.fontSize,
-  }
+  };
 }
 
 function probeClassColor(
   className: string,
-  property: 'color' | 'backgroundColor' | 'borderColor',
+  property: "color" | "backgroundColor" | "borderColor",
   fallback: string,
 ): string {
   try {
-    const el = document.createElement('span')
-    el.className = className
-    if (property === 'borderColor') {
-      el.style.border = '1px solid transparent'
+    const el = document.createElement("span");
+    el.className = className;
+    if (property === "borderColor") {
+      el.style.border = "1px solid transparent";
     }
-    el.style.position = 'absolute'
-    el.style.visibility = 'hidden'
-    el.style.pointerEvents = 'none'
-    document.body.appendChild(el)
-    const value = getComputedStyle(el)[property]
-    document.body.removeChild(el)
-    if (!value || value === 'rgba(0, 0, 0, 0)' || value === 'transparent') {
-      return fallback
+    el.style.position = "absolute";
+    el.style.visibility = "hidden";
+    el.style.pointerEvents = "none";
+    document.body.appendChild(el);
+    const value = getComputedStyle(el)[property];
+    document.body.removeChild(el);
+    if (!value || value === "rgba(0, 0, 0, 0)" || value === "transparent") {
+      return fallback;
     }
-    return value
+    return value;
   } catch {
-    return fallback
+    return fallback;
   }
 }
 
 /** Overrides tipados de forma frouxa — Chart.js + exactOptionalPropertyTypes. */
-export type DsChartOverrides = Record<string, unknown>
+export type DsChartOverrides = Record<string, unknown>;
 
 export interface MakeDsChartOptionsConfig {
   /** Quantidade de séries (legenda se ≥ 2). */
-  seriesCount?: number
+  seriesCount?: number;
   /** Índice / modo sem eixo dual — nunca dual-axis. */
-  indexAxis?: 'x' | 'y'
+  indexAxis?: "x" | "y";
   /** Título acessível do gráfico. */
-  ariaLabel?: string
+  ariaLabel?: string;
   /** Sobrescritas pontuais (sem dual yAxes). */
-  overrides?: DsChartOverrides
+  overrides?: DsChartOverrides;
 }
 
 /**
@@ -99,10 +127,10 @@ export function makeDsChartOptions<TType extends ChartType = ChartType>(
   kind: DsChartKind,
   config: MakeDsChartOptionsConfig = {},
 ): ChartOptions<TType> {
-  const seriesCount = config.seriesCount ?? 1
-  const showLegend = seriesCount >= 2
-  const isDoughnut = kind === 'doughnut' || kind === 'kpi'
-  const isHorizontalBar = kind === 'bar' && config.indexAxis === 'y'
+  const seriesCount = config.seriesCount ?? 1;
+  const showLegend = seriesCount >= 2;
+  const isDoughnut = kind === "doughnut" || kind === "kpi";
+  const isHorizontalBar = kind === "bar" && config.indexAxis === "y";
 
   const cartesianScales = {
     x: {
@@ -132,19 +160,19 @@ export function makeDsChartOptions<TType extends ChartType = ChartType>(
         padding: 6,
       },
     },
-  }
+  };
 
   const base: Record<string, unknown> = {
     responsive: true,
     maintainAspectRatio: false,
     interaction: {
-      mode: 'nearest',
+      mode: "nearest",
       intersect: false,
     },
     plugins: {
       legend: {
-        display: kind === 'kpi' ? false : showLegend,
-        position: isDoughnut ? 'bottom' : 'top',
+        display: kind === "kpi" ? false : showLegend,
+        position: isDoughnut ? "bottom" : "top",
         labels: {
           color: theme.textSecondary,
           font: {
@@ -164,14 +192,20 @@ export function makeDsChartOptions<TType extends ChartType = ChartType>(
         bodyColor: theme.textSecondary,
         borderColor: theme.border,
         borderWidth: 1,
-        titleFont: { family: theme.fontFamily, size: 12, weight: '600' },
+        titleFont: { family: theme.fontFamily, size: 12, weight: "600" },
         bodyFont: { family: theme.fontFamily, size: 12 },
         padding: 10,
         displayColors: true,
         callbacks: {
-          label: (item: { dataset?: { label?: string }; formattedValue?: string; raw?: unknown }) => {
-            const datasetLabel = item.dataset?.label ? `${item.dataset.label}: ` : ''
-            return `${datasetLabel}${item.formattedValue ?? String(item.raw ?? '')}`
+          label: (item: {
+            dataset?: { label?: string };
+            formattedValue?: string;
+            raw?: unknown;
+          }) => {
+            const datasetLabel = item.dataset?.label
+              ? `${item.dataset.label}: `
+              : "";
+            return `${datasetLabel}${item.formattedValue ?? String(item.raw ?? "")}`;
           },
         },
       },
@@ -198,21 +232,21 @@ export function makeDsChartOptions<TType extends ChartType = ChartType>(
         borderColor: theme.surface,
       },
     },
-  }
+  };
 
   if (isHorizontalBar) {
-    base.indexAxis = 'y'
+    base.indexAxis = "y";
   }
 
   if (!isDoughnut) {
-    base.scales = cartesianScales
+    base.scales = cartesianScales;
   }
 
   if (config.overrides) {
-    deepMerge(base, config.overrides)
+    deepMerge(base, config.overrides);
   }
 
-  return base as unknown as ChartOptions<TType>
+  return base as unknown as ChartOptions<TType>;
 }
 
 /** Defaults de dataset alinhados às regras de marca. */
@@ -224,7 +258,7 @@ export function dsLineDatasetDefaults(_theme?: DsChartTheme) {
     pointHitRadius: 8,
     tension: 0.25,
     fill: false as const,
-  }
+  };
 }
 
 export function dsBarDatasetDefaults() {
@@ -232,7 +266,7 @@ export function dsBarDatasetDefaults() {
     borderRadius: 4,
     borderSkipped: false as const,
     maxBarThickness: 40,
-  }
+  };
 }
 
 export function dsDoughnutDatasetDefaults(theme: DsChartTheme) {
@@ -240,56 +274,62 @@ export function dsDoughnutDatasetDefaults(theme: DsChartTheme) {
     borderWidth: 2,
     borderColor: theme.surface,
     hoverOffset: 4,
-  }
+  };
 }
 
 function withAlpha(cssColor: string, alpha: number): string {
-  if (cssColor.startsWith('#')) {
-    const hex = cssColor.slice(1)
+  if (cssColor.startsWith("#")) {
+    const hex = cssColor.slice(1);
     const full =
       hex.length === 3
         ? hex
-            .split('')
+            .split("")
             .map((c) => c + c)
-            .join('')
-        : hex
-    const r = parseInt(full.slice(0, 2), 16)
-    const g = parseInt(full.slice(2, 4), 16)
-    const b = parseInt(full.slice(4, 6), 16)
+            .join("")
+        : hex;
+    const r = parseInt(full.slice(0, 2), 16);
+    const g = parseInt(full.slice(2, 4), 16);
+    const b = parseInt(full.slice(4, 6), 16);
     if ([r, g, b].some((n) => Number.isNaN(n))) {
-      return cssColor
+      return cssColor;
     }
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   }
-  const m = cssColor.match(/rgba?\(([^)]+)\)/)
+  const m = cssColor.match(/rgba?\(([^)]+)\)/);
   if (m?.[1]) {
-    const parts = m[1].split(',').map((p) => p.trim())
-    const r = parts[0] ?? '0'
-    const g = parts[1] ?? '0'
-    const b = parts[2] ?? '0'
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`
+    const parts = m[1].split(",").map((p) => p.trim());
+    const r = parts[0] ?? "0";
+    const g = parts[1] ?? "0";
+    const b = parts[2] ?? "0";
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   }
-  return cssColor
+  return cssColor;
 }
 
-function deepMerge(target: Record<string, unknown>, source: Record<string, unknown>): void {
+function deepMerge(
+  target: Record<string, unknown>,
+  source: Record<string, unknown>,
+): void {
   for (const key of Object.keys(source)) {
-    const srcVal = source[key]
-    const tgtVal = target[key]
+    const srcVal = source[key];
+    const tgtVal = target[key];
     if (
       srcVal !== null &&
-      typeof srcVal === 'object' &&
+      typeof srcVal === "object" &&
       !Array.isArray(srcVal) &&
       tgtVal !== null &&
-      typeof tgtVal === 'object' &&
+      typeof tgtVal === "object" &&
       !Array.isArray(tgtVal)
     ) {
-      deepMerge(tgtVal as Record<string, unknown>, srcVal as Record<string, unknown>)
+      deepMerge(
+        tgtVal as Record<string, unknown>,
+        srcVal as Record<string, unknown>,
+      );
     } else {
-      target[key] = srcVal
+      target[key] = srcVal;
     }
   }
 }
 
 /** Fallback estático de marca (SSR / testes). */
-export const DS_CHART_BRAND = colorPrimitives.blue[500]
+export const DS_CHART_BRAND = colorPrimitives.blue[500];

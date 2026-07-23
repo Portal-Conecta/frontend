@@ -8,7 +8,9 @@ import type { ChecklistType } from "../types/submissionWindow";
 
 /** Descobre qual `checklistType` está com a janela de submissão aberta agora, pra turma informada. */
 export function useOpenChecklistType(classId: string) {
-  const [checklistType, setChecklistType] = useState<ChecklistType | null>(null);
+  const [checklistType, setChecklistType] = useState<ChecklistType | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -22,7 +24,8 @@ export function useOpenChecklistType(classId: string) {
         const windows = await listSubmissionWindowsByClassClient(classId);
         if (!cancelled) setChecklistType(findOpenChecklistType(windows));
       } catch {
-        if (!cancelled) setError("Não foi possível verificar o horário de preenchimento.");
+        if (!cancelled)
+          setError("Não foi possível verificar o horário de preenchimento.");
       } finally {
         if (!cancelled) setLoading(false);
       }
