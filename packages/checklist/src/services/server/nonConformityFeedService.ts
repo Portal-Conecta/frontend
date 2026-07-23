@@ -1,4 +1,5 @@
 import { listExecutions } from "./executionService";
+import { findTemplateById } from "./templateService";
 import type { NonConformityItem } from "../../types/nonConformity";
 import type { ChecklistExecutionResponse } from "../../types/execution";
 
@@ -7,6 +8,31 @@ export interface ChecklistFeed {
   submissions: ChecklistExecutionResponse[];
   /** Só o par issue+execução das execuções com pendência — seção "Não conformidades". */
   nonConformities: NonConformityItem[];
+}
+
+/**
+ * `itemKey -> title` de um template, pra resolver o nome do item de cada
+ * issue (a issue só guarda `itemKey`, não um título legível).
+ */
+async function titlesByTemplateId(
+  templateIds: string[],
+): Promise<Map<string, Map<string, string>>> {
+  const templates = await Promise.all(
+    templateIds.map((id) => findTemplateById(id).catch(() => null)),
+  );
+
+  return new Map(
+    templates
+      .filter((template) => template !== null)
+      .map((template) => [
+        template.id,
+        new Map(
+          template.schemaJson.sections.flatMap((section) =>
+            section.items.map((item) => [item.key, item.title] as const),
+          ),
+        ),
+      ]),
+  );
 }
 
 /**
@@ -25,11 +51,23 @@ export async function getChecklistFeed(
     (execution) => execution.status === "SUBMITTED",
   );
 
-  const nonConformities = submitted
-    .filter((execution) => execution.issues.length > 0)
-    .flatMap((execution) =>
-      execution.issues.map((issue) => ({ issue, execution })),
-    );
+  const withIssues = submitted.filter(
+    (execution) => execution.issues.length > 0,
+  );
+
+  const templateIds = [
+    ...new Set(withIssues.map((execution) => execution.templateId)),
+  ];
+  const itemTitles = await titlesByTemplateId(templateIds);
+
+  const nonConformities = withIssues.flatMap((execution) =>
+    execution.issues.map((issue) => {
+      const itemTitle = itemTitles
+        .get(execution.templateId)
+        ?.get(issue.itemKey);
+      return { issue, execution, ...(itemTitle ? { itemTitle } : {}) };
+    }),
+  );
 
   return { submissions: submitted, nonConformities };
 }
