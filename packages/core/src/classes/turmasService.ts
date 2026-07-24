@@ -69,6 +69,12 @@ export async function listTurmasPage(
 
   if (!hasFilter) {
     const { items, totalElements, totalPages } = await fetchClassesPage(token, { page, size, includeInactive })
+    // `toTurmaRows(..., { includeInactive })` aqui é só defensivo: o Hub já
+    // honra `includeInactive` na query (contrato testado em
+    // `classesService.test.ts` — sem o param, só devolve ativas), então
+    // `totalElements`/`totalPages` (crus do Hub) sempre batem com `rows.length`
+    // nesse caminho. Se esse contrato mudar, o filtro client-side por si só
+    // não corrige a contagem — precisaria refletir só as linhas visíveis.
     return {
       rows: toTurmaRows(courses, items, { includeInactive }),
       page,

@@ -84,6 +84,20 @@ describe('listTurmasPage', () => {
     expect(String(classCalls[0]![0])).toContain('size=2')
   })
 
+  it('sem busca/filtro: totalElements do Hub bate com rows.length mesmo com turma inativa na página (Hub já honra includeInactive na query)', async () => {
+    const page0 = [makeClass('t1', 'c1'), makeClass('t2', 'c2', { active: false })]
+    routeFetch([page0], 2)
+
+    const result = await listTurmasPage(TOKEN, { page: 0, size: 20 })
+
+    // `toTurmaRows` descarta a inativa (comportamento defensivo), mas como o
+    // Hub não deveria ter devolvido essa turma sem `includeInactive=true`,
+    // este teste documenta que, se ele devolver mesmo assim, `totalElements`
+    // fica desalinhado com `rows.length` — falha aqui sinaliza o contrato quebrado.
+    expect(result.rows.map((r) => r.id)).toEqual(['t1'])
+    expect(result.totalElements).toBe(2)
+  })
+
   it('com busca: agrega todas as páginas do Hub, filtra e pagina o resultado em memória', async () => {
     const firstPage = Array.from({ length: 100 }, (_, i) => makeClass(`a${i}`, 'c2', { name: `X${i}` }))
     const secondPage = [makeClass('dev1', 'c1', { name: 'DEV-01 78' })]
