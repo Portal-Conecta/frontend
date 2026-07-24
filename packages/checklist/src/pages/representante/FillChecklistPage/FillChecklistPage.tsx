@@ -57,8 +57,11 @@ export interface FillChecklistPageProps {
  * pro representante) só é obrigatória de fato no envio. Enquanto não
  * escolhida, as respostas ficam só na tela; ao escolher, elas são enviadas
  * pro rascunho da turma e o autosave assume a partir daí. A janela de
- * horário só é cobrada no envio: se estiver fechada, o backend recusa e a
- * tela mostra o erro num modal.
+ * horário bloqueia o preenchimento assim que a turma é escolhida (não é só
+ * no envio) — turma sem janela configurada ou fora do horário configurado
+ * mostra o estado "Fora da janela de envio" em vez dos itens. O backend
+ * valida de novo no envio (fonte da verdade); o modal de erro cobre só a
+ * corrida entre o cliente carregar a janela e o horário virar.
  */
 export function FillChecklistPage({
   template,
@@ -127,6 +130,7 @@ function ChecklistForm({
   const {
     checklistType,
     hasWindow,
+    isOpenNow,
     loading: loadingType,
   } = useClassChecklistType(classId);
   const {
@@ -174,7 +178,7 @@ function ChecklistForm({
     ? CHECKLIST_TYPE_LABEL[checklistType]
     : CHECKLIST_TYPE_LABEL.ARRIVAL;
   const isSubmissionUnavailable = Boolean(
-    classId && !loadingType && (!hasWindow || !checklistType),
+    classId && !loadingType && (!hasWindow || !checklistType || !isOpenNow),
   );
 
   const handleSubmit = async () => {
@@ -278,7 +282,9 @@ function ChecklistForm({
     </div>
   );
 
-  // Turma escolhida mas sem janela de preenchimento configurada: bloqueia.
+  // Turma escolhida mas sem janela configurada, ou fora do horário da janela
+  // configurada: bloqueia — não deixa preencher uma checklist que o backend
+  // vai recusar no envio.
   if (isSubmissionUnavailable) {
     return (
       <>
@@ -287,8 +293,8 @@ function ChecklistForm({
           {classSelection}
           <div className="flex flex-1 items-center justify-center py-6">
             <ChecklistWindowClosedState
-              title="Checklist não disponível"
-              description="Esta turma ainda não possui uma janela de horário configurada para este checklist."
+              title="Fora da janela de envio"
+              description="Esta turma não tem um horário de envio liberado para este checklist no momento."
               {...(isClassSelectionFixed
                 ? {
                     action: (
