@@ -33,7 +33,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-import { Button, Pagination, Text } from '@portal/ui'
+import { Banner, Button, Pagination, Text } from '@portal/ui'
 
 import { HttpError } from '../http/errors'
 import { TurmaFiltersForm } from './TurmaFiltersForm'
@@ -165,11 +165,10 @@ export function TurmaList({
       <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[2fr_1fr] lg:items-start lg:gap-8">
         <div className="min-w-0" aria-busy={loading}>
           {error ? (
-            <div className="py-14 text-center">
-              <Text as="p" variant="body-md" tone="secondary">
-                Não foi possível carregar as turmas.
-              </Text>
-            </div>
+            // Mesmo texto e componente da falha de SSR (`PageTurma`) — um só
+            // tratamento visual pra esse estado, esteja a falha na carga
+            // inicial ou num refetch (busca/filtro/paginação).
+            <Banner variant="error">Não foi possível carregar as turmas.</Banner>
           ) : rows.length === 0 ? (
             <div className="py-14 text-center">
               <Text as="p" variant="body-md" tone="secondary">
