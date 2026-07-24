@@ -8,9 +8,8 @@ import { HttpError } from '../http/errors'
 import { ERROR_PRESENTATION } from '../http/errorPresentation'
 import { PermissionGate } from '../layout/PermissionGate'
 import { CreateTurmaButton } from './CreateTurmaButton'
-import { listTurmas } from './turmasService'
+import { DEFAULT_TURMAS_PAGE_SIZE, listTurmasPage } from './turmasService'
 import { TurmaList } from './TurmaList'
-import type { TurmaRow } from './turmaRows'
 
 /**
  * Gerenciamento de turmas. Duas camadas de RBAC para `turmas:gerenciar`, porque
@@ -40,10 +39,10 @@ export async function PageTurma() {
 }
 
 async function TurmaManagement({ accessToken }: { accessToken: string }) {
-  let turmas: TurmaRow[] = []
+  let initialPage: Awaited<ReturnType<typeof listTurmasPage>> | undefined
   let loadFailed = false
   try {
-    turmas = await listTurmas(accessToken)
+    initialPage = await listTurmasPage(accessToken, { size: DEFAULT_TURMAS_PAGE_SIZE })
   } catch (err) {
     if (err instanceof HttpError) {
       if (err.kind === 'unauthorized') {
@@ -67,10 +66,16 @@ async function TurmaManagement({ accessToken }: { accessToken: string }) {
         <CreateTurmaButton />
       </div>
 
-      {loadFailed ? (
+      {loadFailed || !initialPage ? (
         <Banner variant="error">Não foi possível carregar as turmas.</Banner>
       ) : (
-        <TurmaList turmas={turmas} />
+        <TurmaList
+          initialRows={initialPage.rows}
+          initialTotalElements={initialPage.totalElements}
+          initialCourseOptions={initialPage.courseOptions}
+          initialShiftOptions={initialPage.shiftOptions}
+          pageSize={DEFAULT_TURMAS_PAGE_SIZE}
+        />
       )}
     </div>
   )
