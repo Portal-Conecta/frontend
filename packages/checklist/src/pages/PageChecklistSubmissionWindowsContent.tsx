@@ -8,9 +8,7 @@ import {
   Banner,
   Button,
   DefaultModal,
-  EmptyState,
   Field,
-  Icon,
   Select,
   Tag,
   Text,
@@ -197,33 +195,28 @@ export function PageChecklistSubmissionWindowsContent({
       </div>
 
       {classId && (
-        <div className="flex flex-col gap-8 border-t border-border-default pt-6 md:flex-row md:items-start">
-          {/* Parte 1: janelas já configuradas — dentro de um card (border + radius). */}
-          <div className="flex flex-col gap-4 rounded-md border-sm border-border-default p-4 md:flex-[2]">
+        <div className="flex flex-col gap-8 border-t border-border-default pt-6 lg:flex-row">
+          {/* Parte 1: janelas já configuradas — dentro de um card (border + radius).
+          Sem items-start no pai: as duas colunas esticam pra mesma altura
+          (stretch é o default do flex), alinhando com os labels/botão da
+          Parte 2 sem precisar de altura fixa nem scroll. */}
+          <div className="flex flex-col gap-4 rounded-md border-sm border-border-default px-4 pt-4 lg:flex-[2]">
             <Text variant="heading-h3" tone="brand">
               Janelas Configuradas
             </Text>
-            {/* Altura fixa (md+): o card não muda de tamanho entre 1 janela e
-            várias — o conteúdo rola por dentro em vez de esticar a seção. */}
-            <div className="md:h-64 md:overflow-y-auto">
+            <div>
               {loadingWindows ? (
                 <Text variant="body-sm" tone="secondary">
                   Carregando...
                 </Text>
               ) : windows.length === 0 ? (
-                <EmptyState
-                  title="Nenhuma janela configurada"
-                  description="Defina o horário e a duração no formulário pra liberar o envio desta turma."
-                  illustration={
-                    <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-interactive-subtle text-interactive-default">
-                      <Icon name="clock" size="lg" decorative />
-                    </span>
-                  }
-                />
+                <Text variant="body-sm" tone="secondary">
+                  Nenhuma janela configurada pra essa turma ainda.
+                </Text>
               ) : (
                 // Mesmo modelo de tabela do Monitor de Envios (ChecklistSubmissionCard):
                 // role="table"/"row", linhas com borda superior (sem card por linha,
-                // já está dentro do card da seção), grid só a partir de lg.
+                // já está dentro do card da seção).
                 <div role="table" aria-label="Janelas configuradas">
                   <div
                     className="hidden border-t border-border-default p-3 lg:grid lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)] lg:items-center lg:gap-x-6"
@@ -295,7 +288,7 @@ export function PageChecklistSubmissionWindowsContent({
           </div>
 
           {/* Parte 2: formulário de criação/edição — sem card, solto na coluna. */}
-          <div className="flex flex-col gap-4 md:flex-1">
+          <div className="flex flex-col gap-4 lg:flex-1">
             <Text variant="heading-h3" tone="brand">
               Definir Janela
             </Text>
@@ -307,12 +300,13 @@ export function PageChecklistSubmissionWindowsContent({
                 onChange={(value) => setChecklistType(value as ChecklistType)}
                 placeholder="Selecione o tipo"
                 aria-label="Tipo de checklist"
+                className="max-w-xs"
               />
             </Field>
 
             {checklistType && (
               <>
-                <div className="flex items-end gap-3">
+                <div className="flex flex-wrap items-end gap-3">
                   <Field label="Abertura">
                     <TimeInput value={openAt} onChange={setOpenAt} />
                   </Field>
