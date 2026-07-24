@@ -9,6 +9,7 @@ const sample: DirectoryUser = {
   email: 'bruno@example.com',
   typeUser: 'STUDENT',
   active: true,
+  accountStatus: 'ACTIVE',
   createdAt: '2026-01-01T00:00:00.000Z',
 }
 
@@ -29,7 +30,27 @@ export const Padrao: Story = {}
 
 export const Inativo: Story = {
   args: {
-    user: { ...sample, id: 'u-2', name: 'Ana Souza', active: false, typeUser: 'TEACHER' },
+    user: {
+      ...sample,
+      id: 'u-2',
+      name: 'Ana Souza',
+      active: false,
+      accountStatus: 'DISABLED',
+      typeUser: 'TEACHER',
+    },
+  },
+}
+
+export const Pendente: Story = {
+  args: {
+    user: {
+      ...sample,
+      id: 'u-4',
+      name: 'Marcos Vinícius',
+      active: false,
+      accountStatus: 'PENDING_ACTIVATION',
+      typeUser: 'STUDENT',
+    },
   },
 }
 
@@ -49,6 +70,18 @@ export const Lista: Story = {
           name: 'Eduarda Ferrazza Stein',
           typeUser: 'ADMIN',
           active: false,
+          accountStatus: 'DISABLED',
+        }}
+      />
+      <UserRow
+        {...args}
+        user={{
+          ...sample,
+          id: 'u-4',
+          name: 'Marcos Vinícius',
+          typeUser: 'STUDENT',
+          active: false,
+          accountStatus: 'PENDING_ACTIVATION',
         }}
       />
     </div>

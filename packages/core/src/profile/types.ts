@@ -17,7 +17,9 @@ export interface UserById {
   name: string
   email: string
   typeUser: TypeUser
+  /** Mantido pelo backend por compatibilidade — a fonte de verdade é `accountStatus` (#535). */
   active: boolean
+  accountStatus: UserAccountStatus
   createdAt: string
 }
 
