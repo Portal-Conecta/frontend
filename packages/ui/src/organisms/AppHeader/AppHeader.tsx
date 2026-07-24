@@ -73,7 +73,7 @@ export function AppHeader({
 }: AppHeaderProps) {
   const sidebarWidth = sidebarExpanded ? SIDEBAR_WIDTH_EXPANDED : SIDEBAR_WIDTH_COLLAPSED
   // Alinha a logo ao recuo dos itens de nav do rail (SidebarNavItem: pl-2 expandido / pl-3 colapsado).
-  const logoPadding = sidebarExpanded ? 'pl-2' : 'pl-3'
+  const logoPadding = sidebarExpanded ? 'pl-3' : 'pl-3'
 
   const actions: ActionItem[] = [
     {

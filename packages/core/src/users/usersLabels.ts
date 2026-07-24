@@ -1,4 +1,4 @@
-import type { SelectOption } from '@portal/ui'
+import type { SelectOption, TagTone } from '@portal/ui'
 
 import { USER_ACCOUNT_STATUS_VALUES, type UserAccountStatus } from '../classes/types'
 import { ROLE_LABELS } from '../profile/roleLabels'
@@ -12,9 +12,22 @@ export const USER_ACCOUNT_STATUS_LABELS: Record<UserAccountStatus, string> = {
   PENDING_DELETION: 'Pendente de exclusão',
 }
 
-/** Exibição na linha: o item do diretório só traz `active` booleano. */
-export function directoryUserStatusLabel(active: boolean): string {
-  return active ? USER_ACCOUNT_STATUS_LABELS.ACTIVE : USER_ACCOUNT_STATUS_LABELS.DISABLED
+/** Tom da `Tag` de status na linha/perfil (#535). `PENDING_DELETION` não aparece na UI — é filtrado como deletado. */
+const USER_ACCOUNT_STATUS_TONE: Record<UserAccountStatus, TagTone> = {
+  PENDING_ACTIVATION: 'warning',
+  ACTIVE: 'positive',
+  DISABLED: 'negative',
+  PENDING_DELETION: 'negative',
+}
+
+export interface UserStatusTagInfo {
+  tone: TagTone
+  label: string
+}
+
+/** Tom + rótulo da `Tag` de status a partir do `accountStatus` do backend (#535). */
+export function userAccountStatusTag(status: UserAccountStatus): UserStatusTagInfo {
+  return { tone: USER_ACCOUNT_STATUS_TONE[status], label: USER_ACCOUNT_STATUS_LABELS[status] }
 }
 
 const TODOS: SelectOption = { value: 'todos', label: 'Todos' }

@@ -10,6 +10,7 @@ const users: DirectoryUser[] = [
     email: 'b@example.com',
     typeUser: 'STUDENT',
     active: true,
+    accountStatus: 'ACTIVE',
     createdAt: '2026-01-01T00:00:00.000Z',
   },
   {
@@ -18,6 +19,7 @@ const users: DirectoryUser[] = [
     email: 'd@example.com',
     typeUser: 'TEACHER',
     active: true,
+    accountStatus: 'ACTIVE',
     createdAt: '2026-01-01T00:00:00.000Z',
   },
 ]
