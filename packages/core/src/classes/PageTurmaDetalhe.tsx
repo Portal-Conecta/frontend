@@ -140,12 +140,14 @@ async function TurmaDetalhe({ classId, accessToken }: { classId: string; accessT
             </div>
 
             <div className="rounded-md border-sm border-border-default px-3 pt-3">
+              {/* `ListItem` sempre desenha `border-b`, inclusive no último item — sem essa
+              classe, a borda dele soma com a borda inferior deste card e vira uma linha dupla. */}
               {representatives.length === 0 ? (
                 <Text as="p" variant="label-sm" tone="secondary" className="pb-3">
                   Nenhum representante definido.
                 </Text>
               ) : (
-                <ul aria-label="Representantes da turma">
+                <ul aria-label="Representantes da turma" className="[&>li:last-child>*]:border-b-0">
                   {representatives.map((member) => (
                     <ClassMemberRow key={member.id} member={member} />
                   ))}
