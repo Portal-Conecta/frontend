@@ -76,7 +76,9 @@ export function ClassMembersTabs({ students, teachers }: ClassMembersTabsProps) 
             </Text>
           </div>
         ) : (
-          <ul aria-label={listLabel}>
+          // `ListItem` sempre desenha `border-b`, inclusive no último item — sem essa
+          // classe, a borda dele soma com a borda inferior deste card e vira uma linha dupla.
+          <ul aria-label={listLabel} className="[&>li:last-child>*]:border-b-0">
             {members.map((member) => (
               <ClassMemberRow key={member.id} member={member} />
             ))}

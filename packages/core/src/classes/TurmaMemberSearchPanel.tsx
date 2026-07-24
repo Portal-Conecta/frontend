@@ -142,7 +142,9 @@ export function TurmaMemberSearchPanel({
         </Button>
       </div>
 
-      <div className="flex flex-col gap-2 rounded-md border-sm border-border-default p-2">
+      {/* `ListItem` (dentro de `AssociateUsersCard`) sempre desenha `border-b`, inclusive
+      no último item — sem essa classe, a borda dele soma com a deste card e vira linha dupla. */}
+      <div className="flex flex-col gap-2 rounded-md border-sm border-border-default p-2 [&>*:last-child]:border-b-0">
         {displayResults.length === 0 && loading ? (
           <Text as="p" variant="body-sm" tone="secondary" className="p-2">
             Carregando usuários…

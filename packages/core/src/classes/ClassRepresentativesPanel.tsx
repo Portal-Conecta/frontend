@@ -167,7 +167,9 @@ export function ClassRepresentativesPanel({
             Alunos
           </Text>
 
-          <div className="flex flex-col gap-2 rounded-md border-sm border-border-default p-2">
+          {/* `ListItem` (dentro de `AssociateUsersCard`) sempre desenha `border-b`, inclusive
+          no último item — sem essa classe, a borda dele soma com a deste card e vira linha dupla. */}
+          <div className="flex flex-col gap-2 rounded-md border-sm border-border-default p-2 [&>*:last-child]:border-b-0">
             {loading ? (
               <Text variant="body-sm" tone="secondary" className="p-2">
                 Carregando alunos...
@@ -212,7 +214,9 @@ export function ClassRepresentativesPanel({
             </div>
           ) : null}
 
-          <div className="flex flex-col gap-2 rounded-md border-sm border-border-default p-2">
+          {/* `ListItem` (dentro de `AssociateUsersCard`) sempre desenha `border-b`, inclusive
+          no último item — sem essa classe, a borda dele soma com a deste card e vira linha dupla. */}
+          <div className="flex flex-col gap-2 rounded-md border-sm border-border-default p-2 [&>*:last-child]:border-b-0">
             {loading ? (
               <Text variant="body-sm" tone="secondary" className="p-2">
                 Carregando representantes...
