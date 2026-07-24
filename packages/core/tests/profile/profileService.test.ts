@@ -165,6 +165,7 @@ const userByIdResponse: UserById = {
   email: 'carlos.lima@example.com',
   typeUser: 'TEACHER',
   active: true,
+  accountStatus: 'ACTIVE',
   createdAt: '2026-01-10T12:00:00.000Z',
 }
 

@@ -42,9 +42,17 @@ export function NotificationListItem({
   const iconName = iconMap[type] || 'bell'
   const iconColorClass = localIsRead ? 'text-text-disabled' : 'text-interactive-default'
 
+  // Abrir só exibe o modal — a leitura é confirmada ao fechar, para o usuário poder
+  // ler o corpo antes de o item sair da aba "Não Lidas".
   const handleOpenNotification = () => {
     setIsOpen(true)
-    
+  }
+
+  // Ao fechar o modal (X ou Esc), marca como lida uma única vez. O `onMarkAsRead`
+  // do consumidor persiste no back e some o item de "Não Lidas".
+  const handleCloseNotification = () => {
+    setIsOpen(false)
+
     if (!localIsRead) {
       setLocalIsRead(true)
       onMarkAsRead?.()
@@ -77,7 +85,7 @@ export function NotificationListItem({
       {/* Renderiza o componente isolado */}
       <DefaultModal
         isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
+        onClose={handleCloseNotification}
         title={title}
         body={body}
       />

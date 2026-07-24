@@ -12,6 +12,7 @@ const STUDENT: UserById = {
   email: 'aluno@teste.com',
   typeUser: 'STUDENT',
   active: true,
+  accountStatus: 'ACTIVE',
   createdAt: '2026-07-14T00:00:00Z',
 }
 

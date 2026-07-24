@@ -57,8 +57,24 @@ describe('isMembersDirty', () => {
 describe('excludeLinkedUsers', () => {
   it('tira da busca quem já está vinculado', () => {
     const users: DirectoryUser[] = [
-      { id: 'u1', name: 'Ana', email: 'ana@x.com', typeUser: 'STUDENT', active: true, createdAt: '2026-01-01' },
-      { id: 'u4', name: 'Duda', email: 'duda@x.com', typeUser: 'STUDENT', active: true, createdAt: '2026-01-01' },
+      {
+        id: 'u1',
+        name: 'Ana',
+        email: 'ana@x.com',
+        typeUser: 'STUDENT',
+        active: true,
+        accountStatus: 'ACTIVE',
+        createdAt: '2026-01-01',
+      },
+      {
+        id: 'u4',
+        name: 'Duda',
+        email: 'duda@x.com',
+        typeUser: 'STUDENT',
+        active: true,
+        accountStatus: 'ACTIVE',
+        createdAt: '2026-01-01',
+      },
     ]
 
     expect(excludeLinkedUsers(users, [aluno])).toEqual([users[1]])
@@ -96,6 +112,7 @@ describe('buildSearchResults', () => {
         email: 'caio@x.com',
         typeUser: 'TEACHER',
         active: true,
+        accountStatus: 'ACTIVE',
         createdAt: '2026-01-01',
       },
     ]
@@ -114,6 +131,7 @@ describe('buildSearchResults', () => {
       email: 'duda@x.com',
       typeUser: 'STUDENT',
       active: true,
+      accountStatus: 'ACTIVE',
       createdAt: '2026-01-01',
     }
     const users: DirectoryUser[] = [outro]
@@ -125,8 +143,24 @@ describe('buildSearchResults', () => {
 
   it('sem removidos pendentes, comporta-se como excludeLinkedUsers', () => {
     const users: DirectoryUser[] = [
-      { id: 'u1', name: 'Ana', email: 'ana@x.com', typeUser: 'STUDENT', active: true, createdAt: '2026-01-01' },
-      { id: 'u4', name: 'Duda', email: 'duda@x.com', typeUser: 'STUDENT', active: true, createdAt: '2026-01-01' },
+      {
+        id: 'u1',
+        name: 'Ana',
+        email: 'ana@x.com',
+        typeUser: 'STUDENT',
+        active: true,
+        accountStatus: 'ACTIVE',
+        createdAt: '2026-01-01',
+      },
+      {
+        id: 'u4',
+        name: 'Duda',
+        email: 'duda@x.com',
+        typeUser: 'STUDENT',
+        active: true,
+        accountStatus: 'ACTIVE',
+        createdAt: '2026-01-01',
+      },
     ]
 
     expect(buildSearchResults(users, [aluno], [])).toEqual([users[1]])
