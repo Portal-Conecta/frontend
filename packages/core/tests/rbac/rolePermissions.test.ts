@@ -30,6 +30,15 @@ describe('resolvePermissions', () => {
     }
   })
 
+  it('configurar janela de envio é só SENAI/WEG/ADMIN — TEACHER não (mesma allow-list do dashboard)', () => {
+    for (const role of ['STUDENT', 'REPRESENTATIVE', 'TEACHER'] as const) {
+      expect(resolvePermissions(role)).not.toContain('checklist:janelas')
+    }
+    for (const role of ['SENAI', 'WEG', 'ADMIN'] as const) {
+      expect(resolvePermissions(role)).toContain('checklist:janelas')
+    }
+  })
+
   it('gerenciar matrículas é só SENAI e ADMIN — WEG não', () => {
     expect(resolvePermissions('SENAI')).toContain('matriculas:gerenciar')
     expect(resolvePermissions('ADMIN')).toContain('matriculas:gerenciar')
