@@ -103,7 +103,8 @@ async function TurmaDetalhe({ classId, accessToken }: { classId: string; accessT
 
         <TurmaNavButton
           href={`/turmas/${classId}/membros`}
-          iconLeft="plus"
+          icon="plus"
+          aria-label="Gerenciar usuário da turma"
           size="xs"
           className="shrink-0"
         >
@@ -131,7 +132,8 @@ async function TurmaDetalhe({ classId, accessToken }: { classId: string; accessT
               <TurmaNavButton
                 href={`/turmas/${classId}/representantes`}
                 variant="outlined"
-                iconLeft="square-pen"
+                icon="square-pen"
+                aria-label="Alterar representantes"
                 size="xs"
                 className="shrink-0"
               >
