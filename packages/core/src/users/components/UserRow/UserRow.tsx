@@ -5,13 +5,16 @@
  *
  * Texto em `text-text-brand` (blue/500): Figma pede blue/700, sem token de texto
  * blue/700 — mesma dívida do CourseRow / DateInput (#241). Sem hex cru.
- * Status usa `Tag` (`positive`/`negative`, `size="sm"` → `label-xs`).
+ * Status usa `Tag` a partir do `accountStatus` (#535): `positive` Ativo,
+ * `negative` Inativo, `warning` Pendente de ativação — `size="sm"` → `label-xs`.
  */
+import { memo } from 'react'
+
 import { Button, Tag, Text } from '@portal/ui'
 
-import type { DirectoryUser } from '../../../classes/types'
+import type { DirectoryUser, UserAccountStatus } from '../../../classes/types'
 import { ROLE_LABELS } from '../../../profile/roleLabels'
-import { directoryUserStatusLabel } from '../../usersLabels'
+import { userAccountStatusTag } from '../../usersLabels'
 
 export interface UserRowProps {
   user: DirectoryUser
@@ -19,15 +22,22 @@ export interface UserRowProps {
   onViewProfile: (user: DirectoryUser) => void
 }
 
-function UserStatusTag({ active }: { active: boolean }) {
+function UserStatusTag({ status }: { status: UserAccountStatus }) {
+  const { tone, label } = userAccountStatusTag(status)
   return (
-    <Tag tone={active ? 'positive' : 'negative'} size="sm">
-      {directoryUserStatusLabel(active)}
+    <Tag tone={tone} size="sm">
+      {label}
     </Tag>
   )
 }
 
-export function UserRow({ user, onViewProfile }: UserRowProps) {
+/**
+ * Memoizado (#483): a lista pode ter até 50 linhas e `onViewProfile` chega
+ * estável (`useCallback` em `PageUsuariosContent`) — sem o memo, qualquer
+ * re-render do pai (ex.: cada tecla digitada na busca, antes do debounce)
+ * força o re-render de todas as linhas à toa.
+ */
+export const UserRow = memo(function UserRow({ user, onViewProfile }: UserRowProps) {
   const typeLabel = ROLE_LABELS[user.typeUser]
 
   return (
@@ -42,11 +52,11 @@ export function UserRow({ user, onViewProfile }: UserRowProps) {
         <Text as="span" variant="label-md-emphasis" tone="brand" className="truncate">
           {user.name}
         </Text>
-        <div className="flex flex-wrap items-center gap-2">
-          <Text as="span" variant="label-md" tone="brand">
+        <div className="flex items-center justify-between gap-2">
+          <Text as="span" variant="label-md" tone="brand" className="truncate">
             {typeLabel}
           </Text>
-          <UserStatusTag active={user.active} />
+          <UserStatusTag status={user.accountStatus} />
         </div>
       </button>
 
@@ -59,7 +69,7 @@ export function UserRow({ user, onViewProfile }: UserRowProps) {
           {typeLabel}
         </Text>
         <div className="flex justify-center">
-          <UserStatusTag active={user.active} />
+          <UserStatusTag status={user.accountStatus} />
         </div>
         <Button
           variant="outlined"
@@ -73,4 +83,4 @@ export function UserRow({ user, onViewProfile }: UserRowProps) {
       </div>
     </>
   )
-}
+})

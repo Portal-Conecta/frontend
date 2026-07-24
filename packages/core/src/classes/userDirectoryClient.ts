@@ -1,7 +1,7 @@
 import { bffFetch } from '../http/bffClient'
 import { buildQuery } from '../http/query'
 import type { TypeUser } from '../rbac'
-import type { ListUsersResponse } from './types'
+import type { ListUsersResponse, UserAccountStatus } from './types'
 
 /**
  * Client-side de busca de usuários do sistema (`GET /api/users`) — usada pela
@@ -16,6 +16,8 @@ export interface SearchUsersParams {
   size?: number
   /** Restringe alunos/representantes a quem não tem turma ativa (ignorado para outros `typeUser`). */
   withoutActiveClass?: boolean
+  /** Um ou mais status de conta; ausente preserva o padrão `ACTIVE` do backend. */
+  status?: UserAccountStatus[]
 }
 
 export function searchUsersClient(params: SearchUsersParams = {}): Promise<ListUsersResponse> {
@@ -25,6 +27,7 @@ export function searchUsersClient(params: SearchUsersParams = {}): Promise<ListU
     page: params.page,
     size: params.size,
     withoutActiveClass: params.withoutActiveClass,
+    status: params.status,
   })
   return bffFetch<ListUsersResponse>(`/api/users${query}`)
 }

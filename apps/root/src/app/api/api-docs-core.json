@@ -3218,12 +3218,13 @@
                     },
                     "type": {
                         "type": "string",
-                        "description": "Tipo da sala. Valores aceitos: classroom, laboratory, auditorium, other.",
+                        "description": "Tipo da sala. Valores aceitos: classroom, electrotechnics_laboratory, electronics_laboratory, computer_laboratory, cnc_simulation.",
                         "enum": [
                             "CLASSROOM",
-                            "LABORATORY",
-                            "AUDITORIUM",
-                            "OTHER"
+                            "ELECTROTECHNICS_LABORATORY",
+                            "ELECTRONICS_LABORATORY",
+                            "COMPUTER_LABORATORY",
+                            "CNC_SIMULATION"
                         ],
                         "example": "classroom"
                     }
@@ -3248,9 +3249,10 @@
                         "type": "string",
                         "enum": [
                             "CLASSROOM",
-                            "LABORATORY",
-                            "AUDITORIUM",
-                            "OTHER"
+                            "ELECTROTECHNICS_LABORATORY",
+                            "ELECTRONICS_LABORATORY",
+                            "COMPUTER_LABORATORY",
+                            "CNC_SIMULATION"
                         ]
                     },
                     "status": {
@@ -3277,9 +3279,10 @@
                         "type": "string",
                         "enum": [
                             "CLASSROOM",
-                            "LABORATORY",
-                            "AUDITORIUM",
-                            "OTHER"
+                            "ELECTROTECHNICS_LABORATORY",
+                            "ELECTRONICS_LABORATORY",
+                            "COMPUTER_LABORATORY",
+                            "CNC_SIMULATION"
                         ]
                     },
                     "deletedAt": {
@@ -3344,9 +3347,10 @@
                         "type": "string",
                         "enum": [
                             "CLASSROOM",
-                            "LABORATORY",
-                            "AUDITORIUM",
-                            "OTHER"
+                            "ELECTROTECHNICS_LABORATORY",
+                            "ELECTRONICS_LABORATORY",
+                            "COMPUTER_LABORATORY",
+                            "CNC_SIMULATION"
                         ]
                     },
                     "status": {
@@ -3826,14 +3830,15 @@
                     },
                     "type": {
                         "type": "string",
-                        "description": "Tipo da sala. Valores aceitos: CLASSROOM, LABORATORY, AUDITORIUM, OTHER",
+                        "description": "Tipo da sala. Valores aceitos: CLASSROOM, ELECTROTECHNICS_LABORATORY, ELECTRONICS_LABORATORY, COMPUTER_LABORATORY, CNC_SIMULATION",
                         "enum": [
                             "CLASSROOM",
-                            "LABORATORY",
-                            "AUDITORIUM",
-                            "OTHER"
+                            "ELECTROTECHNICS_LABORATORY",
+                            "ELECTRONICS_LABORATORY",
+                            "COMPUTER_LABORATORY",
+                            "CNC_SIMULATION"
                         ],
-                        "example": "LABORATORY"
+                        "example": "ELECTROTECHNICS_LABORATORY"
                     }
                 }
             },

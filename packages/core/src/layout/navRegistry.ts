@@ -22,8 +22,8 @@ export const NAV_REGISTRY: readonly NavEntry[] = [
   { key: 'comunicados', icon: 'newspaper', label: 'Comunicados', href: '/comunicados' },
   { key: 'mapa-salas', icon: 'map', label: 'Mapa de Sala', href: '/mapa-salas' },
   { key: 'checklist', icon: 'clipboard-list', label: 'Checklist', href: '/checklist', requires: 'checklist:ver' },
-  { key: 'usuarios', icon: 'users', label: 'Usuários', href: '/usuarios', requires: 'usuarios:gerenciar' },
-  { key: 'turma', icon: 'users', label: 'Geren. Turmas', href: '/turmas', requires: 'turmas:gerenciar' },
+  { key: 'usuarios', icon: 'user-cog', label: 'Usuários', href: '/usuarios', requires: 'usuarios:gerenciar' },
+  { key: 'turma', icon: 'users', label: 'Turmas', href: '/turmas', requires: 'turmas:gerenciar' },
   { key: 'cursos', icon: 'graduation-cap', label: 'Cursos', href: '/cursos', requires: 'cursos:gerenciar' },
 ]
 

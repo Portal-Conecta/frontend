@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 
-import { Button, EmptyState, Skeleton, Text } from "@portal/ui";
+import { Button, EmptyState, Text } from "@portal/ui";
 
 import { ChecklistErrorState } from "../../../components/ChecklistErrorState";
 import type { SectionTab } from "../../../components/SectionTabs";
@@ -11,16 +11,17 @@ import { findActiveTemplateByRoomClient } from "../../../services/client/templat
 import type { ClassSelection } from "../../../services/resolveClassSelection";
 import type { ChecklistTemplateResponse } from "../../../types/template";
 import { FillChecklistPage } from "../FillChecklistPage";
+import { FillChecklistSkeleton } from "../FillChecklistPage/FillChecklistSkeleton";
 import { SelectRoomPage } from "../SelectRoomPage";
 
 export interface ChecklistFlowProps {
   selection: ClassSelection;
-  /** Nome da turma quando a seleção é `fixed` (turma única já resolvida). */
+  /** Nome da turma quando a seleção é fixed (turma única já resolvida). */
   fixedClassName?: string;
 
   /**
    * Gestão (SENAI/WEG/ADMIN): abas de navegação do módulo no topo, já
-   * resolvidas por papel (`resolveChecklistSectionTabs`). Ausente/vazio para
+   * resolvidas por papel (resolveChecklistSectionTabs). Ausente/vazio para
    * representante/professor, que não precisam do componente.
    */
   sectionTabs?: readonly SectionTab[];
@@ -43,7 +44,7 @@ export function ChecklistFlow({
   const [noTemplateRoom, setNoTemplateRoom] = useState(false);
 
   const tabs = sectionTabs?.length ? (
-    <SectionTabs tabs={[...sectionTabs]} className="px-3 md:px-6" />
+    <SectionTabs tabs={[...sectionTabs]} />
   ) : null;
 
   const resetToRoomSelection = () => {
@@ -87,12 +88,8 @@ export function ChecklistFlow({
       </div>
     );
   } else if (loadingTemplate) {
-    content = (
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 px-3">
-        <Skeleton variant="text" width={280} height={24} />
-        <Skeleton variant="rect" width={320} height={200} />
-      </div>
-    );
+    // Mesma estrutura da tela de preenchimento (header + turma + itens + footer).
+    content = <FillChecklistSkeleton />;
   } else if (error) {
     content = (
       <div className="flex flex-1 items-center justify-center">
@@ -136,7 +133,8 @@ export function ChecklistFlow({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="pt-3 md:pt-6">{tabs}</div>
+      {/* O padding lateral (px-6 md:px-8) no container delimita a largura máxima da linha cinza */}
+      <div className="px-6 pt-6 md:px-8 md:pt-8">{tabs}</div>
       <div className="flex flex-1 flex-col overflow-hidden">{content}</div>
     </div>
   );

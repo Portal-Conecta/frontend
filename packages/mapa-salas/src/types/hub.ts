@@ -9,7 +9,12 @@ import type { HubShift } from '@portal/shared'
  * contrato de dados — ver PageMapaSalasContent.tsx.
  */
 
-export type HubRoomType = 'CLASSROOM' | 'LABORATORY' | 'AUDITORIUM' | 'OTHER'
+export type HubRoomType =
+  | 'CLASSROOM'
+  | 'ELECTROTECHNICS_LABORATORY'
+  | 'ELECTRONICS_LABORATORY'
+  | 'COMPUTER_LABORATORY'
+  | 'CNC_SIMULATION'
 
 export interface HubRoom {
   id: string

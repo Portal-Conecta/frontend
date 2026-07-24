@@ -3,9 +3,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { HttpError } from '@portal/core/http/errors'
 import {
   createUser,
+  deactivateUser,
+  deleteUser,
   getMyCourses,
   getMyProfile,
   getUserById,
+  reactivateUser,
   updateUser,
 } from '@portal/core/profile/profileService'
 import type {
@@ -14,6 +17,7 @@ import type {
   MyProfile,
   UpdateUserPayload,
   UserById,
+  UserLifecycleResult,
 } from '@portal/core/profile/types'
 
 const API_GATEWAY_URL = 'https://gateway.test'
@@ -161,6 +165,7 @@ const userByIdResponse: UserById = {
   email: 'carlos.lima@example.com',
   typeUser: 'TEACHER',
   active: true,
+  accountStatus: 'ACTIVE',
   createdAt: '2026-01-10T12:00:00.000Z',
 }
 
@@ -238,5 +243,155 @@ describe('updateUser', () => {
     expect(init?.method).toBe('PATCH')
     expect(init?.headers).toMatchObject({ Authorization: `Bearer ${TOKEN}` })
     expect(init?.body).toBe(JSON.stringify(payload))
+  })
+})
+
+const lifecycleResponse: UserLifecycleResult = {
+  id: userByIdResponse.id,
+  accountStatus: 'DISABLED',
+  deletedAt: null,
+}
+
+describe('deactivateUser', () => {
+  it('envia POST para /hub/users/{id}/deactivate', async () => {
+    const fetchMock = stubFetch()
+    fetchMock.mockResolvedValue(response(200, lifecycleResponse))
+
+    await expect(deactivateUser(userByIdResponse.id, TOKEN)).resolves.toEqual(lifecycleResponse)
+
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe(`${API_GATEWAY_URL}/hub/users/${userByIdResponse.id}/deactivate`)
+    expect(init?.method).toBe('POST')
+    expect(init?.headers).toMatchObject({ Authorization: `Bearer ${TOKEN}` })
+  })
+
+  it('mapeia 404 para HttpError not_found', async () => {
+    stubFetch().mockResolvedValue(response(404, {}))
+
+    await expect(deactivateUser(userByIdResponse.id, TOKEN)).rejects.toMatchObject({
+      kind: 'not_found',
+    })
+  })
+
+  it('mapeia 401 para HttpError unauthorized', async () => {
+    stubFetch().mockResolvedValue(response(401, {}))
+
+    await expect(deactivateUser(userByIdResponse.id, TOKEN)).rejects.toMatchObject({
+      kind: 'unauthorized',
+    })
+  })
+
+  it('mapeia 500 para HttpError server', async () => {
+    stubFetch().mockResolvedValue(response(500, {}))
+
+    await expect(deactivateUser(userByIdResponse.id, TOKEN)).rejects.toMatchObject({
+      kind: 'server',
+    })
+  })
+
+  it('mapeia falha de rede para HttpError network', async () => {
+    stubFetch().mockRejectedValue(new TypeError('fetch failed'))
+
+    const error = await deactivateUser(userByIdResponse.id, TOKEN).catch((e) => e)
+    expect(error).toBeInstanceOf(HttpError)
+    expect(error).toMatchObject({ kind: 'network' })
+  })
+})
+
+describe('reactivateUser', () => {
+  it('envia POST para /hub/users/{id}/reactivate', async () => {
+    const fetchMock = stubFetch()
+    const activeResponse: UserLifecycleResult = { ...lifecycleResponse, accountStatus: 'ACTIVE' }
+    fetchMock.mockResolvedValue(response(200, activeResponse))
+
+    await expect(reactivateUser(userByIdResponse.id, TOKEN)).resolves.toEqual(activeResponse)
+
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe(`${API_GATEWAY_URL}/hub/users/${userByIdResponse.id}/reactivate`)
+    expect(init?.method).toBe('POST')
+    expect(init?.headers).toMatchObject({ Authorization: `Bearer ${TOKEN}` })
+  })
+
+  it('mapeia 404 para HttpError not_found', async () => {
+    stubFetch().mockResolvedValue(response(404, {}))
+
+    await expect(reactivateUser(userByIdResponse.id, TOKEN)).rejects.toMatchObject({
+      kind: 'not_found',
+    })
+  })
+
+  it('mapeia 401 para HttpError unauthorized', async () => {
+    stubFetch().mockResolvedValue(response(401, {}))
+
+    await expect(reactivateUser(userByIdResponse.id, TOKEN)).rejects.toMatchObject({
+      kind: 'unauthorized',
+    })
+  })
+
+  it('mapeia 500 para HttpError server', async () => {
+    stubFetch().mockResolvedValue(response(500, {}))
+
+    await expect(reactivateUser(userByIdResponse.id, TOKEN)).rejects.toMatchObject({
+      kind: 'server',
+    })
+  })
+
+  it('mapeia falha de rede para HttpError network', async () => {
+    stubFetch().mockRejectedValue(new TypeError('fetch failed'))
+
+    const error = await reactivateUser(userByIdResponse.id, TOKEN).catch((e) => e)
+    expect(error).toBeInstanceOf(HttpError)
+    expect(error).toMatchObject({ kind: 'network' })
+  })
+})
+
+describe('deleteUser', () => {
+  it('envia DELETE para /hub/users/{id}', async () => {
+    const fetchMock = stubFetch()
+    const pendingDeletionResponse: UserLifecycleResult = {
+      ...lifecycleResponse,
+      accountStatus: 'PENDING_DELETION',
+      deletedAt: '2026-07-22T12:00:00.000Z',
+    }
+    fetchMock.mockResolvedValue(response(200, pendingDeletionResponse))
+
+    await expect(deleteUser(userByIdResponse.id, TOKEN)).resolves.toEqual(pendingDeletionResponse)
+
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe(`${API_GATEWAY_URL}/hub/users/${userByIdResponse.id}`)
+    expect(init?.method).toBe('DELETE')
+    expect(init?.headers).toMatchObject({ Authorization: `Bearer ${TOKEN}` })
+  })
+
+  it('mapeia 404 para HttpError not_found', async () => {
+    stubFetch().mockResolvedValue(response(404, {}))
+
+    await expect(deleteUser(userByIdResponse.id, TOKEN)).rejects.toMatchObject({
+      kind: 'not_found',
+    })
+  })
+
+  it('mapeia 401 para HttpError unauthorized', async () => {
+    stubFetch().mockResolvedValue(response(401, {}))
+
+    await expect(deleteUser(userByIdResponse.id, TOKEN)).rejects.toMatchObject({
+      kind: 'unauthorized',
+    })
+  })
+
+  it('mapeia 500 para HttpError server', async () => {
+    stubFetch().mockResolvedValue(response(500, {}))
+
+    await expect(deleteUser(userByIdResponse.id, TOKEN)).rejects.toMatchObject({
+      kind: 'server',
+    })
+  })
+
+  it('mapeia falha de rede para HttpError network', async () => {
+    stubFetch().mockRejectedValue(new TypeError('fetch failed'))
+
+    const error = await deleteUser(userByIdResponse.id, TOKEN).catch((e) => e)
+    expect(error).toBeInstanceOf(HttpError)
+    expect(error).toMatchObject({ kind: 'network' })
   })
 })

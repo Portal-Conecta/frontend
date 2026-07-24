@@ -2,11 +2,9 @@ import { redirect } from 'next/navigation'
 
 import { getSession } from '../auth/session'
 import { HttpError } from '../http/errors'
-import { MarkPageAsRead } from '../notifications/components/MarkPageAsRead'
 import { NotificationsFilters } from '../notifications/components/NotificationsFilters'
 import { NotificationsList } from '../notifications/components/NotificationsList'
 import { NotificationsPagination } from '../notifications/components/NotificationsPagination'
-import { UnreadBatchControls } from '../notifications/components/UnreadBatchControls'
 import { DEFAULT_PAGE_SIZE, getNotifications } from '../notifications/notificationService'
 import type { NotificationStatus } from '../notifications/types'
 
@@ -27,7 +25,11 @@ export async function PageNotifications({ searchParams }: PageNotificationsProps
   const parsedSize = parseIndex(params.size, DEFAULT_PAGE_SIZE)
   const size = parsedSize > 0 ? parsedSize : DEFAULT_PAGE_SIZE
 
-  const page = status === 'READ' ? parseIndex(params.page, 0) : 0
+  // Ambas as abas paginam por offset. Antes a aba "Não Lidas" fixava page 0
+  // porque abrir a tela marcava o lote inteiro como lido e a fatia seguinte
+  // voltava a ser a 0; agora a leitura é por clique, então ela navega por página
+  // como a aba "Lidas".
+  const page = parseIndex(params.page, 0)
 
   const accessToken = await getSession()
   if (!accessToken) {
@@ -44,9 +46,6 @@ export async function PageNotifications({ searchParams }: PageNotificationsProps
     throw err
   }
 
-  const unreadIds =
-    status === 'UNREAD' ? data.content.map((notification) => notification.notificationId) : []
-
   return (
     <div className="mx-auto flex w-full max-w-[1024px] flex-col p-6 md:p-8">
       {/* Cabeçalho */}
@@ -59,19 +58,12 @@ export async function PageNotifications({ searchParams }: PageNotificationsProps
 
         <NotificationsFilters activeStatus={status} />
 
-        {status === 'UNREAD' ? (
-          <>
-            <UnreadBatchControls shown={data.content.length} totalElements={data.totalElements} />
-            {unreadIds.length > 0 && <MarkPageAsRead notificationIds={unreadIds} />}
-          </>
-        ) : (
-          <NotificationsPagination
-            page={data.page ?? page}
-            totalPages={data.totalPages ?? 0}
-            totalElements={data.totalElements ?? 0}
-            size={data.size ?? size}
-          />
-        )}
+        <NotificationsPagination
+          page={data.page ?? page}
+          totalPages={data.totalPages ?? 0}
+          totalElements={data.totalElements ?? 0}
+          size={data.size ?? size}
+        />
       </div>
       </div>
 

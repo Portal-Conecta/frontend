@@ -112,6 +112,8 @@ export const SelectList = forwardRef<HTMLUListElement, SelectListProps>(function
       aria-busy={loading || undefined}
       className={[
         'absolute left-0 right-0 z-50 mt-2 max-h-60 w-full overflow-auto',
+        // Rola normalmente, mas sem a barra visível (mesmo padrão do SectionTabs).
+        '[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
         'rounded-md border-sm border-border-default bg-background-surface',
         'divide-y divide-border-default',
         'origin-top transition duration-150 ease-out',

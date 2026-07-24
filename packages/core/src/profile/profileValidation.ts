@@ -45,6 +45,9 @@ export function parseCreateUser(input: unknown): ParseResult<CreateUserPayload> 
     errors.push({ field: 'typeUser', message: 'Tipo é obrigatório.' })
   } else if (!validTypeUser) {
     errors.push({ field: 'typeUser', message: `Tipo deve ser um de: ${TYPE_USER_VALUES.join(', ')}.` })
+  } else if (validTypeUser === 'REPRESENTATIVE') {
+    // REPRESENTATIVE não nasce na criação (#502) — é promoção de um STUDENT já existente numa turma.
+    errors.push({ field: 'typeUser', message: 'Representante não pode ser criado diretamente.' })
   }
 
   if (errors.length > 0) return { ok: false, errors }

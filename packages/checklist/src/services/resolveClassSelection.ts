@@ -17,7 +17,9 @@ function classIdsWithRole(user: CurrentUser, role: ClassRole): string[] {
   return user.classes.filter((c) => c.role === role).map((c) => c.classId);
 }
 
-export function resolveClassSelection(user: CurrentUser | null): ClassSelection {
+export function resolveClassSelection(
+  user: CurrentUser | null,
+): ClassSelection {
   if (!user) {
     return { mode: "none" };
   }

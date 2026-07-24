@@ -4,10 +4,10 @@ import { Button, Text } from "@portal/ui";
 import { useId, useState } from "react";
 
 import type { IssueStatus } from "../../types/issue";
-
-/** Colunas desktop compartilhadas entre o cabeçalho e cada linha da lista. */
-export const NON_CONFORMITY_LIST_GRID_CLASS =
-  "lg:grid-cols-[repeat(5,minmax(0,1fr))_auto] lg:items-center lg:gap-x-6";
+import {
+  CHECKLIST_TABLE_BUTTON_COLUMN_CLASS,
+  CHECKLIST_TABLE_GRID_CLASS,
+} from "../../utils/checklistTableLayout";
 
 /** Cabeçalho das colunas da lista de não conformidades (desktop). */
 export function ChecklistNonConformityListHeader({
@@ -19,7 +19,7 @@ export function ChecklistNonConformityListHeader({
     <div
       className={[
         "hidden border-t border-border-default p-3 lg:grid lg:p-4",
-        NON_CONFORMITY_LIST_GRID_CLASS,
+        CHECKLIST_TABLE_GRID_CLASS,
         className,
       ]
         .filter(Boolean)
@@ -45,13 +45,6 @@ export function ChecklistNonConformityListHeader({
         tone="brand"
         className="min-w-0 truncate text-left"
       >
-        Tipo
-      </Text>
-      <Text
-        variant="label-md-emphasis"
-        tone="brand"
-        className="min-w-0 truncate text-left"
-      >
         Enviado
       </Text>
       <Text
@@ -61,7 +54,7 @@ export function ChecklistNonConformityListHeader({
       >
         Turma
       </Text>
-      <span className="block w-[11rem]" aria-hidden />
+      <span className={`block ${CHECKLIST_TABLE_BUTTON_COLUMN_CLASS}`} aria-hidden />
     </div>
   );
 }
@@ -69,7 +62,6 @@ export function ChecklistNonConformityListHeader({
 export interface ChecklistNonConformityCardProps {
   room: string;
   category: string;
-  checklistType: string;
   submittedDate: string;
   submittedTime: string;
   group: string;
@@ -94,7 +86,6 @@ export interface ChecklistNonConformityCardProps {
 export function ChecklistNonConformityCard({
   room,
   category,
-  checklistType,
   submittedDate,
   submittedTime,
   group,
@@ -131,8 +122,8 @@ export function ChecklistNonConformityCard({
     >
       <div
         className={[
-          "flex flex-col gap-4 p-3 md:p-4 lg:grid",
-          NON_CONFORMITY_LIST_GRID_CLASS,
+          "flex flex-col gap-4 p-3 lg:p-4 lg:grid",
+          CHECKLIST_TABLE_GRID_CLASS,
         ].join(" ")}
         role="row"
       >
@@ -150,7 +141,7 @@ export function ChecklistNonConformityCard({
               variant="label-sm-emphasis"
               className="text-interactive-hover"
             >
-              {room} - {checklistType}
+              {room}
             </Text>
 
             <Text variant="label-xs" className="text-interactive-hover">
@@ -175,13 +166,6 @@ export function ChecklistNonConformityCard({
           className="hidden min-w-0 truncate text-interactive-hover lg:block lg:text-left"
         >
           {category}
-        </Text>
-
-        <Text
-          variant="label-md"
-          className="hidden min-w-0 truncate text-interactive-hover lg:block lg:text-left"
-        >
-          {checklistType}
         </Text>
 
         <Text

@@ -16,7 +16,8 @@ export function parsePerformancePorTurno(data: StatsEntry[]): {
   for (const entry of data) {
     const [shift, bucket] = entry.label.split("|");
     if (!shift || !bucket) continue;
-    if (bucket !== "ok" && bucket !== "atencao" && bucket !== "critico") continue;
+    if (bucket !== "ok" && bucket !== "atencao" && bucket !== "critico")
+      continue;
 
     const current = byShift.get(shift) ?? { ok: 0, atencao: 0, critico: 0 };
     current[bucket] += entry.value;

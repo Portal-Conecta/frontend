@@ -1,4 +1,7 @@
-import type { ChecklistType, SubmissionWindowResponse } from "../types/submissionWindow";
+import type {
+  ChecklistType,
+  SubmissionWindowResponse,
+} from "../types/submissionWindow";
 
 function toMinutes(hhmm: string): number {
   const [hours, minutes] = hhmm.split(":").map(Number);
@@ -36,5 +39,7 @@ export function resolveChecklistType(
   windows: SubmissionWindowResponse[],
   now: Date = new Date(),
 ): ChecklistType | null {
-  return findOpenChecklistType(windows, now) ?? windows[0]?.checklistType ?? null;
+  return (
+    findOpenChecklistType(windows, now) ?? windows[0]?.checklistType ?? null
+  );
 }

@@ -14,7 +14,7 @@ export interface UsersListFilters {
   status?: UserAccountStatus
 }
 
-export const DEFAULT_USERS_PAGE_SIZE = 50
+export const DEFAULT_USERS_PAGE_SIZE = 20
 
 /**
  * Monta params do `GET /users` a partir da busca + filtros da UI.

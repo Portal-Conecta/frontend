@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   applyTurmaFilters,
+  courseOptionsFromCourses,
   filterTurmas,
   toTurmaRows,
   turmaFilterOptions,
@@ -110,5 +111,20 @@ describe('turmaFilterOptions', () => {
   it('não repete valores quando várias turmas compartilham curso/turno', () => {
     const repeated = toTurmaRows(courses, [classes[0]!, classes[0]!])
     expect(turmaFilterOptions(repeated).courses).toEqual(['Desenvolvimento de Sistemas'])
+  })
+})
+
+describe('courseOptionsFromCourses', () => {
+  it('deriva nomes de curso distintos, ordenados em PT-BR', () => {
+    expect(courseOptionsFromCourses(courses)).toEqual([
+      'Desenvolvimento de Sistemas',
+      'Redes de Computadores',
+    ])
+  })
+
+  it('cobre cursos sem nenhuma turma na página atual — diferença do turmaFilterOptions', () => {
+    // Curso sem turma nesta página ainda entra na opção (fonte é `courses[]`, não as linhas).
+    const semTurma = { id: 'c3', name: 'Automação Industrial', code: 'MIAI' }
+    expect(courseOptionsFromCourses([...courses, semTurma])).toContain('Automação Industrial')
   })
 })

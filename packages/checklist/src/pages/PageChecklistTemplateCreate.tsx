@@ -11,16 +11,17 @@ import { redirect } from "next/navigation";
 
 import { getCurrentUser } from "@portal/core/auth/getCurrentUser";
 import { getSession } from "@portal/core/auth/session";
+import { HttpError } from "@portal/core/http/errors";
 import { ERROR_PRESENTATION } from "@portal/core/http/errorPresentation";
 import { PermissionGate } from "@portal/core";
 import { ErrorPage } from "@portal/ui";
 
-import { listHubRooms } from "../services/server/hubRoomService";
+import { getHubRoom } from "../services/server/hubRoomService";
 import { roomTypeLabel } from "../utils/roomLabel";
 import { PageChecklistTemplateManagerContent } from "./PageChecklistTemplateManagerContent";
 
 /**
- * Sala já vem de dado real (`listHubRooms`). "Salvar alterações" cria o
+ * Sala já vem de dado real (`getHubRoom`). "Salvar alterações" cria o
  * template como DRAFT (`createTemplate`) e ativa em seguida (`activateTemplate`).
  * Sem seletor de categoria na UI ainda — usa `GERAL` como padrão.
  */
@@ -46,13 +47,18 @@ export async function PageChecklistTemplateCreate({
 }
 
 async function TemplateCreateData({ roomId }: { roomId: string }) {
-  const rooms = await listHubRooms();
-  const room = rooms.find((r) => r.id === roomId);
+  // Busca direta por id (não `listHubRooms` + `.find`): essa lista só traz
+  // salas ativas, então uma sala desativada faria essa página 404 mesmo
+  // existindo (#526 review).
+  const room = await getHubRoom(roomId).catch((err: unknown) => {
+    if (err instanceof HttpError && err.kind === "not_found") return null;
+    throw err;
+  });
   if (!room) {
     return <ErrorPage {...ERROR_PRESENTATION.not_found} />;
   }
 
-  const roomLabel = `${room.number} - ${roomTypeLabel(room.typeRoom)}`;
+  const roomLabel = `${room.number} ${roomTypeLabel(room.typeRoom)}`;
 
   return (
     <PageChecklistTemplateManagerContent

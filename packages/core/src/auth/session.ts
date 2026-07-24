@@ -17,7 +17,9 @@ const REFRESH_MAX_AGE = 60 * 60 * 24 * 7
 
 export async function setSession({ accessToken, refreshToken, expiresIn }: LoginResponse): Promise<void> {
     const store = await cookies()
-    const secure = process.env.NODE_ENV === 'production'
+    const secure = process.env.COOKIE_SECURE
+        ? process.env.COOKIE_SECURE === 'true'
+        : process.env.NODE_ENV === 'production'
     const accessMaxAge = expiresIn > 0 ? expiresIn : 900
 
     store.set(ACCESS_COOKIE, accessToken, {

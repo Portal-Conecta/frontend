@@ -72,8 +72,8 @@ export function AppHeader({
   className,
 }: AppHeaderProps) {
   const sidebarWidth = sidebarExpanded ? SIDEBAR_WIDTH_EXPANDED : SIDEBAR_WIDTH_COLLAPSED
-  // Alinha a logo ao recuo dos itens de nav do rail (SidebarNavItem: pl-4 expandido / pl-6 colapsado).
-  const logoPadding = sidebarExpanded ? 'pl-4' : 'pl-6'
+  // Alinha a logo ao recuo dos itens de nav do rail (SidebarNavItem: pl-2 expandido / pl-3 colapsado).
+  const logoPadding = sidebarExpanded ? 'pl-3' : 'pl-3'
 
   const actions: ActionItem[] = [
     {
@@ -113,7 +113,7 @@ export function AppHeader({
       </div>
 
       {/* Linha principal: logo-mark (mobile/tablet) + ações à direita */}
-      <div className="flex flex-1 items-center px-6 lg:px-10">
+      <div className="flex flex-1 items-center px-6 lg:px-5">
         <button
           type="button"
           onClick={onLogoClick}

@@ -6,6 +6,7 @@ import type {
   MyProfile,
   UpdateUserPayload,
   UserById,
+  UserLifecycleResult,
 } from './types'
 
 const http = createHttpClient('API_GATEWAY_URL')
@@ -45,5 +46,28 @@ export function updateUser(
   return http.patch<UserById>(hubGatewayPath(`/users/${encodeURIComponent(userId)}`), {
     token,
     body: payload,
+  })
+}
+
+/** Desativa um usuário (#442) — bloqueia login, reversível via `reactivateUser`. */
+export function deactivateUser(userId: string, token: string): Promise<UserLifecycleResult> {
+  return http.post<UserLifecycleResult>(
+    hubGatewayPath(`/users/${encodeURIComponent(userId)}/deactivate`),
+    { token },
+  )
+}
+
+/** Reativa um usuário previamente desativado (#442). */
+export function reactivateUser(userId: string, token: string): Promise<UserLifecycleResult> {
+  return http.post<UserLifecycleResult>(
+    hubGatewayPath(`/users/${encodeURIComponent(userId)}/reactivate`),
+    { token },
+  )
+}
+
+/** Marca um usuário para exclusão (#442) — `PENDING_DELETION`, preenche `deletedAt` para purge futuro. */
+export function deleteUser(userId: string, token: string): Promise<UserLifecycleResult> {
+  return http.delete<UserLifecycleResult>(hubGatewayPath(`/users/${encodeURIComponent(userId)}`), {
+    token,
   })
 }

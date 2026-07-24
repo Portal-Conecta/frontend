@@ -84,9 +84,21 @@ export function applyTurmaFilters(rows: TurmaRow[], filters: TurmaFilters): Turm
  * Opções distintas de curso e turno derivadas das linhas, ordenadas em PT-BR.
  * Alimentam os dropdowns; derive sempre da lista completa (não da filtrada) para
  * as opções ficarem estáveis enquanto se filtra.
+ *
+ * @deprecated Só funciona quando `rows` é a lista completa — a listagem paginada
+ * (`listTurmasPage`) só tem a página atual em mãos. Use `courseOptionsFromCourses`
+ * + `HUB_SHIFT_LABELS` (fontes independentes de paginação) no lugar.
  */
 export function turmaFilterOptions(rows: TurmaRow[]): { courses: string[]; shifts: string[] } {
   const courses = [...new Set(rows.map((row) => row.course))].sort((a, b) => a.localeCompare(b, 'pt-BR'))
   const shifts = [...new Set(rows.map((row) => row.shift))].sort((a, b) => a.localeCompare(b, 'pt-BR'))
   return { courses, shifts }
+}
+
+/**
+ * Nomes de curso para o dropdown de filtro, derivados de `courses[]` (não das
+ * linhas carregadas) — única fonte que continua completa com a listagem paginada.
+ */
+export function courseOptionsFromCourses(courses: Course[]): string[] {
+  return [...new Set(courses.map((course) => course.name))].sort((a, b) => a.localeCompare(b, 'pt-BR'))
 }

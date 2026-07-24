@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Button, DateInput, Text } from "@portal/ui";
+import { Button, DateInput, EmptyState, Field, Icon, Text } from "@portal/ui";
 
 import {
   ChecklistDashboardCharts,
@@ -59,7 +59,6 @@ export function PageChecklistDashboardContent({
       try {
         const data = await fetchDashboardStats({ from, to });
         setStats(data);
-        // Alinha inputs ao período efetivo resolvido no backend
         if (data.periodo?.from && data.periodo?.to) {
           setPeriod({ from: data.periodo.from, to: data.periodo.to });
         }
@@ -75,7 +74,6 @@ export function PageChecklistDashboardContent({
     [useMock],
   );
 
-  // Carga inicial: `load` só muda com useMock; período só no botão Filtrar.
   useEffect(() => {
     void load(period.from, period.to);
   }, [load]);
@@ -93,61 +91,34 @@ export function PageChecklistDashboardContent({
       : `${formatIsoDatePt(period.from)} → ${formatIsoDatePt(period.to)}`;
 
   return (
-    <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-8">
+    <div className="flex flex-col gap-6 p-6 md:p-8">
       {/* Abas do módulo — acima do título do dashboard */}
       {sectionTabs.length > 0 ? <SectionTabs tabs={[...sectionTabs]} /> : null}
 
-      <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div className="flex flex-col gap-2">
-          <Text as="h1" variant="heading-h1" tone="primary">
-            Dashboard dos Checklists
-          </Text>
-          <Text variant="body-md" tone="secondary">
-            Visão gerencial de execuções e pendências no período selecionado.
-          </Text>
-          <Text variant="label-xs" tone="secondary">
-            Período efetivo: {periodLabel}
-            {useMock ? " · demo" : ""}
-          </Text>
-        </div>
+      <header className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+        <Text as="h1" variant="heading-h2" tone="brand">
+          Dashboard dos Checklists
+        </Text>
 
-        <div className="flex flex-col items-stretch gap-2 sm:items-end">
+        <div className="flex flex-col items-stretch gap-2 xl:items-end">
           <div className="flex flex-wrap items-end gap-3">
-            <div className="flex flex-col gap-1">
-              <Text
-                as="span"
-                id="dashboard-period-from-label"
-                variant="label-xs"
-                tone="secondary"
-              >
-                De
-              </Text>
+            <Field label="De">
               <DateInput
                 value={period.from}
                 max={period.to || toLocalMax()}
                 onChange={(from) => setPeriod((p) => ({ ...p, from }))}
-                aria-labelledby="dashboard-period-from-label"
                 disabled={loading}
               />
-            </div>
-            <div className="flex flex-col gap-1">
-              <Text
-                as="span"
-                id="dashboard-period-to-label"
-                variant="label-xs"
-                tone="secondary"
-              >
-                Até
-              </Text>
+            </Field>
+            <Field label="Até">
               <DateInput
                 value={period.to}
                 {...(period.from ? { min: period.from } : {})}
                 max={toLocalMax()}
                 onChange={(to) => setPeriod((p) => ({ ...p, to }))}
-                aria-labelledby="dashboard-period-to-label"
                 disabled={loading}
               />
-            </div>
+            </Field>
             <Button
               variant="solid"
               tone="brand"
@@ -155,6 +126,7 @@ export function PageChecklistDashboardContent({
               onClick={() => void load(period.from, period.to)}
               iconLeft="funnel"
               disabled={loading}
+              className="h-11"
             >
               Filtrar
             </Button>
@@ -172,14 +144,15 @@ export function PageChecklistDashboardContent({
       </header>
 
       {error ? (
-        <div
-          role="alert"
-          className="rounded-md border border-feedback-error/40 bg-background-surface px-4 py-3"
-        >
-          <Text variant="body-sm" tone="primary">
-            {error}
-          </Text>
-          <div className="mt-3">
+        <EmptyState
+          title="Não foi possível carregar o dashboard"
+          description={error}
+          illustration={
+            <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-interactive-subtle text-interactive-default">
+              <Icon name="triangle-alert" size="lg" decorative />
+            </span>
+          }
+          action={
             <Button
               variant="outlined"
               tone="brand"
@@ -188,28 +161,24 @@ export function PageChecklistDashboardContent({
             >
               Tentar novamente
             </Button>
-          </div>
-        </div>
-      ) : null}
-
-      {emptyData ? (
-        <div
-          role="status"
-          className="rounded-md border border-border-default bg-background-surface px-4 py-3"
-        >
-          <Text variant="body-sm" tone="primary">
-            Nenhum dado de checklist no período {periodLabel}.
-          </Text>
-          <Text variant="body-sm" tone="secondary" className="mt-1">
-            Os indicadores e gráficos ficam zerados até existirem execuções ou
-            pendências registradas.
-          </Text>
-        </div>
-      ) : null}
-
-      <DashboardKpiGrid loading={loading} items={kpis ?? []} />
-
-      <ChecklistDashboardCharts stats={stats} loading={loading} />
+          }
+        />
+      ) : emptyData ? (
+        <EmptyState
+          title="Nenhum dado no período selecionado"
+          description={`Não há execuções ou pendências registradas entre ${periodLabel}. Os indicadores e gráficos aparecem assim que houver atividade no período.`}
+          illustration={
+            <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-interactive-subtle text-interactive-default">
+              <Icon name="clipboard-list" size="lg" decorative />
+            </span>
+          }
+        />
+      ) : (
+        <>
+          <DashboardKpiGrid loading={loading} items={kpis ?? []} />
+          <ChecklistDashboardCharts stats={stats} loading={loading} />
+        </>
+      )}
     </div>
   );
 }

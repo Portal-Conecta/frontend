@@ -64,7 +64,6 @@ export const MOCK_EXECUTION_OPEN = execution({
       id: "issue-mock-open",
       executionId: "exec-mock-open",
       itemKey: "quadro",
-      itemTitleSnapshot: "Quadro",
       assignedTo: "user-mock-2",
       title: "Quadro sujo",
       description: "O quadro estava com marcas de caneta permanente.",
@@ -85,7 +84,6 @@ export const MOCK_EXECUTION_IN_PROGRESS = execution({
       id: "issue-mock-in-progress",
       executionId: "exec-mock-in-progress",
       itemKey: "iluminacao",
-      itemTitleSnapshot: "Iluminação",
       assignedTo: "user-mock-2",
       title: "Lâmpada queimada",
       description: "3 lâmpadas queimadas no fundo da sala.",
@@ -104,7 +102,6 @@ export const MOCK_EXECUTION_RESOLVED = execution({
       id: "issue-mock-resolved",
       executionId: "exec-mock-resolved",
       itemKey: "internet",
-      itemTitleSnapshot: "Rede/Internet",
       assignedTo: "user-mock-2",
       title: "Computadores sem rede",
       description:
@@ -126,7 +123,6 @@ export const MOCK_EXECUTION_REOPENED = execution({
       id: "issue-mock-reopened",
       executionId: "exec-mock-reopened",
       itemKey: "cadeiras",
-      itemTitleSnapshot: "Mobiliário",
       assignedTo: "user-mock-2",
       title: "Cadeiras quebradas",
       description:
@@ -158,9 +154,20 @@ export const MOCK_SUBMISSIONS: ChecklistExecutionResponse[] = [
   MOCK_EXECUTION_COMPLIANT,
 ];
 
+/** Título do item por chave — a issue não guarda mais isso, só o `itemKey`. */
+const MOCK_ITEM_TITLES: Record<string, string> = {
+  quadro: "Quadro",
+  iluminacao: "Iluminação",
+  internet: "Rede/Internet",
+  cadeiras: "Mobiliário",
+};
+
 export const MOCK_NON_CONFORMITIES: NonConformityItem[] =
   MOCK_SUBMISSIONS.flatMap((execution) =>
-    execution.issues.map((issue) => ({ issue, execution })),
+    execution.issues.map((issue) => {
+      const itemTitle = MOCK_ITEM_TITLES[issue.itemKey];
+      return { issue, execution, ...(itemTitle ? { itemTitle } : {}) };
+    }),
   );
 
 /** Itens da tela de detalhe do envio (`/checklist/nao-conformidades/envios/[id]`) — mesma lista pra qualquer execução mockada. */
