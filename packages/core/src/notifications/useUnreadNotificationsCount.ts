@@ -15,8 +15,8 @@ import { leftNotifications } from './notificationsNav'
  *
  * Revalidação:
  * 1. Retorno de foco (`focus`/`visibilitychange`) — cobre alt-tab / voltar à aba.
- * 2. **Saída de `/notifications`** — a página marca as notificações como lidas ao
- *    abrir (`MarkPageAsRead`), mas como o shell não remonta mais por navegação,
+ * 2. **Saída de `/notifications`** — o usuário marca notificações como lidas ao
+ *    clicar nelas na página, mas como o shell não remonta mais por navegação,
  *    nada limpava o dot ao sair da tela na mesma aba. Rebusca só na transição de
  *    saída (`leftNotifications`), não a cada navegação.
  *
