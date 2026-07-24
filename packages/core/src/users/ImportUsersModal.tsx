@@ -99,7 +99,12 @@ export function ImportUsersModal({ open, onClose }: ImportUsersModalProps) {
 
   const previewed = result !== null && result.dryRun
   const imported = result !== null && !result.dryRun
-  const hasErrors = result ? result.rows.some((row) => row.status === 'ERROR') : false
+  // Em dryRun o backend não persiste nada, então `created`/`skipped` vêm zerados — a contagem
+  // da prévia precisa vir das linhas (`row.status`), não dos totais do topo da resposta.
+  const errorRows = result ? result.rows.filter((row) => row.status === 'ERROR').length : 0
+  const validRows = result ? result.rows.filter((row) => row.status === 'CREATED').length : 0
+  const skippedRows = result ? result.rows.filter((row) => row.status === 'SKIPPED').length : 0
+  const hasErrors = errorRows > 0
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -156,8 +161,8 @@ export function ImportUsersModal({ open, onClose }: ImportUsersModalProps) {
           <div className="flex flex-col gap-3">
             <Banner variant={hasErrors ? 'error' : 'info'}>
               {previewed
-                ? `Prévia: ${result.created} linha(s) válida(s), ${result.skipped} ignorada(s), ${result.rows.filter((r) => r.status === 'ERROR').length} com erro.`
-                : `Importação concluída: ${result.created} criado(s), ${result.skipped} ignorado(s), ${result.rows.filter((r) => r.status === 'ERROR').length} com erro.`}
+                ? `Prévia: ${validRows} linha(s) válida(s), ${skippedRows} ignorada(s), ${errorRows} com erro.`
+                : `Importação concluída: ${result.created} criado(s), ${result.skipped} ignorado(s), ${errorRows} com erro.`}
             </Banner>
 
             <div className="flex max-h-64 flex-col gap-1 overflow-y-auto rounded-md border-sm border-border-default p-2">
@@ -201,7 +206,7 @@ export function ImportUsersModal({ open, onClose }: ImportUsersModalProps) {
             <Button
               className="flex-1"
               tone="brand"
-              disabled={loading || result.created === 0}
+              disabled={loading || validRows === 0}
               loading={loading}
               onClick={() => void handleConfirm()}
             >
