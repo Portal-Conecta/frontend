@@ -16,10 +16,9 @@ function isNotificationsPath(path: string | null): boolean {
 /**
  * `true` quando a navegação **saiu** da tela de notificações (estava em
  * `/notifications`, foi para outra rota). É o gatilho para rebuscar a contagem:
- * a página marca as notificações como lidas ao abrir (`MarkPageAsRead`), mas
- * desde a #405 o shell não remonta por navegação, então nada limpava o dot ao
- * sair da tela na mesma aba. Só dispara na transição de saída — não a cada
- * navegação.
+ * o usuário marca as notificações como lidas ao clicar nelas, mas desde a #405 o
+ * shell não remonta por navegação, então nada limpava o dot ao sair da tela na
+ * mesma aba. Só dispara na transição de saída — não a cada navegação.
  */
 export function leftNotifications(prev: string | null, next: string | null): boolean {
   if (prev === next) return false

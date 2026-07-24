@@ -10,11 +10,12 @@ interface NotificationsPaginationProps {
 }
 
 /**
- * Paginação por offset da aba "Lidas".
+ * Paginação por offset das notificações — serve as abas "Lidas" e "Não Lidas".
  *
- * Não serve a aba "Não Lidas": lá a página é marcada como lida ao abrir, o conjunto
- * encolhe e o offset passa a pular itens — quem cuida daquela aba é o
- * `UnreadBatchControls`.
+ * Preserva os demais search params (`status`) e só altera `page`, então a mesma
+ * paginação navega nos dois filtros. Desde que a leitura passou a ser por clique
+ * (não mais ao abrir a tela), o conjunto de não-lidas não encolhe sozinho e o
+ * offset é estável nas duas abas.
  */
 export function NotificationsPagination({
   page,
