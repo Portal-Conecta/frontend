@@ -218,13 +218,15 @@ function ChecklistForm({
   const header = (
     <header className="py-4 md:py-6">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-        <div className="flex min-w-0 flex-1 items-start gap-1">
+        <div className="flex min-w-0 flex-1 flex-col items-start gap-2 lg:flex-row lg:gap-1">
           <Button
             variant="ghost"
             icon="chevron-left"
             aria-label="Voltar para selecionar sala"
             onClick={onBack}
-            className="shrink-0"
+            // -ml-2.5 cancela o padding esquerdo do botão icon-only (p-2.5) só no
+            // mobile, alinhando a seta à borda junto com o número da sala abaixo.
+            className="shrink-0 -ml-2.5 lg:ml-0"
           />
 
           <div className="min-w-0 flex-1">

@@ -17,6 +17,7 @@ import {
   editTemplateClient,
 } from "../services/client/templateClient";
 import type { ChecklistCategory, ChecklistSchema } from "../types/template";
+import { generateItemKey } from "../utils/generateId";
 import type { TemplateManagerItem } from "./templateManagerItem";
 
 export interface PageChecklistTemplateManagerContentProps {
@@ -111,7 +112,7 @@ export function PageChecklistTemplateManagerContent({
             title: "Geral",
             order: 1,
             items: items.map((item, index) => ({
-              key: item.key.startsWith("new-") ? crypto.randomUUID() : item.key,
+              key: item.key.startsWith("new-") ? generateItemKey() : item.key,
               title: item.title,
               answerType: item.answerType ?? "CONFORMITY",
               required: item.required ?? true,

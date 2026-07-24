@@ -61,7 +61,7 @@ export function RoomSelector({
 
       {/* 2. Apenas a lista rola */}
       <div
-        className="w-full max-w-2xl flex-1 overflow-y-auto pb-6"
+        className="w-full max-w-2xl flex-1 overflow-y-auto pb-6 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         aria-live="polite"
       >
         {filtered.length > 0 ? (
