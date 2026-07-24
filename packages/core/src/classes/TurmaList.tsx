@@ -1,10 +1,21 @@
 'use client'
 
 /**
- * TurmaList — a linha de busca + a lista de turmas (client). Recebe as turmas já
- * buscadas no servidor pela `PageTurma` e detém só o estado da **busca de texto**,
- * filtrando no cliente (`filterTurmas`) — o back não filtra. Sem resultados,
- * mostra um estado vazio.
+ * TurmaList — a linha de busca + a lista de turmas (client). SSR (`PageTurma`)
+ * entrega a primeira página; busca (debounce), filtro de curso/turno e troca de
+ * página disparam refetch em `GET /api/turmas` (`turmasClient`, #532) — o back
+ * pagina de verdade quando não há filtro ativo, ver `turmasService`.
+ *
+ * Reset de página ao mudar busca/filtro: ajuste durante o render (padrão do
+ * React pra "resetar estado quando outro muda"), não em efeito separado — um
+ * efeito próprio rodaria no mesmo commit do efeito de busca abaixo, que ainda
+ * leria o `page` antigo da closure e disparava um fetch descartado com a
+ * página errada antes do reset propagar (mesmo padrão do `PageUsuariosContent`).
+ * Guard de resposta obsoleta via `seqRef` — mesmo padrão do `TurmaMemberSearchPanel`.
+ *
+ * `courseOptions`/`shiftOptions` vêm sempre do backend (`courseOptionsFromCourses`
+ * + `HUB_SHIFT_LABELS`), não das linhas carregadas — a página atual não cobre
+ * todos os cursos/turnos existentes.
  *
  * Tipografia (`label-md`, Inter) e o botão "Gerenciar" (outlined) espelham a
  * lista de Cursos para as telas combinarem.
@@ -19,24 +30,26 @@
  * "Gerenciar" leva pro detalhe da turma (#363), ponto de entrada único: membros
  * (#364) e representantes (#365) são atalhos de dentro do detalhe.
  */
-import { useMemo, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-import { Button, Text } from '@portal/ui'
+import { Banner, Button, Pagination, Text } from '@portal/ui'
 
+import { HttpError } from '../http/errors'
 import { TurmaFiltersForm } from './TurmaFiltersForm'
 import { TurmaMobileFilters } from './TurmaMobileFilters'
 import { TurmaSearchField } from './TurmaSearchField'
-import {
-  applyTurmaFilters,
-  filterTurmas,
-  turmaFilterOptions,
-  type TurmaFilters,
-  type TurmaRow,
-} from './turmaRows'
+import type { TurmaFilters, TurmaRow } from './turmaRows'
+import { listTurmasClient } from './turmasClient'
+
+const SEARCH_DEBOUNCE_MS = 300
 
 export interface TurmaListProps {
-  turmas: TurmaRow[]
+  initialRows: TurmaRow[]
+  initialTotalElements: number
+  initialCourseOptions: string[]
+  initialShiftOptions: string[]
+  pageSize: number
 }
 
 /**
@@ -57,19 +70,79 @@ export interface TurmaListProps {
 const GRID_COLS =
   'md:grid-cols-[auto_minmax(0,24rem)_auto_1fr_auto] lg:grid-cols-[auto_minmax(0,18rem)_auto_1fr_auto] xl:grid-cols-[auto_minmax(0,28rem)_auto_1fr_auto] 2xl:grid-cols-[auto_minmax(0,36rem)_auto_1fr_auto]'
 
-export function TurmaList({ turmas }: TurmaListProps) {
+export function TurmaList({
+  initialRows,
+  initialTotalElements,
+  initialCourseOptions,
+  initialShiftOptions,
+  pageSize,
+}: TurmaListProps) {
   const router = useRouter()
+
   const [query, setQuery] = useState('')
+  const [debouncedQuery, setDebouncedQuery] = useState('')
   const [filters, setFilters] = useState<TurmaFilters>({})
+  const [page, setPage] = useState(1)
 
-  // Opções derivadas da lista completa (não da filtrada) para ficarem estáveis
-  // enquanto se filtra.
-  const { courses, shifts } = useMemo(() => turmaFilterOptions(turmas), [turmas])
+  const [rows, setRows] = useState<TurmaRow[]>(initialRows)
+  const [totalElements, setTotalElements] = useState(initialTotalElements)
+  const [courses, setCourses] = useState(initialCourseOptions)
+  const [shifts, setShifts] = useState(initialShiftOptions)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(false)
 
-  const filtered = useMemo(
-    () => filterTurmas(applyTurmaFilters(turmas, filters), query),
-    [turmas, filters, query],
-  )
+  useEffect(() => {
+    const id = setTimeout(() => setDebouncedQuery(query), SEARCH_DEBOUNCE_MS)
+    return () => clearTimeout(id)
+  }, [query])
+
+  const filterKey = `${debouncedQuery}|${filters.course ?? ''}|${filters.shift ?? ''}`
+  const [committedFilterKey, setCommittedFilterKey] = useState(filterKey)
+  if (filterKey !== committedFilterKey) {
+    setCommittedFilterKey(filterKey)
+    setPage(1)
+  }
+
+  const isFirstRun = useRef(true)
+  const seqRef = useRef(0)
+  useEffect(() => {
+    if (isFirstRun.current) {
+      isFirstRun.current = false
+      return
+    }
+
+    const seq = ++seqRef.current
+    setLoading(true)
+    setError(false)
+
+    listTurmasClient({
+      page: page - 1,
+      size: pageSize,
+      search: debouncedQuery,
+      ...(filters.course ? { course: filters.course } : {}),
+      ...(filters.shift ? { shift: filters.shift } : {}),
+    })
+      .then((result) => {
+        if (seq !== seqRef.current) return
+        setRows(result.rows)
+        setTotalElements(result.totalElements)
+        setCourses(result.courseOptions)
+        setShifts(result.shiftOptions)
+      })
+      .catch((err) => {
+        if (seq !== seqRef.current) return
+        if (err instanceof HttpError && err.kind === 'unauthorized') {
+          router.replace('/login')
+          return
+        }
+        setError(true)
+        setRows([])
+      })
+      .finally(() => {
+        if (seq !== seqRef.current) return
+        setLoading(false)
+      })
+  }, [debouncedQuery, filters, page, pageSize, router])
 
   const openTurma = (turma: TurmaRow) => router.push(`/turmas/${encodeURIComponent(turma.id)}`)
 
@@ -90,8 +163,13 @@ export function TurmaList({ turmas }: TurmaListProps) {
 
       {/* Mobile: filtro num sheet à parte. Desktop (lg): lista 2fr | filtro 1fr. */}
       <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[2fr_1fr] lg:items-start lg:gap-8">
-        <div className="min-w-0">
-          {filtered.length === 0 ? (
+        <div className="min-w-0" aria-busy={loading}>
+          {error ? (
+            // Mesmo texto e componente da falha de SSR (`PageTurma`) — um só
+            // tratamento visual pra esse estado, esteja a falha na carga
+            // inicial ou num refetch (busca/filtro/paginação).
+            <Banner variant="error">Não foi possível carregar as turmas.</Banner>
+          ) : rows.length === 0 ? (
             <div className="py-14 text-center">
               <Text as="p" variant="body-md" tone="secondary">
                 Nenhuma turma encontrada.
@@ -101,7 +179,7 @@ export function TurmaList({ turmas }: TurmaListProps) {
             <>
               {/* Mobile: cards empilhados, cada linha tocável. */}
               <ul className="flex flex-col md:hidden">
-                {filtered.map((turma) => (
+                {rows.map((turma) => (
                   <li key={turma.id}>
                     <TurmaMobileRow turma={turma} onManage={openTurma} />
                   </li>
@@ -110,12 +188,24 @@ export function TurmaList({ turmas }: TurmaListProps) {
 
               {/* Desktop: grid único (tabela) — colunas alinhadas entre as linhas. */}
               <ul className={`hidden bg-background-surface md:grid ${GRID_COLS}`}>
-                {filtered.map((turma) => (
+                {rows.map((turma) => (
                   <TurmaDesktopRow key={turma.id} turma={turma} onManage={openTurma} />
                 ))}
               </ul>
             </>
           )}
+
+          {!error && totalElements > pageSize ? (
+            <div className="mt-4 flex justify-end">
+              <Pagination
+                currentPage={page}
+                pageSize={pageSize}
+                totalItems={totalElements}
+                onPageChange={setPage}
+                disabled={loading}
+              />
+            </div>
+          ) : null}
         </div>
 
         <div className="hidden lg:block">

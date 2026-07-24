@@ -102,6 +102,15 @@ async function CriarTurmaContent({ accessToken }: { accessToken: string }) {
             error: error.body?.message ?? 'Não foi possível criar a turma com esses dados.',
           }
         }
+        if (error.kind === 'conflict') {
+          // Backend responde 409 quando o número já existe nesse curso (schema
+          // `CreateClassRequest`) — toast no form, não o modal genérico (ver `CreateClassForm`).
+          return {
+            success: false,
+            error: error.body?.message ?? 'Já existe uma turma com esse número neste curso.',
+            conflict: true,
+          }
+        }
       }
       console.error('Erro na criação da turma:', error)
       return { success: false }

@@ -20,7 +20,7 @@ import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 import { HUB_SHIFT, type HubShift } from '@portal/shared'
-import { Button, ConfirmDialog, Field, Input, Select, Text, type SelectOption } from '@portal/ui'
+import { Button, ConfirmDialog, Field, Input, Select, Text, useToast, type SelectOption } from '@portal/ui'
 
 import type { Course } from '../courses/types'
 import type { CreateClassPayload } from './types'
@@ -30,6 +30,12 @@ export type CreateClassSubmitResult = {
   error?: string
   /** `false` para erros permanentes (ex.: 403) — o modal não oferece "Tentar novamente". */
   retryable?: boolean
+  /**
+   * Erro de negócio específico (hoje só 409 — número já existe no curso): o
+   * formulário continua preenchido, o usuário só precisa trocar o número —
+   * mostrado como toast, não como o modal bloqueante dos demais erros.
+   */
+  conflict?: boolean
 }
 
 export interface CreateClassFormProps {
@@ -84,6 +90,7 @@ export function CreateClassFormContent({
   onSuccess,
   onCancel,
 }: CreateClassFormContentProps) {
+  const { toast } = useToast()
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null)
   const [classNumber, setClassNumber] = useState('')
   const [shift, setShift] = useState<HubShift | ''>('')
@@ -147,6 +154,14 @@ export function CreateClassFormContent({
 
       if (response.success) {
         onSuccess?.()
+        return
+      }
+
+      // Número duplicado no curso: o formulário continua preenchido, só o
+      // número precisa mudar — toast (não bloqueia) em vez do modal genérico.
+      if (response.conflict) {
+        toast.error(response.error ?? 'Já existe uma turma com esse número neste curso.')
+        setIsSubmitting(false)
         return
       }
 
