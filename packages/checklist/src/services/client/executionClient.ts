@@ -7,6 +7,22 @@ import type {
 } from "../../types/execution";
 import type { ChecklistType } from "../../types/submissionWindow";
 
+const OPERATIONAL_TIMEZONE = "America/Sao_Paulo";
+
+function dateKeyInOperationalTimezone(value: Date | string): string {
+  const date = typeof value === "string" ? new Date(value) : value;
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: OPERATIONAL_TIMEZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+  const part = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((item) => item.type === type)?.value ?? "";
+
+  return `${part("year")}-${part("month")}-${part("day")}`;
+}
+
 /** Cria rascunho via BFF (POST /api/checklist/executions/drafts). */
 export function createDraftClient(
   body: ChecklistExecutionDraftCreateRequest,
@@ -48,13 +64,15 @@ export async function findActiveExecutionClient(
   const page = await bffFetch<PageResponse<ChecklistExecutionResponse>>(
     `/api/checklist/executions?${query.toString()}`,
   );
+  const today = dateKeyInOperationalTimezone(new Date());
   const active = page.content
     .filter(
       (execution) =>
         execution.status !== "CANCELED" &&
         execution.classId === classId &&
         execution.roomId === roomId &&
-        execution.checklistType === checklistType,
+        execution.checklistType === checklistType &&
+        dateKeyInOperationalTimezone(execution.startedAt) === today,
     )
     .sort((a, b) => b.startedAt.localeCompare(a.startedAt));
   return active[0] ?? null;

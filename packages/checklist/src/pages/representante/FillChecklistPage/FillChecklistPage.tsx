@@ -147,6 +147,7 @@ function ChecklistForm({
     roomId: template.roomId,
     classId,
     checklistType,
+    isWindowOpen: isOpenNow,
   });
 
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
