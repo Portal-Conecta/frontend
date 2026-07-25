@@ -202,6 +202,7 @@ export function useFillChecklist({
   const executionRef = useRef(execution);
   const errorRef = useRef(error);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autosaveInFlightRef = useRef<Promise<void> | null>(null);
   const resolvedSlotRef = useRef<string | null>(null);
   const loadRequestRef = useRef(0);
   const isWindowOpenRef = useRef(isWindowOpen);
@@ -356,14 +357,20 @@ export function useFillChecklist({
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       setIsSaving(true);
-      saveDraftAnswersClient(current.id, {
+      const request = saveDraftAnswersClient(current.id, {
         answers: toAnswerRequestList(answersRef.current),
       })
         .then((updated) => setExecution(updated))
         .catch(() => {
           // autosave falha silenciosamente — a próxima edição tenta salvar de novo.
         })
-        .finally(() => setIsSaving(false));
+        .finally(() => {
+          setIsSaving(false);
+          if (autosaveInFlightRef.current === request) {
+            autosaveInFlightRef.current = null;
+          }
+        });
+      autosaveInFlightRef.current = request;
     }, AUTOSAVE_DEBOUNCE_MS);
   }, []);
 
@@ -406,6 +413,11 @@ export function useFillChecklist({
     }
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
+    // O timer pode já ter disparado (PATCH de autosave em voo) mesmo com o
+    // clearTimeout acima — esperar ele terminar evita que as duas escritas
+    // corram em paralelo e o submit perca a checagem de versão otimista
+    // (409 "registro alterado por outro usuário", sendo o autosave o outro).
+    if (autosaveInFlightRef.current) await autosaveInFlightRef.current;
     setIsSubmitting(true);
     try {
       const body = { answers: toAnswerRequestList(answersRef.current) };
