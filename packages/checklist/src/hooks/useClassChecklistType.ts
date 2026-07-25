@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 
 import { listSubmissionWindowsByClassClient } from "../services/client/submissionWindowClient";
 import { findOpenChecklistType, resolveChecklistType } from "../utils/submissionWindow";
-import type { ChecklistType } from "../types/submissionWindow";
+import type { SubmissionWindowResponse } from "../types/submissionWindow";
+
+const WINDOW_CLOCK_REFRESH_MS = 1_000;
 
 /**
  * Resolve o tipo de checklist (Entrada/Pós-Intervalo) da turma a partir das
@@ -19,24 +21,20 @@ import type { ChecklistType } from "../types/submissionWindow";
  * estado neutro, sem `loading`.
  */
 export function useClassChecklistType(classId: string | null) {
-  const [checklistType, setChecklistType] = useState<ChecklistType | null>(
-    null,
-  );
-  const [hasWindow, setHasWindow] = useState(false);
-  const [isOpenNow, setIsOpenNow] = useState(false);
+  const [windows, setWindows] = useState<SubmissionWindowResponse[]>([]);
+  const [now, setNow] = useState(() => new Date());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
     if (!classId) {
-      setChecklistType(null);
-      setHasWindow(false);
-      setIsOpenNow(false);
+      setWindows([]);
       setError("");
       return;
     }
 
     let cancelled = false;
+    setWindows([]);
 
     async function load() {
       setLoading(true);
@@ -44,9 +42,8 @@ export function useClassChecklistType(classId: string | null) {
       try {
         const windows = await listSubmissionWindowsByClassClient(classId!);
         if (cancelled) return;
-        setHasWindow(windows.length > 0);
-        setChecklistType(resolveChecklistType(windows));
-        setIsOpenNow(findOpenChecklistType(windows) !== null);
+        setWindows(windows);
+        setNow(new Date());
       } catch {
         if (!cancelled)
           setError("Não foi possível carregar a janela de preenchimento.");
@@ -61,5 +58,30 @@ export function useClassChecklistType(classId: string | null) {
     };
   }, [classId]);
 
-  return { checklistType, hasWindow, isOpenNow, loading, error };
+  useEffect(() => {
+    if (!classId) return;
+
+    const refreshClock = () => setNow(new Date());
+    const intervalId = window.setInterval(
+      refreshClock,
+      WINDOW_CLOCK_REFRESH_MS,
+    );
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible") refreshClock();
+    };
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      window.clearInterval(intervalId);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, [classId]);
+
+  return {
+    checklistType: resolveChecklistType(windows, now),
+    hasWindow: windows.length > 0,
+    isOpenNow: findOpenChecklistType(windows, now) !== null,
+    loading,
+    error,
+  };
 }
