@@ -11,7 +11,10 @@ import { ChecklistProgressBar } from "../../../components/ChecklistProgressBar";
 import { ChecklistWindowClosedState } from "../../../components/ChecklistWindowClosedState";
 import { SuccessModal } from "../../../components/SuccessModal";
 import { useClassChecklistType } from "../../../hooks/useClassChecklistType";
-import { useFillChecklist } from "../../../hooks/useFillChecklist";
+import {
+  useFillChecklist,
+  WINDOW_CLOSED_ERROR_MESSAGE,
+} from "../../../hooks/useFillChecklist";
 import { useSelectableClasses } from "../../../hooks/useSelectableClasses";
 import type { ClassSelection } from "../../../services/resolveClassSelection";
 import type {
@@ -60,8 +63,9 @@ export interface FillChecklistPageProps {
  * horário bloqueia o preenchimento assim que a turma é escolhida (não é só
  * no envio) — turma sem janela configurada ou fora do horário configurado
  * mostra o estado "Fora da janela de envio" em vez dos itens. O backend
- * valida de novo no envio (fonte da verdade); o modal de erro cobre só a
- * corrida entre o cliente carregar a janela e o horário virar.
+ * valida de novo no envio (fonte da verdade); se a janela fechar bem entre o
+ * clique e o envio, a tela troca sozinha pro estado "Fora da janela de envio"
+ * em vez de mostrar um modal de erro.
  */
 export function FillChecklistPage({
   template,
@@ -200,6 +204,13 @@ function ChecklistForm({
         }
       }
     } catch (err) {
+      // Janela fechou entre o clique e o envio: a tela já recalcula
+      // `isSubmissionUnavailable` e mostra "Fora da janela de envio" sozinha,
+      // então não empilha um modal de erro em cima disso.
+      if (err instanceof Error && err.message === WINDOW_CLOSED_ERROR_MESSAGE) {
+        return;
+      }
+
       const message =
         err instanceof HttpError
           ? (err.body?.message ?? messageFor(err.kind))
