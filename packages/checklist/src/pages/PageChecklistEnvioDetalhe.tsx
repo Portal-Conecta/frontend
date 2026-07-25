@@ -42,9 +42,17 @@ const CHECKLIST_TYPE_LABEL: Record<string, string> = {
   POST_BREAK: "Checklist pós-intervalo",
 };
 
+const OPERATIONAL_TIMEZONE = "America/Sao_Paulo";
+
 function formatDateTime(iso: string): string {
   const date = new Date(iso);
-  return `${date.toLocaleDateString("pt-BR")} às ${date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`;
+  const dateStr = date.toLocaleDateString("pt-BR", { timeZone: OPERATIONAL_TIMEZONE });
+  const timeStr = date.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: OPERATIONAL_TIMEZONE,
+  });
+  return `${dateStr} às ${timeStr}`;
 }
 
 export interface PageChecklistEnvioDetalheProps {
