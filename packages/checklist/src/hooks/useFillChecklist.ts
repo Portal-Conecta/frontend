@@ -24,6 +24,9 @@ import type { IssueStatus } from "../types/issue";
 const AUTOSAVE_DEBOUNCE_MS = 1000;
 const DRAFT_DEDUPE_TTL_MS = 3000;
 
+/** Lançada por `submit()` quando a janela fecha entre o clique e o envio. */
+export const WINDOW_CLOSED_ERROR_MESSAGE = "A janela de envio foi encerrada.";
+
 /**
  * Retoma a execução ativa do slot (turma+sala+tipo) ou cria um rascunho novo.
  * Retomar é o que faz o autosave valer a pena: sair e voltar carrega o que já
@@ -391,7 +394,7 @@ export function useFillChecklist({
 
   const submit = useCallback(async () => {
     if (!isWindowOpenRef.current) {
-      throw new Error("A janela de envio foi encerrada.");
+      throw new Error(WINDOW_CLOSED_ERROR_MESSAGE);
     }
 
     const current = executionRef.current;
