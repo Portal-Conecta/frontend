@@ -9,14 +9,13 @@ import {
 } from '../../src/components/dashboard/charts/taxaConclusao'
 
 describe('deriveDashboardKpis', () => {
-  it('deriva 4 KPIs a partir do payload do dashboard (ratePercent)', () => {
+  it('deriva 3 KPIs a partir do payload do dashboard (ratePercent)', () => {
     const kpis = deriveDashboardKpis(MOCK_DASHBOARD_STATS)
-    expect(kpis).toHaveLength(4)
+    expect(kpis).toHaveLength(3)
     expect(kpis.map((k) => k.id)).toEqual([
       'taxa-conclusao',
       'execucoes',
       'pendencias',
-      'prioridade-alta',
     ])
     // ratePercent 77.8 do mock
     expect(kpis[0]!.value).toBe('77,8%')
@@ -26,8 +25,6 @@ describe('deriveDashboardKpis', () => {
     expect(kpis[1]!.value).toBe('59')
     // issues: 15+8+21+3
     expect(kpis[2]!.value).toBe('47')
-    // HIGH: 9
-    expect(kpis[3]!.value).toBe('9')
   })
 
   it('usa ratePercent 0 com total 0 (payload vazio real)', () => {

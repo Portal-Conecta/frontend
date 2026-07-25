@@ -37,11 +37,6 @@ export function deriveDashboardKpis(stats: DashboardStats): DashboardKpiItem[] {
   const openIssues =
     findStatsValue(stats.issuesPorStatus, ["OPEN"]) +
     findStatsValue(stats.issuesPorStatus, ["IN_PROGRESS", "PROGRESS", "ANDAM"]);
-  const highPriority = findStatsValue(stats.issuesPorPrioridade, [
-    "HIGH",
-    "ALTA",
-    "CRIT",
-  ]);
 
   const taxaHint =
     taxa.total > 0
@@ -78,14 +73,6 @@ export function deriveDashboardKpis(stats: DashboardStats): DashboardKpiItem[] {
           : "Issues no recorte",
       icon: "clipboard-list",
       tone: "brand",
-    },
-    {
-      id: "prioridade-alta",
-      label: "Prioridade alta",
-      value: highPriority.toLocaleString("pt-BR"),
-      hint: "Prioridade alta no recorte",
-      icon: "triangle-alert",
-      tone: "negative",
     },
   ];
 }
