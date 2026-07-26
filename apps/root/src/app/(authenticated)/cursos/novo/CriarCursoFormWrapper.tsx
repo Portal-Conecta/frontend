@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 
 import { createCoursesClient } from '@portal/core/courses/coursesClient'
 import { HttpError } from '@portal/core/http/errors'
+import { generateId } from '@portal/shared'
 import { Banner, Button, Text } from '@portal/ui'
 
 import { CreateCourseForm } from './CreateCourseForm'
@@ -40,7 +41,7 @@ export function CriarCursoFormWrapper() {
     const duplicated = duplicateCodeError(drafts, data.code)
     if (duplicated) return duplicated
 
-    setDrafts((prev) => [...prev, { id: crypto.randomUUID(), ...data }])
+    setDrafts((prev) => [...prev, { id: generateId(), ...data }])
     setFormError('')
     return null
   }

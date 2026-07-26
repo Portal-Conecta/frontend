@@ -5,6 +5,7 @@ import { useEffect, useId, useRef, useState, type ChangeEvent, type DragEvent } 
 import { Icon } from '../../atoms/Icon'
 import { Text } from '../../atoms/Text'
 import { formatRejectionMessage, processFiles, type FileRejection } from './fileValidation'
+import { generateId } from './generateId'
 
 export type { FileRejection, FileRejectionReason } from './fileValidation'
 
@@ -140,7 +141,7 @@ export function FileUpload({
     if (accepted.length === 0) return
 
     const next = accepted.map<FileUploadItem>((file) => ({
-      id: crypto.randomUUID(),
+      id: generateId(),
       file,
       name: file.name,
       previewUrl: URL.createObjectURL(file),
