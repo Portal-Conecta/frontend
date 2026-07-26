@@ -33,34 +33,6 @@ export const DASHBOARD_CHART_INVENTORY: readonly DashboardChartSpec[] = [
     notes: "Cor por status (DRAFT/SUBMITTED/CANCELED), não por rank.",
   },
   {
-    id: "taxaConclusao",
-    title: "Taxa de conclusão",
-    kind: "doughnut",
-    dataShape: "ratio",
-    notes:
-      "Backend: submitted/total/ratePercent. UI: donut só contagens (submetidas vs restante); % no card KPI.",
-  },
-  {
-    id: "issuesPorStatus",
-    title: "Pendências por status",
-    kind: "bar",
-    dataShape: "categorical",
-  },
-  {
-    id: "issuesPorPrioridade",
-    title: "Pendências por prioridade",
-    kind: "bar",
-    dataShape: "categorical",
-    notes:
-      "Prioridade usa rampa categórica; status de feedback não vira série.",
-  },
-  {
-    id: "issuesPorDia",
-    title: "Pendências por dia",
-    kind: "line",
-    dataShape: "time-series",
-  },
-  {
     id: "performancePorTurno",
     title: "Performance por turno",
     kind: "bar",

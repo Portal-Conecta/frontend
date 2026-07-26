@@ -24,6 +24,9 @@ import type { IssueStatus } from "../types/issue";
 const AUTOSAVE_DEBOUNCE_MS = 1000;
 const DRAFT_DEDUPE_TTL_MS = 3000;
 
+/** Lançada por `submit()` quando a janela fecha entre o clique e o envio. */
+export const WINDOW_CLOSED_ERROR_MESSAGE = "A janela de envio foi encerrada.";
+
 /**
  * Retoma a execução ativa do slot (turma+sala+tipo) ou cria um rascunho novo.
  * Retomar é o que faz o autosave valer a pena: sair e voltar carrega o que já
@@ -96,6 +99,7 @@ export interface UseFillChecklistOptions {
   classId: string | null;
   /** `null` até a turma ser resolvida (depende da turma ter janela configurada). */
   checklistType: ChecklistType | null;
+  isWindowOpen: boolean;
 }
 
 function toAnswerRequestList(
@@ -181,6 +185,7 @@ export function useFillChecklist({
   roomId,
   classId,
   checklistType,
+  isWindowOpen,
 }: UseFillChecklistOptions) {
   const [execution, setExecution] = useState<ChecklistExecutionResponse | null>(
     null,
@@ -197,7 +202,10 @@ export function useFillChecklist({
   const executionRef = useRef(execution);
   const errorRef = useRef(error);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const resolvedClassIdRef = useRef<string | null>(null);
+  const autosaveInFlightRef = useRef<Promise<void> | null>(null);
+  const resolvedSlotRef = useRef<string | null>(null);
+  const loadRequestRef = useRef(0);
+  const isWindowOpenRef = useRef(isWindowOpen);
   const mountedRef = useRef(true);
 
   useEffect(() => {
@@ -213,6 +221,10 @@ export function useFillChecklist({
   }, [error]);
 
   useEffect(() => {
+    isWindowOpenRef.current = isWindowOpen;
+  }, [isWindowOpen]);
+
+  useEffect(() => {
     mountedRef.current = true;
     return () => {
       mountedRef.current = false;
@@ -220,12 +232,45 @@ export function useFillChecklist({
   }, []);
 
   useEffect(() => {
-    if (!classId || !checklistType) return;
-    if (resolvedClassIdRef.current === classId) return;
+    const clearPendingAutosave = () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+        debounceRef.current = null;
+      }
+    };
 
-    const isFirstResolution = resolvedClassIdRef.current === null;
+    if (!classId || !checklistType) {
+      loadRequestRef.current += 1;
+      resolvedSlotRef.current = null;
+      clearPendingAutosave();
+      if (executionRef.current) setAnswers({});
+      setExecution(null);
+      return;
+    }
+
+    if (!isWindowOpen) {
+      loadRequestRef.current += 1;
+      resolvedSlotRef.current = null;
+      clearPendingAutosave();
+      setExecution(null);
+      setAnswers({});
+      setLoading(false);
+      setIsSaving(false);
+      return;
+    }
+
+    const slotKey = `${classId}|${roomId}|${checklistType}|${templateId}`;
+    if (resolvedSlotRef.current === slotKey) return;
+
+    const isFirstResolution = resolvedSlotRef.current === null;
     const localAnswersSnapshot = answersRef.current;
-    resolvedClassIdRef.current = classId;
+    resolvedSlotRef.current = slotKey;
+    const requestId = ++loadRequestRef.current;
+
+    if (!isFirstResolution) {
+      setExecution(null);
+      setAnswers({});
+    }
 
     async function load() {
       setLoading(true);
@@ -237,7 +282,7 @@ export function useFillChecklist({
           classId: classId!,
           checklistType: checklistType!,
         });
-        if (!mountedRef.current) return;
+        if (!mountedRef.current || loadRequestRef.current !== requestId) return;
 
         const loadFromServer = () => {
           setExecution(data);
@@ -265,7 +310,8 @@ export function useFillChecklist({
               data.status === "SUBMITTED"
                 ? await updateExecutionAnswersClient(data.id, answerBody)
                 : await saveDraftAnswersClient(data.id, answerBody);
-            if (!mountedRef.current) return;
+            if (!mountedRef.current || loadRequestRef.current !== requestId)
+              return;
             setExecution(updated);
             setAnswers(mergedAnswers);
           } catch (err) {
@@ -273,7 +319,8 @@ export function useFillChecklist({
             // estado real da execução retomada (ex.: item travado por
             // pendência aberta) — carrega o que já está salvo em vez de
             // deixar a tela sem execução resolvida, e avisa o motivo.
-            if (!mountedRef.current) return;
+            if (!mountedRef.current || loadRequestRef.current !== requestId)
+              return;
             loadFromServer();
             setError(
               err instanceof HttpError && err.body?.message
@@ -285,15 +332,16 @@ export function useFillChecklist({
           loadFromServer();
         }
       } catch {
-        if (mountedRef.current)
+        if (mountedRef.current && loadRequestRef.current === requestId)
           setError("Não foi possível carregar o checklist. Tente novamente.");
       } finally {
-        if (mountedRef.current) setLoading(false);
+        if (mountedRef.current && loadRequestRef.current === requestId)
+          setLoading(false);
       }
     }
 
     void load();
-  }, [classId, checklistType, templateId, roomId]);
+  }, [classId, checklistType, isWindowOpen, templateId, roomId]);
 
   useEffect(() => {
     return () => {
@@ -303,19 +351,26 @@ export function useFillChecklist({
 
   const scheduleAutosave = useCallback(() => {
     const current = executionRef.current;
-    if (!current || current.status !== "DRAFT") return;
+    if (!isWindowOpenRef.current || !current || current.status !== "DRAFT")
+      return;
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       setIsSaving(true);
-      saveDraftAnswersClient(current.id, {
+      const request = saveDraftAnswersClient(current.id, {
         answers: toAnswerRequestList(answersRef.current),
       })
         .then((updated) => setExecution(updated))
         .catch(() => {
           // autosave falha silenciosamente — a próxima edição tenta salvar de novo.
         })
-        .finally(() => setIsSaving(false));
+        .finally(() => {
+          setIsSaving(false);
+          if (autosaveInFlightRef.current === request) {
+            autosaveInFlightRef.current = null;
+          }
+        });
+      autosaveInFlightRef.current = request;
     }, AUTOSAVE_DEBOUNCE_MS);
   }, []);
 
@@ -325,6 +380,8 @@ export function useFillChecklist({
       value: ConformityAnswerValue | null,
       observation?: string,
     ) => {
+      if (classId && checklistType && !isWindowOpenRef.current) return;
+
       setAnswers((prev) => {
         if (!value) {
           const next = { ...prev };
@@ -339,10 +396,14 @@ export function useFillChecklist({
       });
       scheduleAutosave();
     },
-    [scheduleAutosave],
+    [classId, checklistType, scheduleAutosave],
   );
 
   const submit = useCallback(async () => {
+    if (!isWindowOpenRef.current) {
+      throw new Error(WINDOW_CLOSED_ERROR_MESSAGE);
+    }
+
     const current = executionRef.current;
     if (!current) {
       throw new Error(
@@ -352,6 +413,11 @@ export function useFillChecklist({
     }
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
+    // O timer pode já ter disparado (PATCH de autosave em voo) mesmo com o
+    // clearTimeout acima — esperar ele terminar evita que as duas escritas
+    // corram em paralelo e o submit perca a checagem de versão otimista
+    // (409 "registro alterado por outro usuário", sendo o autosave o outro).
+    if (autosaveInFlightRef.current) await autosaveInFlightRef.current;
     setIsSubmitting(true);
     try {
       const body = { answers: toAnswerRequestList(answersRef.current) };

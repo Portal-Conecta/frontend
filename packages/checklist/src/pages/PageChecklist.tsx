@@ -18,9 +18,20 @@ export async function PageChecklist() {
 
   const user = await getCurrentUser();
   const selection = resolveClassSelection(user);
-  const sectionTabs = canViewChecklistDashboard(user)
+  const hasDashboardAccess = canViewChecklistDashboard(user);
+  const sectionTabs = hasDashboardAccess
     ? resolveChecklistSectionTabs(user)
     : undefined;
+
+  // SENAI/WEG/ADMIN não preenchem checklist (`selection.mode === "none"`) —
+  // mandar pra "Você não tem turma vinculada" é atrito à toa pra quem só
+  // gerencia. Manda direto pro Dashboard, que é a tela de gestão de verdade
+  // pra esses perfis. Quem realmente não tem turma vinculada (representante/
+  // professor/aluno sem vínculo) não tem `checklist:dashboard` e continua
+  // vendo a mensagem — pra esses o estado "sem turma" é real, não ruído.
+  if (selection.mode === "none" && hasDashboardAccess) {
+    redirect("/checklist/dashboard");
+  }
 
   // Só a turma `fixed` é conhecida no servidor; professor/admin escolhem no
   // client, e o nome vem da própria seleção.

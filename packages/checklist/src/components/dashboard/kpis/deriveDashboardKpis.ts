@@ -22,6 +22,36 @@ function formatPct(pct: number): string {
 }
 
 /**
+ * KPI da última semana de `tendenciaConformidade` (já usada no gráfico de
+ * tendência) + variação vs a semana anterior — sem precisar de campo novo do
+ * backend. Some da lista se a série vier vazia (dashboard recém-criado, sem
+ * histórico semanal ainda).
+ */
+function complianceTrendKpi(entries: StatsEntry[]): DashboardKpiItem | null {
+  if (entries.length === 0) return null;
+
+  const latest = entries[entries.length - 1]!;
+  const previous = entries.length > 1 ? entries[entries.length - 2]! : null;
+  const delta = previous ? Math.round((latest.value - previous.value) * 10) / 10 : null;
+
+  const hint =
+    delta === null
+      ? "Sem semana anterior para comparar"
+      : delta === 0
+        ? "Igual à semana anterior"
+        : `${delta > 0 ? "+" : ""}${delta.toLocaleString("pt-BR")} pts vs semana anterior`;
+
+  return {
+    id: "conformidade-atual",
+    label: "Conformidade (última semana)",
+    value: formatPct(latest.value),
+    hint,
+    icon: "circle-check",
+    tone: delta !== null && delta < 0 ? "negative" : "positive",
+  };
+}
+
+/**
  * KPIs derivados do payload composto GET /api/checklist-stats/dashboard.
  *
  * `taxaConclusao` no backend real:
@@ -37,16 +67,13 @@ export function deriveDashboardKpis(stats: DashboardStats): DashboardKpiItem[] {
   const openIssues =
     findStatsValue(stats.issuesPorStatus, ["OPEN"]) +
     findStatsValue(stats.issuesPorStatus, ["IN_PROGRESS", "PROGRESS", "ANDAM"]);
-  const highPriority = findStatsValue(stats.issuesPorPrioridade, [
-    "HIGH",
-    "ALTA",
-    "CRIT",
-  ]);
 
   const taxaHint =
     taxa.total > 0
       ? `${taxa.submitted.toLocaleString("pt-BR")} de ${taxa.total.toLocaleString("pt-BR")} submetidas`
       : "Execuções concluídas no recorte";
+
+  const trendKpi = complianceTrendKpi(stats.tendenciaConformidade);
 
   return [
     {
@@ -79,13 +106,6 @@ export function deriveDashboardKpis(stats: DashboardStats): DashboardKpiItem[] {
       icon: "clipboard-list",
       tone: "brand",
     },
-    {
-      id: "prioridade-alta",
-      label: "Prioridade alta",
-      value: highPriority.toLocaleString("pt-BR"),
-      hint: "Prioridade alta no recorte",
-      icon: "triangle-alert",
-      tone: "negative",
-    },
+    ...(trendKpi ? [trendKpi] : []),
   ];
 }

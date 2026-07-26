@@ -11,7 +11,10 @@ import { ChecklistProgressBar } from "../../../components/ChecklistProgressBar";
 import { ChecklistWindowClosedState } from "../../../components/ChecklistWindowClosedState";
 import { SuccessModal } from "../../../components/SuccessModal";
 import { useClassChecklistType } from "../../../hooks/useClassChecklistType";
-import { useFillChecklist } from "../../../hooks/useFillChecklist";
+import {
+  useFillChecklist,
+  WINDOW_CLOSED_ERROR_MESSAGE,
+} from "../../../hooks/useFillChecklist";
 import { useSelectableClasses } from "../../../hooks/useSelectableClasses";
 import type { ClassSelection } from "../../../services/resolveClassSelection";
 import type {
@@ -57,8 +60,12 @@ export interface FillChecklistPageProps {
  * pro representante) só é obrigatória de fato no envio. Enquanto não
  * escolhida, as respostas ficam só na tela; ao escolher, elas são enviadas
  * pro rascunho da turma e o autosave assume a partir daí. A janela de
- * horário só é cobrada no envio: se estiver fechada, o backend recusa e a
- * tela mostra o erro num modal.
+ * horário bloqueia o preenchimento assim que a turma é escolhida (não é só
+ * no envio) — turma sem janela configurada ou fora do horário configurado
+ * mostra o estado "Fora da janela de envio" em vez dos itens. O backend
+ * valida de novo no envio (fonte da verdade); se a janela fechar bem entre o
+ * clique e o envio, a tela troca sozinha pro estado "Fora da janela de envio"
+ * em vez de mostrar um modal de erro.
  */
 export function FillChecklistPage({
   template,
@@ -127,6 +134,7 @@ function ChecklistForm({
   const {
     checklistType,
     hasWindow,
+    isOpenNow,
     loading: loadingType,
   } = useClassChecklistType(classId);
   const {
@@ -143,6 +151,7 @@ function ChecklistForm({
     roomId: template.roomId,
     classId,
     checklistType,
+    isWindowOpen: isOpenNow,
   });
 
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -174,7 +183,7 @@ function ChecklistForm({
     ? CHECKLIST_TYPE_LABEL[checklistType]
     : CHECKLIST_TYPE_LABEL.ARRIVAL;
   const isSubmissionUnavailable = Boolean(
-    classId && !loadingType && (!hasWindow || !checklistType),
+    classId && !loadingType && (!hasWindow || !checklistType || !isOpenNow),
   );
 
   const handleSubmit = async () => {
@@ -195,6 +204,13 @@ function ChecklistForm({
         }
       }
     } catch (err) {
+      // Janela fechou entre o clique e o envio: a tela já recalcula
+      // `isSubmissionUnavailable` e mostra "Fora da janela de envio" sozinha,
+      // então não empilha um modal de erro em cima disso.
+      if (err instanceof Error && err.message === WINDOW_CLOSED_ERROR_MESSAGE) {
+        return;
+      }
+
       const message =
         err instanceof HttpError
           ? (err.body?.message ?? messageFor(err.kind))
@@ -278,7 +294,9 @@ function ChecklistForm({
     </div>
   );
 
-  // Turma escolhida mas sem janela de preenchimento configurada: bloqueia.
+  // Turma escolhida mas sem janela configurada, ou fora do horário da janela
+  // configurada: bloqueia — não deixa preencher uma checklist que o backend
+  // vai recusar no envio.
   if (isSubmissionUnavailable) {
     return (
       <>
@@ -287,8 +305,8 @@ function ChecklistForm({
           {classSelection}
           <div className="flex flex-1 items-center justify-center py-6">
             <ChecklistWindowClosedState
-              title="Checklist não disponível"
-              description="Esta turma ainda não possui uma janela de horário configurada para este checklist."
+              title="Fora da janela de envio"
+              description="Esta turma não tem um horário de envio liberado para este checklist no momento."
               {...(isClassSelectionFixed
                 ? {
                     action: (

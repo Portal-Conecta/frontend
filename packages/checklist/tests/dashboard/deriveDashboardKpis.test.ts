@@ -16,7 +16,7 @@ describe('deriveDashboardKpis', () => {
       'taxa-conclusao',
       'execucoes',
       'pendencias',
-      'prioridade-alta',
+      'conformidade-atual',
     ])
     // ratePercent 77.8 do mock
     expect(kpis[0]!.value).toBe('77,8%')
@@ -26,8 +26,17 @@ describe('deriveDashboardKpis', () => {
     expect(kpis[1]!.value).toBe('59')
     // issues: 15+8+21+3
     expect(kpis[2]!.value).toBe('47')
-    // HIGH: 9
-    expect(kpis[3]!.value).toBe('9')
+    // última semana da tendência (91) vs anterior (88.2) = +2,8
+    expect(kpis[3]!.value).toBe('91%')
+    expect(kpis[3]!.hint).toBe('+2,8 pts vs semana anterior')
+  })
+
+  it('não inclui KPI de conformidade quando a tendência vem vazia', () => {
+    const kpis = deriveDashboardKpis({
+      ...MOCK_DASHBOARD_STATS,
+      tendenciaConformidade: [],
+    })
+    expect(kpis.map((k) => k.id)).not.toContain('conformidade-atual')
   })
 
   it('usa ratePercent 0 com total 0 (payload vazio real)', () => {

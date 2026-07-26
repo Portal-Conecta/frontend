@@ -58,6 +58,7 @@ const execution: ChecklistExecutionResponse = {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  vi.useRealTimers();
 });
 
 describe("createDraftClient", () => {
@@ -113,11 +114,14 @@ describe("findExecutionByIdClient", () => {
 
 describe("findActiveExecutionClient", () => {
   it("ignora execuções de outro slot quando a API devolve resultados sem filtrar", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-02-01T12:00:00-03:00"));
+
     const fetchMock = stubFetch();
     const matching = {
       ...execution,
       id: "matching",
-      startedAt: "2026-02-01T00:00:00.000Z",
+      startedAt: "2026-02-01T15:00:00.000Z",
     };
     const wrongType = {
       ...execution,
@@ -131,10 +135,15 @@ describe("findActiveExecutionClient", () => {
       roomId: "r2",
       startedAt: "2026-04-01T00:00:00.000Z",
     };
+    const previousDay = {
+      ...execution,
+      id: "previous-day",
+      startedAt: "2026-01-31T15:00:00.000Z",
+    };
     fetchMock.mockResolvedValue(
       response(200, {
-        content: [wrongType, wrongRoom, matching],
-        totalElements: 3,
+        content: [wrongType, wrongRoom, previousDay, matching],
+        totalElements: 4,
         totalPages: 1,
         number: 0,
         size: 50,

@@ -63,6 +63,8 @@ export type Permission =
   | 'checklist:gerenciar'
   /** Dashboard gerencial de checklist — gestão SENAI / WEG (e ADMIN). */
   | 'checklist:dashboard'
+  /** Configurar janela de envio (horário + duração por turma/tipo) — mesma allow-list do backend (`canManageChecklistTemplates`), sem TEACHER. */
+  | 'checklist:janelas'
   | 'usuarios:listar'
   | 'usuarios:gerenciar'
   | 'salas:gerenciar'
